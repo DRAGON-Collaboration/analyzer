@@ -545,29 +545,4 @@ int TMidasEvent::SwapBytes(bool force)
   return 1;
 }
 
-#include "RTypes.h"
-bool TMidasEvent::ReadFromStream(std::istream* ifs)
-{
-  Clear();
-  // Read the event header
-  // note: it's not safe to read directly into the EventHeader_t struct
-  // since compilers have the option of adding padding between elements
-  const Int_t nShorts = 2, nInts = 3;
-  UShort_t headerShorts[nShorts];
-  UInt_t headerInts[nInts];
-  ifs->read(reinterpret_cast<char*>(headerShorts), nShorts*sizeof(UShort_t));
-  ifs->read(reinterpret_cast<char*>(headerInts), nInts*sizeof(UInt_t));
-  if(!ifs->good()) return false;
-
-  fEventHeader.fEventId      = headerShorts[0];
-  fEventHeader.fTriggerMask  = headerShorts[1];
-  fEventHeader.fSerialNumber = headerInts[0];
-  fEventHeader.fTimeStamp    = headerInts[1];
-  fEventHeader.fDataSize     = headerInts[2];
-
-  ifs->read(GetData(), GetDataSize());
-
-  return ifs->good();
-}
-
 // end

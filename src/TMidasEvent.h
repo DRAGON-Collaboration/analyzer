@@ -5,7 +5,6 @@
 #ifndef TMIDASEVENT_H
 #define TMIDASEVENT_H
 
-#include <istream>
 #include "TMidasBanks.h"
 
 ///
@@ -64,8 +63,6 @@ class TMidasEvent
 
   void SwapBytesEventHeader(); ///< convert event header between little-endian (Linux-x86) and big endian (MacOS-PPC) 
   int  SwapBytes(bool); ///< convert event data between little-endian (Linux-x86) and big endian (MacOS-PPC) 
-
-  bool ReadFromStream(std::istream* ifs); ///< read data from a stream
 
 protected:
 
