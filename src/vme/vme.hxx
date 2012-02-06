@@ -12,7 +12,6 @@
 namespace vme {
 
   //! \brief Generic VME module
-  //! \details Base VME module class (etc.) \todo write description
   class Module {
   public:
 
@@ -118,7 +117,7 @@ namespace vme {
     //! \details Implements virtual functions inherited from vme::Module.
     //! Implementations are valid for both CAEN v792 QDC and CAEN v785 TDC.
     //! Other CAEN ADC modules haven't been checked. If needed, they could inherit
-    //! from this one since unpack_buffer() is made virtual.
+    //! from this one since unpack_buffer() is still virtual.
     class Adc : public Module {
     public:
       //! Constructor.
