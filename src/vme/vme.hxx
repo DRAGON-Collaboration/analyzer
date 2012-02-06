@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <string>
 #include <map>
+#include <vector>
 #include "TMidasEvent.h"
 
 //! Encloses all VME related classes
@@ -18,36 +19,15 @@ namespace vme {
     //! "Empty" code used when no data is present in a channel.
     static int16_t NONE;
 
-    //! \brief Module identification.
-    //! \details Consists of Midas bank identifier (a string) and module number.
-    //! \todo Is the number necessary? I think that each module is given a unique
-    //! bank name in general. If the number isn't needed, it's better to just use
-    //! the name (much simpler).
-    struct Id {
-      //! Midas bank name
-      std::string bank;
-      //! Module number
-      int16_t number;
-      //! \brief Id comparison class
-      //! \details Operator returns true if lhs is less than rhs.
-      //! First checks name, then module
-      struct Compare {
-	inline bool operator() (const Id& lhs, const Id& rhs);
-      };
-      //! Constructor, set bank and number
-      Id(const std::string& bank_, int16_t number_) : bank(bank_), number(number_) { };
-      //! Copy constructor, set bank and number from other module
-      Id(const Id& other) : bank(other.bank), number(other.number) { };
-    };
-
-    typedef std::map<Id, Module*, Id::Compare> Map;
+    //! Map of bank name to Module*
+    typedef std::map<std::string, Module*> Map;
 
   protected:
     //! Maps Address to a self pointer for all instances of Module and its derivitives.
     static Map all;
 
-    //! Module address
-    Id id;
+    //! MIDAS bank name.
+    std::string bank;
 
     //! Total number of channels in the module.
     int16_t max_ch;
@@ -58,6 +38,9 @@ namespace vme {
     //! Array of data words
     int16_t* data;
 
+    //! Event counter
+    int32_t count;
+
     //! Is any channel under threshold?
     bool underflow;
 
@@ -65,13 +48,21 @@ namespace vme {
     bool overflow;
 
   public:
+    //! Was memory allocated in the constructor?
+    const bool self_allocated;
+
     //! Constructor
     //! Set the module address, number of channels, reset data, add to map of all modules.
     //! Allocate memory to the data array.
-    Module(uint16_t num_channels, const std::string& bank_, int16_t number_);
+    Module(const char* bank_name, uint16_t num_channels);
+
+    //! Constructor
+    //! Set the module address, number of channels, reset data, add to map of all modules.
+    //! Use externally allocated data arrray.
+    Module(const char* bank_name, uint16_t num_channels, int16_t* data_);
 
     //! Destructor
-    //! Remove from map of all modules, deallocate data array memory.
+    //! Remove from map of all modules, deallocate data array memory (if allocated in the constructor).
     virtual ~Module();
 
     //! Reset averything to it's default value.
@@ -87,17 +78,23 @@ namespace vme {
     //! Return number of channels present in a given event.
     int16_t n_channels() { return n_ch; }
 
+    //! Return event counter
+    int32_t event_count() { return count; }
+
     //! Return data value for a single channel
     int16_t get_data(int channel);
+
+    //! Copy data into another array
+    void copy_data(int16_t* destination);
 
     //! \brief Unpack an output buffer.
     //! \details Pure virtual function, must be implemented in deived classes.
     //! \returns Error code: 0 = success, 1 = error
     virtual int unpack_buffer(void* addr) = 0;
 
-    //! Find a module from it's address.
+    //! Find a module from it's bank name.
     //! \returns NULL if not found, pointer to the module otherwise.
-    static Module* find(const std::string& bank_, int16_t number);
+    static Module* find(const char* bank_name);
 
     //! Unpack a midas event.
     //! \details Looks for every instance of vme::Module present in the
@@ -105,9 +102,12 @@ namespace vme {
     //! \returns Error code: 0 = success, 1 = error.
     static int unpack_all(const TMidasEvent& event);
 
+    //! Reset all modules.
+    static void reset_all();
+
   private:
     //! Copy constructor
-    Module(const Module& other) : id(other.id) { };
+    Module(const Module& other) : bank(other.bank), self_allocated(other.self_allocated) { };
   };
 
 
@@ -123,7 +123,10 @@ namespace vme {
     public:
       //! Constructor.
       //! \details Just call the base Module constructor.
-      Adc(uint16_t num_channels, const std::string& bank_, int16_t number_);
+      Adc(const char* bank_name, uint16_t num_channels);
+      //! Constructor.
+      //! \details Just call the base Module constructor.
+      Adc(const char* bank_name, uint16_t num_channels, int16_t* data_);
       //! Destructor.
       //! Leave empty, the base class takes care of everything.
       virtual ~Adc();
@@ -149,5 +152,14 @@ namespace vme {
     };
   }
 }
+
+
+struct Bgo {
+  vme::caen::Adc adc; //!
+  int16_t q[32];
+  int32_t evt_count;
+  Bgo() : adc("VADC", 32, q) { };
+};
+
 
 #endif
