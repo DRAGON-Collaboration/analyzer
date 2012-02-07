@@ -16,14 +16,18 @@ namespace vme {
   public:
 
     //! "Empty" code used when no data is present in a channel.
-    static int16_t NONE;
+#ifdef VME_NO_DATA
+    static const int16_t NONE = VME_NO_DATA;
+#else
+    static const int16_t NONE = -1;
+#endif
 
     //! Map of bank name to Module*
     typedef std::map<std::string, Module*> Map;
 
   protected:
     //! Maps Address to a self pointer for all instances of Module and its derivitives.
-    static Map all;
+    static Map& all() { static Map* m = new Map(); return *m; }
 
     //! MIDAS bank name.
     std::string bank;

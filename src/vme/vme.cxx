@@ -30,8 +30,8 @@ void increment_void(void*& begin, int midas_data_type)
 
 
 typedef unsigned long ulong_t;
-int16_t vme::Module::NONE = -1;
-vme::Module::Map vme::Module::all;
+// int16_t vme::Module::NONE = -1;
+// vme::Module::Map vme::Module::all;
 
 
 
@@ -40,7 +40,7 @@ vme::Module::Module(const char* bank_name, uint16_t max_channels) :
 {
   data = new int16_t[max_ch];
   this->reset();
-  all.insert(std::make_pair<std::string, Module*>(this->bank, this));
+  all().insert(std::make_pair<std::string, Module*>(this->bank, this));
 }
 
 vme::Module::Module(const char* bank_name, uint16_t max_channels, int16_t* data_) :
@@ -48,13 +48,13 @@ vme::Module::Module(const char* bank_name, uint16_t max_channels, int16_t* data_
 {
   data = data_;
   this->reset();
-  all.insert(std::make_pair<std::string, Module*>(this->bank, this));
+  all().insert(std::make_pair<std::string, Module*>(this->bank, this));
 }
 
 vme::Module::~Module()
 {
-  vme::Module::Map::iterator it = all.find(this->bank);
-  if(it != all.end()) all.erase(it);
+  vme::Module::Map::iterator it = all().find(this->bank);
+  if(it != all().end()) all().erase(it);
   if(self_allocated)
     delete[] data;
 }
@@ -86,15 +86,15 @@ void vme::Module::copy_data(int16_t* destination)
 
 vme::Module* vme::Module::find(const char* bank_name)
 {
-  vme::Module::Map::iterator it = all.find(bank_name);
-  return it != all.end() ? it->second : NULL;
+  vme::Module::Map::iterator it = all().find(bank_name);
+  return it != all().end() ? it->second : NULL;
 }
 
 
 int vme::Module::unpack_all(const TMidasEvent& event)
 {
-  Map::iterator it = all.begin();
-  while(it != all.end()) {
+  Map::iterator it = all().begin();
+  while(it != all().end()) {
     void* p_bank = NULL;
     Module* m = (*it++).second;
 
@@ -112,8 +112,8 @@ int vme::Module::unpack_all(const TMidasEvent& event)
 
 void vme::Module::reset_all()
 {
-  Map::iterator it = all.begin();
-  while(it != all.end()) {
+  Map::iterator it = all().begin();
+  while(it != all().end()) {
     Module* m = (*it++).second;
     m->reset();
   }
