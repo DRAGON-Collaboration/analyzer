@@ -31,7 +31,6 @@ void increment_void(void*& begin, int midas_data_type)
 
 typedef unsigned long ulong_t;
 // int16_t vme::Module::NONE = -1;
-// vme::Module::Map vme::Module::all;
 
 
 
@@ -40,7 +39,6 @@ vme::Module::Module(const char* bank_name, uint16_t max_channels) :
 {
   data = new int16_t[max_ch];
   this->reset();
-  all().insert(std::make_pair<std::string, Module*>(this->bank, this));
 }
 
 vme::Module::Module(const char* bank_name, uint16_t max_channels, int16_t* data_) :
@@ -48,13 +46,10 @@ vme::Module::Module(const char* bank_name, uint16_t max_channels, int16_t* data_
 {
   data = data_;
   this->reset();
-  all().insert(std::make_pair<std::string, Module*>(this->bank, this));
 }
 
 vme::Module::~Module()
 {
-  vme::Module::Map::iterator it = all().find(this->bank);
-  if(it != all().end()) all().erase(it);
   if(self_allocated)
     delete[] data;
 }
@@ -84,39 +79,19 @@ void vme::Module::copy_data(int16_t* destination)
   memcpy(reinterpret_cast<void*>(destination), reinterpret_cast<void*>(this->data), nbytes);
 }
 
-vme::Module* vme::Module::find(const char* bank_name)
+int vme::Module::unpack(const TMidasEvent& event)
 {
-  vme::Module::Map::iterator it = all().find(bank_name);
-  return it != all().end() ? it->second : NULL;
-}
+  void* p_bank = NULL;
+  int bank_len, bank_type;
+  int found = event.FindBank(bank.c_str(), &bank_len, &bank_type, &p_bank);
+  if(!found) return 1;
 
-
-int vme::Module::unpack_all(const TMidasEvent& event)
-{
-  Map::iterator it = all().begin();
-  while(it != all().end()) {
-    void* p_bank = NULL;
-    Module* m = (*it++).second;
-
-    int bank_len, bank_type;
-    int found = event.FindBank(m->bank.c_str(), &bank_len, &bank_type, &p_bank);
-    if(!found) continue;
-
-    // Loop over all buffers int the bank    
-    for(int i=0; i< bank_len; ++i) {
-      m->unpack_buffer(p_bank);
-      increment_void(p_bank, bank_type);
-    }
-  }  return 0;
-}
-
-void vme::Module::reset_all()
-{
-  Map::iterator it = all().begin();
-  while(it != all().end()) {
-    Module* m = (*it++).second;
-    m->reset();
+  // Loop over all buffers int the bank    
+  for(int i=0; i< bank_len; ++i) {
+    unpack_buffer(p_bank);
+    increment_void(p_bank, bank_type);
   }
+  return 0;
 }
 
 template <size_t N_IN, size_t N_OUT>
@@ -140,7 +115,7 @@ vme::caen::Adc::Adc(const char* bank_name, uint16_t num_channels) :
 vme::caen::Adc::Adc(const char* bank_name, uint16_t num_channels, int16_t* data_) :
   Module(bank_name, num_channels, data_) { };
 
-vme::caen::Adc::~Adc() { };
+vme::caen::Adc::~Adc() {}
 
 int vme::caen::Adc::unpack_buffer(void* addr)
 {
