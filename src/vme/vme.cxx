@@ -1,11 +1,31 @@
 //! \file vme.cxx
 //! \brief Implements vme.hxx
-#include <stdio.h>
-#include <bitset>
-#include "vme.hxx"
-#include "deb_err.h"
+#include <map>
+#include "vme2.hxx"
+#include "Error.hxx"
 
 
+namespace {
+const int DATA_BITS    = 0x0; // 0 0 0
+const int HEADER_BITS  = 0x2; // 0 1 0
+const int FOOTER_BITS  = 0x4; // 0 0 1
+const int INVALID_BITS = 0x6; // 0 1 1
+typedef void (* AdcUnpacker) (uint32_t, vme::caen::Adc<32>&);
+typedef std::map<int, AdcUnpacker> AdcUnpackerMap_t;
+
+inline bool run_adc_unpacker(int which, uint32_t data, vme::caen::Adc<32>& module)
+{
+	static AdcUnpackerMap_t unpackers;
+	if(!unpackers.size()) {
+		unpackers.insert(std::make_pair(DATA_BITS, &vme::caen::unpack_adc_data));      
+		unpackers.insert(std::make_pair(HEADER_BITS, &vme::caen::unpack_adc_header));  
+		unpackers.insert(std::make_pair(FOOTER_BITS, &vme::caen::unpack_adc_footer));  
+		unpackers.insert(std::make_pair(INVALID_BITS, &vme::caen::handle_adc_invalid));
+	}
+	if(!unpackers.count(which)) return false;
+	unpackers.find(which)->second (data, module);
+	return true;
+}
 
 void increment_void(void*& begin, int midas_data_type)
 {
@@ -23,155 +43,102 @@ void increment_void(void*& begin, int midas_data_type)
     data_sizes[10] = 8;	   // TID_DOUBLE   10   /**< 8 Byte float format                  */
   }			 
   std::map<int, int>::iterator it = data_sizes.find(midas_data_type);
-  if(it == data_sizes.end())  ERR("Unknown midas data type: %d\n", midas_data_type);
+  if(it == data_sizes.end())
+		 err::Throw("increment_void") << "Unknown midas data type: " << midas_data_type << "\n";
 
   begin = reinterpret_cast<char*>(begin) + it->second;
 }
 
+} // namespace
 
-typedef unsigned long ulong_t;
-// int16_t vme::Module::NONE = -1;
-
-
-
-vme::Module::Module(const char* bank_name, uint16_t max_channels) :
-  bank(bank_name), max_ch(max_channels), count(0), self_allocated(true)
+void vme::caen::unpack_adc_data(uint32_t data, Adc<32>& module)
 {
-  data = new int16_t[max_ch];
-  this->reset();
+	uint16_t ch = (data >> 16) & READ5;
+	if(32 < ch) {
+		std::cerr << ERR_FILE_LINE;
+		err::Throw("unpack_adc_data")
+			 << "Read a channel number (" << ch << ") which is >= the maximum (32), aborting.\n";
+	}
+	module.underflow = (data >> 13) & READ1;
+	module.overflow  = (data >> 12) & READ1;
+	module.data[ch]  = (data >>  0) & READ12;
 }
 
-vme::Module::Module(const char* bank_name, uint16_t max_channels, int16_t* data_) :
-  bank(bank_name), max_ch(max_channels), count(0), self_allocated(false)
+void vme::caen::unpack_adc_header(uint32_t data, Adc<32>& module)
 {
-  data = data_;
-  this->reset();
+	module.n_present = (data >> 6) & READ8;
 }
 
-vme::Module::~Module()
+void vme::caen::unpack_adc_footer(uint32_t data, Adc<32>& module)
 {
-  if(self_allocated)
-    delete[] data;
+	module.count = (data >> 0) & READ24;
 }
 
-void vme::Module::reset()
+void vme::caen::handle_adc_invalid(uint32_t data, Adc<32>& module)
 {
-  underflow = false;
-  overflow = false;
-  n_ch = 0;
-  for(int16_t i=0; i< max_ch; ++i)
-    data[i] = NONE;
+	std::cerr << ERR_FILE_LINE;
+	err::Throw("handle_adc_invalid")
+		 << "Read INVALID_BITS code from a CAEN ADC output buffer.\n";
 }
 
-int16_t vme::Module::get_data(int ch)
+bool vme::caen::unpack_adc_buffer(void* address, const char* bank, vme::caen::Adc<32>& module)
 {
-  int16_t ret = NONE;
-  if(this->max_ch < ch)
-    WAR("Invalid channel number: %d (maximum %d). Bank name: %s\n",
-	ch, max_ch-1, bank.c_str());
-  else ret = data[ch];
-  return ret;
+	bool success;
+	try {
+		uint32_t* data32 = reinterpret_cast<uint32_t*>(address);;
+		uint64_t type = (*data32 >> 3) & READ24;
+		success = run_adc_unpacker(type, *data32, module);
+		if(!success) {
+			std::cerr << ERR_FILE_LINE;
+			err::Throw("unpack_adc_buffer")
+				 << "Unknown CAEN ADC buffer type (bits 24, 25, 26 = "
+				 << ((*data32 >> 24) & READ1) << ", " << ((*data32 >> 25) & READ1) << ", "
+				 << ((*data32 >> 26) & READ1) << ".\n";
+		}
+	}
+	catch (std::exception& e) {
+		std::cerr << e.what() << "    MIDAS Bank name: " << bank << "\n\n";
+		success = false;
+	}
+	return success;
 }
 
-void vme::Module::copy_data(int16_t* destination)
+bool vme::caen::unpack_adc(const TMidasEvent& event, const char* bank, vme::caen::Adc<32>& module)
 {
-  int nbytes = max_ch*sizeof(int16_t);
-  memcpy(reinterpret_cast<void*>(destination), reinterpret_cast<void*>(this->data), nbytes);
-}
-
-int vme::Module::unpack(const TMidasEvent& event)
-{
-  void* p_bank = NULL;
+	void* p_bank = NULL;
   int bank_len, bank_type;
-  int found = event.FindBank(bank.c_str(), &bank_len, &bank_type, &p_bank);
-  if(!found) return 1;
+  int found = event.FindBank(bank, &bank_len, &bank_type, &p_bank);
+  if(!found) return false;
 
-  // Loop over all buffers int the bank    
+  // Loop over all buffers int the bank
+	bool ret = true;
   for(int i=0; i< bank_len; ++i) {
-    unpack_buffer(p_bank);
+    bool success = unpack_adc_buffer(p_bank, bank, module);
+		if(!success) ret = false;
     increment_void(p_bank, bank_type);
   }
-  return 0;
-}
-
-template <size_t N_IN, size_t N_OUT>
-void copy_bits(const std::bitset<N_IN>& from, std::bitset<N_OUT>& to, const uint32_t first_bit)
-{
-  for(uint32_t i=0; i< N_OUT; ++i)
-    to[i] = from[i+first_bit];
-}
-
-template <size_t N_IN, size_t N_OUT>
-ulong_t read_bits(const std::bitset<N_IN>& from, const uint32_t first_bit)
-{
-  std::bitset<N_OUT> subset(0);
-  copy_bits<N_IN, N_OUT> (from, subset, first_bit);
-  return subset.to_ulong();
-}
-
-vme::caen::Adc::Adc(const char* bank_name, uint16_t num_channels) :
-  Module(bank_name, num_channels) { };
-
-vme::caen::Adc::Adc(const char* bank_name, uint16_t num_channels, int16_t* data_) :
-  Module(bank_name, num_channels, data_) { };
-
-vme::caen::Adc::~Adc() {}
-
-int vme::caen::Adc::unpack_buffer(void* addr)
-{
-  int ret = 0;
-  uint32_t* data32 = reinterpret_cast<uint32_t*>(addr);
-  std::bitset<32> all_bits (*data32);
-  
-  ulong_t type = read_bits<32, 3> (all_bits, 24);
-  static const ulong_t DATA_BITS    = 0x0; // 0 0 0
-  static const ulong_t HEADER_BITS  = 0x2; // 0 1 0
-  static const ulong_t FOOTER_BITS  = 0x4; // 0 0 1
-  static const ulong_t INVALID_BITS = 0x6; // 0 1 1
-
-  switch(type) {
-  case DATA_BITS:
-    {
-      uint16_t ch = read_bits<32, 5> (all_bits, 16);
-      if(max_ch < ch) {
-	WAR("Read a channel number (%d) which is >= the maximum (%d), aborting. "
-	    "Bank name: %s\n", ch, max_ch, bank.c_str());
-	ret = 1;
-      }
-      this->underflow = all_bits[13];
-      this->overflow  = all_bits[12];
-      this->data[ch] = read_bits<32, 12> (all_bits,  0);
-      break;
-    }
-  case HEADER_BITS:
-    {
-      //! \note Header contains the geographic address (GEO), crate number, and
-      //!  number of channels with data. GEO and crate are unused with Midas, so
-      //!  we'll ignore them and just set the number of channels.
-      n_ch = (int16_t)read_bits<32, 6> (all_bits, 8);
-      break;
-    }
-  case FOOTER_BITS:
-    {
-      //! \note Footer contains the GEO and event counter, read the event counter only.
-      count = read_bits<32, 24> (all_bits, 0);
-      break;
-    }
-  case INVALID_BITS:
-    {
-      WAR("Invalid CAEN ADC output buffer. Bank: %s\n",
-	  bank.c_str());
-      ret = 1;
-      break;
-    }
-  default:
-    {
-      std::bitset<3> type_bits(type);
-      WAR("Unknown CAEN ADC buffer type (bits 24, 25, 26 = %i, %i, %i). Bank: %s\n",
-	  (int)type_bits[0], (int)type_bits[1], (int)type_bits[2], bank.c_str());
-      ret = 1;
-      break;
-    }
-  }
   return ret;
+}
+
+
+
+int main() {
+
+	vme::caen::V792 qdc;
+	vme::reset (qdc);
+	std::cout << qdc.data[25] << "\n";
+	qdc.data[10] = 123;
+	short data[32];
+	vme::copy_data(qdc, data);
+	std::cout << data[10] << "\n";
+
+	try {
+		vme::caen::unpack_adc_data(12, qdc);
+	}
+	catch (std::exception& e) {
+		std::cerr << e.what() << "Bank name: " << "VADC" << "\n\n";
+		
+	}
+	
+	// Bgo bgo;
 }
