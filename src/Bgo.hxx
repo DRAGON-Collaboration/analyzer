@@ -1,41 +1,35 @@
 #ifndef DRAGON_BGO_HXX
 #define DRAGON_BGO_HXX
-#include "vme/vme.hxx"
+#include <vector>
+#include "Modules.hxx"
 
 namespace dragon {
 
 /// The BGO array
 class Bgo {
-private:
-// ==== Private Data ==== //	 
-	 /// CAEN v792 qdc module from which BGO energy data is obtained
-	 vme::caen::V792 qdc; //!
-
-	 // /// CAEN v1190b tdc module from which BGO timing data is obtained
-	 // vme::caen::V1190b;   //!
-
 public:
+// ==== Const Data ==== //
+	 /// Number of channels in the BGO array
+	 const int nch;
+
 // ==== Classes ==== //	 
 	 /// Bgo variables
 	 class Variables {
+	 private:
+			/// Number of channels in the BGO array
+			const int nch;
 	 public:
       /// \brief Maps ADC channel to BGO detector
 			/// \details Example: setting ch[0] = 12, means that the 0th detector
-			/// in the BGO array reads its charge data from challel 12 of the qdc.
-			int qdc_ch[30];
+			/// in the BGO array reads its charge data from channel 12 of the qdc.
+			std::vector<int> qdc_ch;
 
       /// \brief Maps TDC channel to BGO detector
 			/// \details Similar to qdc_ch
-			int tdc_ch[30];
+			std::vector<int> tdc_ch;
 
-			/// Calibration slope
-			double slope [30];
-
-      /// Calibration offset
-			double offset[30];
-
-			/// Constructor, sets slope/offset to 1/0, *_ch[i] to i
-			Variables();
+			/// Constructor, sets nch to ch_, *_ch[i] to i
+			Variables(int nch_);
 
 			/// Destructor, nothing to do
 			~Variables() { }
@@ -46,20 +40,17 @@ public:
 	 };
 
 // ==== Data ==== //
-	 /// Instance of Bgo::Variables for calibrating class data
+	 /// Instance of Bgo::Variables for mapping digitizer ch -> bgo detector
 	 Variables variables; //!
 	 
 	 /// Event counter
 	 int32_t evt_count; //#
 
 	 /// Raw charge signals, per detector
-	 int16_t qraw[30];  //#
+	 std::vector<int16_t> q; //#
 
-   /// Raw timing signale, per detector
-	 int16_t traw[30];  //#
-
-	 /// Calibrated charge signals, per detector
-	 double  qcal[30];  //#
+   /// Raw timing signals, per detector
+	 std::vector<int16_t> t; //#
 
 // ==== Methods ==== //	 
 	 /// Constructor, initializes data values
@@ -71,11 +62,9 @@ public:
    /// Sets all data values to vme::NONE
 	 void reset();
 
-	 /// Unpack data from a midas event.
-	 void unpack(TMidasEvent& event);
-
-	 /// Calibrate raw data
-	 void calibrate();
+	 /// Read data from a midas event.
+	 /// \param modules Electronic modules structure from which the data are read
+	 void read_data(const dragon::gamma::Modules& modules);
 };
 	 
 

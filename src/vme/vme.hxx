@@ -46,6 +46,13 @@ void copy_data(const T<N>& module, int16_t* destination)
 }
 #endif
 
+// =========== Data Structures =========== //
+/// \brief IO32 FPGA
+struct IO32 {
+	 /// Timestamp value
+	 int32_t tstamp;
+};
+
 // Encloses CAEN module structs and unpacking routines
 namespace caen {
 
@@ -70,6 +77,20 @@ typedef vme::caen::Adc<32> V792;
 
 /// 32 channel peak-sensing ADC
 typedef vme::caen::Adc<32> V785;
+
+/// \brief CAEN V1190b TDC module
+struct V1190b {
+   /// Number of channels present in an event
+	 int16_t n_present;
+	 /// Array of data
+	 int16_t data[64];
+	 /// Event counter
+	 int32_t count;
+	 /// Is any channel under threshold?
+	 bool underflow;
+	 /// Is any channel an overflow?
+	 bool overflow;
+};
 
 
 // =========== Unpacking Routines =========== //

@@ -2,45 +2,35 @@
 
 // ========== Class Bgo ========== //
 
-dragon::Bgo::Bgo(): qdc(), variables(), evt_count(0)
+dragon::Bgo::Bgo():
+	nch(30), variables(nch), evt_count(0), q(nch), t(nch)
 {
 	reset();
 }	
 
 void dragon::Bgo::reset()
 {
-	for(int i=0; i< 30; ++i) {
-		qraw[i] = vme::NONE;
-		qcal[i] = vme::NONE;
-		traw[i] = vme::NONE;
+	for(int i=0; i< nch; ++i) {
+		q[i] = vme::NONE;
+		t[i] = vme::NONE;
 	}
 }
 
-void dragon::Bgo::unpack(TMidasEvent& event)
+void dragon::Bgo::read_data(const dragon::gamma::Modules& modules)
 {
 	evt_count++;
-	vme::caen::unpack_adc(event, "VADC", qdc);
-}
-
-void dragon::Bgo::calibrate()
-{
-	for(int i=0; i< 30; ++i) {
-// set bgo data from raw qdc values (mapping)
-		qraw[i] = qdc.data[variables.qdc_ch[i]];
-		traw[i] = qdc.data[variables.tdc_ch[i]];
-
-// calibrate qdc values
-		qcal[i] = qraw[i] * variables.slope[i] + variables.offset[i];
+	for(int i=0; i< nch; ++i) {
+		q[i] = modules.v792.data[ variables.qdc_ch[i] ];
+		t[i] = modules.v792.data[ variables.tdc_ch[i] ];
 	}
 }
+
 
 // ========== Class Bgo::Variables ========== //
 
-dragon::Bgo::Variables::Variables()
+dragon::Bgo::Variables::Variables(int nch_): nch(nch_)
 {
-	for(int i=0; i< 30; ++i) {
-		slope[i]  = 1.;
-		offset[i] = 0.;
+	for(int i=0; i< nch; ++i) {
 		qdc_ch[i] = i;
 		tdc_ch[i] = i;
 	}		 

@@ -2,7 +2,7 @@
 
 // ========== Class Dragon ========== //
 
-dragon::Dragon::Dragon(): bgo()
+dragon::Dragon::Dragon(): gamma_modules(), hi_modules(), bgo()
 {
 	reset();
 }
@@ -19,10 +19,12 @@ void dragon::Dragon::set_variables(const char* odb_file)
 
 void dragon::Dragon::unpack(TMidasEvent& event)
 {
-	bgo.unpack(event);
+	gamma_modules.unpack(event);
+	hi_modules.unpack(event);
+	bgo.read_data(gamma_modules);
 }
 
 void dragon::Dragon::calibrate()
 {
-	bgo.calibrate();
+	// nothing to do so far
 }
