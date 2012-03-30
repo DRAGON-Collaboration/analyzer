@@ -10,7 +10,7 @@
 #include "bits.hxx"
 #include "midas/TMidasEvent.h"
 
-//! Encloses all VME related classes
+/// Encloses all VME related classes
 namespace vme {
 
 /// "Empty" code used when no data is present in a channel.
@@ -50,7 +50,7 @@ void copy_data(const T<N>& module, int16_t* destination)
 namespace caen {
 
 // =========== Data Structures =========== //
-/// Generic ADC module (covers caen v792 or caen v785)
+/// \brief Generic ADC module (covers caen v792 or caen v785)
 /// \tparam N Number of channels in the module
 template <int N>
 struct Adc {
