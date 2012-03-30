@@ -2,7 +2,7 @@
 //! \brief Implements vme.hxx
 #include <map>
 #include "vme.hxx"
-#include "Error.hxx"
+#include "utils/Error.hxx"
 
 
 namespace {
