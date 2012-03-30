@@ -4,13 +4,11 @@
 #define  VME_HXX
 #include <stdint.h>
 #include <cstring>
-#include <stdexcept>
-#include <iostream>
 #include <string>
-#include <map>
-#include <vector>
-#include "TMidasEvent.h"
+#include <iostream>
+#include <stdexcept>
 #include "bits.hxx"
+#include "midas/TMidasEvent.h"
 
 //! Encloses all VME related classes
 namespace vme {
@@ -117,47 +115,6 @@ bool unpack_adc(const TMidasEvent& event, const char* bank, vme::caen::Adc<32>& 
 
 } // namespace caen
 } // namespace vme
-
-
-struct BgoVariables {
-	 double slope[32];
-	 double offset [32];
-	 BgoVariables()
-			{
-				for(int i=0; i<32;++i) {
-					slope[i]=1;offset[i]=0;
-				}
-			}
-};
-struct Bgo {
-	 vme::caen::V792 adc; //!
-	 int16_t qraw[32];    //#
-	 double  qcal[32];    //#
-	 int32_t evt_count;   //#
-	 BgoVariables v;      //!
-	 Bgo()
-			{
-				evt_count = 0;
-				reset();
-			}
-	 void reset()
-			{
-				for(int i=0; i< 32; ++i) {
-					qraw[i]=-1;qcal[i]=-1;
-				}
-			}
-	 void unpack(TMidasEvent& event)
-			{
-				reset();
-				vme::caen::unpack_adc(event, "VADC", adc);
-				vme::copy_data(adc, qraw);
-				evt_count++;
-				for(int i=0; i< 32; ++i) {
-					qcal[i] = qraw[i]*v.slope[i]+v.offset[i];
-				}
-			}
-	 ~Bgo() { }
-};
 
 
 

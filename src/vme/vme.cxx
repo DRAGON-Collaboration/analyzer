@@ -1,7 +1,7 @@
 //! \file vme.cxx
 //! \brief Implements vme.hxx
 #include <map>
-#include "vme2.hxx"
+#include "vme.hxx"
 #include "Error.hxx"
 
 
@@ -86,14 +86,14 @@ bool vme::caen::unpack_adc_buffer(void* address, const char* bank, vme::caen::Ad
 	bool success;
 	try {
 		uint32_t* data32 = reinterpret_cast<uint32_t*>(address);;
-		uint64_t type = (*data32 >> 3) & READ24;
+		uint64_t type = (*data32 >> 24) & READ3;
 		success = run_adc_unpacker(type, *data32, module);
 		if(!success) {
 			std::cerr << ERR_FILE_LINE;
 			err::Throw("unpack_adc_buffer")
 				 << "Unknown CAEN ADC buffer type (bits 24, 25, 26 = "
 				 << ((*data32 >> 24) & READ1) << ", " << ((*data32 >> 25) & READ1) << ", "
-				 << ((*data32 >> 26) & READ1) << ".\n";
+				 << ((*data32 >> 26) & READ1) << ").\n";
 		}
 	}
 	catch (std::exception& e) {
