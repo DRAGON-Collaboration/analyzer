@@ -3,7 +3,7 @@
 #include <map>
 #include "Adc.hxx"
 #include "vme/Vme.hxx"
-#include "utils/bits.hxx"
+#include "utils/Bits.hxx"
 #include "utils/Error.hxx"
 
 
