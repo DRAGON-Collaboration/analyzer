@@ -1,35 +1,33 @@
 #ifndef DRAGON_BGO_HXX
 #define DRAGON_BGO_HXX
-#include <vector>
 #include "Modules.hxx"
 
 namespace dragon {
+
+namespace gamma {
 
 /// The BGO array
 class Bgo {
 public:
 // ==== Const Data ==== //
 	 /// Number of channels in the BGO array
-	 const int nch;
+	 static const int nch = 30; //!
 
 // ==== Classes ==== //	 
 	 /// Bgo variables
 	 class Variables {
-	 private:
-			/// Number of channels in the BGO array
-			const int nch;
 	 public:
       /// \brief Maps ADC channel to BGO detector
 			/// \details Example: setting ch[0] = 12, means that the 0th detector
 			/// in the BGO array reads its charge data from channel 12 of the qdc.
-			std::vector<int> qdc_ch;
+			int qdc_ch[Bgo::nch];
 
       /// \brief Maps TDC channel to BGO detector
 			/// \details Similar to qdc_ch
-			std::vector<int> tdc_ch;
+			int tdc_ch[Bgo::nch];
 
-			/// Constructor, sets nch to ch_, *_ch[i] to i
-			Variables(int nch_);
+			/// Constructor, sets *_ch[i] to i
+			Variables();
 
 			/// Destructor, nothing to do
 			~Variables() { }
@@ -47,10 +45,10 @@ public:
 	 int32_t evt_count; //#
 
 	 /// Raw charge signals, per detector
-	 std::vector<int16_t> q; //#
+	 int16_t q[Bgo::nch];    //#
 
    /// Raw timing signals, per detector
-	 std::vector<int16_t> t; //#
+	 int16_t t[Bgo::nch];    //#
 
 // ==== Methods ==== //	 
 	 /// Constructor, initializes data values
@@ -67,6 +65,8 @@ public:
 	 void read_data(const dragon::gamma::Modules& modules);
 };
 	 
+
+} // namespace gamma
 
 } // namespace dragon
 

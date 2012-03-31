@@ -3,7 +3,9 @@
 ///  for each DRAGON sub-system (heavy ion and gamma).
 #ifndef DRAGON_MODULES_HXX
 #define DRAGON_MODULES_HXX
-#include "vme/vme.hxx"
+#include "vme/IO32.hxx"
+#include "vme/caen/Adc.hxx"
+#include "vme/caen/V1190.hxx"
 
 namespace dragon {
 
@@ -30,12 +32,23 @@ public:
 
    /// Unpack Midas event data into module data structures.
 	 /// \param [in] event Reference to the MidasEvent object being unpacked
-	 void unpack(const TMidasEvent& event);	 
+	 void unpack(const TMidasEvent& event);
+
+	 /// Return data from a v792 channel
+	 /// \param ch channel numner
+	 int16_t v792_data(unsigned ch) const;
+
+	 /// Return data from a v1190b channel
+	 /// \param ch channel numne
+	 int16_t v1190b_data(unsigned ch) const;
+
+	 /// Return io32 tstamp value
+	 int32_t tstamp() const;
 };
 
 } // namespace gamma
 
-namespace heavy_ion {
+namespace hion {
 
 /// Encapsulates all VME modules used to read out heavy-ion data.
 class Modules {
@@ -58,10 +71,22 @@ public:
 
 	 /// Unpack Midas event data into module data structures.
 	 /// \param [in] event Reference to the MidasEvent object being unpacked
-	 void unpack(TMidasEvent& event);	 
+	 void unpack(const TMidasEvent& event);	 
+
+	 /// Return data from a v785 channel
+	 /// \param which The ADC you want data from
+	 /// \param ch channel numner
+	 int16_t v785_data(unsigned which, unsigned ch) const;
+
+	 /// Return data from a v1190b channel
+	 /// \param ch channel numner
+	 int16_t v1190b_data(unsigned ch) const;
+
+	 /// Return io32 tstamp value
+	 int32_t tstamp() const;
 };
 
-} // namespace heavy_ion
+} // namespace hion
 
 } // namespace dragon
 

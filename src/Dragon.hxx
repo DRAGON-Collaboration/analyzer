@@ -11,15 +11,15 @@ class Dragon {
 private:
 // ===== Electronics Modules ====== //
    /// Gamma ray electronics modules
-	 gamma::Modules gamma_modules;
+	 gamma::Modules gamma_modules; //!
 
 	 /// Heavy-ion electronics modules
-	 heavy_ion::Modules hi_modules;
+	 hion::Modules hi_modules; //!
 	 
 public:
 // ===== Detector data ===== //
    /// Bgo detector
-	 Bgo bgo;
+	 gamma::Bgo bgo;
 
 // ===== Methods ===== //
 	 /// Constructor, initialize data

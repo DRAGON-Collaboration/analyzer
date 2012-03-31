@@ -1,42 +1,43 @@
 #include "Bgo.hxx"
+#include "vme/vme.hxx"
 
 // ========== Class Bgo ========== //
 
-dragon::Bgo::Bgo():
-	nch(30), variables(nch), evt_count(0), q(nch), t(nch)
+dragon::gamma::Bgo::Bgo():
+	variables(), evt_count(0)
 {
 	reset();
 }	
 
-void dragon::Bgo::reset()
+void dragon::gamma::Bgo::reset()
 {
-	for(int i=0; i< nch; ++i) {
+	for(int i=0; i< Bgo::nch; ++i) {
 		q[i] = vme::NONE;
 		t[i] = vme::NONE;
 	}
 }
 
-void dragon::Bgo::read_data(const dragon::gamma::Modules& modules)
+void dragon::gamma::Bgo::read_data(const dragon::gamma::Modules& modules)
 {
 	evt_count++;
-	for(int i=0; i< nch; ++i) {
-		q[i] = modules.v792.data[ variables.qdc_ch[i] ];
-		t[i] = modules.v792.data[ variables.tdc_ch[i] ];
+	for(int i=0; i< Bgo::nch; ++i) {
+		q[i] = modules.v792_data(variables.qdc_ch[i]);
+		t[i] = modules.v1190b_data(variables.tdc_ch[i]);
 	}
 }
 
 
 // ========== Class Bgo::Variables ========== //
 
-dragon::Bgo::Variables::Variables(int nch_): nch(nch_)
+dragon::gamma::Bgo::Variables::Variables()
 {
-	for(int i=0; i< nch; ++i) {
+	for(int i=0; i< Bgo::nch; ++i) {
 		qdc_ch[i] = i;
 		tdc_ch[i] = i;
 	}		 
 }
 
-void dragon::Bgo::Variables::set(const char* odb)
+void dragon::gamma::Bgo::Variables::set(const char* odb)
 {
 	//\ todo
 }

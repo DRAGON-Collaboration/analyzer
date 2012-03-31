@@ -1,7 +1,9 @@
-//! \file vme.cxx
-//! \brief Implements vme.hxx
+//! \file Adc.cxx
+//! \brief Implements Adc.hxx
 #include <map>
-#include "vme.hxx"
+#include "Adc.hxx"
+#include "vme/Vme.hxx"
+#include "utils/bits.hxx"
 #include "utils/Error.hxx"
 
 
@@ -120,8 +122,8 @@ bool vme::caen::unpack_adc(const TMidasEvent& event, const char* bank, vme::caen
   return ret;
 }
 
-
-
+// for testing //
+#ifdef ADC_TEST
 int main() {
 
 	vme::caen::V792 qdc;
@@ -137,8 +139,6 @@ int main() {
 	}
 	catch (std::exception& e) {
 		std::cerr << e.what() << "Bank name: " << "VADC" << "\n\n";
-		
 	}
-	
-	// Bgo bgo;
 }
+#endif

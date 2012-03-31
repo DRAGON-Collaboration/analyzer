@@ -1,5 +1,6 @@
 /// \file Modules.cxx
 /// \brief Implements Modules.hxx
+#include <cassert>
 #include <sstream>
 #include "Modules.hxx"
 
@@ -9,20 +10,41 @@
 dragon::gamma::Modules::Modules():
 	v792(), v1190b(), io32() { };
 
-void dragon::gamma::Modules::unpack()
+void dragon::gamma::Modules::unpack(const TMidasEvent& event)
 {
 	vme::caen::unpack_adc(event, "VADC", v792);
 //	vme::caen::unpack_v1190b(event, "VTDC", v1190b);
 //	vme::unpack_io32(event, "VI032", io32);
 }
 
+int16_t dragon::gamma::Modules::v792_data(unsigned ch) const
+{
+#ifdef DEBUG
+	assert(ch < 32);
+#endif
+	return v792.data[ch];
+}
 
-// ====== Class dragon::heavy_ion::Modules ======= //
+int16_t dragon::gamma::Modules::v1190b_data(unsigned ch) const
+{
+#ifdef DEBUG
+	assert(ch < 64);
+#endif
+	return v1190b.data[ch];
+}
 
-dragon::heavy_ion::Modules::Modules():
-	v792(), v1190b(), io32() { };
+int32_t dragon::gamma::Modules::tstamp() const
+{
+	return io32.tstamp;
+}
 
-void dragon::heavy_ion::Modules::unpack()
+
+// ====== Class dragon::hion::Modules ======= //
+
+dragon::hion::Modules::Modules():
+	v1190b(), io32() { };
+
+void dragon::hion::Modules::unpack(const TMidasEvent& event)
 {
 	for(int i=0; i< 2; ++i) {
 		std::stringstream bank; bank << "VADC" << i;
@@ -30,4 +52,26 @@ void dragon::heavy_ion::Modules::unpack()
 	}
 //	vme::caen::unpack_v1190b(event, "VTDC", v1190b);
 //	vme::unpack_io32(event, "VI032", io32);
+}
+
+int16_t dragon::hion::Modules::v785_data(unsigned which, unsigned ch) const
+{
+#ifdef DEBUG
+	assert(which < 2);
+	assert(ch < 32);
+#endif
+	return v785[which].data[ch];
+}
+
+int16_t dragon::hion::Modules::v1190b_data(unsigned ch) const
+{
+#ifdef DEBUG
+	assert(ch < 64);
+#endif
+	return v1190b.data[ch];
+}
+
+int32_t dragon::hion::Modules::tstamp() const
+{
+	return io32.tstamp;
 }
