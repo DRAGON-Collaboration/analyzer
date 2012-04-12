@@ -27,6 +27,17 @@ void reset(T<N>& module)
 		 module.data[i] = vme::NONE;
 }
 
+/// Reset a VME module data to default values (vme::NONE).
+/// \tparam T The module type being reset. Must have an array called "data" with N entries
+/// \tparam N The template argument of \e T
+/// \param [out] module The module you want to reset
+template <class T, int N>
+void reset(T& module)
+{
+	for(int i=0; i< N; ++i)
+		 module.data[i] = vme::NONE;
+}
+
 /// Copy VME module data to an external array
 /// \tparam T The module type being reset. Must have an array called "data" with N entries
 /// \tparam N The template argument of \e T

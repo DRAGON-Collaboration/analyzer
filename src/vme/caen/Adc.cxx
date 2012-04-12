@@ -5,7 +5,7 @@
 #include "vme/Vme.hxx"
 #include "utils/Bits.hxx"
 #include "utils/Error.hxx"
-
+#include "utils/Incrvoid.hxx"
 
 namespace {
 const int DATA_BITS    = 0x0; // 0 0 0
@@ -27,28 +27,6 @@ inline bool run_adc_unpacker(int which, uint32_t data, vme::caen::Adc<32>& modul
 	if(!unpackers.count(which)) return false;
 	unpackers.find(which)->second (data, module);
 	return true;
-}
-
-void increment_void(void*& begin, int midas_data_type)
-{
-  static std::map<int, int> data_sizes;
-  if(!data_sizes.size()) { // From midas.h
-    data_sizes[1]  = 1;    // TID_BYTE      1   /**< unsigned byte         0       255    */
-    data_sizes[2]  = 1;	   // TID_SBYTE     2   /**< signed byte         -128      127    */
-    data_sizes[3]  = 1;	   // TID_CHAR      3   /**< single character      0       255    */
-    data_sizes[4]  = 2;	   // TID_WORD      4   /**< two bytes             0      65535   */
-    data_sizes[5]  = 2;	   // TID_SHORT     5   /**< signed word        -32768    32767   */
-    data_sizes[6]  = 4;	   // TID_DWORD     6   /**< four bytes            0      2^32-1  */
-    data_sizes[7]  = 4;	   // TID_INT       7   /**< signed dword        -2^31    2^31-1  */
-    data_sizes[8]  = 4;	   // TID_BOOL      8   /**< four bytes bool       0        1     */
-    data_sizes[9]  = 4;	   // TID_FLOAT     9   /**< 4 Byte float format                  */
-    data_sizes[10] = 8;	   // TID_DOUBLE   10   /**< 8 Byte float format                  */
-  }			 
-  std::map<int, int>::iterator it = data_sizes.find(midas_data_type);
-  if(it == data_sizes.end())
-		 err::Throw("increment_void") << "Unknown midas data type: " << midas_data_type << "\n";
-
-  begin = reinterpret_cast<char*>(begin) + it->second;
 }
 
 } // namespace
@@ -87,8 +65,8 @@ bool vme::caen::unpack_adc_buffer(void* address, const char* bank, vme::caen::Ad
 {
 	bool success;
 	try {
-		uint32_t* data32 = reinterpret_cast<uint32_t*>(address);;
-		uint64_t type = (*data32 >> 24) & READ3;
+		uint32_t* data32 = reinterpret_cast<uint32_t*>(address);
+		uint32_t type = (*data32 >> 24) & READ3;
 		success = run_adc_unpacker(type, *data32, module);
 		if(!success) {
 			std::cerr << ERR_FILE_LINE;

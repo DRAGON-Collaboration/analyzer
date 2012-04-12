@@ -1,6 +1,7 @@
 #ifndef DRAGON_HXX
 #define DRAGON_HXX
 #include "Modules.hxx"
+#include "HeavyIon.hxx"
 #include "Bgo.hxx"
 
 /// Encloses all DRAGON classes
@@ -10,16 +11,17 @@ namespace dragon {
 class Dragon {
 private:
 // ===== Electronics Modules ====== //
-   /// Gamma ray electronics modules
-	 gamma::Modules gamma_modules; //!
-
-	 /// Heavy-ion electronics modules
-	 hion::Modules hi_modules; //!
+	 /// Gamma ray + heavy ion modules
+	 dragon::Modules modules; //#
 	 
 public:
 // ===== Detector data ===== //
    /// Bgo detector
-	 gamma::Bgo bgo;
+	 gamma::Gamma gamma;
+
+	 /// Heavy ion detectors
+	 hion::HeavyIon hi;
+
 
 // ===== Methods ===== //
 	 /// Constructor, initialize data

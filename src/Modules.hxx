@@ -30,6 +30,9 @@ public:
 	 /// Nothing to do
 	 ~Modules() { }
 
+	 /// Reset all modules
+	 void reset();
+
    /// Unpack Midas event data into module data structures.
 	 /// \param [in] event Reference to the MidasEvent object being unpacked
 	 void unpack(const TMidasEvent& event);
@@ -69,6 +72,9 @@ public:
    /// Nothing to do
 	 ~Modules() { }
 
+	 /// Reset all modules
+	 void reset();
+
 	 /// Unpack Midas event data into module data structures.
 	 /// \param [in] event Reference to the MidasEvent object being unpacked
 	 void unpack(const TMidasEvent& event);	 
@@ -87,6 +93,14 @@ public:
 };
 
 } // namespace hion
+
+/// Wrapper for gamma and heavy-ion modules
+struct Modules {
+	 /// Gamma
+	 gamma::Modules gamma;
+	 /// Heavy ion
+	 hion::Modules heavy_ion;
+};
 
 } // namespace dragon
 

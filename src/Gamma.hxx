@@ -32,7 +32,8 @@ public:
 			/// Destructor, nothing to do
 			~Variables() { }
 
-      /// Set variable values from an ODB file
+      /// \brief Set variable values from an ODB file
+			/// \param [in] odb_file Path of the odb file from which you are extracting variable values
 			/// \todo Needs to be implemented once ODB is set up
 			void set(const char* odb_file);
 	 };
@@ -41,9 +42,6 @@ public:
 	 /// Instance of Bgo::Variables for mapping digitizer ch -> bgo detector
 	 Variables variables; //!
 	 
-	 /// Event counter
-	 int32_t evt_count; //#
-
 	 /// Raw charge signals, per detector
 	 int16_t q[Bgo::nch];    //#
 
@@ -63,6 +61,39 @@ public:
 	 /// Read data from a midas event.
 	 /// \param modules Electronic modules structure from which the data are read
 	 void read_data(const dragon::gamma::Modules& modules);
+};
+
+/// All DRAGON gamma ray detectors
+/*! Currently this is just the BGO array, but in the future we may add others
+ *  (germanium, BaF, etc.) */
+class Gamma {
+public:
+// ==== Data ==== //
+	 /// Gamma electronics modules
+	 dragon::gamma::Modules modules; //#
+
+   /// Event counter
+	 int32_t evt_count; //#
+
+// ==== Detectors ==== //
+	 /// Bgo array
+	 Bgo bgo;
+
+// ==== Methods ==== //	 
+	 /// Constructor, initializes data values
+	 Gamma();
+
+	 /// Destructor, nothing to do
+	 ~Gamma() { }
+
+   /// Sets all data values to vme::NONE
+	 void reset();
+
+	 /// Unpack midas event data
+	 void unpack(TMidasEvent& event);
+
+	 /// \brief Read data from modules into detector classes
+	 void read_data();
 };
 	 
 

@@ -3,17 +3,29 @@
 #include <cassert>
 #include <sstream>
 #include "Modules.hxx"
+#include "vme/vme.hxx"
 
 
 // ====== Class dragon::gamma::Modules ======= //
 
 dragon::gamma::Modules::Modules():
-	v792(), v1190b(), io32() { };
+	v792(), v1190b(), io32()
+{
+	reset();
+};
+
+void dragon::gamma::Modules::reset()
+{
+	vme::reset(v792);
+	vme::reset<vme::caen::V1190b, 64> (v1190b);
+}
 
 void dragon::gamma::Modules::unpack(const TMidasEvent& event)
 {
 	vme::caen::unpack_adc(event, "VADC", v792);
-//	vme::caen::unpack_v1190b(event, "VTDC", v1190b);
+	vme::caen::unpack_adc(event, "ADC0", v792);
+	vme::caen::unpack_v1190(event, "VTDC", v1190b);
+	vme::caen::unpack_v1190(event, "TDC0", v1190b);
 //	vme::unpack_io32(event, "VI032", io32);
 }
 
