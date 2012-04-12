@@ -42,7 +42,7 @@ public:
 
 // ==== Data ==== //
 	 /// Instance of Bgo::Variables for mapping digitizer ch -> bgo detector
-	 Variables variables; //!
+	 Variables variables;    //!
 	 
 	 /// Raw charge signals, per detector
 	 int16_t q[Bgo::nch];    //#
