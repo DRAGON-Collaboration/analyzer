@@ -1,4 +1,6 @@
-#include "Bgo.hxx"
+/// \file Gamma.cxx
+/// \brief Implements Gamma.hxx
+#include "Gamma.hxx"
 #include "vme/vme.hxx"
 
 // ========== Class dragon::gamma::Bgo ========== //
@@ -63,6 +65,6 @@ void dragon::gamma::Gamma::unpack(TMidasEvent& event)
 
 void dragon::gamma::Gamma::read_data()
 {
-	evt_count++;
+	++evt_count;
 	bgo.read_data(modules);
 }

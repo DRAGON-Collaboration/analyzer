@@ -1,4 +1,7 @@
+/// \file Dragon.cxx
+/// \brief Implements Dragon.hxx
 #include "Dragon.hxx"
+
 
 // ========== Class Dragon ========== //
 

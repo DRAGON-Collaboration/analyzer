@@ -1,8 +1,10 @@
+/// \file Dragon.hxx
+/// \brief Defines a class for the complete DRAGON system (head + tail)
 #ifndef DRAGON_HXX
 #define DRAGON_HXX
 #include "Modules.hxx"
 #include "HeavyIon.hxx"
-#include "Bgo.hxx"
+#include "Gamma.hxx"
 
 /// Encloses all DRAGON classes
 namespace dragon {

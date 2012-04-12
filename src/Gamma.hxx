@@ -1,5 +1,7 @@
-#ifndef DRAGON_BGO_HXX
-#define DRAGON_BGO_HXX
+/// \file Gamma.hxx
+/// \brief Defines classes for DRAGON head (gamma) detectors.
+#ifndef DRAGON_GAMMA_HXX
+#define DRAGON_GAMMA_HXX
 #include "Modules.hxx"
 
 namespace dragon {
@@ -90,6 +92,7 @@ public:
 	 void reset();
 
 	 /// Unpack midas event data
+	 /// \param [in] event Reference to a Midas event structure
 	 void unpack(TMidasEvent& event);
 
 	 /// \brief Read data from modules into detector classes
