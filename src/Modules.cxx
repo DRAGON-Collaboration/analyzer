@@ -14,6 +14,21 @@ dragon::gamma::Modules::Modules():
 	reset();
 };
 
+dragon::gamma::Modules::Modules(const Modules& other)
+{
+	v792   = other.v792;
+	v1190b = other.v1190b;
+	io32   = other.io32;
+}
+
+dragon::gamma::Modules& dragon::gamma::Modules::operator= (const dragon::gamma::Modules& other)
+{
+	v792   = other.v792;
+	v1190b = other.v1190b;
+	io32   = other.io32;
+	return *this;
+}
+
 void dragon::gamma::Modules::reset()
 {
 	vme::reset(v792);
@@ -55,6 +70,25 @@ int32_t dragon::gamma::Modules::tstamp() const
 
 dragon::hion::Modules::Modules():
 	v1190b(), io32() { };
+
+dragon::hion::Modules::Modules(const Modules& other)
+{
+	for(int i=0; i< 2; ++i) {
+		v785[i] = other.v785[i];
+	}
+	v1190b = other.v1190b;
+	io32   = other.io32;
+}
+
+dragon::hion::Modules& dragon::hion::Modules::operator= (const Modules& other)
+{
+	for(int i=0; i< 2; ++i) {
+		v785[i] = other.v785[i];
+	}
+	v1190b = other.v1190b;
+	io32   = other.io32;
+	return* this;
+}
 
 void dragon::hion::Modules::unpack(const TMidasEvent& event)
 {

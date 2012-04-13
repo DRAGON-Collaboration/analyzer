@@ -30,6 +30,12 @@ public:
 	 /// Nothing to do
 	 ~Modules() { }
 
+	 /// Copy constructor
+	 Modules(const Modules& other);
+
+	 /// Equivalency operator
+	 Modules& operator= (const Modules& other);
+
 	 /// Reset all modules
 	 void reset();
 
@@ -71,6 +77,12 @@ public:
 
    /// Nothing to do
 	 ~Modules() { }
+
+	 /// Copy constructor
+	 Modules(const Modules& other);
+
+	 /// Equivalency operator
+	 Modules& operator= (const Modules& other);
 
 	 /// Reset all modules
 	 void reset();

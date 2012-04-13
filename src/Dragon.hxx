@@ -27,15 +27,20 @@ public:
    /// Destructor, nothing to do
 	 ~Dragon() { }
 
+	 /// Copy constructor
+	 Dragon(const Dragon& other);
+
+	 /// Equivalency operator
+	 Dragon& operator= (const Dragon& other);
+
 	 /// Reset all modules
 	 void reset();
 
 	 /// Copy data from head and tail coincidence events
 	 /// \param [in] head Head (gamma-ray) event
 	 /// \param [in] tail Tail (heavy-ion) event
-	 void copy(const dragon::gamma::Gamma& head, const dragon::hion::HeavyIon& tail);
+	 void read_event(const dragon::gamma::Gamma& head, const dragon::hion::HeavyIon& tail);
 };
-
 
 } // namespace dragon
 
