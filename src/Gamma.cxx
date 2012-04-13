@@ -1,5 +1,6 @@
 /// \file Gamma.cxx
 /// \brief Implements Gamma.hxx
+#include <algorithm>
 #include "Gamma.hxx"
 #include "vme/vme.hxx"
 
@@ -10,6 +11,30 @@ dragon::gamma::Bgo::Bgo():
 {
 	reset();
 }	
+
+namespace {
+void copy_bgo(const dragon::gamma::Bgo& from, dragon::gamma::Bgo& to)
+{
+	to.variables = from.variables;
+	std::copy(from.q, from.q + dragon::gamma::Bgo::nch, to.q);
+	std::copy(from.t, from.t + dragon::gamma::Bgo::nch, to.t);
+
+	// for(int i=0; i< dragon::gamma::Bgo::nch; ++i) {
+	// 	to.q[i] = from.q[i];
+	// 	to.t[i] = from.t[i];
+	// }
+} }
+
+dragon::gamma::Bgo::Bgo(const Bgo& other)
+{
+	copy_bgo(other, *this);
+}
+
+dragon::gamma::Bgo& dragon::gamma::Bgo::operator= (const Bgo& other)
+{
+	copy_bgo(other, *this);
+	return *this;
+}
 
 void dragon::gamma::Bgo::reset()
 {
@@ -38,9 +63,29 @@ dragon::gamma::Bgo::Variables::Variables()
 	}		 
 }
 
+namespace {
+void copy_bgo_variables(const dragon::gamma::Bgo::Variables& from, dragon::gamma::Bgo::Variables& to)
+{
+	for(int i=0; i< dragon::gamma::Bgo::nch; ++i) {
+		to.qdc_ch[i] = from.qdc_ch[i];
+		to.tdc_ch[i] = from.tdc_ch[i];
+	}
+} }
+
+dragon::gamma::Bgo::Variables::Variables(const Variables& other)
+{
+	copy_bgo_variables(other, *this);
+}
+
+dragon::gamma::Bgo::Variables& dragon::gamma::Bgo::Variables::operator= (const Variables& other)
+{
+	copy_bgo_variables(other, *this);
+	return *this;
+}
+
 void dragon::gamma::Bgo::Variables::set(const char* odb)
 {
-	//\ todo
+	/// \todo Implement
 }
 
 
@@ -50,6 +95,19 @@ dragon::gamma::Gamma::Gamma() :
 	evt_count(0), bgo()
 {
 	reset();
+}
+
+dragon::gamma::Gamma::Gamma(const dragon::gamma::Gamma& other)
+{
+	evt_count = other.evt_count;
+	bgo = other.bgo;
+}
+
+dragon::gamma::Gamma& dragon::gamma::Gamma::operator= (const dragon::gamma::Gamma& other)
+{
+	evt_count = other.evt_count;
+	bgo = other.bgo;
+	return *this;
 }
 
 void dragon::gamma::Gamma::reset()

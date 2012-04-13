@@ -9,13 +9,8 @@
 /// Encloses all DRAGON classes
 namespace dragon {
 
-/// A complete Dragon event
+/// A complete Dragon (coincidence) event
 class Dragon {
-private:
-// ===== Electronics Modules ====== //
-	 /// Gamma ray + heavy ion modules
-	 dragon::Modules modules; //#
-	 
 public:
 // ===== Detector data ===== //
    /// Bgo detector
@@ -35,14 +30,10 @@ public:
 	 /// Reset all modules
 	 void reset();
 
-	 /// Set variable values from an odb file
-	 void set_variables(const char* odb_file);
-
-	 /// Unpack midas event data
-	 void unpack(TMidasEvent& event);
-
-   /// Calibrate data from a midas event
-	 void calibrate();
+	 /// Copy data from head and tail coincidence events
+	 /// \param [in] head Head (gamma-ray) event
+	 /// \param [in] tail Tail (heavy-ion) event
+	 void copy(const dragon::gamma::Gamma& head, const dragon::hion::HeavyIon& tail);
 };
 
 

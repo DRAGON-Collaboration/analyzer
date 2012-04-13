@@ -5,7 +5,7 @@
 
 // ========== Class Dragon ========== //
 
-dragon::Dragon::Dragon(): modules(), gamma(), hi()
+dragon::Dragon::Dragon(): gamma(), hi()
 {
 	reset();
 }
@@ -16,20 +16,7 @@ void dragon::Dragon::reset()
 	hi.reset();
 }
 
-void dragon::Dragon::set_variables(const char* odb_file)
+void dragon::Dragon::copy(const dragon::gamma::Gamma& head, const dragon::hion::HeavyIon& tail)
 {
-	gamma.bgo.variables.set(odb_file);
-}
-
-void dragon::Dragon::unpack(TMidasEvent& event)
-{
-	reset();
-	modules.gamma.unpack(event);
-	modules.heavy_ion.unpack(event);
-	gamma.read_data();
-}
-
-void dragon::Dragon::calibrate()
-{
-	// nothing to do so far
+	gamma = head;
 }

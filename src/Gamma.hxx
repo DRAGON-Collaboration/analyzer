@@ -34,6 +34,12 @@ public:
 			/// Destructor, nothing to do
 			~Variables() { }
 
+			/// Copy constructor
+			Variables(const Variables& other);
+
+			/// Equivalency operator
+			Variables& operator= (const Variables& other);
+
       /// \brief Set variable values from an ODB file
 			/// \param [in] odb_file Path of the odb file from which you are extracting variable values
 			/// \todo Needs to be implemented once ODB is set up
@@ -57,12 +63,19 @@ public:
 	 /// Destructor, nothing to do
 	 ~Bgo() { }
 
+	 /// Copy constructor
+	 Bgo(const Bgo& other);
+
+	 /// Equalivalency operator
+	 Bgo& operator= (const Bgo& other);
+
    /// Sets all data values to vme::NONE
 	 void reset();
 
 	 /// Read data from a midas event.
 	 /// \param modules Electronic modules structure from which the data are read
 	 void read_data(const dragon::gamma::Modules& modules);
+
 };
 
 /// All DRAGON gamma ray detectors
@@ -87,6 +100,12 @@ public:
 
 	 /// Destructor, nothing to do
 	 ~Gamma() { }
+
+	 /// Copy constructor
+	 Gamma(const Gamma& other);
+
+	 /// Equalivalency operator
+	 Gamma& operator= (const Gamma& other);
 
    /// Sets all data values to vme::NONE
 	 void reset();
