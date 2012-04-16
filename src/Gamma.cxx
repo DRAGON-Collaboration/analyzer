@@ -111,6 +111,7 @@ dragon::gamma::Gamma& dragon::gamma::Gamma::operator= (const dragon::gamma::Gamm
 
 void dragon::gamma::Gamma::reset()
 {
+	modules.reset();
 	bgo.reset();
 }
 

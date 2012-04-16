@@ -294,6 +294,7 @@ dragon::hion::HeavyIon& dragon::hion::HeavyIon::operator= (const dragon::hion::H
 
 void dragon::hion::HeavyIon::reset()
 {
+	modules.reset();
 #ifndef DRAGON_OMIT_DSSSD
 	dsssd.reset();
 #endif

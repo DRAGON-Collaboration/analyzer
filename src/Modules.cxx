@@ -80,6 +80,14 @@ dragon::hion::Modules::Modules(const Modules& other)
 	io32   = other.io32;
 }
 
+void dragon::hion::Modules::reset()
+{
+	for(int i=0; i< 2; ++i) {
+		vme::reset(v785[i]);
+	}
+	vme::reset<vme::caen::V1190b, 64> (v1190b);
+}
+
 dragon::hion::Modules& dragon::hion::Modules::operator= (const Modules& other)
 {
 	for(int i=0; i< 2; ++i) {
@@ -92,10 +100,12 @@ dragon::hion::Modules& dragon::hion::Modules::operator= (const Modules& other)
 
 void dragon::hion::Modules::unpack(const TMidasEvent& event)
 {
+/*
 	for(int i=0; i< 2; ++i) {
 		std::stringstream bank; bank << "VADC" << i;
 		vme::caen::unpack_adc(event, bank.str().c_str(), v785[i]);
 	}
+*/
 //	vme::caen::unpack_v1190b(event, "VTDC", v1190b);
 //	vme::unpack_io32(event, "VI032", io32);
 }
