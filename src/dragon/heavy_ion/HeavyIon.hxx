@@ -2,10 +2,10 @@
 /// \brief Defines the DRAGON tail (heavy ion) detector classes
 #ifndef DRAGON_HEAVY_ION
 #define DRAGON_HEAVY_ION
-#include "heavy_ion/MCP.hxx"
-#include "heavy_ion/DSSSD.hxx"
-#include "heavy_ion/IonChamber.hxx"
-#include "heavy_ion/SurfaceBarrier.hxx"
+#include "dragon/heavy_ion/MCP.hxx"
+#include "dragon/heavy_ion/DSSSD.hxx"
+#include "dragon/heavy_ion/IonChamber.hxx"
+#include "dragon/heavy_ion/SurfaceBarrier.hxx"
 
 namespace dragon {
 

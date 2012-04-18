@@ -1,6 +1,6 @@
 /// \file SurfaceBarrier.cxx
 /// \brief Implements SurfaceBarrier.hxx
-#include "heavy_ion/SurfaceBarrier.hxx"
+#include "dragon/heavy_ion/SurfaceBarrier.hxx"
 #include "utils/copy_array.h"
 
 

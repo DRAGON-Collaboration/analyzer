@@ -1,6 +1,6 @@
 /// \file IonChamber.cxx
 /// \brief Implements IonChamber.hxx
-#include "heavy_ion/IonChamber.hxx"
+#include "dragon/heavy_ion/IonChamber.hxx"
 #include "utils/copy_array.h"
 
 // ====== struct dragon::hion::IonChamber ====== //

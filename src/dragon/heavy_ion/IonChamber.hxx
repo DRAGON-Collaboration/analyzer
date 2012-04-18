@@ -1,8 +1,8 @@
-/// \file SurfaceBarrier.hxx
-/// \brief Defines a class for DRAGON surface barrier (Si) detectors
-#ifndef DRAGON_SURFACE_BARRIER_HXX
-#define DRAGON_SURFACE_BARRIER_HXX
-#include "Modules.hxx"
+/// \file IonChamber.hxx
+/// \brief Defines a class for the DRAGON Ionizatin Chamber detector
+#ifndef DRAGON_ION_CHAMBER_HXX
+#define DRAGON_ION_CHAMBER_HXX
+#include "dragon/Modules.hxx"
 #include "vme/Vme.hxx"
 
 
@@ -10,24 +10,27 @@ namespace dragon {
 
 namespace hion {
 
-/// Surface barrier detectors
-struct SurfaceBarrier {
+/// Ionization chamber
+struct IonChamber {
 // ==== Const Data ==== //
-	 /// Number of detectors
-	 static const int nch = 2; //!
+	 /// Number of anodes
+	 static const int nch = 4; //!
 
 // ==== Classes ==== //
-	 /// Surface Barrier Variables
+	 /// Ion chamber variables
 	 struct Variables {
-			/// Maps detector to adc module number
-			int module[SurfaceBarrier::nch];
+			/// Maps anode channel number to adc module number
+			int anode_module[IonChamber::nch];
 
-			/// Maps detector adc channel number
-			int ch[SurfaceBarrier::nch];
+			/// Maps anode channel number to adc channel number
+			int anode_ch[IonChamber::nch];
+
+			/// Maps tof to TDC channel number
+			int tof_ch;
 
 			/// Constructor, sets data to generic values
 			Variables();
-
+			
 			/// Destructor, nothing to do
 			~Variables() { }
 
@@ -45,31 +48,35 @@ struct SurfaceBarrier {
 
 // ==== Data ==== //
 	 /// Variables instance
-	 SurfaceBarrier::Variables variables; //!
+	 Variables variables; //!
 	 
-	 /// Charge (energy) signals
-	 int16_t q[nch]; //#
-	 
-	 /// Constructor, initialize data
-	 SurfaceBarrier();
+	 /// Raw anode signals
+	 int16_t anode[nch]; //#
 
+	 /// Raw time signal (channels???)
+	 int16_t tof; //#
+
+	 /// Constructor, initialize data
+	 IonChamber();
+
+// ==== Methods ==== //
 	 /// Destructor, nothing to do
-	 ~SurfaceBarrier() { }
+	 ~IonChamber() { }
 
 	 /// Copy constructor
-	 SurfaceBarrier(const SurfaceBarrier& other);
+	 IonChamber(const IonChamber& other);
 
 	 /// Equivalency operator
-	 SurfaceBarrier& operator= (const SurfaceBarrier& other);
+	 IonChamber& operator= (const IonChamber& other);
 
 	 /// Reset all data to VME::none
 	 void reset();
-	 
+
 	 /// \brief Read midas event data
 	 /// \param modules Heavy-ion module structure
-	 void read_data(const dragon::hion::Modules& modules);
+	 /// \param [in] v1190_trigger_ch Channel number of the v1190b trigger
+	 void read_data(const dragon::hion::Modules& modules, int v1900_trigger_ch);
 };
-
 
 } // namespace hion
 

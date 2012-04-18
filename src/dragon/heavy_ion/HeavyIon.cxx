@@ -1,6 +1,6 @@
 /// \file HeavyIon.cxx
 /// \brief Implements HeavyIon.hxx
-#include "heavy_ion/HeavyIon.hxx"
+#include "dragon/heavy_ion/HeavyIon.hxx"
 #include "utils/copy_array.h"
 #include "vme/Vme.hxx"
 

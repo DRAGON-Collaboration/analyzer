@@ -1,6 +1,6 @@
 /// \file Bgo.cxx
 /// \brief Implements Bgo.hxx
-#include "gamma/Bgo.hxx"
+#include "dragon/gamma/Bgo.hxx"
 #include "utils/copy_array.h"
 #include "vme/vme.hxx"
 

@@ -1,6 +1,6 @@
 /// \file DSSSD.cxx
 /// \brief Implements DSSSD.hxx
-#include "heavy_ion/DSSSD.hxx"
+#include "dragon/heavy_ion/DSSSD.hxx"
 #include "vme/Vme.hxx"
 #include "utils/copy_array.h"
 

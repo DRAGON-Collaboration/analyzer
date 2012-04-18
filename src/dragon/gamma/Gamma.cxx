@@ -1,6 +1,6 @@
 /// \file Gamma.cxx
 /// \brief Implements Gamma.hxx
-#include "gamma/Gamma.hxx"
+#include "dragon/gamma/Gamma.hxx"
 
 
 // ========== Class dragon::gamma::Gamma ========== //

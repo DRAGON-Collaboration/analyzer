@@ -2,7 +2,7 @@
 /// \brief Implements Modules.hxx
 #include <cassert>
 #include <sstream>
-#include "Modules.hxx"
+#include "dragon/Modules.hxx"
 #include "vme/vme.hxx"
 
 

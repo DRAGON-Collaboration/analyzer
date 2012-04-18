@@ -1,6 +1,6 @@
 /// \file MCP.cxx
 /// \brief Implements MCP.hxx
-#include "heavy_ion/MCP.hxx"
+#include "dragon/heavy_ion/MCP.hxx"
 #include "vme/Vme.hxx"
 #include "utils/copy_array.h"
 

@@ -2,7 +2,7 @@
 /// \brief Defines classes for DRAGON head (gamma) detectors.
 #ifndef DRAGON_GAMMA_HXX
 #define DRAGON_GAMMA_HXX
-#include "gamma/Bgo.hxx"
+#include "dragon/gamma/Bgo.hxx"
 
 namespace dragon {
 

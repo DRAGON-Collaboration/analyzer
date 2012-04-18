@@ -2,7 +2,7 @@
 /// \brief Defines a class for the DRAGON Bgo array
 #ifndef DRAGON_BGO_HXX
 #define DRAGON_BGO_HXX
-#include "Modules.hxx"
+#include "dragon/Modules.hxx"
 
 namespace dragon {
 
