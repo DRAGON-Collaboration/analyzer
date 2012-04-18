@@ -3,8 +3,8 @@
 #ifndef DRAGON_HXX
 #define DRAGON_HXX
 #include "Modules.hxx"
-#include "HeavyIon.hxx"
-#include "Gamma.hxx"
+#include "heavy_ion/HeavyIon.hxx"
+#include "gamma/Gamma.hxx"
 
 /// Encloses all DRAGON classes
 namespace dragon {
