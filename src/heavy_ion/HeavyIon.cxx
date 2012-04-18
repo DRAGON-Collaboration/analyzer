@@ -14,7 +14,8 @@ dragon::hion::HeavyIon::HeavyIon() :
 #ifndef DRAGON_OMIT_IC
 	ic(),
 #endif
-	mcp()
+	mcp(),
+	sb()
 {
 	reset();
 }
@@ -32,6 +33,7 @@ void copy_hi(const dragon::hion::HeavyIon& from, dragon::hion::HeavyIon& to)
 	to.ic = from.ic;
 #endif
 	to.mcp = from.mcp;
+	to.sb  = from.sb;
 } }
 
 dragon::hion::HeavyIon::HeavyIon(const dragon::hion::HeavyIon& other)
@@ -55,6 +57,7 @@ void dragon::hion::HeavyIon::reset()
 	ic.reset();
 #endif
 	mcp.reset();
+	sb.reset();
 }
 
 void dragon::hion::HeavyIon::unpack(TMidasEvent& event)
@@ -73,6 +76,7 @@ void dragon::hion::HeavyIon::read_data()
 	ic.read_data(modules, variables.v1190_trigger_ch);
 #endif
 	mcp.read_data(modules);
+	sb.read_data(modules);
 }
 
 
