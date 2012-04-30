@@ -31,10 +31,19 @@ struct Event {
 	 TMidasEvent fMidasEvent;
 
 	 /// Set timestamp and type
-	 Event(uint32_t tstamp_, int type_);
+	 Event(uint32_t tstamp_, int type_, TMidasEvent event_);
 
 	 /// Default constructor
 	 Event() {}
+
+	 /// Copy constructor
+	 Event(const Event& other) { Copy(other); }
+
+	 /// Equivalency
+	 Event& operator= (const Event& other) { Copy(other); return *this; }
+
+	 /// For Copying
+	 void Copy(const Event& other);
 
 	 /// Destructor
 	 ~Event();

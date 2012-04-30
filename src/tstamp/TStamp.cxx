@@ -6,8 +6,8 @@
 namespace { const uint64_t MAX32 = 4294967295; }
 
 // ========= Struct tstamp::Event ========= //
-tstamp::Event::Event(uint32_t tstamp_, int type_):
-	type(type_)
+tstamp::Event::Event(uint32_t tstamp_, int type_, TMidasEvent event_):
+	type(type_), fMidasEvent(event_)
 {
 	static uint64_t last = 0;
 	if(tstamp_ >= last) {
@@ -23,7 +23,14 @@ tstamp::Event::~Event()
 {
 	// std::cout << "~tstamp::Event::~Event()\n";
 }
-	
+
+void tstamp::Event::Copy(const tstamp::Event& other)
+{
+	type = other.type;
+	tstamp = other.tstamp;
+	fMidasEvent = other.fMidasEvent;
+}
+
 
 /// Timestamp coincidence window
 /// \todo make this something more settable, not a #define
@@ -36,7 +43,7 @@ bool tstamp::Compare::operator() (const tstamp::Event& lhs, const tstamp::Event&
 	// Thus we should return 'false' if the two events count as a match and otherwise something that 
 	// won't always be true under commuation (e.g. lhs.tstamp < rhs.tstamp)
 	if(lhs.type == rhs.type) { // Not a match - different types
-		return lhs.tstamp < rhs.tstamp;
+		return lhs.tstamp != rhs.tstamp ? lhs.tstamp < rhs.tstamp : true;
 	}
 	return (std::max(lhs.tstamp, rhs.tstamp) - std::min(lhs.tstamp, rhs.tstamp) < COINC_WINDOW) ?
 		 false /* Match */ : lhs.tstamp < rhs.tstamp; /* Not a match - outside window */
@@ -46,7 +53,7 @@ bool tstamp::Compare::operator() (const tstamp::Event& lhs, const tstamp::Event&
 // ========= Class tstamp::Queue ========= //
 
 void tstamp::Queue::HandleCoinc(tstamp::Event& val, tstamp::Queue::Iterator& match)
-{
+{ 
 	// Set gamma and heavy ion midas buffer pointers
 	TMidasEvent *gammaMidasEvent = 0, *hionMidasEvent = 0;
 	if(val.type == tstamp::Event::GAMMA) {
@@ -76,6 +83,7 @@ void tstamp::Queue::HandleCoinc(tstamp::Event& val, tstamp::Queue::Iterator& mat
 
 void tstamp::Queue::HandleSingle(tstamp::Queue::Iterator& it)
 {
+#if 1
 	if(it->type == tstamp::Event::GAMMA) {
 		rb::Event* gamma_event = rb::Event::Instance<GammaEvent>();
 		gamma_event->Process(const_cast<TMidasEvent*>(&it->fMidasEvent), 0);
@@ -84,6 +92,21 @@ void tstamp::Queue::HandleSingle(tstamp::Queue::Iterator& it)
 		rb::Event* hi_event = rb::Event::Instance<HeavyIonEvent>();
 		hi_event->Process(const_cast<TMidasEvent*>(&it->fMidasEvent), 0);
 	}
+#else
+	static dragon::gamma::Gamma fGamma;
+	TMidasEvent* fEvent = const_cast<TMidasEvent*>(&it->fMidasEvent);
+  if(fEvent) {
+	void* p_bank = NULL;
+  int bank_len, bank_type;
+  int found = fEvent->FindBank("VADC", &bank_len, &bank_type, &p_bank);
+  if(!found) std::cout << "VADC not found\n";
+
+
+		fGamma.unpack(*fEvent);
+		fGamma.read_data();
+		std::cout << "fGamma.bgo.q[0]: " << fGamma.bgo.q[0] << "\n";
+	}
+#endif
 	fContainer.erase(it);
 }
 
@@ -105,6 +128,7 @@ tstamp::Queue::Iterator tstamp::Queue::CheckMatch(const tstamp::Event& event,
 	tstamp::Queue::Iterator it =
 		 std::lower_bound<tstamp::Queue::Iterator, tstamp::Event, tstamp::Compare> (first, last, event, comp);
 	if(it != last && (!comp(*it, event) && !comp(event, *it))) {
+		std::cout << it->tstamp << " ==? " << event.tstamp << "\n";
 		return it;
 	}
 	else {
@@ -162,192 +186,27 @@ void tstamp::Queue::Cleanup()
 
 int main() {
 
-	tstamp::Event event(1,1);
-	TMidasEvent midasEvent;
-	event.fMidasEvent = midasEvent;
-	tstamp::Queue queue(100);
+	TMidasFile fFile;
+	TMidasEvent fBuffer;
+	assert(fFile.Open("/Users/gchristian/soft/develop/dragon/analyzer/run00068.mid"));
+	tstamp::Queue fTSQueue(100);
 
-	queue.Push(event);
+	while(1) {
+		fBuffer.Clear();
+		bool result = fFile.Read(&fBuffer);
+		if(!result) break;
 
-}
-
-#elif 0
-// ========= FOR TESTING ========= //
-
-class EventGenerator {
-public:
-	 enum { GAMMA, HION, COINC };
-private:
-	 TRandom3* rng;
-	 TFile* file;
-	 TTree *tcoinc, *thion, *tgamma;
-	 HiEvent fHion;
-	 GammaEvent fGamma;
-	 int type;
-	 int64_t tsg, tsh;
-public:
-	 void Coinc();
-	 void HeavyIon();
-	 void Gamma();
-	 void Choose();
-	 void TSGen();
-	 void Generate(HiEvent*&, GammaEvent*&);
-	 EventGenerator(const char* filename, int seed = 12345);
-	 ~EventGenerator();
-};
-
-EventGenerator::EventGenerator(const char* filename, int seed):
-	rng(new TRandom3(seed)),
-	file(new TFile(filename, "recreate")),
-	tcoinc(new TTree("tgcoinc", "Generated Coincidence Tree")),
-	thion( new TTree("tghion",  "Generated Heavy Ion Singles Tree")),
-	tgamma(new TTree("tggamma", "Generated Gamma Singles Tree"))
-{
-	// Timestamp branches
-	thion-> Branch("ts", &fHion.tstamp.tstamp, "ts/l");
-	tgamma->Branch("ts", &fGamma.tstamp.tstamp, "ts/l");
-	tcoinc->Branch("tsg", &fGamma.tstamp.tstamp, "tsg/l");
-	tcoinc->Branch("tsh", &fHion.tstamp.tstamp, "tsh/l");
-
-	// Parameter branches
-	thion-> Branch("par", &fHion.par, "par/D");
-	tgamma->Branch("par", &fGamma.par, "par/D");
-	tcoinc->Branch("parg", &fGamma.par, "parg/D");
-	tcoinc->Branch("parh", &fHion.par, "parh/D");
-}
-
-EventGenerator::~EventGenerator()
-{
-	thion->Write();
-	tgamma->Write();
-	tcoinc->Write();
-	delete rng;
-	delete file;
-}
-
-void EventGenerator::Choose()
-{
-	int n = rng->Integer(100);
-	     if(n < 30)  type = COINC;
-	else if(n < 80)  type = GAMMA;
-	else             type = HION;
-}
-
-void EventGenerator::Gamma()
-{
-	type = GAMMA;
-	fGamma.par = rng->Gaus(20, 5);
-	tgamma->Fill();
-}
-
-void EventGenerator::HeavyIon()
-{
-	type = HION;
-	GEN:
-	fHion.par = rng->Landau(10,5);
-	if(fHion.par > 200) goto GEN;
-	thion->Fill();
-}
-
-void EventGenerator::Coinc()
-{
-	type = COINC;
-	Gamma();
-	HeavyIon();
-	tcoinc->Fill();
-}
-
-void EventGenerator::TSGen()
-{
-	static int last = 1;
-	switch(type) {
-	case GAMMA:
-		fGamma.tstamp.tstamp = last + gRandom->Integer(30);
-		last = fGamma.tstamp.tstamp;
-		break;
-	case HION:
-		fHion.tstamp.tstamp = last + gRandom->Integer(100);
-		last = fHion.tstamp.tstamp;
-		break;
-	case COINC:
-		fGamma.tstamp.tstamp = last + gRandom->Integer(30);
-		fHion.tstamp.tstamp = fGamma.tstamp.tstamp + 3 + gRandom->Integer(10);
-		last = fHion.tstamp.tstamp;
-		break;
-	default:
-		assert(0); break;
-	}		
-}
-
-void EventGenerator::Generate(HiEvent*& h, GammaEvent*& g)
-{
-	h = 0; g = 0;
-	Choose();
-	switch(type) {
-	case COINC: Coinc(); h = &fHion; g = &fGamma; break;
-	case GAMMA: Gamma(); g = &fGamma; break;
-	case HION: HeavyIon(); h = &fHion; break;
-	default: assert(0); break;
-	}
-	if(h) h->tstamp.type = tstamp::Event::HION;
-	if(g) g->tstamp.type = tstamp::Event::GAMMA;
-	TSGen();
-}
-
-int main() {
-
-	/*
-	EventGenerator evg("test.root");
-	tstamp::Queue events(100);
-	
-	for(int i=0; i< 100000; ++i) {
-		evg.Generate(gHionEvent, gGammaEvent);
-		if(gGammaEvent) events.Push(gGammaEvent->tstamp);
-		if(gHionEvent)  events.Push(gHionEvent->tstamp);
-	}
-
-	gCoinc->Write();
-	gGamma->Write();
-	gHion->Write();
-*/
-
-	dragon::Dragon fDragon;
-
-}
-
-/*
-int main() {
-	TRandom3 rng(100);
-
-	tgen.Branch("coinc",&Coincg,"coinc/i");
-	tgen.Branch("val",&Valg,"val/i");
-	t.Branch("coinc",&Coinc,"coinc/i");
-	t.Branch("val",&Val,"val/i");
-
-	{
-		tstamp::Queue events(100);
-		int last = 1;
-		for(int i=0; i< 100000; ++i) {
-			bool coinc = rng.Uniform(0,100) < 33;
-			Coincg = coinc;
-			int num = rng.Uniform(last+1, last + 100);
-			Valg = num;
-			tgen.Fill();
-			last = num;
-			if(coinc) {
-				events.Push( tstamp::Event(num, tstamp::Event::GAMMA) );
-				events.Push( tstamp::Event(num, tstamp::Event::HION) );
-			}
-			else {
-				bool which = gRandom->Uniform(0,10) < 5;
-				if(which) events.Push( tstamp::Event (num, tstamp::Event::GAMMA) );
-				else      events.Push( tstamp::Event (num, tstamp::Event::HION) );
-			}
+		Short_t eventId = fBuffer.GetEventId();
+		if(eventId == DRAGON_EVENT) {
+			
+			static uint64_t fakeTS = 1;
+			tstamp::Event event(fakeTS++,1);
+			event.fMidasEvent = fBuffer;
+			
+			fTSQueue.Push(event);
 		}
+		else ;
 	}
-
-	tgen.Write();
-	t.Write();
 }
-*/
+
 #endif
