@@ -83,7 +83,6 @@ void tstamp::Queue::HandleCoinc(tstamp::Event& val, tstamp::Queue::Iterator& mat
 
 void tstamp::Queue::HandleSingle(tstamp::Queue::Iterator& it)
 {
-#if 1
 	if(it->type == tstamp::Event::GAMMA) {
 		rb::Event* gamma_event = rb::Event::Instance<GammaEvent>();
 		gamma_event->Process(const_cast<TMidasEvent*>(&it->fMidasEvent), 0);
@@ -92,21 +91,6 @@ void tstamp::Queue::HandleSingle(tstamp::Queue::Iterator& it)
 		rb::Event* hi_event = rb::Event::Instance<HeavyIonEvent>();
 		hi_event->Process(const_cast<TMidasEvent*>(&it->fMidasEvent), 0);
 	}
-#else
-	static dragon::gamma::Gamma fGamma;
-	TMidasEvent* fEvent = const_cast<TMidasEvent*>(&it->fMidasEvent);
-  if(fEvent) {
-	void* p_bank = NULL;
-  int bank_len, bank_type;
-  int found = fEvent->FindBank("VADC", &bank_len, &bank_type, &p_bank);
-  if(!found) std::cout << "VADC not found\n";
-
-
-		fGamma.unpack(*fEvent);
-		fGamma.read_data();
-		std::cout << "fGamma.bgo.q[0]: " << fGamma.bgo.q[0] << "\n";
-	}
-#endif
 	fContainer.erase(it);
 }
 
