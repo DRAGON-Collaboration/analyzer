@@ -33,19 +33,30 @@ struct Event {
 	 /// Set timestamp and type
 	 Event(uint32_t tstamp_, int type_);
 
-	 /// \brief Check tstamp equivalency
-	 /// \details Returns true if \e other
-	 /// -# Is of opposite 'type' compared to \c this
-	 /// -# Has a timstamp value within the coincidence window
-	 bool operator== (const Event& other);
+	 /// Default constructor
+	 Event() {}
+
+	 /// Destructor
+	 ~Event();
 };
 
 /// \brief Timestamp ordering functor
 struct Order {
-	 /// Compare two tstamp::Event structs by looking at their timestamp values
+	 /// \brief Order two tstamp::Event classes based on their \e tstamp value
 	 bool operator() (const tstamp::Event& lhs, const tstamp::Event& rhs) {
 		 return lhs.tstamp < rhs.tstamp;
 	 }
+};
+
+/// \brief Timestamp comparison functor
+struct Compare {
+	 /// \brief Compare two tstamp::Events for 'equivalency'
+	 /// \details This is to be used when searching for matches.
+	 /// Two Events are considered a match if:
+	 /// -# They have different \e type
+	 /// -# The difference between their \e tstamp values is within a coincidence window
+	 /// \note STL search algorithms define 'equivalency' as !comp(a,b) && !comp(b,a)
+	 bool operator() (const tstamp::Event& lhs, const tstamp::Event& rhs);
 };
 
 /// \brief Class to manage coincidence/singles ID.
@@ -76,7 +87,7 @@ public:
 	 /// it writes the present event and its match as a coincidence. Otherwise, the
 	 /// present event is inserted into the buffer so that it can be checked against
 	 /// future events.
-	 void Push(tstamp::Event);
+	 void Push(tstamp::Event&);
 
 	 /// \brief Erase the earliest event in the queue.
 	 /// \details Writes the beginning event as a singles event and removes it from the
@@ -85,6 +96,23 @@ public:
 	 /// is not a coincidence - that is, either the container has reached the max size (enough time
 	 /// has passed to guarantee no coincidences) or when we are done adding events.
 	 void Pop();
+
+	 /// \brief Return an iterator to the beginning of the Queue
+	 Iterator First() { return fContainer.begin(); }
+
+	 /// \brief Return an iterator to the end of the Queue
+	 Iterator Last() { return fContainer.end(); }
+
+	 /// \brief Check for a timestamp match
+	 /// \details Uses the tstamp::Compare functor to see if there's a timstamp match to \e event
+	 /// in the range between \e first and <i>last<\i>.
+	 /// \returns Iterator to match position if there is a match, \e last otherwise
+	 Iterator CheckMatch(const tstamp::Event& event, Iterator first, Iterator last);
+
+	 /// \brief Check for a timestamp match
+	 /// \details Same as the other CheckMatch() function, except the range is the full range
+	 /// of fContainer
+	 Iterator CheckMatch(const tstamp::Event& event) { return CheckMatch(event, First(), Last()); }
 
 	 /// \brief Check whether the maximum size has been reached
 	 /// \details This function returns true if we have buffered enough events to effectively
@@ -96,7 +124,7 @@ public:
 
 private:
 	 /// What to do in case of a coincidence event
-	 void HandleCoinc(tstamp::Event, Iterator&);
+	 void HandleCoinc(tstamp::Event&, Iterator&);
 
 	 /// What to do in case of a singles event
 	 void HandleSingle(Iterator&);

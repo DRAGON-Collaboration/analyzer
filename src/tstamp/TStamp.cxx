@@ -1,36 +1,9 @@
 #include <cassert>
 #include <iostream>
 #include "TStamp.hxx"
-
-
-// TTree *gCoinc = 0, *gGamma = 0, *gHion = 0;
-// uint64_t gGammaTS, gHionTS;
-// double gParG, gParH;
-// GammaEvent* gGammaEvent;
-// HiEvent* gHionEvent;
-
-// void initTree()
-// {
-// 	static int ncalls(0); assert(ncalls++ == 0);
-// 	gCoinc = new TTree("tcoinc", "Reconstructed Coincidence Tree");
-// 	gGamma = new TTree("tgamma", "Reconstructed Gamma Singles Tree");
-// 	gHion  = new TTree("thion",  "Reconstructed Heavy Ion Singles Tree");
-
-// 	// Timestamp branches
-// 	gHion-> Branch("ts",  &gHionTS,  "ts/l");
-// 	gGamma->Branch("ts",  &gGammaTS, "ts/l");
-// 	gCoinc->Branch("tsg", &gGammaTS, "tsg/l");
-// 	gCoinc->Branch("tsh", &gHionTS,  "tsh/l");
-
-// 	// Parameter branches
-// 	gHion-> Branch("par",  &gParH, "par/D");
-// 	gGamma->Branch("par",  &gParG, "par/D");
-// 	gCoinc->Branch("parg", &gParG, "parg/D");
-// 	gCoinc->Branch("parh", &gParH, "parh/D");
-// }
+#include "user/User.hxx"
 
 namespace { const uint64_t MAX32 = 4294967295; }
-
 
 // ========= Struct tstamp::Event ========= //
 tstamp::Event::Event(uint32_t tstamp_, int type_):
@@ -46,44 +19,71 @@ tstamp::Event::Event(uint32_t tstamp_, int type_):
 	last = tstamp;
 }
 
-bool tstamp::Event::operator== (const tstamp::Event& other)
+tstamp::Event::~Event()
 {
-	if(other.type == this->type) return false;
+	// std::cout << "~tstamp::Event::~Event()\n";
+}
+	
 
-	if(other.tstamp > this->tstamp) {
-		return other.tstamp - this->tstamp > 10;
+/// Timestamp coincidence window
+/// \todo make this something more settable, not a #define
+#define COINC_WINDOW 10
+
+// ========= Struct tstamp::Compare ========= //
+bool tstamp::Compare::operator() (const tstamp::Event& lhs, const tstamp::Event& rhs)
+{
+	// Note: STL search algorithms define 'equivalency' as (!comp(a,b) && !comp(b,a)) == true
+	// Thus we should return 'false' if the two events count as a match and otherwise something that 
+	// won't always be true under commuation (e.g. lhs.tstamp < rhs.tstamp)
+	if(lhs.type == rhs.type) { // Not a match - different types
+		return lhs.tstamp < rhs.tstamp;
 	}
-	else {
-		return this->tstamp - other.tstamp > 10;
-	}
+	return (std::max(lhs.tstamp, rhs.tstamp) - std::min(lhs.tstamp, rhs.tstamp) < COINC_WINDOW) ?
+		 false /* Match */ : lhs.tstamp < rhs.tstamp; /* Not a match - outside window */
 }
 
 
 // ========= Class tstamp::Queue ========= //
 
-void tstamp::Queue::HandleCoinc(tstamp::Event val, tstamp::Queue::Iterator& match)
+void tstamp::Queue::HandleCoinc(tstamp::Event& val, tstamp::Queue::Iterator& match)
 {
-//	if(!gCoinc) initTree();
-	assert(val.tstamp == match->tstamp);
+	// Set gamma and heavy ion midas buffer pointers
+	TMidasEvent *gammaMidasEvent = 0, *hionMidasEvent = 0;
+	if(val.type == tstamp::Event::GAMMA) {
+		gammaMidasEvent = &val.fMidasEvent;
+		hionMidasEvent  = const_cast<TMidasEvent*>(&match->fMidasEvent);
+	} else {
+		gammaMidasEvent = const_cast<TMidasEvent*>(&match->fMidasEvent);
+		hionMidasEvent  = &val.fMidasEvent;
+	}
 
-//	HandleCoincidence(gHionEvent, gGammaEvent);
+	// Unpack each event into singles tree
+	rb::Event* gamma_event = rb::Event::Instance<GammaEvent>();
+	gamma_event->Process(gammaMidasEvent, 0);
 
+	rb::Event* hi_event = rb::Event::Instance<HeavyIonEvent>();
+	hi_event->Process(hionMidasEvent, 0);
+
+	// Unpack into coincidence tree
+	rb::Event* coinc_event = rb::Event::Instance<CoincidenceEvent>();
+	CoincEventPair_t coinc =
+		 std::make_pair(static_cast<GammaEvent*>(gamma_event), static_cast<HeavyIonEvent*>(hi_event));
+	coinc_event->Process(&coinc, 0);
+	
+	// Remove match from the queue
 	fContainer.erase(match);
 }
 
 void tstamp::Queue::HandleSingle(tstamp::Queue::Iterator& it)
 {
-//	if(!gCoinc) initTree();
-
 	if(it->type == tstamp::Event::GAMMA) {
-//		assert(gGammaEvent);
-//		HandleGamma(gGammaEvent);
+		rb::Event* gamma_event = rb::Event::Instance<GammaEvent>();
+		gamma_event->Process(const_cast<TMidasEvent*>(&it->fMidasEvent), 0);
 	}
 	else if(it->type == tstamp::Event::HION) {
-//		assert(gHionEvent);
-//		HandleHion(gHionEvent);
+		rb::Event* hi_event = rb::Event::Instance<HeavyIonEvent>();
+		hi_event->Process(const_cast<TMidasEvent*>(&it->fMidasEvent), 0);
 	}
-
 	fContainer.erase(it);
 }
 
@@ -98,23 +98,56 @@ bool tstamp::Queue::IsFull()
 	return fMaxSize <= last->tstamp - first->tstamp;
 }
 
-void tstamp::Queue::Push(tstamp::Event tstamp)
+tstamp::Queue::Iterator tstamp::Queue::CheckMatch(const tstamp::Event& event,
+																									tstamp::Queue::Iterator first, tstamp::Queue::Iterator last)
 {
-	tstamp::Queue::Iterator itMatch = fContainer.find(tstamp);
-	if(itMatch != fContainer.end()) {
-		HandleCoinc(tstamp, itMatch);
+	tstamp::Compare comp;
+	tstamp::Queue::Iterator it =
+		 std::lower_bound<tstamp::Queue::Iterator, tstamp::Event, tstamp::Compare> (first, last, event, comp);
+	if(it != last && (!comp(*it, event) && !comp(event, *it))) {
+		return it;
 	}
 	else {
-		if(IsFull()) this->Pop();
-		fContainer.insert(tstamp);
+		return last;
+	}	
+}
+
+void tstamp::Queue::Push(tstamp::Event& event)
+{
+	tstamp::Queue::Iterator itMatch = CheckMatch(event);
+	if(itMatch != fContainer.end()) {
+		HandleCoinc(event, itMatch);
+	}
+	else {
+		if(IsFull()) {
+			this->Pop();
+		}
+		std::pair<tstamp::Queue::Iterator, bool> result = fContainer.insert(event);
+		if(!result.second) { // Duplicate
+			std::cerr << "Warning in <tstamp::Queue::Push>: Tried to insert a duplicate timestampped event; "
+								<< "skipping the second one.\n"
+								<< "Timestamp value: " << event.tstamp << ", type: " << event.type << "\n";
+		}
 	}
 }
 
 void tstamp::Queue::Pop()
 {
  	if(fContainer.empty()) return;
-	tstamp::Queue::Iterator it = fContainer.begin();
-	HandleSingle(it);
+	tstamp::Queue::Iterator itFirst = fContainer.begin(), itSecond = itFirst;
+	++itSecond;
+	tstamp::Queue::Iterator itMatch = CheckMatch(*itFirst, itSecond, this->Last());
+	if(itMatch == this->Last()) {
+		HandleSingle(itFirst);
+	}
+	else {
+		std::cerr << "Warning in <tstamp::Queue::Pop()>: Found a match - this shouldn't hapen, no!?\n" 
+							<< "Erasing both elements - "
+							<< "First.ts, First.type, Match.ts, Match.type: "
+							<< itFirst->tstamp << ", " << itFirst->type << ", " << itMatch->tstamp << ", " << itMatch->type << "\n";
+		fContainer.erase(itFirst);
+		fContainer.erase(itMatch);
+	}
 }
 
 void tstamp::Queue::Cleanup()
@@ -125,11 +158,20 @@ void tstamp::Queue::Cleanup()
 }
 	
 
-#if 1
+#if defined TEST
 
-int main() { return 0; }
+int main() {
 
-#else
+	tstamp::Event event(1,1);
+	TMidasEvent midasEvent;
+	event.fMidasEvent = midasEvent;
+	tstamp::Queue queue(100);
+
+	queue.Push(event);
+
+}
+
+#elif 0
 // ========= FOR TESTING ========= //
 
 class EventGenerator {
