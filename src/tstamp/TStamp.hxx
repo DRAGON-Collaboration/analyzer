@@ -79,7 +79,7 @@ public:
 	 typedef Container::iterator Iterator;
 private:
 	 /// \brief Maximum size of the container
-	 const int fMaxSize;
+	 const unsigned fMaxSize;
 	 /// \brief Internal container for storing unmatched timestamps
 	 Container fContainer;
 public:

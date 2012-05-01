@@ -58,26 +58,37 @@ void tstamp::Queue::HandleCoinc(tstamp::Event& val, tstamp::Queue::Iterator& mat
 { 
 	// Set gamma and heavy ion midas buffer pointers
 	TMidasEvent *gammaMidasEvent = 0, *hionMidasEvent = 0;
-	if(val.type == tstamp::Event::GAMMA) {
+	if(0);
+	else if(val.type == tstamp::Event::GAMMA && match->type == tstamp::Event::HION) {
 		gammaMidasEvent = &val.fMidasEvent;
 		hionMidasEvent  = const_cast<TMidasEvent*>(&match->fMidasEvent);
-	} else {
+	}
+	else if(val.type == tstamp::Event::HION && match->type == tstamp::Event::GAMMA) {
 		gammaMidasEvent = const_cast<TMidasEvent*>(&match->fMidasEvent);
 		hionMidasEvent  = &val.fMidasEvent;
 	}
+	else {
+		err::Error("tstamp::Queue::HandleCoinc")
+			 << "Invalid coincidence event types: val.type = " << val.type << ", match->type = " << match->type
+			 << ". Valid arguments should be either " << tstamp::Event::GAMMA << " (gamma event) or "
+			 << tstamp::Event::HION << " (heavy ion event), with val.type != match->type. Skipping the events "
+			 << "in question." << ERR_FILE_LINE;
+	}
 
-	// Unpack each event into singles tree
-	rb::Event* gamma_event = rb::Event::Instance<GammaEvent>();
-	gamma_event->Process(gammaMidasEvent, 0);
+	if(gammaMidasEvent && hionMidasEvent) {
+		// Unpack each event into singles tree
+		rb::Event* gamma_event = rb::Event::Instance<GammaEvent>();
+		gamma_event->Process(gammaMidasEvent, 0);
 
-	rb::Event* hi_event = rb::Event::Instance<HeavyIonEvent>();
-	hi_event->Process(hionMidasEvent, 0);
-
-	// Unpack into coincidence tree
-	rb::Event* coinc_event = rb::Event::Instance<CoincidenceEvent>();
-	CoincEventPair_t coinc =
-		 std::make_pair(static_cast<GammaEvent*>(gamma_event), static_cast<HeavyIonEvent*>(hi_event));
-	coinc_event->Process(&coinc, 0);
+		rb::Event* hi_event = rb::Event::Instance<HeavyIonEvent>();
+		hi_event->Process(hionMidasEvent, 0);
+		
+		// Unpack into coincidence tree
+		rb::Event* coinc_event = rb::Event::Instance<CoincidenceEvent>();
+		CoincEventPair_t coinc =
+			 std::make_pair(static_cast<GammaEvent*>(gamma_event), static_cast<HeavyIonEvent*>(hi_event));
+		coinc_event->Process(&coinc, 0);
+	}
 	
 	// Remove match from the queue
 	fContainer.erase(match);
@@ -130,7 +141,6 @@ tstamp::Queue::Iterator tstamp::Queue::CheckMatch(const tstamp::Event& event,
 	tstamp::Queue::Iterator it =
 		 std::lower_bound<tstamp::Queue::Iterator, tstamp::Event, tstamp::Compare> (first, last, event, comp);
 	if(it != last && (!comp(*it, event) && !comp(event, *it))) {
-		std::cout << it->tstamp << " ==? " << event.tstamp << "\n";
 		return it;
 	}
 	else {
@@ -150,7 +160,7 @@ void tstamp::Queue::Push(tstamp::Event& event)
 		}
 		std::pair<tstamp::Queue::Iterator, bool> result = fContainer.insert(event);
 		if(!result.second) { // Duplicate
-			std::cerr << "Warning in <tstamp::Queue::Push>: Tried to insert a duplicate timestampped event; "
+			std::cerr << "Warning in <tstamp::Queue::Push>: Tried to insert a duplicate timestamped event; "
 								<< "skipping the second one.\n"
 								<< "Timestamp value: " << event.tstamp << ", type: " << event.type << "\n";
 		}
