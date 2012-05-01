@@ -2,6 +2,7 @@
 #include <iostream>
 #include "TStamp.hxx"
 #include "user/User.hxx"
+#include "utils/Error.hxx"
 
 namespace { const uint64_t MAX32 = 4294967295; }
 
@@ -37,12 +38,13 @@ void tstamp::Event::Copy(const tstamp::Event& other)
 #define COINC_WINDOW 10
 
 // ========= Struct tstamp::Compare ========= //
+
 bool tstamp::Compare::operator() (const tstamp::Event& lhs, const tstamp::Event& rhs)
 {
 	// Note: STL search algorithms define 'equivalency' as (!comp(a,b) && !comp(b,a)) == true
 	// Thus we should return 'false' if the two events count as a match and otherwise something that 
 	// won't always be true under commuation (e.g. lhs.tstamp < rhs.tstamp)
-	if(lhs.type == rhs.type) { // Not a match - different types
+	if(lhs.type == rhs.type) { // Not a match - same types
 		return lhs.tstamp != rhs.tstamp ? lhs.tstamp < rhs.tstamp : true;
 	}
 	return (std::max(lhs.tstamp, rhs.tstamp) - std::min(lhs.tstamp, rhs.tstamp) < COINC_WINDOW) ?
@@ -83,14 +85,30 @@ void tstamp::Queue::HandleCoinc(tstamp::Event& val, tstamp::Queue::Iterator& mat
 
 void tstamp::Queue::HandleSingle(tstamp::Queue::Iterator& it)
 {
-	if(it->type == tstamp::Event::GAMMA) {
-		rb::Event* gamma_event = rb::Event::Instance<GammaEvent>();
-		gamma_event->Process(const_cast<TMidasEvent*>(&it->fMidasEvent), 0);
+	// Figure out event type & unpack
+	switch(it->type) {
+	case tstamp::Event::GAMMA :
+		 {
+			 rb::Event* gamma_event = rb::Event::Instance<GammaEvent>();
+			 gamma_event->Process(const_cast<TMidasEvent*>(&it->fMidasEvent), 0);
+			 break;
+		 }
+	case tstamp::Event::HION :
+		 {
+			 rb::Event* hi_event = rb::Event::Instance<HeavyIonEvent>();
+			 hi_event->Process(const_cast<TMidasEvent*>(&it->fMidasEvent), 0);
+			 break;
+		 }
+	default:
+		 {
+			 err::Error("tstamp::Queue::HandleSingle")
+					<< "Unrecognized tstamp::Event::type: " << it->type << ". Recognized types are "
+					<< tstamp::Event::GAMMA << " (gamma event) and " << tstamp::Event::HION << " (heavy ion event). "
+					<< "Skiping the event in question." << ERR_FILE_LINE;
+			 break;
+		 }
 	}
-	else if(it->type == tstamp::Event::HION) {
-		rb::Event* hi_event = rb::Event::Instance<HeavyIonEvent>();
-		hi_event->Process(const_cast<TMidasEvent*>(&it->fMidasEvent), 0);
-	}
+	// Remove the event in question from the queue
 	fContainer.erase(it);
 }
 
