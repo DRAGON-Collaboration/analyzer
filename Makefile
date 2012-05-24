@@ -26,6 +26,7 @@ ifeq ($(UNAME),Darwin)
 CXXFLAGS += -DOS_LINUX -DOS_DARWIN
 ifdef MIDASSYS
 MIDASLIBS = -L$(MIDASSYS)/darwin/lib -lmidas
+CXXFLAGS += -I$(MIDASSYS)/include
 endif
 DYLIB=-dynamiclib -single_module -undefined dynamic_lookup
 FPIC=
@@ -49,7 +50,7 @@ $(SRC)/dragon/heavy_ion/HeavyIon.hxx \
 $(SRC)/dragon/heavy_ion/DSSSD.hxx $(SRC)/dragon/heavy_ion/IonChamber.hxx \
 $(SRC)/dragon/heavy_ion/MCP.hxx $(SRC)/dragon/heavy_ion/SurfaceBarrier.hxx \
 $(SRC)/dragon/gamma/Gamma.hxx $(SRC)/dragon/gamma/Bgo.hxx \
-$(SRC)/tstamp/TStamp.hxx
+$(SRC)/tstamp/TStamp.hxx $(SRC)/odb/Odb.hxx
 
 SOURCES=$(SRC)/vme/caen/Adc.cxx $(SRC)/vme/caen/V1190.cxx \
 $(SRC)/dragon/Modules.cxx $(SRC)/dragon/Dragon.cxx \
@@ -57,7 +58,7 @@ $(SRC)/dragon/heavy_ion/HeavyIon.cxx \
 $(SRC)/dragon/heavy_ion/DSSSD.cxx $(SRC)/dragon/heavy_ion/IonChamber.cxx \
 $(SRC)/dragon/heavy_ion/MCP.cxx $(SRC)/dragon/heavy_ion/SurfaceBarrier.cxx \
 $(SRC)/dragon/gamma/Gamma.cxx $(SRC)/dragon/gamma/Bgo.cxx  \
-$(SRC)/tstamp/TStamp.cxx
+$(SRC)/tstamp/TStamp.cxx $(SRC)/odb/Odb.cxx
 
 OBJECTS=$(OBJ)/vme/caen/Adc.o $(OBJ)/vme/caen/V1190.o \
 $(OBJ)/dragon/Modules.o $(OBJ)/dragon/Dragon.o \
@@ -65,7 +66,7 @@ $(OBJ)/dragon/heavy_ion/HeavyIon.o \
 $(OBJ)/dragon/heavy_ion/DSSSD.o $(OBJ)/dragon/heavy_ion/IonChamber.o \
 $(OBJ)/dragon/heavy_ion/MCP.o $(OBJ)/dragon/heavy_ion/SurfaceBarrier.o \
 $(OBJ)/dragon/gamma/Gamma.o $(OBJ)/dragon/gamma/Bgo.o  \
-$(OBJ)/tstamp/TStamp.o
+$(OBJ)/tstamp/TStamp.o $(OBJ)/odb/Odb.o
 
 ### DRAGON LIBRARY ###
 all: $(DRLIB)/libDragon.so
@@ -135,6 +136,11 @@ TStamp: $(OBJ)/tstamp/TStamp.o
 $(OBJ)/tstamp/TStamp.o: $(CINT)/DragonDictionary.cxx $(SRC)/tstamp/TStamp.cxx
 	$(COMPILE) $(FPIC) -c \
 -o $@ -p $(SRC)/tstamp/TStamp.cxx \
+
+Odb: $(OBJ)/odb/Odb.o
+$(OBJ)/odb/Odb.o: $(CINT)/DragonDictionary.cxx $(SRC)/odb/Odb.cxx
+	$(COMPILE) $(FPIC) -c \
+-o $@ -p $(SRC)/odb/Odb.cxx \
 
 ### CINT DICTIONARY ###
 dict: $(CINT)/DragonDictionary.cxx

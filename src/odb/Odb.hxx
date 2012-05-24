@@ -3,32 +3,48 @@
 #ifndef DRAGON_UTILS_ODB_HXX
 #define DRAGON_UTILS_ODB_HXX
 
-/// 
-int odbReadAny(const char*name,int index,int tid,void* value,int valueLength = 0);
+/// Encloses ODB related functions
+namespace odb {
 
-int odbReadInt(const char*name,int index = 0,int defaultValue = 0);
+/// Read any value from the odb
+int ReadAny(const char*name,int index,int tid,void* value,int valueLength = 0);
 
-uint32_t odbReadUint32(const char*name,int index = 0,uint32_t defaultValue = 0);
+/// Read an integer from the odb
+int ReadInt(const char*name,int index = 0,int defaultValue = 0);
 
-double odbReadDouble(const char*name,int index = 0,double defaultValue = 0);
+/// Read a 32-bit integer from the odb
+uint32_t ReadUint32(const char*name,int index = 0,uint32_t defaultValue = 0);
 
-float odbReadFloat(const char*name,int index = 0,double defaultValue = 0);
+/// Read a double-precision floating point from the odb
+double ReadDouble(const char*name,int index = 0,double defaultValue = 0);
 
-bool odbReadBool(const char*name,int index = 0,bool defaultValue = 0);
+/// Read a single-precision floating point from the odb
+float ReadFloat(const char*name,int index = 0,double defaultValue = 0);
 
-const char* odbReadString(const char*name,int index,const char* defaultValue,int stringLength);
+/// Read a boolean from the odb
+bool ReadBool(const char*name,int index = 0,bool defaultValue = 0);
 
-int odbReadArraySize(const char*name);
+/// Read a C string from the odb
+const char* ReadString(const char*name,int index,const char* defaultValue,int stringLength);
 
-int odbResizeArray(const char*name, int tid, int size);
+/// Get the size of an odb array
+int ReadArraySize(const char*name);
 
-int odbWriteInt(const char*name, int index, int value);
+/// Change the size of an odb array
+int ResizeArray(const char*name, int tid, int size);
 
-int odbWriteBool(const char*name, int index, bool value);
+/// Write an integer to the odb
+int WriteInt(const char*name, int index, int value);
 
-int odbWriteDouble(const char*name, int index, double value);
+/// Write a boolean to the odb
+int WriteBool(const char*name, int index, bool value);
 
-int odbWriteString(const char*name, const char* string);
+/// Write a double-precision floating point to the odb
+int WriteDouble(const char*name, int index, double value);
 
+/// Write a string to the odb
+int WriteString(const char*name, const char* string);
+
+} // namespace odb
 
 #endif
