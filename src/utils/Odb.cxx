@@ -1,7 +1,11 @@
 //! \file Odb.cxx
 //! \brief Allows reading of data from the MIDAS Online DataBase (ODB).
-//! \note Copied from DRAGON frontend code directory.
+//! \note Originally copied from DRAGON frontend code directory.
+#include <cassert>
+#include <cstring>
+#include <stdint.h>
 #include <midas.h>
+#include "Odb.hxx"
 
 extern const char* frontend_name;
 extern HNDLE hDB;
