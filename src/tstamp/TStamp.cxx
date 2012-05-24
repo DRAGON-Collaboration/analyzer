@@ -1,3 +1,5 @@
+//! \file TStamp.cxx
+//! \brief Implements TStamp.hxx
 #include <cassert>
 #include <iostream>
 #include "TStamp.hxx"

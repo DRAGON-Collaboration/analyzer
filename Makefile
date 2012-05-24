@@ -156,5 +156,5 @@ clean:
 
 #### FOR DOXYGEN ####
 
-doc: $(DRLIB)/libDragon.so
+doc::
 	./make_doc.sh
