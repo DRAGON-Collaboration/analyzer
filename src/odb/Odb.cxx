@@ -3,16 +3,19 @@
 //! \note Originally copied from DRAGON frontend code directory, then edited
 //! \todo Figure out what database is being read/written, allow options for offline files (hDB extern variable??),
 //! fix messaging scheme.
+#ifdef MIDASSYS
 #include <cassert>
 #include <cstring>
 #include <stdint.h>
 #include <midas.h>
-#include "Odb.hxx"
+#include "odb/Odb.hxx"
 
 // extern const char* frontend_name;
 // extern HNDLE hDB;
+namespace {
 const char* frontend_name = "";
-extern HNDLE hDB = 0; // n.b. HNDLE == int
+HNDLE hDB = 0; // n.b. HNDLE == int
+}
 
 int odb::ReadAny(const char*name,int index,int tid,void* value,int valueLength)
 {
@@ -264,4 +267,27 @@ int odb::WriteString(const char*name, const char* string)
 }
 
 
-// end
+#else
+#include <iostream>
+#include "odb/Odb.hxx"
+
+#define ERR_NO_MIDAS														\
+	std::cerr << "Error: MIDASSYS not defined. file, line: " << __FILE__ <<  ", " << __LINE__ << "\n"
+
+int odb::ReadAny(const char*name,int index,int tid,void* value,int valueLength) { ERR_NO_MIDAS; return -1; }
+int odb::ReadInt(const char*name,int index,int defaultValue) { ERR_NO_MIDAS; return -1; }
+uint32_t odb::ReadUint32(const char*name,int index,uint32_t defaultValue) { ERR_NO_MIDAS; return 1; }
+double odb::ReadDouble(const char*name,int index,double defaultValue) { ERR_NO_MIDAS; return -1.; }
+float odb::ReadFloat(const char*name,int index,double defaultValue) { ERR_NO_MIDAS; return -1.; }
+bool odb::ReadBool(const char*name,int index,bool defaultValue) { ERR_NO_MIDAS; return 0; }
+const char* odb::ReadString(const char*name,int index,const char* defaultValue,int stringLength) { ERR_NO_MIDAS; return 0; }
+int odb::ReadArraySize(const char*name) { ERR_NO_MIDAS; return -1; }
+int odb::ResizeArray(const char*name, int tid, int size) { ERR_NO_MIDAS; return -1; }
+int odb::WriteInt(const char*name, int index, int value) { ERR_NO_MIDAS; return -1; }
+int odb::WriteBool(const char*name, int index, bool value) { ERR_NO_MIDAS; return -1; }
+int odb::WriteDouble(const char*name, int index, double value) { ERR_NO_MIDAS; return -1; }
+int odb::WriteString(const char*name, const char* string) { ERR_NO_MIDAS; return -1; }
+
+#undef ERR_NO_MIDAS
+
+#endif
