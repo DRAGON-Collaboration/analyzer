@@ -53,10 +53,10 @@ struct NaI {
 	 Variables variables; //!
 
 	 /// Raw energy signals
-	 int16_t eraw[nch]; //#
+	 int16_t qraw[nch]; //#
 
 	 /// Calibrated energy signals
-	 double ecal[nch]; //#
+	 double  qcal[nch]; //#
 
 // ==== Methods ==== //
 	 /// Constructor, initialize data
@@ -80,5 +80,10 @@ struct NaI {
 
 	 /// \brief Do energy calibrations
 	 void calculate();
+};
+
+} // namespace hion
+
+} // namespace dragon
 	 
 #endif

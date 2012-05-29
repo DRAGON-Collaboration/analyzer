@@ -16,7 +16,7 @@ dragon::hion::NaI::NaI()
 }
 
 namespace {
-inline void copy_nai(const dragon::hion::NaI& from, const dragon::hion::NaI& to)
+inline void copy_nai(const dragon::hion::NaI& from, dragon::hion::NaI& to)
 {
 	to.variables = from.variables;
 	copy_array(from.qraw, to.qraw, dragon::hion::NaI::nch);
@@ -49,7 +49,7 @@ void dragon::hion::NaI::read_data(const dragon::hion::Modules& modules)
 	}
 }
 
-void dragon::hion::NaI::caculate()
+void dragon::hion::NaI::calculate()
 {
 	for(int i=0; i< NaI::nch; ++i) {
 		if(!is_valid(qraw[i])) continue;
@@ -71,7 +71,7 @@ dragon::hion::NaI::Variables::Variables()
 }
 
 namespace {
-inline void copy_nai_variables(const dragon::hion::NaI::Variables& from, const dragon::hion::NaI::Variables& to)
+inline void copy_nai_variables(const dragon::hion::NaI::Variables& from, dragon::hion::NaI::Variables& to)
 {
 	copy_array(from.module, to.module, dragon::hion::NaI::nch);
 	copy_array(from.ch,     to.ch,     dragon::hion::NaI::nch);
@@ -90,7 +90,7 @@ dragon::hion::NaI::Variables::Variables& dragon::hion::NaI::Variables::operator=
 	return *this;
 }
 
-void dragon::hion::NaI::Variables::Set(const char* odb)
+void dragon::hion::NaI::Variables::set(const char* odb)
 {
 	/// \todo Set actual ODB paths, TEST!!
 	const std::string pathModule = "Equipment/NaI/Variables/Module";
@@ -114,16 +114,16 @@ void dragon::hion::NaI::Variables::Set(const char* odb)
 			return;
 		}
 
-		copy_array(&chOdb[0], ch, dragon::hion::SurfaceBarrier::nch);
-		copy_array(&moduleOdb[0], module, dragon::hion::SurfaceBarrier::nch);
+		copy_array(&chOdb[0], ch, dragon::hion::NaI::nch);
+		copy_array(&moduleOdb[0], module, dragon::hion::NaI::nch);
 
-		copy_array(&chSlope, slope, dragon::hion::NaI::nch);
-		copy_array(&chOffset, offset, dragon::hion::NaI::nch);
+		copy_array(&slopeOdb[0], slope, dragon::hion::NaI::nch);
+		copy_array(&offsetOdb[0], offset, dragon::hion::NaI::nch);
 
 	}
 	else { // Read from online ODB.
 #ifdef MIDASSYS
-		for(int i=0; i< dragon::hion::SurfaceBarrier::nch; ++i) {
+		for(int i=0; i< dragon::hion::NaI::nch; ++i) {
 			ch[i]     = odb::ReadInt(pathCh.c_str(), i, 0);
 			module[i] = odb::ReadInt(pathModule.c_str(), i, 0);
 			slope[i]  = odb::ReadDouble(pathSlope.c_str(), i, 0);
