@@ -56,6 +56,9 @@ struct IonChamber {
 	 /// Raw time signal (channels???)
 	 int16_t tof; //#
 
+	 /// Sum of anode signals
+	 double sum;
+
 	 /// Constructor, initialize data
 	 IonChamber();
 
@@ -76,6 +79,9 @@ struct IonChamber {
 	 /// \param modules Heavy-ion module structure
 	 /// \param [in] v1190_trigger_ch Channel number of the v1190b trigger
 	 void read_data(const dragon::hion::Modules& modules, int v1900_trigger_ch);
+
+	 /// \brief Calculate higher-level parameters
+	 void calculate();
 };
 
 } // namespace hion

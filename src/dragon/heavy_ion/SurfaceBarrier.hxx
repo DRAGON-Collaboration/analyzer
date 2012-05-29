@@ -49,7 +49,8 @@ struct SurfaceBarrier {
 	 
 	 /// Charge (energy) signals
 	 int16_t q[nch]; //#
-	 
+
+// ==== Methods ==== //
 	 /// Constructor, initialize data
 	 SurfaceBarrier();
 
@@ -62,7 +63,7 @@ struct SurfaceBarrier {
 	 /// Equivalency operator
 	 SurfaceBarrier& operator= (const SurfaceBarrier& other);
 
-	 /// Reset all data to VME::none
+	 /// Reset all data to vme::NONE
 	 void reset();
 	 
 	 /// \brief Read midas event data

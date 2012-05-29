@@ -40,12 +40,19 @@ public:
    /// Sets all data values to vme::NONE
 	 void reset();
 
-	 /// Unpack midas event data
+	 /// \brief Reads all variable values from an ODB (file or online)
+	 /// \param [in] odb_file Name of the ODB file; passing \c "online" looks at the online ODB.
+	 void set_variables(const char* odb_file);
+
+	 /// \brief Unpack midas event data into \e modules data structure
 	 /// \param [in] event Reference to a Midas event structure
 	 void unpack(TMidasEvent& event);
 
-	 /// \brief Read data from modules into detector classes
+	 /// \brief Read data from \e modules into detector classes
 	 void read_data();
+
+	 /// \brief Calculate higher-level data for each detector, or across detectors
+	 void calculate();
 };
 	 
 

@@ -36,7 +36,11 @@ public:
 	 /// Reset all modules
 	 void reset();
 
-	 /// Copy data from head and tail coincidence events
+	 /// \brief Reads all variable values from an ODB (file or online)
+	 /// \param [in] odb_file Name of the ODB file; passing \c "online" looks at the online ODB.
+	 void set_variables(const char* odb_file);
+
+	 /// \brief Copy data from head and tail coincidence events
 	 /// \param [in] head Head (gamma-ray) event
 	 /// \param [in] tail Tail (heavy-ion) event
 	 void read_event(const dragon::gamma::Gamma& head, const dragon::hion::HeavyIon& tail);

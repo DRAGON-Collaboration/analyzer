@@ -4,7 +4,8 @@
 #include <iostream>
 #include "dragon/gamma/Bgo.hxx"
 #include "utils/copy_array.h"
-#include "vme/vme.hxx"
+#include "vme/Vme.hxx"
+#include "odb/Odb.hxx"
 #include "odb/MidasXML.hxx"
 
 // ========== Class dragon::gamma::Bgo ========== //
@@ -84,15 +85,27 @@ void dragon::gamma::Bgo::Variables::set(const char* odb)
 /// \todo Set actual ODB paths, TEST!!
 	const std::string pathADC = "Equipment/Bgo/Variables/ADCChannel";
 	const std::string pathTDC = "Equipment/Bgo/Variables/TDCChannel";
-	MidasXML mxml (odb);
-	bool success = false;
-	std::vector<int> ch_adc, ch_tdc;
-	mxml.GetArray(pathADC.c_str(), ch_adc, &success);
-	mxml.GetArray(pathTDC.c_str(), ch_tdc, &success);
-	if(!success) {
-		std::cerr << "Failure reading variable values from the odb file, no changes made.\n";
-		return;
+	if(strcmp(odb, "online")) { // Read from offline XML file
+		MidasXML mxml (odb);
+		bool success = false;
+		std::vector<int> ch_adc, ch_tdc;
+		mxml.GetArray(pathADC.c_str(), ch_adc, &success);
+		mxml.GetArray(pathTDC.c_str(), ch_tdc, &success);
+		if(!success) {
+			std::cerr << "Failure reading variable values from the odb file, no changes made.\n";
+			return;
+		}
+		copy_array(&ch_adc[0], qdc_ch, dragon::gamma::Bgo::nch);
+		copy_array(&ch_tdc[0], tdc_ch, dragon::gamma::Bgo::nch);
 	}
-	copy_array(&ch_adc[0], qdc_ch, dragon::gamma::Bgo::nch);
-	copy_array(&ch_tdc[0], tdc_ch, dragon::gamma::Bgo::nch);
+	else { // Read from online ODB.
+#ifdef MIDASSYS
+		for(int i=0; i< dragon::gamma::Bgo::nch; ++i) {
+			qdc_ch[i] = odb::ReadInt(pathADC.c_str(), i, 0);
+			tdc_ch[i] = odb::ReadInt(pathTDC.c_str(), i, 0);
+		}
+#else
+		std::cerr << "MIDASSYS not defined, can't read from online ODB, no changes made.\n";
+#endif
+	}
 }

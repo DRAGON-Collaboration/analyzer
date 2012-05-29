@@ -1,8 +1,12 @@
 /// \file DSSSD.cxx
 /// \brief Implements DSSSD.hxx
+#include <string>
+#include <iostream>
+#include "utils/copy_array.h"
 #include "dragon/heavy_ion/DSSSD.hxx"
 #include "vme/Vme.hxx"
-#include "utils/copy_array.h"
+#include "odb/Odb.hxx"
+#include "odb/MidasXML.hxx"
 
 
 // ====== struct dragon::hion::DSSSD ====== //
@@ -79,7 +83,37 @@ dragon::hion::DSSSD::Variables& dragon::hion::DSSSD::Variables::operator= (const
 	return *this;
 }
 
-void dragon::hion::DSSSD::Variables::set(const char* odb_file)
+void dragon::hion::DSSSD::Variables::set(const char* odb)
 {
-	/// \todo Implement
+	/// \todo Set actual ODB paths, TEST!!
+	const std::string pathAdcModule = "Equipment/DSSSD/Variables/ADCModule";
+	const std::string pathAdcCh     = "Equipment/DSSSD/Variables/ADCChannel";
+	const std::string pathTdcCh     = "Equipment/DSSSD/Variables/TDCChannel";
+	if(strcmp(odb, "online")) { // Read from offline XML file
+		MidasXML mxml (odb);
+		bool success = false;
+		std::vector<int> ch_adc, module_adc;
+		int ch_tdc;
+		mxml.GetArray(pathAdcModule.c_str(), module_adc, &success);
+		mxml.GetArray(pathAdcCh.c_str(), ch_adc, &success);
+		mxml.GetValue(pathTdcCh.c_str(), ch_tdc, &success);
+		if(!success) {
+			std::cerr << "Failure reading variable values from the odb file, no changes made.\n";
+			return;
+		}
+		copy_array(&ch_adc[0], qdc_ch, dragon::hion::DSSSD::nch);
+		copy_array(&module_adc[0], qdc_module, dragon::hion::DSSSD::nch);
+		tof_ch = ch_tdc;
+	}
+	else { // Read from online ODB.
+#ifdef MIDASSYS
+		for(int i=0; i< dragon::hion::DSSSD::nch; ++i) {
+			qdc_ch[i] = odb::ReadInt(pathAdcCh.c_str(), i, 0);
+			qdc_module[i] = odb::ReadInt(pathAdcModule.c_str(), i, 0);
+		}
+		tof_ch = odb::ReadInt(pathTdcCh.c_str(), 0, 0);
+#else
+		std::cerr << "MIDASSYS not defined, can't read from online ODB, no changes made.\n";
+#endif
+	}
 }

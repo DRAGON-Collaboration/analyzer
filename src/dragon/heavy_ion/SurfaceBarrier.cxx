@@ -1,7 +1,11 @@
 /// \file SurfaceBarrier.cxx
 /// \brief Implements SurfaceBarrier.hxx
-#include "dragon/heavy_ion/SurfaceBarrier.hxx"
+#include <string>
+#include <iostream>
 #include "utils/copy_array.h"
+#include "dragon/heavy_ion/SurfaceBarrier.hxx"
+#include "odb/Odb.hxx"
+#include "odb/MidasXML.hxx"
 
 
 // ====== struct dragon::hion::SurfaceBarrier ====== //
@@ -71,8 +75,33 @@ dragon::hion::SurfaceBarrier::Variables& dragon::hion::SurfaceBarrier::Variables
 	return *this;
 }
 
-void dragon::hion::SurfaceBarrier::Variables::set(const char* odb_file)
+void dragon::hion::SurfaceBarrier::Variables::set(const char* odb)
 {
-	/// \todo Implement
+	/// \todo Set actual ODB paths, TEST!!
+	const std::string pathModule = "Equipment/SurfaceBarrier/Variables/AnodeModule";
+	const std::string pathCh     = "Equipment/SurfaceBarrier/Variables/AnodeChannel";
+	if(strcmp(odb, "online")) { // Read from offline XML file
+		MidasXML mxml (odb);
+		bool success = false;
+		std::vector<int> chOdb, moduleOdb;
+		mxml.GetArray(pathModule.c_str(), moduleOdb, &success);
+		mxml.GetArray(pathCh.c_str(), chOdb, &success);
+		if(!success) {
+			std::cerr << "Failure reading variable values from the odb file, no changes made.\n";
+			return;
+		}
+		copy_array(&chOdb[0], ch, dragon::hion::SurfaceBarrier::nch);
+		copy_array(&moduleOdb[0], module, dragon::hion::SurfaceBarrier::nch);
+	}
+	else { // Read from online ODB.
+#ifdef MIDASSYS
+		for(int i=0; i< dragon::hion::SurfaceBarrier::nch; ++i) {
+			ch[i] = odb::ReadInt(pathCh.c_str(), i, 0);
+			module[i] = odb::ReadInt(pathModule.c_str(), i, 0);
+		}
+#else
+		std::cerr << "MIDASSYS not defined, can't read from online ODB, no changes made.\n";
+#endif
+	}
 }
 

@@ -1,8 +1,12 @@
 /// \file HeavyIon.cxx
 /// \brief Implements HeavyIon.hxx
-#include "dragon/heavy_ion/HeavyIon.hxx"
+#include <string>
+#include <iostream>
 #include "utils/copy_array.h"
+#include "dragon/heavy_ion/HeavyIon.hxx"
 #include "vme/Vme.hxx"
+#include "odb/Odb.hxx"
+#include "odb/MidasXML.hxx"
 
 
 // ====== struct dragon::hion::HeavyIon ====== //
@@ -79,6 +83,10 @@ void dragon::hion::HeavyIon::read_data()
 	sb.read_data(modules);
 }
 
+void dragon::hion::HeavyIon::calculate()
+{
+	mcp.calculate();
+}
 
 // ====== struct dragon::hion::HeavyIon::Variables ====== //
 
@@ -105,7 +113,39 @@ dragon::hion::HeavyIon::Variables& dragon::hion::HeavyIon::Variables::operator= 
 	return *this;
 }
 
-void dragon::hion::HeavyIon::Variables::set(const char* odb_file)
+void dragon::hion::HeavyIon::Variables::set(const char* odb)
 {
-	// todo
+	/// \todo Set actual ODB paths, TEST!!
+	const std::string path = "Equipment/V1190/HeavyIon/TriggerCh";
+	if(strcmp(odb, "online")) { // Read from offline XML file
+		MidasXML mxml (odb);
+		bool success = false;
+		int trigger_ch;
+		mxml.GetValue(path.c_str(), trigger_ch, &success);
+		if(!success) {
+			std::cerr << "Failure reading variable values from the odb file, no changes made.\n";
+			return;
+		}
+		v1190_trigger_ch = trigger_ch;
+	}
+	else { // Read from online ODB.
+#ifdef MIDASSYS
+		v1190_trigger_ch = odb::ReadInt(path.c_str(), 0, 0);
+#else
+		std::cerr << "MIDASSYS not defined, can't read from online ODB, no changes made.\n";
+#endif
+	}
+}
+
+void dragon::hion::HeavyIon::set_variables(const char* odb)
+{
+#ifndef DRAGON_OMIT_DSSSD
+	dsssd.variables.set(odb);
+#endif
+#ifndef DRAGON_OMIT_IC
+	ic.variables.set(odb);
+#endif
+	mcp.variables.set(odb);
+	sb.variables.set(odb);
+	variables.set(odb);
 }

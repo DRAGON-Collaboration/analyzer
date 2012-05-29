@@ -34,6 +34,12 @@ void dragon::Dragon::reset()
 	hi.reset();
 }
 
+void dragon::Dragon::set_variables(const char* odb)
+{
+	gamma.set_variables(odb);
+	hi.set_variables(odb);
+}
+
 void dragon::Dragon::read_event(const dragon::gamma::Gamma& head, const dragon::hion::HeavyIon& tail)
 {
 	gamma = head;

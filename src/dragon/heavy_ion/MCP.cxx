@@ -1,8 +1,12 @@
 /// \file MCP.cxx
 /// \brief Implements MCP.hxx
+#include <string>
+#include <iostream>
+#include "utils/copy_array.h"
 #include "dragon/heavy_ion/MCP.hxx"
 #include "vme/Vme.hxx"
-#include "utils/copy_array.h"
+#include "odb/Odb.hxx"
+#include "odb/MidasXML.hxx"
 
 
 // ====== struct dragon::hion::MCP ====== //
@@ -49,9 +53,18 @@ void dragon::hion::MCP::read_data(const dragon::hion::Modules& modules)
 		anode[i] = modules.v785_data(variables.anode_module[i], variables.anode_ch[i]);
 	}
 	tac = modules.v785_data(variables.tac_module, variables.tac_ch);
+}
 
-	x = -1.; /// \todo Calculate x and y
-	y = -1.;
+void dragon::hion::MCP::calculate()
+{
+	if(!is_valid<int16_t>(anode, MCP::nch)) return;
+	const double Lhalf = 25.;  // half the length of a single side of the MCP (50/2 [mm])
+	int32_t sum = 0;
+	for(int i=0; i< MCP::nch; ++i) sum += anode[i];
+	if(sum) {
+		x = Lhalf * ( (anode[1] + anode[2]) - (anode[0] + anode[3]) ) / (double)sum;
+		y = Lhalf * ( (anode[0] + anode[1]) - (anode[2] + anode[3]) ) / (double)sum;
+	}
 }
 
 // ====== struct dragon::hion::MCP::Variables ====== //
@@ -86,8 +99,42 @@ dragon::hion::MCP::Variables& dragon::hion::MCP::Variables::operator= (const dra
 	return *this;
 }
 
-void dragon::hion::MCP::Variables::set(const char* odb_file)
+void dragon::hion::MCP::Variables::set(const char* odb)
 {
-	/// \todo Implement
+	/// \todo Set actual ODB paths, TEST!!
+	const std::string pathAnodeModule = "Equipment/MCP/Variables/AnodeModule";
+	const std::string pathAnodeCh     = "Equipment/MCP/Variables/AnodeChannel";
+	const std::string pathTacCh       = "Equipment/MCP/Variables/TACChannel";
+	const std::string pathTacModule   = "Equipment/MCP/Variables/TACModule";
+	if(strcmp(odb, "online")) { // Read from offline XML file
+		MidasXML mxml (odb);
+		bool success = false;
+		std::vector<int> ch_anode, module_anode;
+		int ch_tac, module_tac;
+		mxml.GetArray(pathAnodeModule.c_str(), module_anode, &success);
+		mxml.GetArray(pathAnodeCh.c_str(), ch_anode, &success);
+		mxml.GetValue(pathTacCh.c_str(), ch_tac, &success);
+		mxml.GetValue(pathTacModule.c_str(), module_tac, &success);
+		if(!success) {
+			std::cerr << "Failure reading variable values from the odb file, no changes made.\n";
+			return;
+		}
+		copy_array(&ch_anode[0], anode_ch, dragon::hion::MCP::nch);
+		copy_array(&module_anode[0], anode_module, dragon::hion::MCP::nch);
+		tac_ch = ch_tac;
+		tac_module = module_tac;
+	}
+	else { // Read from online ODB.
+#ifdef MIDASSYS
+		for(int i=0; i< dragon::hion::MCP::nch; ++i) {
+			anode_ch[i] = odb::ReadInt(pathAnodeCh.c_str(), i, 0);
+			anode_module[i] = odb::ReadInt(pathAnodeModule.c_str(), i, 0);
+		}
+		tac_ch = odb::ReadInt(pathTacCh.c_str(), 0, 0);
+		tac_module = odb::ReadInt(pathTacModule.c_str(), 0, 0);
+#else
+		std::cerr << "MIDASSYS not defined, can't read from online ODB, no changes made.\n";
+#endif
+	}
 }
 

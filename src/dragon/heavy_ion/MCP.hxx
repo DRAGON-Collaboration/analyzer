@@ -81,6 +81,14 @@ struct MCP {
 	 /// \brief Read midas event data
 	 /// \param modules Heavy-ion module structure
 	 void read_data(const dragon::hion::Modules& modules);
+
+	 /// \brief Calculate x and y positions
+	 /// \details Uses relative anode signal strengths to calculate spatial position
+	 /// of hits on the MCP. Position calculation algorithm taken from the MSc thesis of
+	 /// Michael Lamey, Simon Fraser University, 2001, p. 25, available online at
+	 /// <a href="http://dragon.triumf.ca/docs/Lamey_thesis.pdf">
+   /// dragon.triumf.ca/docs/Lamey_thesis.pdf</a>
+	 void calculate();
 };
 
 } // namespace hion

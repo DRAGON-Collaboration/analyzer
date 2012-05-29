@@ -35,6 +35,11 @@ void dragon::gamma::Gamma::reset()
 	bgo.reset();
 }
 
+void dragon::gamma::Gamma::set_variables(const char* odb)
+{
+	bgo.variables.set(odb);
+}
+
 void dragon::gamma::Gamma::unpack(TMidasEvent& event)
 {
 	reset();
@@ -45,4 +50,9 @@ void dragon::gamma::Gamma::read_data()
 {
 	++evt_count;
 	bgo.read_data(modules);
+}
+
+void dragon::gamma::Gamma::calculate()
+{
+	/// \todo Implement
 }
