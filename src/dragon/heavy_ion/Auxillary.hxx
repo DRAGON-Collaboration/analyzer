@@ -82,6 +82,79 @@ struct NaI {
 	 void calculate();
 };
 
+/// Germanium (Ge) detector
+struct Ge {
+// ==== Const Data ==== //
+	 /// Number of detectors
+	 static const int nch = 1; //!
+
+// ==== Classes ==== //
+	 /// Ge variables
+	 struct Variables {
+			/// Maps detector to adc module number
+			int module[Ge::nch];
+			
+			/// Maps detector to adc channel number
+			int ch[Ge::nch];
+
+			/// Calibration slope
+			double slope[Ge::nch];
+
+			/// Calibration offset
+			double offset[Ge::nch];
+
+			/// Constructor, sets data to generic values
+			Variables();
+
+			/// Destructor, nothing to do
+			~Variables() { }
+
+			/// Copy constructor
+			Variables(const Variables& other);
+
+			/// Equivalency operator
+			Variables& operator= (const Variables& other);
+
+			/// \brief Set variable values from an ODB file
+			/// \param [in] odb_file Path of the odb file from which you are extracting variable values
+			/// \todo Needs to be implemented once ODB is set up
+			void set(const char* odb_file);
+	 };
+
+// ==== Data ==== //
+	 /// Variables instance
+	 Variables variables; //!
+
+	 /// Raw energy signals
+	 int16_t qraw[nch]; //#
+
+	 /// Calibrated energy signals
+	 double  qcal[nch]; //#
+
+// ==== Methods ==== //
+	 /// Constructor, initialize data
+	 Ge();
+
+	 /// Destructor, nothing to do
+	 ~Ge() { }
+
+	 /// Copy constructor
+	 Ge(const Ge& other);
+
+	 /// Equivalency operator
+	 Ge& operator= (const Ge& other);
+
+	 /// Reset all data to vme::NONE
+	 void reset();
+
+	 /// \brief Read event data from \e modules structure
+	 /// \param [in] modules Heavy-ion modules structure
+	 void read_data(const dragon::hion::Modules& modules);
+
+	 /// \brief Do energy calibrations
+	 void calculate();
+};
+
 } // namespace hion
 
 } // namespace dragon
