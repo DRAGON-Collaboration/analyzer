@@ -6,6 +6,9 @@
 /// Encloses ODB related functions
 namespace odb {
 
+/// Database handle
+int* gHandle = 0;
+
 /// Read any value from the odb
 int ReadAny(const char*name,int index,int tid,void* value,int valueLength = 0);
 

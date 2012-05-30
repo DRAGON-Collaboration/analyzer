@@ -1,19 +1,15 @@
 //! \file Odb.cxx
 //! \brief Allows reading of data from the MIDAS Online DataBase (ODB).
 //! \note Originally copied from DRAGON frontend code directory, then edited
-//! \todo Figure out what database is being read/written, allow options for offline files (hDB extern variable??),
-//! fix messaging scheme.
 #ifdef MIDASSYS
 #include <cassert>
 #include <cstring>
+#include <stdio.h>
 #include <stdint.h>
 #include <midas.h>
 #include "odb/Odb.hxx"
 
-// extern const char* frontend_name;
-// extern HNDLE hDB;
 namespace {
-const char* frontend_name = "";
 HNDLE hDB = 0; // n.b. HNDLE == int
 }
 
@@ -33,7 +29,8 @@ int odb::ReadAny(const char*name,int index,int tid,void* value,int valueLength)
 		status = db_get_data_index(hDB, hkey, value, &size, index, tid);
 		if (status != SUCCESS)
 		{
-			cm_msg(MERROR, frontend_name, "Cannot read \'%s\'[%d] of type %d from odb, db_get_data_index() status %d", name, index, tid, status);
+//    cm_msg(MERROR, frontend_name, "Cannot read \'%s\'[%d] of type %d from odb, db_get_data_index() status %d", name, index, tid, status);
+			fprintf(stderr, "Cannot read \'%s\'[%d] of type %d from odb, db_get_data_index() status %d", name, index, tid, status);
 			return -1;
 		}
 
@@ -41,26 +38,30 @@ int odb::ReadAny(const char*name,int index,int tid,void* value,int valueLength)
 	}
   else if (status == DB_NO_KEY)
 	{
-		cm_msg(MINFO, frontend_name, "Creating \'%s\'[%d] of type %d", name, index+1, tid);
+//  cm_msg(MINFO, frontend_name, "Creating \'%s\'[%d] of type %d", name, index+1, tid);
+		fprintf(stderr, "Creating \'%s\'[%d] of type %d", name, index+1, tid);
 
 		status = db_create_key(hDB, hdir, (char*)name, tid);
 		if (status != SUCCESS)
 		{
-			cm_msg (MERROR, frontend_name, "Cannot create \'%s\' of type %d, db_create_key() status %d", name, tid, status);
+//    cm_msg (MERROR, frontend_name, "Cannot create \'%s\' of type %d, db_create_key() status %d", name, tid, status);
+			fprintf(stderr, "Cannot create \'%s\' of type %d, db_create_key() status %d", name, tid, status);
 			return -1;
 		}
 
 		status = db_find_key (hDB, hdir, (char*)name, &hkey);
 		if (status != SUCCESS)
 		{
-			cm_msg(MERROR, frontend_name, "Cannot create \'%s\', db_find_key() status %d", name, status);
+//    cm_msg(MERROR, frontend_name, "Cannot create \'%s\', db_find_key() status %d", name, status);
+			fprintf(stderr, "Cannot create \'%s\', db_find_key() status %d", name, status);
 			return -1;
 		}
 
 		status = db_set_data_index(hDB, hkey, value, size, index, tid);
 		if (status != SUCCESS)
 		{
-			cm_msg(MERROR, frontend_name, "Cannot write \'%s\'[%d] of type %d to odb, db_set_data_index() status %d", name, index, tid, status);
+//    cm_msg(MERROR, frontend_name, "Cannot write \'%s\'[%d] of type %d to odb, db_set_data_index() status %d", name, index, tid, status);
+			fprintf(stderr, "Cannot write \'%s\'[%d] of type %d to odb, db_set_data_index() status %d", name, index, tid, status);
 			return -1;
 		}
 
@@ -68,7 +69,8 @@ int odb::ReadAny(const char*name,int index,int tid,void* value,int valueLength)
 	}
   else
 	{
-		cm_msg(MERROR, frontend_name, "Cannot read \'%s\'[%d] from odb, db_find_key() status %d", name, index, status);
+// 		cm_msg(MERROR, frontend_name, "Cannot read \'%s\'[%d] from odb, db_find_key() status %d", name, index, status);
+		fprintf(stderr, "Cannot read \'%s\'[%d] from odb, db_find_key() status %d", name, index, status);
 		return -1;
 	}
 };
@@ -121,7 +123,7 @@ bool     odb::ReadBool(const char*name,int index,bool defaultValue)
 const char* odb::ReadString(const char*name,int index,const char* defaultValue,int stringLength)
 {
   const int maxStringLength = 256;
-  char buf[maxStringLength];
+  static char buf[maxStringLength];
   buf[0] = 0;
   if (defaultValue)
 		 strlcpy(buf, defaultValue, maxStringLength);
@@ -164,29 +166,34 @@ int odb::ResizeArray(const char*name, int tid, int size)
 	status = db_find_key (hDB, hdir, (char*)name, &hkey);
 	if (status != SUCCESS)
 	{
-		cm_msg(MINFO, frontend_name, "Creating \'%s\'[%d] of type %d", name, size, tid);
+// 		cm_msg(MINFO, frontend_name, "Creating \'%s\'[%d] of type %d", name, size, tid);
+		fprintf(stderr, "Creating \'%s\'[%d] of type %d", name, size, tid);
 
 		status = db_create_key(hDB, hdir, (char*)name, tid);
 		if (status != SUCCESS)
 		{
-			cm_msg (MERROR, frontend_name, "Cannot create \'%s\' of type %d, db_create_key() status %d", name, tid, status);
+//    cm_msg (MERROR, frontend_name, "Cannot create \'%s\' of type %d, db_create_key() status %d", name, tid, status);
+			fprintf(stderr, "Cannot create \'%s\' of type %d, db_create_key() status %d", name, tid, status);
 			return -1;
 		}
          
 		status = db_find_key (hDB, hdir, (char*)name, &hkey);
 		if (status != SUCCESS)
 		{
-			cm_msg(MERROR, frontend_name, "Cannot create \'%s\', db_find_key() status %d", name, status);
+//    cm_msg(MERROR, frontend_name, "Cannot create \'%s\', db_find_key() status %d", name, status);
+			fprintf(stderr, "Cannot create \'%s\', db_find_key() status %d", name, status);
 			return -1;
 		}
 	}
    
-	cm_msg(MINFO, frontend_name, "Resizing \'%s\'[%d] of type %d, old size %d", name, size, tid, oldSize);
+//cm_msg(MINFO, frontend_name, "Resizing \'%s\'[%d] of type %d, old size %d", name, size, tid, oldSize);
+	fprintf(stderr, "Resizing \'%s\'[%d] of type %d, old size %d", name, size, tid, oldSize);
 
 	status = db_set_num_values(hDB, hkey, size);
 	if (status != SUCCESS)
 	{
-		cm_msg(MERROR, frontend_name, "Cannot resize \'%s\'[%d] of type %d, db_set_num_values() status %d", name, size, tid, status);
+// 	cm_msg(MERROR, frontend_name, "Cannot resize \'%s\'[%d] of type %d, db_set_num_values() status %d", name, size, tid, status);
+		fprintf(stderr, "Cannot resize \'%s\'[%d] of type %d, db_set_num_values() status %d", name, size, tid, status);
 		return -1;
 	}
    
@@ -271,7 +278,7 @@ int odb::WriteString(const char*name, const char* string)
 #include <iostream>
 #include "odb/Odb.hxx"
 
-#define ERR_NO_MIDAS														\
+#define ERR_NO_MIDAS																										\
 	std::cerr << "Error: MIDASSYS not defined. file, line: " << __FILE__ <<  ", " << __LINE__ << "\n"
 
 int odb::ReadAny(const char*name,int index,int tid,void* value,int valueLength) { ERR_NO_MIDAS; return -1; }
