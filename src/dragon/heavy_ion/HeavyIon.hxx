@@ -4,6 +4,7 @@
 #define DRAGON_HEAVY_ION
 #include "dragon/heavy_ion/MCP.hxx"
 #include "dragon/heavy_ion/DSSSD.hxx"
+#include "dragon/heavy_ion/Auxillary.hxx"
 #include "dragon/heavy_ion/IonChamber.hxx"
 #include "dragon/heavy_ion/SurfaceBarrier.hxx"
 
@@ -55,19 +56,30 @@ struct HeavyIon {
 // ==== Detectors ==== //
 #ifndef DRAGON_OMIT_DSSSD
 	 /// DSSSD detector
-	 DSSSD dsssd;
+	 DSSSD dsssd; //#
 #endif
 
 #ifndef DRAGON_OMIT_IC
 	 /// Ionization chamber
-	 IonChamber ic;
+	 IonChamber ic; //#
 #endif
 
 	 /// MCPs
-	 MCP mcp;
+	 MCP mcp; //#
 
 	 /// Surface barrier detectors
-	 SurfaceBarrier sb;
+	 SurfaceBarrier sb; //#
+
+#ifndef DRAGON_OMIT_NAI
+	 /// NaI detetors
+	 NaI nai; //#
+#endif
+
+#ifndef DRAGON_OMIT_GE
+	 /// Germanium detector
+	 Ge ge; //#
+#endif
+
 
 // ==== Methods ==== //	 
 	 /// Constructor, initializes data values

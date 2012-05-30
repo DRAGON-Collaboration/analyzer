@@ -20,6 +20,12 @@ dragon::hion::HeavyIon::HeavyIon() :
 #endif
 	mcp(),
 	sb()
+#ifndef DRAGON_OMIT_NAI
+	, nai()
+#endif
+#ifndef DRAGON_OMIT_GE
+	, ge()
+#endif
 {
 	reset();
 }
@@ -38,6 +44,12 @@ void copy_hi(const dragon::hion::HeavyIon& from, dragon::hion::HeavyIon& to)
 #endif
 	to.mcp = from.mcp;
 	to.sb  = from.sb;
+#ifndef DRAGON_OMIT_NAI
+	to.nai = from.nai;
+#endif
+#ifndef DRAGON_OMIT_GE
+	to.ge = from.ge;
+#endif
 } }
 
 dragon::hion::HeavyIon::HeavyIon(const dragon::hion::HeavyIon& other)
@@ -62,6 +74,12 @@ void dragon::hion::HeavyIon::reset()
 #endif
 	mcp.reset();
 	sb.reset();
+#ifndef DRAGON_OMIT_NAI
+	nai.reset();
+#endif
+#ifndef DRAGON_OMIT_GE
+	ge.reset();
+#endif
 }
 
 void dragon::hion::HeavyIon::unpack(TMidasEvent& event)
@@ -81,11 +99,23 @@ void dragon::hion::HeavyIon::read_data()
 #endif
 	mcp.read_data(modules);
 	sb.read_data(modules);
+#ifndef DRAGON_OMIT_NAI
+	nai.read_data(modules);
+#endif
+#ifndef DRAGON_OMIT_GE
+	ge.read_data(modules);
+#endif
 }
 
 void dragon::hion::HeavyIon::calculate()
 {
 	mcp.calculate();
+#ifndef DRAGON_OMIT_NAI
+	nai.calculate();
+#endif
+#ifndef DRAGON_OMIT_GE
+	ge.calculate();
+#endif
 }
 
 // ====== struct dragon::hion::HeavyIon::Variables ====== //
@@ -147,4 +177,10 @@ void dragon::hion::HeavyIon::set_variables(const char* odb)
 	mcp.variables.set(odb);
 	sb.variables.set(odb);
 	variables.set(odb);
+#ifndef DRAGON_OMIT_NAI
+	nai.variables.set(odb);
+#endif
+#ifndef DRAGON_OMIT_GE
+	ge.variables.set(odb);
+#endif
 }
