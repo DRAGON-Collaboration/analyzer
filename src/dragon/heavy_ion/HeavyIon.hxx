@@ -39,7 +39,11 @@ struct HeavyIon {
 
 // ==== Data ==== //
 	 /// Electronics modules
+#ifdef DISPLAY_MODULES
 	 dragon::hion::Modules modules; //#
+#else
+	 dragon::hion::Modules modules; //!
+#endif
 
 	 /// Event counter
 	 int32_t evt_count; //#

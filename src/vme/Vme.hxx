@@ -3,6 +3,7 @@
 #ifndef  DRAGON_VME_HXX
 #define  DRAGON_VME_HXX
 #include <stdint.h>
+#include <algorithm>
 #include <cstring>
 
 /// Encloses all VME related classes
@@ -142,6 +143,42 @@ inline bool is_valid(T* const tArray, int len)
 		}
 	}
 	return true;
+}
+
+template <class T>
+inline void reset_data(T* t1,     T* t2 = 0, T* t3 = 0, T* t4 = 0, T* t5  = 0,
+											 T* t6 = 0, T* t7 = 0, T* t8 = 0, T* t9 = 0, T* t10 = 0)
+{
+	if(t1)  *t1  = (T)vme::NONE;
+	if(t2)  *t2  = (T)vme::NONE;
+	if(t3)  *t3  = (T)vme::NONE;
+	if(t4)  *t4  = (T)vme::NONE;
+	if(t5)  *t5  = (T)vme::NONE;
+	if(t6)  *t6  = (T)vme::NONE;
+	if(t7)  *t7  = (T)vme::NONE;
+	if(t8)  *t8  = (T)vme::NONE;
+	if(t9)  *t9  = (T)vme::NONE;
+	if(t10) *t10 = (T)vme::NONE;
+}
+
+template <class T>
+inline void reset_arrays(int len,
+												 T* t1,      T* t2  = 0,
+												 T* t3 = 0,  T* t4  = 0,
+												 T* t5 = 0,  T* t6  = 0,
+												 T* t7 = 0,  T* t8  = 0,
+												 T* t9 = 0,  T* t10 = 0)
+{
+	if(t1)  std::fill_n(t1,  len, vme::NONE);
+	if(t2)  std::fill_n(t2,  len, vme::NONE);
+	if(t3)  std::fill_n(t3,  len, vme::NONE);
+	if(t4)  std::fill_n(t4,  len, vme::NONE);
+	if(t5)  std::fill_n(t5,  len, vme::NONE);
+	if(t6)  std::fill_n(t6,  len, vme::NONE);
+	if(t7)  std::fill_n(t7,  len, vme::NONE);
+	if(t8)  std::fill_n(t8,  len, vme::NONE);
+	if(t9)  std::fill_n(t9,  len, vme::NONE);
+	if(t10) std::fill_n(t10, len, vme::NONE);
 }
 
 }

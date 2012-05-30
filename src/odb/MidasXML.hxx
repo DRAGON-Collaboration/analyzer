@@ -75,6 +75,16 @@ public:
 	 ///  Passing a NULL value to the function disables the error reporting
 	 template <typename T> void GetArray(const char* path, std::vector<T>& array, bool* success = 0);
 
+	 /// \brief Get the values of an array of key elements
+	 /// \tparam The type of the key element (e.g. int, float, string, ...)
+	 /// \param [in] path String specifying the "directory" path of the element, e.g.
+	 /// "Equipment/gTrigger/Variables/Pedestals"
+	 /// \param [in] length Length of the array to fill
+	 /// \param [out] array Array to fill with values from the ODB
+	 /// \param [out] success Sets the value to \c true if \e path was valid, \c false otherwise.
+	 ///  Passing a NULL value to the function disables the error reporting
+	 template <typename T> void GetArray(const char* path, int length, T* array, bool* success = 0);
+
 private:
 	 /// \brief Helper initialization function called by the constructor.
 	 void Init(const char* filename);

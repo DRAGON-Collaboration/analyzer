@@ -15,6 +15,9 @@ public:
 	 /// Number of channels in the BGO array
 	 static const int nch = 30; //!
 
+	 /// Number of energy-sorted channels
+	 static const int nsorted = 5; //!
+
 // ==== Classes ==== //	 
 	 /// Bgo variables
 	 class Variables {
@@ -27,6 +30,18 @@ public:
       /// \brief Maps TDC channel to BGO detector
 			/// \details Similar to qdc_ch
 			int tdc_ch[Bgo::nch];
+
+			/// \brief \e x position
+			/// \details \c xpos[n] refers to the \e x position (in cm) of the <I>n<SUP>th</SUP></I> detector
+			double xpos[Bgo::nch];
+
+			/// \brief \e y position
+			/// \details \c ypos[n] refers to the \e y position (in cm) of the <I>n<SUP>th</SUP></I> detector
+			double ypos[Bgo::nch];
+
+			/// \brief \e z position
+			/// \details \c zpos[n] refers to the \e z position (in cm) of the <I>n<SUP>th</SUP></I> detector
+			double zpos[Bgo::nch];
 
 			/// Constructor, sets *_ch[i] to i
 			Variables();
@@ -56,6 +71,21 @@ public:
    /// Raw timing signals, per detector
 	 int16_t t[Bgo::nch];    //#
 
+	 /// Sorted (high->low) charge signals
+	 int16_t qsort[Bgo::nsorted]; //#
+
+	 /// Sum of all \e valid charge signals
+	 double qsum; //#
+
+	 /// \brief \e x position of the qsort[0] hit
+	 double x0; //#
+
+	 /// \brief \e y position of the qsort[0] hit
+	 double y0; //#
+
+	 /// \brief \e z position of the qsort[0] hit
+	 double z0; //#
+
 // ==== Methods ==== //	 
 	 /// Constructor, initializes data values
 	 Bgo();
@@ -76,6 +106,8 @@ public:
 	 /// \param modules Electronic modules structure from which the data are read
 	 void read_data(const dragon::gamma::Modules& modules);
 
+	 /// \brief Do higher-level parameter calculations
+	 void calculate();
 };
 
 } // namespace gamma

@@ -24,6 +24,7 @@
 //! (note that the '+' at the end is required except in special cases).
 
 
+#pragma link C++ class dragon::Dragon+;
 #pragma link C++ defined_in /user/gchristian/soft/develop/dragon/analyzer/src/dragon/Dragon.hxx;
 #pragma link C++ defined_in /user/gchristian/soft/develop/dragon/analyzer/src/dragon/gamma/Gamma.hxx;
 #pragma link C++ defined_in /user/gchristian/soft/develop/dragon/analyzer/src/dragon/gamma/Bgo.hxx;

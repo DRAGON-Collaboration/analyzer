@@ -54,5 +54,5 @@ void dragon::gamma::Gamma::read_data()
 
 void dragon::gamma::Gamma::calculate()
 {
-	/// \todo Implement
+	bgo.calculate();
 }

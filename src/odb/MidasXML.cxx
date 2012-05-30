@@ -244,6 +244,52 @@ template <typename T> std::vector<T> MidasXML::GetArray(const char* path, bool* 
 	return out;
 }
 
+template <typename T> void MidasXML::GetArray(const char* path, int length, T* array, bool* success)
+{
+	if(success) *success = true;
+	Node node = FindKeyArray(path);
+	if(!node) {
+		if(success) *success = false;
+		return;
+	}
+	char* pAttribute = mxml_get_attribute(node, "num_values");
+	if(!pAttribute) {
+		std::cerr << "Error: \"num_values\" attribute not found for array: " << path << "\n";
+		if(success) *success = false;
+		return;
+	}
+	int size = atoi(pAttribute);
+	if(size != length) {
+		std::cerr << "Error: size of the ODB array " << path << ": " << size
+							<< " is not equal to the size of the array to fill: " << length << "\n";
+		if(success) *success = false;
+		return;
+	}
+
+	for(int i=0; i< size; ++i) {
+		std::stringstream valPath;
+		valPath << "/value[" << i+1 << "]";
+		Node valNode = mxml_find_node(node, valPath.str().c_str());
+		if(!valNode) {
+			std::cerr << "Error: Unable to find value node for array index " << i << "\n";
+			continue;
+		}
+
+		T value;
+		if(typeid(T) != typeid(bool)) {
+			std::stringstream val;
+			val << valNode->value;
+			val >> value;
+		}
+		else {
+			value = (!strcmp("y", valNode->value)) ? true : false;
+		}
+		array[i] = value;
+
+	}
+}
+
+
 #ifdef MIDAS_XML_TESTING
 int main() {
 	MidasXML mxml("run23822.mid");

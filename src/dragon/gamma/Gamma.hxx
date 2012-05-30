@@ -14,8 +14,13 @@ namespace gamma {
 class Gamma {
 public:
 // ==== Data ==== //
+
 	 /// Gamma electronics modules
+#ifdef DISPLAY_MODULES
 	 dragon::gamma::Modules modules; //#
+#else
+	 dragon::gamma::Modules modules; //!
+#endif
 
    /// Event counter
 	 int32_t evt_count; //#
