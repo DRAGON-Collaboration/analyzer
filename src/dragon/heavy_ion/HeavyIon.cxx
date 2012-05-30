@@ -117,16 +117,15 @@ void dragon::hion::HeavyIon::Variables::set(const char* odb)
 {
 	/// \todo Set actual ODB paths, TEST!!
 	const std::string path = "Equipment/V1190/HeavyIon/TriggerCh";
+
 	if(strcmp(odb, "online")) { // Read from offline XML file
 		MidasXML mxml (odb);
 		bool success = false;
-		int trigger_ch;
-		mxml.GetValue(path.c_str(), trigger_ch, &success);
+		mxml.GetValue(path.c_str(), v1190_trigger_ch, &success);
+
 		if(!success) {
-			std::cerr << "Failure reading variable values from the odb file, no changes made.\n";
-			return;
+			std::cerr << "Error (HeavyIon::Variables::set): Couldn't set one or more variable values properly.\n";
 		}
-		v1190_trigger_ch = trigger_ch;
 	}
 	else { // Read from online ODB.
 #ifdef MIDASSYS

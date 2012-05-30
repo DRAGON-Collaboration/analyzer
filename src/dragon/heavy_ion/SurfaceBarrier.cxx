@@ -80,18 +80,16 @@ void dragon::hion::SurfaceBarrier::Variables::set(const char* odb)
 	/// \todo Set actual ODB paths, TEST!!
 	const std::string pathModule = "Equipment/SurfaceBarrier/Variables/AnodeModule";
 	const std::string pathCh     = "Equipment/SurfaceBarrier/Variables/AnodeChannel";
+
 	if(strcmp(odb, "online")) { // Read from offline XML file
 		MidasXML mxml (odb);
 		bool success = false;
-		std::vector<int> chOdb, moduleOdb;
-		mxml.GetArray(pathModule.c_str(), moduleOdb, &success);
-		mxml.GetArray(pathCh.c_str(), chOdb, &success);
+		mxml.GetArray(pathModule.c_str(), SurfaceBarrier::nch, module, &success);
+		mxml.GetArray(pathCh.c_str(), SurfaceBarrier::nch, ch, &success);
+
 		if(!success) {
-			std::cerr << "Failure reading variable values from the odb file, no changes made.\n";
-			return;
+			std::cerr << "Error (SurfaceBarrier::Variables::set): Couldn't set one or more variable values properly.\n";
 		}
-		copy_array(&chOdb[0], ch, dragon::hion::SurfaceBarrier::nch);
-		copy_array(&moduleOdb[0], module, dragon::hion::SurfaceBarrier::nch);
 	}
 	else { // Read from online ODB.
 #ifdef MIDASSYS

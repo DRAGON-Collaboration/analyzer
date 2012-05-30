@@ -98,21 +98,17 @@ void dragon::hion::IonChamber::Variables::set(const char* odb)
 	const std::string pathAnodeModule = "Equipment/IonChamber/Variables/AnodeModule";
 	const std::string pathAnodeCh     = "Equipment/IonChamber/Variables/AnodeChannel";
 	const std::string pathTdcCh       = "Equipment/IonChamber/Variables/TDCChannel";
+
 	if(strcmp(odb, "online")) { // Read from offline XML file
 		MidasXML mxml (odb);
 		bool success = false;
-		std::vector<int> ch_anode, module_anode;
-		int ch_tdc;
-		mxml.GetArray(pathAnodeModule.c_str(), module_anode, &success);
-		mxml.GetArray(pathAnodeCh.c_str(), ch_anode, &success);
-		mxml.GetValue(pathTdcCh.c_str(), ch_tdc, &success);
+		mxml.GetArray(pathAnodeModule.c_str(), IonChamber::nch, anode_ch, &success);
+		mxml.GetArray(pathAnodeCh.c_str(), IonChamber::nch, anode_module, &success);
+		mxml.GetValue(pathTdcCh.c_str(), tof_ch, &success);
+
 		if(!success) {
-			std::cerr << "Failure reading variable values from the odb file, no changes made.\n";
-			return;
+			std::cerr << "Error (IonChamber::Variables::set): Couldn't set one or more variable values properly.\n";
 		}
-		copy_array(&ch_anode[0], anode_ch, dragon::hion::IonChamber::nch);
-		copy_array(&module_anode[0], anode_module, dragon::hion::IonChamber::nch);
-		tof_ch = ch_tdc;
 	}
 	else { // Read from online ODB.
 #ifdef MIDASSYS

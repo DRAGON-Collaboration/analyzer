@@ -106,23 +106,18 @@ void dragon::hion::MCP::Variables::set(const char* odb)
 	const std::string pathAnodeCh     = "Equipment/MCP/Variables/AnodeChannel";
 	const std::string pathTacCh       = "Equipment/MCP/Variables/TACChannel";
 	const std::string pathTacModule   = "Equipment/MCP/Variables/TACModule";
+
 	if(strcmp(odb, "online")) { // Read from offline XML file
 		MidasXML mxml (odb);
 		bool success = false;
-		std::vector<int> ch_anode, module_anode;
-		int ch_tac, module_tac;
-		mxml.GetArray(pathAnodeModule.c_str(), module_anode, &success);
-		mxml.GetArray(pathAnodeCh.c_str(), ch_anode, &success);
-		mxml.GetValue(pathTacCh.c_str(), ch_tac, &success);
-		mxml.GetValue(pathTacModule.c_str(), module_tac, &success);
+		mxml.GetArray(pathAnodeModule.c_str(), MCP::nch, anode_module, &success);
+		mxml.GetArray(pathAnodeCh.c_str(), MCP::nch, anode_ch, &success);
+		mxml.GetValue(pathTacCh.c_str(), tac_ch, &success);
+		mxml.GetValue(pathTacModule.c_str(), tac_module, &success);
+
 		if(!success) {
-			std::cerr << "Failure reading variable values from the odb file, no changes made.\n";
-			return;
+			std::cerr << "Error (MCP::Variables::set): Couldn't set one or more variable values properly.\n";
 		}
-		copy_array(&ch_anode[0], anode_ch, dragon::hion::MCP::nch);
-		copy_array(&module_anode[0], anode_module, dragon::hion::MCP::nch);
-		tac_ch = ch_tac;
-		tac_module = module_tac;
 	}
 	else { // Read from online ODB.
 #ifdef MIDASSYS

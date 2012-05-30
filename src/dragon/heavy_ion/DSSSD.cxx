@@ -89,21 +89,17 @@ void dragon::hion::DSSSD::Variables::set(const char* odb)
 	const std::string pathAdcModule = "Equipment/DSSSD/Variables/ADCModule";
 	const std::string pathAdcCh     = "Equipment/DSSSD/Variables/ADCChannel";
 	const std::string pathTdcCh     = "Equipment/DSSSD/Variables/TDCChannel";
+
 	if(strcmp(odb, "online")) { // Read from offline XML file
 		MidasXML mxml (odb);
 		bool success = false;
-		std::vector<int> ch_adc, module_adc;
-		int ch_tdc;
-		mxml.GetArray(pathAdcModule.c_str(), module_adc, &success);
-		mxml.GetArray(pathAdcCh.c_str(), ch_adc, &success);
-		mxml.GetValue(pathTdcCh.c_str(), ch_tdc, &success);
+		mxml.GetArray(pathAdcModule.c_str(), DSSSD::nch, qdc_module, &success);
+		mxml.GetArray(pathAdcCh.c_str(), DSSSD::nch, qdc_ch, &success);
+		mxml.GetValue(pathTdcCh.c_str(), tof_ch, &success);
+
 		if(!success) {
-			std::cerr << "Failure reading variable values from the odb file, no changes made.\n";
-			return;
+			std::cerr << "Error (DSSSD::Variables::set): Couldn't set one or more variable values properly.\n";
 		}
-		copy_array(&ch_adc[0], qdc_ch, dragon::hion::DSSSD::nch);
-		copy_array(&module_adc[0], qdc_module, dragon::hion::DSSSD::nch);
-		tof_ch = ch_tdc;
 	}
 	else { // Read from online ODB.
 #ifdef MIDASSYS
