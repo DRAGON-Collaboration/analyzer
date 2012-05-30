@@ -9,8 +9,13 @@
 #include <midas.h>
 #include "odb/Odb.hxx"
 
-namespace {
-HNDLE hDB = 0; // n.b. HNDLE == int
+
+int odb::GetHandle()
+{
+	static bool is_set = false;
+	static int hndle = 0;
+	if(!is_set) { cm_get_experiment_database(&hndle, 0); is_set = true; }
+	return hndle;
 }
 
 int odb::ReadAny(const char*name,int index,int tid,void* value,int valueLength)
@@ -23,10 +28,10 @@ int odb::ReadAny(const char*name,int index,int tid,void* value,int valueLength)
   if (valueLength > 0)
 		 size = valueLength;
 
-  status = db_find_key (hDB, hdir, (char*)name, &hkey);
+  status = db_find_key (GetHandle(), hdir, (char*)name, &hkey);
   if (status == SUCCESS)
 	{
-		status = db_get_data_index(hDB, hkey, value, &size, index, tid);
+		status = db_get_data_index(GetHandle(), hkey, value, &size, index, tid);
 		if (status != SUCCESS)
 		{
 //    cm_msg(MERROR, frontend_name, "Cannot read \'%s\'[%d] of type %d from odb, db_get_data_index() status %d", name, index, tid, status);
@@ -41,7 +46,7 @@ int odb::ReadAny(const char*name,int index,int tid,void* value,int valueLength)
 //  cm_msg(MINFO, frontend_name, "Creating \'%s\'[%d] of type %d", name, index+1, tid);
 		fprintf(stderr, "Creating \'%s\'[%d] of type %d", name, index+1, tid);
 
-		status = db_create_key(hDB, hdir, (char*)name, tid);
+		status = db_create_key(GetHandle(), hdir, (char*)name, tid);
 		if (status != SUCCESS)
 		{
 //    cm_msg (MERROR, frontend_name, "Cannot create \'%s\' of type %d, db_create_key() status %d", name, tid, status);
@@ -49,7 +54,7 @@ int odb::ReadAny(const char*name,int index,int tid,void* value,int valueLength)
 			return -1;
 		}
 
-		status = db_find_key (hDB, hdir, (char*)name, &hkey);
+		status = db_find_key (GetHandle(), hdir, (char*)name, &hkey);
 		if (status != SUCCESS)
 		{
 //    cm_msg(MERROR, frontend_name, "Cannot create \'%s\', db_find_key() status %d", name, status);
@@ -57,7 +62,7 @@ int odb::ReadAny(const char*name,int index,int tid,void* value,int valueLength)
 			return -1;
 		}
 
-		status = db_set_data_index(hDB, hkey, value, size, index, tid);
+		status = db_set_data_index(GetHandle(), hkey, value, size, index, tid);
 		if (status != SUCCESS)
 		{
 //    cm_msg(MERROR, frontend_name, "Cannot write \'%s\'[%d] of type %d to odb, db_set_data_index() status %d", name, index, tid, status);
@@ -141,11 +146,11 @@ int odb::ReadArraySize(const char*name)
   HNDLE hkey;
   KEY key;
 
-  status = db_find_key (hDB, hdir, (char*)name, &hkey);
+  status = db_find_key (GetHandle(), hdir, (char*)name, &hkey);
   if (status != SUCCESS)
 		 return 0;
 
-  status = db_get_key(hDB, hkey, &key);
+  status = db_get_key(GetHandle(), hkey, &key);
   if (status != SUCCESS)
 		 return 0;
 
@@ -163,13 +168,13 @@ int odb::ResizeArray(const char*name, int tid, int size)
 	HNDLE hkey;
 	HNDLE hdir = 0;
 
-	status = db_find_key (hDB, hdir, (char*)name, &hkey);
+	status = db_find_key (GetHandle(), hdir, (char*)name, &hkey);
 	if (status != SUCCESS)
 	{
 // 		cm_msg(MINFO, frontend_name, "Creating \'%s\'[%d] of type %d", name, size, tid);
 		fprintf(stderr, "Creating \'%s\'[%d] of type %d", name, size, tid);
 
-		status = db_create_key(hDB, hdir, (char*)name, tid);
+		status = db_create_key(GetHandle(), hdir, (char*)name, tid);
 		if (status != SUCCESS)
 		{
 //    cm_msg (MERROR, frontend_name, "Cannot create \'%s\' of type %d, db_create_key() status %d", name, tid, status);
@@ -177,7 +182,7 @@ int odb::ResizeArray(const char*name, int tid, int size)
 			return -1;
 		}
          
-		status = db_find_key (hDB, hdir, (char*)name, &hkey);
+		status = db_find_key (GetHandle(), hdir, (char*)name, &hkey);
 		if (status != SUCCESS)
 		{
 //    cm_msg(MERROR, frontend_name, "Cannot create \'%s\', db_find_key() status %d", name, status);
@@ -189,7 +194,7 @@ int odb::ResizeArray(const char*name, int tid, int size)
 //cm_msg(MINFO, frontend_name, "Resizing \'%s\'[%d] of type %d, old size %d", name, size, tid, oldSize);
 	fprintf(stderr, "Resizing \'%s\'[%d] of type %d, old size %d", name, size, tid, oldSize);
 
-	status = db_set_num_values(hDB, hkey, size);
+	status = db_set_num_values(GetHandle(), hkey, size);
 	if (status != SUCCESS)
 	{
 // 	cm_msg(MERROR, frontend_name, "Cannot resize \'%s\'[%d] of type %d, db_set_num_values() status %d", name, size, tid, status);
@@ -206,11 +211,11 @@ int odb::WriteInt(const char*name, int index, int value)
   HNDLE hdir = 0;
   HNDLE hkey;
 
-  status = db_find_key (hDB, hdir, name, &hkey);
+  status = db_find_key (GetHandle(), hdir, name, &hkey);
   if (status == SUCCESS)
 	{
 		int size = 4;
-		status = db_set_data_index(hDB, hkey, &value, size, index, TID_INT);
+		status = db_set_data_index(GetHandle(), hkey, &value, size, index, TID_INT);
 		if (status == SUCCESS)
 			 return 0;
 	}
@@ -224,11 +229,11 @@ int odb::WriteBool(const char*name, int index, bool value)
   HNDLE hdir = 0;
   HNDLE hkey;
 
-  status = db_find_key (hDB, hdir, (char*)name, &hkey);
+  status = db_find_key (GetHandle(), hdir, (char*)name, &hkey);
   if (status == SUCCESS)
 	{
 		int size = 4;
-		status = db_set_data_index(hDB, hkey, &value, size, index, TID_BOOL);
+		status = db_set_data_index(GetHandle(), hkey, &value, size, index, TID_BOOL);
 		if (status == SUCCESS)
 			 return 0;
 	}
@@ -242,11 +247,11 @@ int odb::WriteDouble(const char*name, int index, double value)
   HNDLE hdir = 0;
   HNDLE hkey;
 
-  status = db_find_key (hDB, hdir, name, &hkey);
+  status = db_find_key (GetHandle(), hdir, name, &hkey);
   if (status == SUCCESS)
 	{
 		int size = sizeof(double);
-		status = db_set_data_index(hDB, hkey, &value, size, index, TID_DOUBLE);
+		status = db_set_data_index(GetHandle(), hkey, &value, size, index, TID_DOUBLE);
 		if (status == SUCCESS)
 			 return 0;
 	}
@@ -260,12 +265,12 @@ int odb::WriteString(const char*name, const char* string)
   HNDLE hdir = 0;
   HNDLE hkey;
 
-  status = db_find_key(hDB, hdir, name, &hkey);
+  status = db_find_key(GetHandle(), hdir, name, &hkey);
   if (status == SUCCESS)
 	{
 		int size = strlen(string) + 1;
 
-		status = db_set_data(hDB, hkey, string, size, 1, TID_STRING);
+		status = db_set_data(GetHandle(), hkey, string, size, 1, TID_STRING);
 		if (status == SUCCESS)
 			 return SUCCESS;
 	}
