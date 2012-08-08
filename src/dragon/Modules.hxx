@@ -24,6 +24,17 @@ private:
 	 vme::IO32 io32;
 
 public:
+	 /// MIDAS bank names
+	 struct Banks {
+			/// v792 bank name
+			char v792[5];
+			/// v1190b bank name
+			char v1190b[5];
+			/// io32 bank name
+			char io32[5];
+	 } banks; //!
+
+public:
 	 /// Initialize all modules
 	 Modules();
 
@@ -70,6 +81,18 @@ private:
 
 	 /// IO32 FPGA
 	 vme::IO32 io32;
+
+public:
+	 /// MIDAS bank names
+	 struct Banks {
+			/// v792 bank name
+			char v785[5][2];
+			/// v1190b bank name
+			char v1190b[5];
+			/// io32 bank name
+			char io32[5];
+	 } banks; //!
+
 
 public:
 	 /// Initialize all modules

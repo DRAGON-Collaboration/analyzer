@@ -14,7 +14,7 @@ struct V1190b {
    /// Number of channels present in an event
 	 int16_t n_present;
 	 /// Array of data
-	 int16_t data[64];
+	 int32_t data[64];
 	 /// Extended trigger time
 	 int32_t extended_trigger;
 	 /// Event counter

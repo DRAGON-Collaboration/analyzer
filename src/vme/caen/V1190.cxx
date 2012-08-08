@@ -6,6 +6,9 @@
 #include "vme/caen/V1190.hxx"
 #include "utils/Incrvoid.hxx"
 
+//#define TEST_PRINT
+#define TEST_PRINT if(0)
+
 namespace {
 const int GLOBAL_HEADER         = 0x8;  // 00010
 const int GLOBAL_TRAILER        = 0x10; // 00001
@@ -30,9 +33,11 @@ inline bool run_v1190_unpacker(int which, uint32_t data, vme::caen::V1190b& modu
 		unpackers.insert(std::make_pair(TDC_ERROR, &vme::caen::handle_v1190_error));
 		unpackers.insert(std::make_pair(TDC_TRAILER, &vme::caen::unpack_v1190_footer));
 	}
-	if(!unpackers.count(which)) return false;
-	unpackers.find(which)->second (data, module);
-	return true;
+	bool ret = true;
+	V1190UnpackerMap_t::iterator iter = unpackers.find(which);
+	if(iter != unpackers.end()) iter->second (data, module);
+	else ret = false;
+	return ret;
 }
 
 } // namespace
@@ -42,8 +47,15 @@ inline bool run_v1190_unpacker(int which, uint32_t data, vme::caen::V1190b& modu
 void vme::caen::unpack_v1190_data(uint32_t data, V1190b& module) {
 	module.type = (data >> 26) & READ1;
 	int ch = (data >> 19) & READ7;
-	module.data[ch] = (data >> 0) & READ19;
+	if(ch < 62)
+		 module.data[ch] = (data >> 0) & READ19;
+	std::string type_ = module.type ? "trailing":"leading";
+	TEST_PRINT std::cout << "ch: " << ch << ", data: " << module.data[ch] << " (" << type_ << ")\n";
 
+	if (ch == 31) {
+		if (module.type) module.data[62] = (data >> 0) & READ19; // leading
+		else             module.data[63] = (data >> 0) & READ19; // trailing
+	}
 }
 
 void vme::caen::unpack_v1190_header(uint32_t data, V1190b& module) {
@@ -134,10 +146,12 @@ bool vme::caen::unpack_v1190(const TMidasEvent& event, const char* bank, V1190b&
 
   // Loop over all buffers int the bank
 	bool ret = true;
+	TEST_PRINT std::cout << "****** New TDC event ******\n";
   for(int i=0; i< bank_len; ++i) {
     bool success = unpack_v1190_buffer(p_bank, bank, module);
 		if(!success) ret = false;
     increment_void(p_bank, bank_type);
   }
+	TEST_PRINT std::cout << "************\n\n";
   return ret;
 }

@@ -162,6 +162,12 @@ inline void reset_data(T* t1,     T* t2 = 0, T* t3 = 0, T* t4 = 0, T* t5  = 0,
 }
 
 template <class T>
+inline void reset_array(int len, T* array)
+{
+	std::fill_n(array, len, vme::NONE);
+}
+
+template <class T>
 inline void reset_arrays(int len,
 												 T* t1,      T* t2  = 0,
 												 T* t3 = 0,  T* t4  = 0,

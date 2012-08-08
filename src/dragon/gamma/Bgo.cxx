@@ -25,6 +25,11 @@ void copy_bgo(const dragon::gamma::Bgo& from, dragon::gamma::Bgo& to)
 	to.variables = from.variables;
 	copy_array(from.q, to.q, dragon::gamma::Bgo::nch);
 	copy_array(from.t, to.t, dragon::gamma::Bgo::nch);
+	copy_array(from.qsort, to.qsort, dragon::gamma::Bgo::nsorted);
+	to.qsum = from.qsum;
+	to.x0 = from.x0;
+	to.y0 = from.y0;
+	to.z0 = from.z0;
 } }
 
 dragon::gamma::Bgo::Bgo(const Bgo& other)
@@ -40,8 +45,9 @@ dragon::gamma::Bgo& dragon::gamma::Bgo::operator= (const Bgo& other)
 
 void dragon::gamma::Bgo::reset()
 {
-	reset_arrays(Bgo::nch, q, t);
-	reset_arrays(Bgo::nsorted, qsort);
+	reset_array(Bgo::nch, q);
+	reset_array(Bgo::nch, t);
+	reset_array(Bgo::nsorted, qsort);
 	reset_data(&qsum, &x0, &y0, &z0);
 }
 
@@ -124,11 +130,11 @@ dragon::gamma::Bgo::Variables& dragon::gamma::Bgo::Variables::operator= (const V
 void dragon::gamma::Bgo::Variables::set(const char* odb)
 {
 /// \todo Set actual ODB paths, TEST!!
-	const std::string pathADC  = "Equipment/Bgo/Variables/ADCChannel";
-	const std::string pathTDC  = "Equipment/Bgo/Variables/TDCChannel";
-	const std::string pathXpos = "Equipment/Bgo/Variables/Xpos";
-	const std::string pathYpos = "Equipment/Bgo/Variables/Ypos";
-	const std::string pathZpos = "Equipment/Bgo/Variables/Zpos";
+	const std::string pathADC  = "/DRAGON/Bgo/Variables/ChADC";
+	const std::string pathTDC  = "/DRAGON/Bgo/Variables/ChTDC";
+	const std::string pathXpos = "/DRAGON/Bgo/Variables/Xpos";
+	const std::string pathYpos = "/DRAGON/Bgo/Variables/Ypos";
+	const std::string pathZpos = "/DRAGON/Bgo/Variables/Zpos";
 
 	if(strcmp(odb, "online")) { // Read from offline XML file
 		MidasXML mxml (odb);

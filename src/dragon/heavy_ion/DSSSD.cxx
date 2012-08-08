@@ -58,7 +58,7 @@ void dragon::hion::DSSSD::read_data(const dragon::hion::Modules& modules, int v1
 dragon::hion::DSSSD::Variables::Variables()
 {
 	for(int i=0; i< DSSSD::nch; ++i) {
-		qdc_module[i] = 0;
+		qdc_module[i] = 1;
 		qdc_ch[i] = i;
 	}
 	tof_ch = 1; /// \todo Update once plugged in

@@ -69,7 +69,7 @@ public:
 	 int16_t q[Bgo::nch];    //#
 
    /// Raw timing signals, per detector
-	 int16_t t[Bgo::nch];    //#
+	 int32_t t[Bgo::nch];    //#
 
 	 /// Sorted (high->low) charge signals
 	 int16_t qsort[Bgo::nsorted]; //#

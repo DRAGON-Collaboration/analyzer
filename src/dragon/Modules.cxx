@@ -11,6 +11,9 @@
 dragon::gamma::Modules::Modules():
 	v792(), v1190b(), io32()
 {
+	sprintf(banks.v792,   "ADC0");
+	sprintf(banks.v1190b, "TDC0");
+	sprintf(banks.io32,   "VTR0");
 	reset();
 };
 
@@ -19,6 +22,7 @@ dragon::gamma::Modules::Modules(const Modules& other)
 	v792   = other.v792;
 	v1190b = other.v1190b;
 	io32   = other.io32;
+	banks  = other.banks;
 }
 
 dragon::gamma::Modules& dragon::gamma::Modules::operator= (const dragon::gamma::Modules& other)
@@ -26,6 +30,7 @@ dragon::gamma::Modules& dragon::gamma::Modules::operator= (const dragon::gamma::
 	v792   = other.v792;
 	v1190b = other.v1190b;
 	io32   = other.io32;
+	banks  = other.banks;
 	return *this;
 }
 
@@ -38,10 +43,10 @@ void dragon::gamma::Modules::reset()
 void dragon::gamma::Modules::unpack(const TMidasEvent& event)
 {
 	vme::caen::unpack_adc(event, "VADC", v792);
-	vme::caen::unpack_adc(event, "ADC0", v792);
+	vme::caen::unpack_adc(event, banks.v792, v792);
 	vme::caen::unpack_v1190(event, "VTDC", v1190b);
-	vme::caen::unpack_v1190(event, "TDC0", v1190b);
-//	vme::unpack_io32(event, "VI032", io32);
+	vme::caen::unpack_v1190(event, banks.v1190b, v1190b);
+	vme::unpack_io32(event, banks.io32, io32);
 }
 
 int16_t dragon::gamma::Modules::v792_data(unsigned ch) const
@@ -69,7 +74,15 @@ int32_t dragon::gamma::Modules::tstamp() const
 // ====== Class dragon::hion::Modules ======= //
 
 dragon::hion::Modules::Modules():
-	v1190b(), io32() { };
+	v1190b(), io32()
+{
+	for(int i=0; i< 2; ++i) {
+		sprintf(banks.v785[i], "TLQ%d", i);
+	}
+	sprintf(banks.v1190b, "TLT0");
+	sprintf(banks.io32,   "TLIO");
+	reset();
+};
 
 dragon::hion::Modules::Modules(const Modules& other)
 {
@@ -78,6 +91,7 @@ dragon::hion::Modules::Modules(const Modules& other)
 	}
 	v1190b = other.v1190b;
 	io32   = other.io32;
+	banks  = other.banks;
 }
 
 void dragon::hion::Modules::reset()
@@ -95,19 +109,19 @@ dragon::hion::Modules& dragon::hion::Modules::operator= (const Modules& other)
 	}
 	v1190b = other.v1190b;
 	io32   = other.io32;
+	banks  = other.banks;
 	return* this;
 }
 
 void dragon::hion::Modules::unpack(const TMidasEvent& event)
 {
-/*
+
 	for(int i=0; i< 2; ++i) {
-		std::stringstream bank; bank << "VADC" << i;
-		vme::caen::unpack_adc(event, bank.str().c_str(), v785[i]);
+		bool unpacked = vme::caen::unpack_adc(event, banks.v785[i], v785[i]);
 	}
-*/
-//	vme::caen::unpack_v1190b(event, "VTDC", v1190b);
-//	vme::unpack_io32(event, "VI032", io32);
+
+	vme::caen::unpack_v1190(event, banks.v1190b, v1190b);
+	// vme::unpack_io32(event, banks.io32, io32);
 }
 
 int16_t dragon::hion::Modules::v785_data(unsigned which, unsigned ch) const

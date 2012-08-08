@@ -1,6 +1,5 @@
 ### SET OPTIONAL #defines HERE ###
-DEFINITIONS=
-##-DDISPLAY_MODULES
+DEFINITIONS=-DDISPLAY_MODULES
 
 ### Variable definitions
 SRC=$(PWD)/src
@@ -53,7 +52,7 @@ ROOTCINT=rootcint
 
 #### DRAGON LIBRARY ####
 HEADERS=$(SRC)/utils/Bits.hxx $(SRC)/vme/Vme.hxx $(SRC)/vme/IO32.hxx \
-$(SRC)/vme/caen/V1190.hxx $(SRC)/vme/caen/Adc.hxx \
+$(SRC)/vme/caen/V1190.hxx $(SRC)/vme/caen/Adc.hxx $(SRC)/vme/IO32.hxx \
 $(SRC)/dragon/Modules.hxx $(SRC)/dragon/Dragon.hxx \
 $(SRC)/dragon/heavy_ion/HeavyIon.hxx \
 $(SRC)/dragon/heavy_ion/DSSSD.hxx $(SRC)/dragon/heavy_ion/IonChamber.hxx \
@@ -61,7 +60,7 @@ $(SRC)/dragon/heavy_ion/MCP.hxx $(SRC)/dragon/heavy_ion/SurfaceBarrier.hxx \
 $(SRC)/dragon/heavy_ion/Auxillary.hxx $(SRC)/dragon/gamma/Gamma.hxx $(SRC)/dragon/gamma/Bgo.hxx \
 $(SRC)/tstamp/TStamp.hxx $(SRC)/odb/Odb.hxx $(SRC)/odb/MidasXML.hxx
 
-SOURCES=$(SRC)/vme/caen/Adc.cxx $(SRC)/vme/caen/V1190.cxx \
+SOURCES=$(SRC)/vme/caen/Adc.cxx $(SRC)/vme/caen/V1190.cxx $(SRC)/vme/IO32.cxx \
 $(SRC)/dragon/Modules.cxx $(SRC)/dragon/Dragon.cxx \
 $(SRC)/dragon/heavy_ion/HeavyIon.cxx \
 $(SRC)/dragon/heavy_ion/DSSSD.cxx $(SRC)/dragon/heavy_ion/IonChamber.cxx \
@@ -69,7 +68,7 @@ $(SRC)/dragon/heavy_ion/MCP.cxx $(SRC)/dragon/heavy_ion/SurfaceBarrier.cxx \
 $(SRC)/dragon/heavy_ion/Auxillary.cxx $(SRC)/dragon/gamma/Gamma.cxx $(SRC)/dragon/gamma/Bgo.cxx  \
 $(SRC)/tstamp/TStamp.cxx $(SRC)/odb/Odb.cxx $(SRC)/odb/MidasXML.cxx
 
-OBJECTS=$(OBJ)/vme/caen/Adc.o $(OBJ)/vme/caen/V1190.o \
+OBJECTS=$(OBJ)/vme/caen/Adc.o $(OBJ)/vme/caen/V1190.o $(OBJ)/vme/IO32.o \
 $(OBJ)/dragon/Modules.o $(OBJ)/dragon/Dragon.o \
 $(OBJ)/dragon/heavy_ion/HeavyIon.o \
 $(OBJ)/dragon/heavy_ion/DSSSD.o $(OBJ)/dragon/heavy_ion/IonChamber.o \
@@ -95,6 +94,11 @@ V1190: $(OBJ)/vme/caen/V1190.o
 $(OBJ)/vme/caen/V1190.o: $(CINT)/DragonDictionary.cxx $(SRC)/vme/caen/V1190.cxx
 	$(COMPILE) $(FPIC) -c \
 -o $@ -p $(SRC)/vme/caen/V1190.cxx \
+
+IO32: $(OBJ)/vme/IO32.o
+$(OBJ)/vme/IO32.o: $(CINT)/DragonDictionary.cxx $(SRC)/vme/IO32.cxx
+	$(COMPILE) $(FPIC) -c \
+-o $@ -p $(SRC)/vme/IO32.cxx \
 
 Modules: $(OBJ)/dragon/Modules.o
 $(OBJ)/dragon/Modules.o: $(CINT)/DragonDictionary.cxx $(SRC)/dragon/Modules.cxx
