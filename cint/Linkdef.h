@@ -41,6 +41,7 @@
 #pragma link C++ class vme::IO32+;
 
 
+#pragma link C++ class EventHeader_t+;
 /*
 #pragma link C++ class tstamp::Queue+;
 #pragma link C++ class TMidasEvent+;

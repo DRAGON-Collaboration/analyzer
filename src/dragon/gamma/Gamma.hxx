@@ -22,6 +22,8 @@ public:
 	dragon::gamma::Modules modules; //!
 #endif
 
+	EventHeader_t header; //#
+
 	/// Event counter
 	int32_t evt_count; //#
 
@@ -51,7 +53,7 @@ public:
 
 	/// \brief Unpack midas event data into \e modules data structure
 	/// \param [in] event Reference to a Midas event structure
-	void unpack(dragon::MidasEvent& event);
+	void unpack(const dragon::MidasEvent& event);
 
 	/// \brief Read data from \e modules into detector classes
 	void read_data();

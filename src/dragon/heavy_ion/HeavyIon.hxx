@@ -46,6 +46,8 @@ struct HeavyIon {
 	dragon::hion::Modules modules; //!
 #endif
 
+	EventHeader_t header; //#
+
 	/// Event counter
 	int32_t evt_count; //#
 
@@ -103,7 +105,7 @@ struct HeavyIon {
 
 	/// \brief Unpack MIDAS event data into \e modules data structure
 	/// \param [in] event Reference to a Midas event structure
-	void unpack(dragon::MidasEvent& event);
+	void unpack(const dragon::MidasEvent& event);
 
 	/// \brief Map data from \e modules into individual detector structures.
 	void read_data();

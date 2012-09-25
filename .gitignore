@@ -17,3 +17,4 @@ src/tstamp/tmp
 src/tstamp/ts.dSYM/
 src/tstamp/tstamp
 
+*.mid

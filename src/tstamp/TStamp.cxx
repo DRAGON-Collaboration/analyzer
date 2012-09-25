@@ -50,12 +50,12 @@ void tstamp::Queue::Push(const dragon::MidasEvent& event)
 	}
 	catch (std::exception& e) { // try to handle exception gracefully
 		err::Error("tstamp::Queue::Push")
-			 << "Caught an exception from std::multiset::insert: " << e.what()
-			 << " (note: size = " << Size() << ", max size = " << fEvents.max_size()
-			 << "). Clearing the Queue and trying again... WARNING: that this could cause "
-			 << "coincidences to be missed!" << ERR_FILE_LINE;
+			<< "Caught an exception from std::multiset::insert: " << e.what()
+			<< " (note: size = " << Size() << ", max size = " << fEvents.max_size()
+			<< "). Clearing the Queue and trying again... WARNING: that this could cause "
+			<< "coincidences to be missed!" << ERR_FILE_LINE;
 
-		Cleanup(); // remove everything from the queue
+		Flush(); // remove everything from the queue
 
 		try { // try again to insert
 

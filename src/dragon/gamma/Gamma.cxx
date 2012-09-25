@@ -15,6 +15,7 @@ inline void copy_gamma(const dragon::gamma::Gamma& from, dragon::gamma::Gamma& t
 {
 	to.evt_count = from.evt_count;
 	to.modules = from.modules;
+	to.header  = from.header;
 	to.bgo = from.bgo;
 } }
 
@@ -40,10 +41,11 @@ void dragon::gamma::Gamma::set_variables(const char* odb)
 	bgo.variables.set(odb);
 }
 
-void dragon::gamma::Gamma::unpack(dragon::MidasEvent& event)
+void dragon::gamma::Gamma::unpack(const dragon::MidasEvent& event)
 {
 	reset();
 	modules.unpack(event);
+	event.CopyHeader(header);
 }
 
 void dragon::gamma::Gamma::read_data()

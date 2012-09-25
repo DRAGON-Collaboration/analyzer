@@ -8,7 +8,7 @@
 #include "utils/Bits.hxx"
 #include "utils/Error.hxx"
 #include "MidasEvent.hxx"
-
+#include "definitions.h"
 
 namespace {
 
@@ -161,3 +161,22 @@ void dragon::MidasEvent::Init(const char* tsbank, const void* header, const void
 	}
 }
 
+
+dragon::CoincMidasEvent::CoincMidasEvent(const MidasEvent& event1, const MidasEvent& event2)
+{
+	if (event1.GetEventId() == DRAGON_HEAD_EVENT && event2.GetEventId() == DRAGON_TAIL_EVENT) {
+		fGamma    = &event1;
+		fHeavyIon = &event2;
+	}
+	else if (event1.GetEventId() == DRAGON_TAIL_EVENT && event2.GetEventId() == DRAGON_HEAD_EVENT) {
+		fGamma    = &event2;
+		fHeavyIon = &event1;
+	}
+	else {
+		err::Warning("CoincMidasEvent::CoincMidasEvent")
+			<< ERR_FILE_LINE << "Don't know how to handle the passed events: "
+			<< "Id1 = " << event1.GetEventId() << ", Id2 = " <<event2.GetEventId()
+			<< ". Skipping...\n";
+		return;
+	}
+}

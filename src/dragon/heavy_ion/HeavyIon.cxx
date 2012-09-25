@@ -35,7 +35,8 @@ void copy_hi(const dragon::hion::HeavyIon& from, dragon::hion::HeavyIon& to)
 {
 	to.variables = from.variables;
 	to.evt_count = from.evt_count;
-	to.modules = from.modules;
+	to.modules   = from.modules;
+	to.header    = from.header;
 #ifndef DRAGON_OMIT_DSSSD
 	to.dsssd = from.dsssd;
 #endif
@@ -82,10 +83,11 @@ void dragon::hion::HeavyIon::reset()
 #endif
 }
 
-void dragon::hion::HeavyIon::unpack(dragon::MidasEvent& event)
+void dragon::hion::HeavyIon::unpack(const dragon::MidasEvent& event)
 {
 	reset();
 	modules.unpack(event);
+	event.CopyHeader(header);
 }
 
 void dragon::hion::HeavyIon::read_data()

@@ -11,6 +11,7 @@
 #include <vector>
 #include <cassert>
 #include <typeinfo>
+#include "midas/TMidasFile.h"
 #include "midas/TMidasEvent.h"
 
 
@@ -75,6 +76,14 @@ public:
 	MidasEvent& operator= (const MidasEvent& other)
 		{ CopyDerived(other); return *this; }
 
+	/// Copies event header information into another one
+	void CopyHeader(EventHeader_t& destination) const
+		{	memcpy (&destination, &fEventHeader, sizeof(EventHeader_t)); }
+
+	/// Read an event from a TMidasFile
+	bool ReadFromFile(TMidasFile& file)
+		{	return file.Read(this);	}
+
 	/// Returns trigger time in uSec
 	double TriggerTime() const { return fTriggerTime; }
 
@@ -136,8 +145,8 @@ public:
 				case 9:  assert (typeid(T) == typeid(float));         break;
 				case 10: assert (typeid(T) == typeid(double));        break;
 				default:
-						fprintf(stderr, "Unknown type id: %i\n", type);
-						assert(false); break;
+					fprintf(stderr, "Unknown type id: %i\n", type);
+					assert(false); break;
 				}
 			}
 			return bkfound ?
@@ -158,19 +167,28 @@ private:
 
 };
 
+  /// Struct to hold two coincident midas events
+struct CoincMidasEvent {
+	const dragon::MidasEvent* fGamma;
+	const dragon::MidasEvent* fHeavyIon;
+	CoincMidasEvent (const MidasEvent& event1, const MidasEvent& event2);
+	~CoincMidasEvent() { }
+};
+
+
 } // namespace dragon
 
 #endif // #ifndef DRAGON_MIDAS_EVENT_HXX
 
 /*
-TID_BYTE   1
-TID_SBYTE  2
-TID_CHAR   3
-TID_WORD   4
-TID_SHORT  5
-TID_DWORD  6
-TID_INT    7
-TID_BOOL   8
-TID_FLOAT  9
-TID_DOUBLE 10
+	TID_BYTE   1
+	TID_SBYTE  2
+	TID_CHAR   3
+	TID_WORD   4
+	TID_SHORT  5
+	TID_DWORD  6
+	TID_INT    7
+	TID_BOOL   8
+	TID_FLOAT  9
+	TID_DOUBLE 10
 */
