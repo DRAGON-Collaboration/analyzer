@@ -22,7 +22,7 @@ uint64_t vme::calc_ts64(uint32_t tstamp32, uint32_t event_number)
 	return ts64;
 }
 
-bool vme::unpack_io32(const TMidasEvent& event, const char* bank, vme::IO32& module)
+bool vme::unpack_io32(const dragon::MidasEvent& event, const char* bank, vme::IO32& module)
 {
 	void* p_bank = 0;
   int bank_len, bank_type;

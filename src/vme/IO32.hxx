@@ -3,7 +3,7 @@
 #ifndef DRAGON_VME_IO32_HXX
 #define DRAGON_VME_IO32_HXX
 #include <stdint.h>
-#include "midas/TMidasEvent.h"
+#include "dragon/MidasEvent.hxx"
 
 namespace vme {
 
@@ -53,7 +53,7 @@ uint64_t calc_ts64(uint32_t tstamp32, uint32_t event_number);
 /// \param [in] bank Name of the bank to unpack
 /// \param [out] module The module into which you are unpacking
 /// \returns True if the event was successfully unpacked, false otherwise
-bool unpack_io32(const TMidasEvent& event, const char* bank, vme::IO32& module);
+bool unpack_io32(const dragon::MidasEvent& event, const char* bank, vme::IO32& module);
 
 } // namespace vme
 

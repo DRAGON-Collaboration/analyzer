@@ -1,7 +1,7 @@
 /// \file V1190.hxx
 /// \brief Defines v1190b tdc module structures and routines
 #include <stdint.h>
-#include "midas/TMidasEvent.h"
+#include "dragon/MidasEvent.hxx"
 #ifndef DRAGON_VME_V1190_HXX
 #define DRAGON_VME_V1190_HXX
 
@@ -90,7 +90,7 @@ bool unpack_v1190_buffer(void* address, const char* bank, V1190b& module);
 /// \param [in] bank Name of the bank to unpack
 /// \param [out] module The module into which you are unpacking
 /// \returns True if the event was successfully unpacked, false otherwise
-bool unpack_v1190(const TMidasEvent& event, const char* bank, V1190b& module);
+bool unpack_v1190(const dragon::MidasEvent& event, const char* bank, V1190b& module);
 
 
 } // namespace caen

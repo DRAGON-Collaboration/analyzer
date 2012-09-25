@@ -40,7 +40,7 @@ void dragon::gamma::Gamma::set_variables(const char* odb)
 	bgo.variables.set(odb);
 }
 
-void dragon::gamma::Gamma::unpack(TMidasEvent& event)
+void dragon::gamma::Gamma::unpack(dragon::MidasEvent& event)
 {
 	reset();
 	modules.unpack(event);

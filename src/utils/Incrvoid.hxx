@@ -22,7 +22,7 @@ void increment_void(void*& begin, int midas_data_type)
 	};
 
 	if (midas_data_type < 1 || midas_data_type > 10) {
-		err::Throw("increment_void") << "Unknown midas data type: " << midas_data_type << "\n";
+		err::Error("increment_void") << "Unknown midas data type: " << midas_data_type << "\n";
 	}
 
   begin = reinterpret_cast<char*>(begin) + data_sizes[midas_data_type];

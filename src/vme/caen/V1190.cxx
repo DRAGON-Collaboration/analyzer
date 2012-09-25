@@ -72,8 +72,8 @@ void vme::caen::unpack_v1190_footer(uint32_t data, V1190b& module) {
 	int16_t evtId = (data >> 12) & READ12;
 	if(evtId != module.event_id) {
 		std::cerr << ERR_FILE_LINE;
-		err::Throw() << "Trailer event id (" << evtId << ") != header event Id ("
-								 << module.event_id << ")\n";
+		err::Error("") << "Trailer event id (" << evtId << ") != header event Id ("
+									 << module.event_id << ")" << ERR_FILE_LINE;
 	}
 }
 
@@ -105,7 +105,7 @@ void vme::caen::handle_v1190_error(uint32_t data, V1190b& module) {
 		"Event lost (trigger FIFO overflow).",
 		"Internal fatal chip error has been detected."
 	};
-	err::Throw error;
+	err::Error error("");
 	error << "TDC Error buffer: error flags:\n";
 		
 	for(int i=0; i< 14; ++i) {
@@ -124,7 +124,7 @@ bool vme::caen::unpack_v1190_buffer(void* address, const char* bank, V1190b& mod
 		success = run_v1190_unpacker(type, *data32, module);
 		if(!success) {
 			std::cerr << ERR_FILE_LINE;
-			err::Throw("unpack_v1190_buffer")
+			err::Error("unpack_v1190_buffer")
 				 << "Unknown CAEN V1190b buffer type (bits 27, 28, 29, 30, 31 = "
 				 << ((*data32 >> 27) & READ1) << ", " << ((*data32 >> 28) & READ1) << ", "
 				 << ((*data32 >> 29) & READ1) << ", " << ((*data32 >> 30) & READ1) << ", "
@@ -138,7 +138,7 @@ bool vme::caen::unpack_v1190_buffer(void* address, const char* bank, V1190b& mod
 	return success;
 }
 
-bool vme::caen::unpack_v1190(const TMidasEvent& event, const char* bank, V1190b& module) {
+bool vme::caen::unpack_v1190(const dragon::MidasEvent& event, const char* bank, V1190b& module) {
 	void* p_bank = NULL;
   int bank_len, bank_type;
   int found = event.FindBank(bank, &bank_len, &bank_type, &p_bank);

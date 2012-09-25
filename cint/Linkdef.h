@@ -41,6 +41,8 @@
 #pragma link C++ class vme::IO32+;
 
 
+/*
 #pragma link C++ class tstamp::Queue+;
-#pragma link C++ class tstamp::Event+;
 #pragma link C++ class TMidasEvent+;
+#pragma link C++ class dragon::MidasEvent+;
+*/

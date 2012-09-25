@@ -36,8 +36,9 @@ void vme::caen::unpack_adc_data(uint32_t data, Adc<32>& module)
 	uint16_t ch = (data >> 16) & READ5;
 	if(32 < ch) {
 		std::cerr << ERR_FILE_LINE;
-		err::Throw("unpack_adc_data")
-			 << "Read a channel number (" << ch << ") which is >= the maximum (32), aborting.\n";
+		err::Error("unpack_adc_data")
+			<< "Read a channel number (" << ch << ") which is >= the maximum (32), aborting.\n";
+		throw std::invalid_argument("Invalid channel number.");
 	}
 	module.underflow = (data >> 13) & READ1;
 	module.overflow  = (data >> 12) & READ1;
@@ -56,9 +57,9 @@ void vme::caen::unpack_adc_footer(uint32_t data, Adc<32>& module)
 
 void vme::caen::handle_adc_invalid(uint32_t data, Adc<32>& module)
 {
-	std::cerr << ERR_FILE_LINE;
-	err::Throw("handle_adc_invalid")
-		 << "Read INVALID_BITS code from a CAEN ADC output buffer.\n";
+	err::Error("handle_adc_invalid")
+		 << "Read INVALID_BITS code from a CAEN ADC output buffer."
+		 << ERR_FILE_LINE;
 }
 
 bool vme::caen::unpack_adc_buffer(void* address, const char* bank, vme::caen::Adc<32>& module)
@@ -70,20 +71,20 @@ bool vme::caen::unpack_adc_buffer(void* address, const char* bank, vme::caen::Ad
 		success = run_adc_unpacker(type, *data32, module);
 		if(!success) {
 			std::cerr << ERR_FILE_LINE;
-			err::Throw("unpack_adc_buffer")
+			err::Error("unpack_adc_buffer")
 				 << "Unknown CAEN ADC buffer type (bits 24, 25, 26 = "
 				 << ((*data32 >> 24) & READ1) << ", " << ((*data32 >> 25) & READ1) << ", "
 				 << ((*data32 >> 26) & READ1) << ").\n";
 		}
 	}
 	catch (std::exception& e) {
-		std::cerr << e.what() << "    MIDAS Bank name: " << bank << "\n\n";
+		std::cerr << e.what() << " MIDAS Bank name: " << bank << "\n\n";
 		success = false;
 	}
 	return success;
 }
 
-bool vme::caen::unpack_adc(const TMidasEvent& event, const char* bank, vme::caen::Adc<32>& module)
+bool vme::caen::unpack_adc(const dragon::MidasEvent& event, const char* bank, vme::caen::Adc<32>& module)
 {
 	void* p_bank = NULL;
   int bank_len, bank_type;

@@ -1,226 +1,95 @@
-//! \file TStamp.cxx
-//! \brief Implements TStamp.hxx
-#include <cassert>
-#include <iostream>
+/*!
+ * \file TStamp.cxx
+ * \author G. Christian
+ * \brief Implements tstamp::Queue class
+ */
 #include "TStamp.hxx"
-#include "user/User.hxx"
 #include "utils/Error.hxx"
-
-namespace { const uint64_t MAX32 = 4294967295; }
-
-// ========= Struct tstamp::Event ========= //
-tstamp::Event::Event(uint32_t tstamp_, int type_, TMidasEvent event_):
-	type(type_), fMidasEvent(event_)
-{
-	static uint64_t last = 0;
-	if(tstamp_ >= last) {
-		tstamp = (uint64_t)tstamp_;
-	}
-	else { // rollover
-		tstamp = tstamp_ + MAX32;
-	}
-	last = tstamp;
-}
-
-tstamp::Event::~Event()
-{
-	// std::cout << "~tstamp::Event::~Event()\n";
-}
-
-void tstamp::Event::Copy(const tstamp::Event& other)
-{
-	type = other.type;
-	tstamp = other.tstamp;
-	fMidasEvent = other.fMidasEvent;
-}
-
-
-/// Timestamp coincidence window
-/// \todo make this something more settable, not a #define
-#define COINC_WINDOW 10
-
-// ========= Struct tstamp::Compare ========= //
-
-bool tstamp::Compare::operator() (const tstamp::Event& lhs, const tstamp::Event& rhs)
-{
-	// Note: STL search algorithms define 'equivalency' as (!comp(a,b) && !comp(b,a)) == true
-	// Thus we should return 'false' if the two events count as a match and otherwise something that 
-	// won't always be true under commuation (e.g. lhs.tstamp < rhs.tstamp)
-	if(lhs.type == rhs.type) { // Not a match - same types
-		return lhs.tstamp != rhs.tstamp ? lhs.tstamp < rhs.tstamp : true;
-	}
-	return (std::max(lhs.tstamp, rhs.tstamp) - std::min(lhs.tstamp, rhs.tstamp) < COINC_WINDOW) ?
-		 false /* Match */ : lhs.tstamp < rhs.tstamp; /* Not a match - outside window */
-}
 
 
 // ========= Class tstamp::Queue ========= //
 
-void tstamp::Queue::HandleCoinc(tstamp::Event& val, tstamp::Queue::Iterator& match)
+void tstamp::Queue::HandleCoinc(const dragon::MidasEvent& event1,
+																const dragon::MidasEvent& event2) const
+{
+	/*!
+	 * In the base class, simply prints information abouut both events together.
+	 * \param event1 Reference to the first coincident event.
+	 * \param event2 Reference to the second coincident event.
+	 */
+	event1.PrintCoinc(event2);
+}
+
+void tstamp::Queue::HandleSingle(const dragon::MidasEvent& e) const
 { 
-	// Set gamma and heavy ion midas buffer pointers
-	TMidasEvent *gammaMidasEvent = 0, *hionMidasEvent = 0;
-	if(0);
-	else if(val.type == tstamp::Event::GAMMA && match->type == tstamp::Event::HION) {
-		gammaMidasEvent = &val.fMidasEvent;
-		hionMidasEvent  = const_cast<TMidasEvent*>(&match->fMidasEvent);
-	}
-	else if(val.type == tstamp::Event::HION && match->type == tstamp::Event::GAMMA) {
-		gammaMidasEvent = const_cast<TMidasEvent*>(&match->fMidasEvent);
-		hionMidasEvent  = &val.fMidasEvent;
-	}
-	else {
-		err::Error("tstamp::Queue::HandleCoinc")
-			 << "Invalid coincidence event types: val.type = " << val.type << ", match->type = " << match->type
-			 << ". Valid arguments should be either " << tstamp::Event::GAMMA << " (gamma event) or "
-			 << tstamp::Event::HION << " (heavy ion event), with val.type != match->type. Skipping the events "
-			 << "in question." << ERR_FILE_LINE;
-	}
+	/*!
+	 * In the base class, simply prints information on the event.
+	 * \parem event Reference to the event being handled.
+	 */
+	e.PrintSingle();
+}
 
-	if(gammaMidasEvent && hionMidasEvent) {
-		// Unpack each event into singles tree
-		rb::Event* gamma_event = rb::Event::Instance<GammaEvent>();
-		gamma_event->Process(gammaMidasEvent, 0);
+void tstamp::Queue::Push(const dragon::MidasEvent& event)
+{
+	/*!
+	 * First the function inserts \e event into the internal container. Then,
+	 * it calls Pop() until the container size (time difference) is no longer
+	 * larger than the maximum.
+	 * \param [in] event Event to insert into the queue.
+	 * \note The function does attempt to handle exceptions thrown by the
+	 * std::multiset::insert() function. Most likely these would result from
+	 * making the set size too large, so we empty the queue and try again
+	 * (w/ error mesage). If it still fails, give up and rethrow the exception
+	 * (causing program termination).  If other exceptions start to show up, then
+	 * code shold be added to handle them gracefully.
+	 */
 
-		rb::Event* hi_event = rb::Event::Instance<HeavyIonEvent>();
-		hi_event->Process(hionMidasEvent, 0);
+	try { // insert event into the queue
 		
-		// Unpack into coincidence tree
-		rb::Event* coinc_event = rb::Event::Instance<CoincidenceEvent>();
-		CoincEventPair_t coinc =
-			 std::make_pair(static_cast<GammaEvent*>(gamma_event), static_cast<HeavyIonEvent*>(hi_event));
-		coinc_event->Process(&coinc, 0);
+		fEvents.insert(event);
 	}
-	
-	// Remove match from the queue
-	fContainer.erase(match);
-}
+	catch (std::exception& e) { // try to handle exception gracefully
+		err::Error("tstamp::Queue::Push")
+			 << "Caught an exception from std::multiset::insert: " << e.what()
+			 << " (note: size = " << Size() << ", max size = " << fEvents.max_size()
+			 << "). Clearing the Queue and trying again... WARNING: that this could cause "
+			 << "coincidences to be missed!" << ERR_FILE_LINE;
 
-void tstamp::Queue::HandleSingle(tstamp::Queue::Iterator& it)
-{
-	// Figure out event type & unpack
-	switch(it->type) {
-	case tstamp::Event::GAMMA :
-		 {
-			 rb::Event* gamma_event = rb::Event::Instance<GammaEvent>();
-			 gamma_event->Process(const_cast<TMidasEvent*>(&it->fMidasEvent), 0);
-			 break;
-		 }
-	case tstamp::Event::HION :
-		 {
-			 rb::Event* hi_event = rb::Event::Instance<HeavyIonEvent>();
-			 hi_event->Process(const_cast<TMidasEvent*>(&it->fMidasEvent), 0);
-			 break;
-		 }
-	default:
-		 {
-			 err::Error("tstamp::Queue::HandleSingle")
-					<< "Unrecognized tstamp::Event::type: " << it->type << ". Recognized types are "
-					<< tstamp::Event::GAMMA << " (gamma event) and " << tstamp::Event::HION << " (heavy ion event). "
-					<< "Skiping the event in question." << ERR_FILE_LINE;
-			 break;
-		 }
-	}
-	// Remove the event in question from the queue
-	fContainer.erase(it);
-}
+		Cleanup(); // remove everything from the queue
 
-tstamp::Queue::Queue(int size):
-	fMaxSize(size) { }
+		try { // try again to insert
 
-bool tstamp::Queue::IsFull()
-{
-	if(fContainer.empty()) return false;
-	tstamp::Queue::Iterator first = fContainer.begin(), last = fContainer.end();
-	--last;
-	return fMaxSize <= last->tstamp - first->tstamp;
-}
-
-tstamp::Queue::Iterator tstamp::Queue::CheckMatch(const tstamp::Event& event,
-																									tstamp::Queue::Iterator first, tstamp::Queue::Iterator last)
-{
-	tstamp::Compare comp;
-	tstamp::Queue::Iterator it =
-		 std::lower_bound<tstamp::Queue::Iterator, tstamp::Event, tstamp::Compare> (first, last, event, comp);
-	if(it != last && (!comp(*it, event) && !comp(event, *it))) {
-		return it;
-	}
-	else {
-		return last;
-	}	
-}
-
-void tstamp::Queue::Push(tstamp::Event& event)
-{
-	tstamp::Queue::Iterator itMatch = CheckMatch(event);
-	if(itMatch != fContainer.end()) {
-		HandleCoinc(event, itMatch);
-	}
-	else {
-		if(IsFull()) {
-			this->Pop();
+			fEvents.insert(event);
 		}
-		std::pair<tstamp::Queue::Iterator, bool> result = fContainer.insert(event);
-		if(!result.second) { // Duplicate
-			std::cerr << "Warning in <tstamp::Queue::Push>: Tried to insert a duplicate timestamped event; "
-								<< "skipping the second one.\n"
-								<< "Timestamp value: " << event.tstamp << ", type: " << event.type << "\n";
+		catch (std::exception& e) { // give up
+			err::Error("tstamp::Queue::Push")
+				<< "Caught a second exception from std::multiset::insert: " << e.what()
+				<< ". Not sure what to do: rethrowing (likely fatal!)" << ERR_FILE_LINE;
+			throw (e);
 		}
 	}
+
+	while (IsFull()) Pop(); // erase overfull events from the front of the queue
 }
+
 
 void tstamp::Queue::Pop()
 {
- 	if(fContainer.empty()) return;
-	tstamp::Queue::Iterator itFirst = fContainer.begin(), itSecond = itFirst;
-	++itSecond;
-	tstamp::Queue::Iterator itMatch = CheckMatch(*itFirst, itSecond, this->Last());
-	if(itMatch == this->Last()) {
-		HandleSingle(itFirst);
-	}
-	else {
-		std::cerr << "Warning in <tstamp::Queue::Pop()>: Found a match - this shouldn't hapen, no!?\n" 
-							<< "Erasing both elements - "
-							<< "First.ts, First.type, Match.ts, Match.type: "
-							<< itFirst->tstamp << ", " << itFirst->type << ", " << itMatch->tstamp << ", " << itMatch->type << "\n";
-		fContainer.erase(itFirst);
-		fContainer.erase(itMatch);
-	}
-}
+	/*!
+	 * Looks at the earliest event still in the queue and searches for
+	 * all other events in the queue with trigger times within the trigger window.
+	 * Then the function loops over each of the matches and calls HandleCoinc() on
+	 * the two events. Finally, the function calls HandleSingle() on the earliest
+	 * event and then deletes it from the queue.
+	 */
 
-void tstamp::Queue::Cleanup()
-{
-	while(!fContainer.empty()) {
-		Pop();
-	}
-}
+	if (fEvents.empty()) return;
 	
-
-#if defined TEST
-
-int main() {
-
-	TMidasFile fFile;
-	TMidasEvent fBuffer;
-	assert(fFile.Open("/Users/gchristian/soft/develop/dragon/analyzer/run00068.mid"));
-	tstamp::Queue fTSQueue(100);
-
-	while(1) {
-		fBuffer.Clear();
-		bool result = fFile.Read(&fBuffer);
-		if(!result) break;
-
-		Short_t eventId = fBuffer.GetEventId();
-		if(eventId == DRAGON_EVENT) {
-			
-			static uint64_t fakeTS = 1;
-			tstamp::Event event(fakeTS++,1);
-			event.fMidasEvent = fBuffer;
-			
-			fTSQueue.Push(event);
-		}
-		else ;
+	EqualRange_t matches = fEvents.equal_range(*fEvents.begin());
+	for (MultiSet_t::iterator itMatch = matches.first; itMatch != matches.second; ++itMatch) {
+		if (itMatch != fEvents.begin()) HandleCoinc(*fEvents.begin(), *itMatch);
 	}
-}
 
-#endif
+	HandleSingle(*fEvents.begin());
+	fEvents.erase(fEvents.begin());
+}

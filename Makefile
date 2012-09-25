@@ -58,7 +58,7 @@ $(SRC)/dragon/heavy_ion/HeavyIon.hxx \
 $(SRC)/dragon/heavy_ion/DSSSD.hxx $(SRC)/dragon/heavy_ion/IonChamber.hxx \
 $(SRC)/dragon/heavy_ion/MCP.hxx $(SRC)/dragon/heavy_ion/SurfaceBarrier.hxx \
 $(SRC)/dragon/heavy_ion/Auxillary.hxx $(SRC)/dragon/gamma/Gamma.hxx $(SRC)/dragon/gamma/Bgo.hxx \
-$(SRC)/tstamp/TStamp.hxx $(SRC)/odb/Odb.hxx $(SRC)/odb/MidasXML.hxx
+$(SRC)/tstamp/TStamp.hxx $(SRC)/odb/Odb.hxx $(SRC)/odb/MidasXML.hxx $(SRC)/dragon/MidasEvent.hxx
 
 SOURCES=$(SRC)/vme/caen/Adc.cxx $(SRC)/vme/caen/V1190.cxx $(SRC)/vme/IO32.cxx \
 $(SRC)/dragon/Modules.cxx $(SRC)/dragon/Dragon.cxx \
@@ -66,7 +66,7 @@ $(SRC)/dragon/heavy_ion/HeavyIon.cxx \
 $(SRC)/dragon/heavy_ion/DSSSD.cxx $(SRC)/dragon/heavy_ion/IonChamber.cxx \
 $(SRC)/dragon/heavy_ion/MCP.cxx $(SRC)/dragon/heavy_ion/SurfaceBarrier.cxx \
 $(SRC)/dragon/heavy_ion/Auxillary.cxx $(SRC)/dragon/gamma/Gamma.cxx $(SRC)/dragon/gamma/Bgo.cxx  \
-$(SRC)/tstamp/TStamp.cxx $(SRC)/odb/Odb.cxx $(SRC)/odb/MidasXML.cxx
+$(SRC)/tstamp/TStamp.cxx $(SRC)/odb/Odb.cxx $(SRC)/odb/MidasXML.cxx $(SRC)/dragon/MidasEvent.cxx
 
 OBJECTS=$(OBJ)/vme/caen/Adc.o $(OBJ)/vme/caen/V1190.o $(OBJ)/vme/IO32.o \
 $(OBJ)/dragon/Modules.o $(OBJ)/dragon/Dragon.o \
@@ -74,7 +74,7 @@ $(OBJ)/dragon/heavy_ion/HeavyIon.o \
 $(OBJ)/dragon/heavy_ion/DSSSD.o $(OBJ)/dragon/heavy_ion/IonChamber.o \
 $(OBJ)/dragon/heavy_ion/MCP.o $(OBJ)/dragon/heavy_ion/SurfaceBarrier.o \
 $(OBJ)/dragon/heavy_ion/Auxillary.o $(OBJ)/dragon/gamma/Gamma.o $(OBJ)/dragon/gamma/Bgo.o  \
-$(OBJ)/tstamp/TStamp.o $(OBJ)/odb/Odb.o $(OBJ)/odb/MidasXML.o
+$(OBJ)/tstamp/TStamp.o $(OBJ)/odb/Odb.o $(OBJ)/odb/MidasXML.o $(OBJ)/dragon/MidasEvent.o
 
 ### DRAGON LIBRARY ###
 all: $(DRLIB)/libDragon.so
@@ -109,6 +109,11 @@ Dragon: $(OBJ)/dragon/Dragon.o
 $(OBJ)/dragon/Dragon.o: $(CINT)/DragonDictionary.cxx $(SRC)/dragon/Dragon.cxx
 	$(COMPILE) $(FPIC) -c \
 -o $@ -p $(SRC)/dragon/Dragon.cxx \
+
+MidasEvent: $(OBJ)/dragon/MidasEvent.o
+$(OBJ)/dragon/MidasEvent.o: $(CINT)/DragonDictionary.cxx $(SRC)/dragon/MidasEvent.cxx
+	$(COMPILE) $(FPIC) -c \
+-o $@ -p $(SRC)/dragon/MidasEvent.cxx \
 
 HeavyIon: $(OBJ)/dragon/heavy_ion/HeavyIon.o
 $(OBJ)/dragon/heavy_ion/HeavyIon.o: $(CINT)/DragonDictionary.cxx $(SRC)/dragon/heavy_ion/HeavyIon.cxx

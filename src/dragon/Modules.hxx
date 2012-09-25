@@ -14,56 +14,56 @@ namespace gamma {
 /// Encapsulates all VME modules used to read out gamma-ray data.
 class Modules {
 private:
-	 /// CAEN v792 qdc (32 channel, integrating).
-	 vme::caen::V792 v792;
+	/// CAEN v792 qdc (32 channel, integrating).
+	vme::caen::V792 v792;
 
-   /// CAEN v1190b tdc (64 channel).
-	 vme::caen::V1190b v1190b;
+	/// CAEN v1190b tdc (64 channel).
+	vme::caen::V1190b v1190b;
 
-	 /// I032 FPGA
-	 vme::IO32 io32;
-
-public:
-	 /// MIDAS bank names
-	 struct Banks {
-			/// v792 bank name
-			char v792[5];
-			/// v1190b bank name
-			char v1190b[5];
-			/// io32 bank name
-			char io32[5];
-	 } banks; //!
+	/// I032 FPGA
+	vme::IO32 io32;
 
 public:
-	 /// Initialize all modules
-	 Modules();
+	/// MIDAS bank names
+	struct Banks {
+		/// v792 bank name
+		char v792[5];
+		/// v1190b bank name
+		char v1190b[5];
+		/// io32 bank name
+		char io32[5];
+	} banks; //!
 
-	 /// Nothing to do
-	 ~Modules() { }
+public:
+	/// Initialize all modules
+	Modules();
 
-	 /// Copy constructor
-	 Modules(const Modules& other);
+	/// Nothing to do
+	~Modules() { }
 
-	 /// Equivalency operator
-	 Modules& operator= (const Modules& other);
+	/// Copy constructor
+	Modules(const Modules& other);
 
-	 /// Reset all modules
-	 void reset();
+	/// Equivalency operator
+	Modules& operator= (const Modules& other);
 
-   /// Unpack Midas event data into module data structures.
-	 /// \param [in] event Reference to the MidasEvent object being unpacked
-	 void unpack(const TMidasEvent& event);
+	/// Reset all modules
+	void reset();
 
-	 /// Return data from a v792 channel
-	 /// \param ch channel numner
-	 int16_t v792_data(unsigned ch) const;
+	/// Unpack Midas event data into module data structures.
+	/// \param [in] event Reference to the MidasEvent object being unpacked
+	void unpack(const dragon::MidasEvent& event);
 
-	 /// Return data from a v1190b channel
-	 /// \param ch channel numne
-	 int16_t v1190b_data(unsigned ch) const;
+	/// Return data from a v792 channel
+	/// \param ch channel numner
+	int16_t v792_data(unsigned ch) const;
 
-	 /// Return io32 tstamp value
-	 int32_t tstamp() const;
+	/// Return data from a v1190b channel
+	/// \param ch channel numne
+	int16_t v1190b_data(unsigned ch) const;
+
+	/// Return io32 tstamp value
+	int32_t tstamp() const;
 };
 
 } // namespace gamma
@@ -73,68 +73,68 @@ namespace hion {
 /// Encapsulates all VME modules used to read out heavy-ion data.
 class Modules {
 private:
-	 /// Caen v785 adcs (32 channel, peak-sensing, x2)
-	 vme::caen::V785 v785[2];
+	/// Caen v785 adcs (32 channel, peak-sensing, x2)
+	vme::caen::V785 v785[2];
 
-	 /// CAEN v1190b TDC
-	 vme::caen::V1190b v1190b;
+	/// CAEN v1190b TDC
+	vme::caen::V1190b v1190b;
 
-	 /// IO32 FPGA
-	 vme::IO32 io32;
-
-public:
-	 /// MIDAS bank names
-	 struct Banks {
-			/// v792 bank name
-			char v785[5][2];
-			/// v1190b bank name
-			char v1190b[5];
-			/// io32 bank name
-			char io32[5];
-	 } banks; //!
-
+	/// IO32 FPGA
+	vme::IO32 io32;
 
 public:
-	 /// Initialize all modules
-	 Modules();
+	/// MIDAS bank names
+	struct Banks {
+		/// v792 bank name
+		char v785[5][2];
+		/// v1190b bank name
+		char v1190b[5];
+		/// io32 bank name
+		char io32[5];
+	} banks; //!
 
-   /// Nothing to do
-	 ~Modules() { }
 
-	 /// Copy constructor
-	 Modules(const Modules& other);
+public:
+	/// Initialize all modules
+	Modules();
 
-	 /// Equivalency operator
-	 Modules& operator= (const Modules& other);
+	/// Nothing to do
+	~Modules() { }
 
-	 /// Reset all modules
-	 void reset();
+	/// Copy constructor
+	Modules(const Modules& other);
 
-	 /// Unpack Midas event data into module data structures.
-	 /// \param [in] event Reference to the MidasEvent object being unpacked
-	 void unpack(const TMidasEvent& event);	 
+	/// Equivalency operator
+	Modules& operator= (const Modules& other);
 
-	 /// Return data from a v785 channel
-	 /// \param which The ADC you want data from
-	 /// \param ch channel numner
-	 int16_t v785_data(unsigned which, unsigned ch) const;
+	/// Reset all modules
+	void reset();
 
-	 /// Return data from a v1190b channel
-	 /// \param ch channel numner
-	 int16_t v1190b_data(unsigned ch) const;
+	/// Unpack Midas event data into module data structures.
+	/// \param [in] event Reference to the MidasEvent object being unpacked
+	void unpack(const dragon::MidasEvent& event);	 
 
-	 /// Return io32 tstamp value
-	 int32_t tstamp() const;
+	/// Return data from a v785 channel
+	/// \param which The ADC you want data from
+	/// \param ch channel numner
+	int16_t v785_data(unsigned which, unsigned ch) const;
+
+	/// Return data from a v1190b channel
+	/// \param ch channel numner
+	int16_t v1190b_data(unsigned ch) const;
+
+	/// Return io32 tstamp value
+	int32_t tstamp() const;
 };
 
 } // namespace hion
 
 /// Wrapper for gamma and heavy-ion modules
 struct Modules {
-	 /// Gamma
-	 gamma::Modules gamma;
-	 /// Heavy ion
-	 hion::Modules heavy_ion;
+	/// Gamma
+	gamma::Modules gamma;
+	/// Heavy ion
+	hion::Modules heavy_ion;
 };
 
 } // namespace dragon

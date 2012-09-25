@@ -40,7 +40,7 @@ void dragon::gamma::Modules::reset()
 	vme::reset<vme::caen::V1190b, 64> (v1190b);
 }
 
-void dragon::gamma::Modules::unpack(const TMidasEvent& event)
+void dragon::gamma::Modules::unpack(const dragon::MidasEvent& event)
 {
 	vme::caen::unpack_adc(event, "VADC", v792);
 	vme::caen::unpack_adc(event, banks.v792, v792);
@@ -113,7 +113,7 @@ dragon::hion::Modules& dragon::hion::Modules::operator= (const Modules& other)
 	return* this;
 }
 
-void dragon::hion::Modules::unpack(const TMidasEvent& event)
+void dragon::hion::Modules::unpack(const dragon::MidasEvent& event)
 {
 
 	for(int i=0; i< 2; ++i) {

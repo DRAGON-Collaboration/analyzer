@@ -2,7 +2,7 @@
 //! \brief Defines classes relevant to unpacking data from CAEN ADC modules.
 #ifndef  DRAGON_VME_ADC_HXX
 #define  DRAGON_VME_ADC_HXX
-#include "midas/TMidasEvent.h"
+#include "dragon/MidasEvent.hxx"
 
 namespace vme {
 
@@ -66,7 +66,7 @@ bool unpack_adc_buffer(void* address, const char* bank, vme::caen::Adc<32>& modu
 /// \param [in] bank Name of the bank to unpack
 /// \param [out] module The module into which you are unpacking
 /// \returns True if the event was successfully unpacked, false otherwise
-bool unpack_adc(const TMidasEvent& event, const char* bank, vme::caen::Adc<32>& module);
+bool unpack_adc(const dragon::MidasEvent& event, const char* bank, vme::caen::Adc<32>& module);
 
 
 } // namespace caen
