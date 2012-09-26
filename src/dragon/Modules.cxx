@@ -43,9 +43,9 @@ void dragon::gamma::Modules::reset()
 
 void dragon::gamma::Modules::unpack(const dragon::MidasEvent& event)
 {
+	io32.unpack(event, banks.io32);
 	v792.unpack(event, banks.v792);
 	v1190.unpack(event, banks.v1190);
-	vme::unpack_io32(event, banks.io32, io32);
 }
 
 int16_t dragon::gamma::Modules::v792_data(unsigned ch) const
@@ -115,13 +115,11 @@ dragon::hion::Modules& dragon::hion::Modules::operator= (const Modules& other)
 
 void dragon::hion::Modules::unpack(const dragon::MidasEvent& event)
 {
-
+	io32.unpack(event, banks.io32);
 	for(int i=0; i< 2; ++i) {
 		v785[i].unpack(event, banks.v785[i]);
 	}
-
 	v1190.unpack(event, banks.v1190);
-	vme::unpack_io32(event, banks.io32, io32);
 }
 
 int16_t dragon::hion::Modules::v785_data(unsigned which, unsigned ch) const

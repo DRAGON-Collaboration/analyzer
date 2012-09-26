@@ -1,5 +1,6 @@
 /// \file Gamma.cxx
 /// \brief Implements Gamma.hxx
+#include "dragon/MidasEvent.hxx"
 #include "dragon/gamma/Gamma.hxx"
 
 

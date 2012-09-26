@@ -3,10 +3,11 @@
 #include <string>
 #include <iostream>
 #include "utils/copy_array.h"
-#include "HeavyIon.hxx"
+#include "dragon/MidasEvent.hxx"
 #include "vme/Vme.hxx"
 #include "odb/Odb.hxx"
 #include "odb/MidasXML.hxx"
+#include "HeavyIon.hxx"
 
 
 // ====== struct dragon::hion::HeavyIon ====== //

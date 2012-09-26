@@ -13,7 +13,7 @@
 #include <typeinfo>
 #include "midas/TMidasFile.h"
 #include "midas/TMidasEvent.h"
-
+#include "utils/Error.hxx"
 
 namespace dragon {
 
@@ -117,22 +117,25 @@ public:
 
 	/// Bank finding routine (templated)
 	template <typename T>
-	std::vector<T> GetBank(const char* name, bool checkType = false)
+	T* GetBankPointer(const char* name, int* length, bool reportMissing = false, bool checkType = false) const
 		{
 			/*!
-			 * \param name Name of the bank to search for
-			 * \param checkType Specifies whether or not to check that the template parameter
+			 * \param [in] name Name of the bank to search for
+			 * \param [out] Length of the returned bank
+			 * \param [in] reportMissing True means a warning message is printed if the bank is absent
+			 * \param [in] checkType Specifies whether or not to check that the template parameter
 			 *  matches the TID of the bank. If this parameter is set to true and the types do
 			 *  not match, the error is fatal.
-			 * \returns std::vector<T> containing all bank entries, or empty vector if bank not found.
-			 * \note Due to the expense of copying a vector, users will likely want to ensure that
-			 *  their compiler does return value optimization (it's likely it does, even with low or
-			 *  no optimization settings).
+			 * \returns Pointer to the beginning of the bank
 			 */
 			void *pbk;
-			int len, type;
-			int bkfound = FindBank(name, &len, &type, &pbk);
-			if (checkType) {
+			int type;
+			int bkfound = FindBank(name, length, &type, &pbk);
+			if(!bkfound && reportMissing) {
+				err::Warning("dragon::MidasEvent::GetBankPointer<T>")
+					<< "Couldn't find the MIDAS bank \"" << name  << "\". Skipping...\n";
+			}
+			if (bkfound && checkType) {
 				switch (type) {
 				case 1:  assert (typeid(T) == typeid(unsigned char)); break;
 				case 2:  assert (typeid(T) == typeid(char));          break;
@@ -149,9 +152,7 @@ public:
 					assert(false); break;
 				}
 			}
-			return bkfound ?
-				std::vector<T> (reinterpret_cast<T*>(pbk), reinterpret_cast<T*>(pbk) + len) :
-				std::vector<T> (0);
+			return bkfound ? reinterpret_cast<T*>(pbk) : 0;
 		}
 
 private:

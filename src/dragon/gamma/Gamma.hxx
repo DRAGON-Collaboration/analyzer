@@ -3,6 +3,7 @@
 /// \brief Defines classes for DRAGON head (gamma) detectors.
 #ifndef DRAGON_GAMMA_HXX
 #define DRAGON_GAMMA_HXX
+#include "midas/TMidasBanks.h"
 #include "dragon/gamma/Bgo.hxx"
 
 namespace dragon {

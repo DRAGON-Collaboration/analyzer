@@ -1,43 +1,51 @@
 //! \file IO32.cxx
 //! \brief Implements IO32.hxx
-#include <iostream>
+#include "dragon/MidasEvent.hxx"
+#include "utils/Error.hxx"
 #include "IO32.hxx"
 
-uint64_t vme::calc_ts64(uint32_t tstamp32, uint32_t event_number)
+
+bool vme::IO32::unpack(const dragon::MidasEvent& event, const char* bankName, bool reportMissing)
 {
-	const  uint64_t max32 = 4294967295;
-	static uint64_t last = 0;
-	static uint32_t nrollover = 0;
-	if(!event_number) {
-		last = 0;
-		nrollover = 0;
+ /*! Here is the portion of the MIDAS frontent where values are written to the "main" bank:
+	* \code
+	* *pdata32++ = 0xaaaa0020;           // 0 - header and version
+	* *pdata32++ = trig_count-1;         // 1 - event number, counting from 0
+	* *pdata32++ = trig_time;            // 2 - trigger timestamp
+	* *pdata32++ = start_time;           // 3 - readout start time
+	* *pdata32++ = end_time;             // 4 - readout end time
+	* *pdata32++ = start_time-trig_time; // 5 - trigger latency (trigger time - start of readout time)
+	* *pdata32++ = end_time-start_time;  // 6 - readout elapsed time
+	* *pdata32++ = end_time-trig_time;   // 7 - busy elapsed time
+	* \endcode
+	*
+	* The TSC4 bank is already unpacked in a dragon::MidasEvent, so we can just copy the data over
+	* \param [in] event The midas event to unpack
+	* \param [in] bankName Name of the "main" IO32 bank
+	* \returns True if the event was successfully unpacked, false otherwise
+	*/
+	int bank_len;
+	uint32_t* pdata32 =
+		event.GetBankPointer<uint32_t>(bankName, &bank_len, reportMissing, true);
+
+	assert (bank_len == 8);
+
+	uint32_t* data_fields[8] = { &header, &trig_count, &tstamp, &start,
+															 &end, &latency, &read_time, &busy_time };
+
+	for (int i=0; i< bank_len; ++i) {
+		*(data_fields[i]) = *pdata32++;
 	}
-
-	uint64_t ts64 = tstamp32 + nrollover*max32;
-	if(ts64 < last) {
-		++nrollover;
-		ts64 += max32;
-	}
-	last = ts64;
-	return ts64;
-}
-
-bool vme::unpack_io32(const dragon::MidasEvent& event, const char* bank, vme::IO32& module)
-{
-	void* p_bank = 0;
-  int bank_len, bank_type;
-  int found = event.FindBank(bank, &bank_len, &bank_type, &p_bank);
-  if(!found) return false;
-
-	uint32_t* pbank32 = reinterpret_cast<uint32_t*>(p_bank);
-	module.header     = pbank32[0];
-	module.trig_count = pbank32[1];
-	module.tstamp     = pbank32[2];
-	module.start      = pbank32[3];
-	module.end        = pbank32[4];
-	module.tstamp64   = calc_ts64(module.tstamp, module.trig_count);	
-
-//	printf("count: %u, ts32: %u, ts64: %lu\n", module.trig_count , module.tstamp , module.tstamp64);
 
   return true;
+}
+
+
+void vme::IO32::reset()
+{
+	uint32_t* data_fields[8] =
+		{ &header, &trig_count, &tstamp, &start, &end, &latency, &read_time, &busy_time };
+	for (int i=0; i< 8; ++i) {
+		*(data_fields[i]) = 0;
+	}
 }

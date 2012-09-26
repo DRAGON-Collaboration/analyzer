@@ -4,7 +4,10 @@
 #ifndef  DRAGON_VME_ADC_HXX
 #define  DRAGON_VME_ADC_HXX
 #include <stdint.h>
-#include "dragon/MidasEvent.hxx"
+
+
+namespace dragon { class MidasEvent; }
+
 
 namespace vme {
 

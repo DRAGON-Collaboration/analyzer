@@ -3,9 +3,13 @@
 /// \brief Defines caen V1190b tdc class
 #include <stdint.h>
 #include <vector>
-#include "dragon/MidasEvent.hxx"
 #ifndef DRAGON_VME_V1190_HXX
 #define DRAGON_VME_V1190_HXX
+
+
+
+namespace dragon { class MidasEvent; }
+
 
 namespace vme {
 

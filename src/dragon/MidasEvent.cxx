@@ -80,84 +80,68 @@ void dragon::MidasEvent::Init(const char* tsbank, const void* header, const void
 	memcpy(GetData(), addr, GetDataSize());
 	SetBankList();
 
-	std::vector<double> vfreq = GetBank<double> ("FREQ");
-	if (vfreq.size() == 0) {
-		err::Error("dragon::MidasEvent::Init") << "couldn't find the  bank \""	<<
-			 "FREQ" << "\"" << ERR_FILE_LINE;
-		throw(std::invalid_argument("Missing \"FREQ\" bank."));
-		return;
+	int freqlength;
+	double* pfreq = GetBankPointer<double> ("FREQ", &freqlength, true, true);
+	if (!pfreq)	throw(std::invalid_argument("Missing \"FREQ\" bank."));
+	if (freqlength != 1) throw(std::invalid_argument("\"FREQ\" bank len != 1"));
+
+	int tsclength;
+	uint32_t* ptsc = GetBankPointer<uint32_t> (tsbank, &tsclength, true, true);
+	if (!ptsc) throw(std::invalid_argument(tsbank));
+
+	// Read: firmware revision, write timestamp, routing, sync number
+	uint32_t version = *ptsc++, bkts = *ptsc++, route = *ptsc++, syncno = *ptsc++;
+
+	// Check version
+	if (version == 0x1120809 || version == 0x1120810 || version == 0x1120910);
+	else {
+		err::Warning("dragon::MidasEvent::Init") <<
+			"Unknown TSC version 0x" << std::hex << version << std::dec << " (id, serial #: " << GetEventId() <<
+			", " << GetSerialNumber() << ")" << ERR_FILE_LINE;
 	}
 
-	std::vector<uint32_t> vtsc = GetBank<uint32_t> (tsbank);
-	if(vtsc.size() == 0) {
-		err::Error("dragon::MidasEvent::Init") << "couldn't find the  bank \""	<<
-			 tsbank << "\"" << ERR_FILE_LINE;
-		throw(std::invalid_argument(tsbank));
-		return;
+	// Get TSC4 info
+	uint32_t ctrl = *ptsc++, nch = ctrl & READ15;
+	bool overflow = (ctrl>>15) & READ1;
+	if (overflow) {
+		err::Warning("dragon::MidasEvent::Init") <<
+			"IO32 TSC in overflow condition. Event Serial #, Id: " << GetSerialNumber() << ", " << GetEventId() << "\n";
 	}
 
-	try {
-		// Iterate bank vector
-		std::vector<uint32_t>::iterator itsc = vtsc.begin();
+	for(uint32_t i=0; i< nch; ++i) {
+		uint64_t lower = *ptsc++, upper = *ptsc++, ch = (lower>>30) & READ2;
 
-		// Read: firmware revision, write timestamp, routing, sync number
-		uint32_t version = *itsc++, bkts = *itsc++, route = *itsc++, syncno = *itsc++;
+		switch (ch) {
+		case 0: // Cross timestamp
+			fCrossClock.push_back( read_timestamp(lower, upper) );
+			break;
 
-		// Check version
-		if (version == 0x1120809 || version == 0x1120810 || version == 0x1120910);
-		else {
-			err::Warning("dragon::MidasEvent::Init") <<
-				 "Unknown TSC version 0x" << std::hex << version << std::dec << " (id, serial #: " << GetEventId() <<
-				 ", " << GetSerialNumber() << ")" << ERR_FILE_LINE;
-		}
-
-		// Get TSC4 info
-		uint32_t ctrl = *itsc++, nch = ctrl & READ15;
-		bool overflow = (ctrl>>15) & READ1;
-		if (overflow) {
-			err::Warning("dragon::MidasEvent::Init") <<
-				 "IO32 TSC in overflow condition. Event Serial #, Id: " << GetSerialNumber() << ", " << GetEventId() << "\n";
-		}
-
-		for(uint32_t i=0; i< nch; ++i) {
-			uint64_t lower = *itsc++, upper = *itsc++, ch = (lower>>30) & READ2;
-
-			switch (ch) {
-			case 0: // Cross timestamp
-				fCrossClock.push_back( read_timestamp(lower, upper) );
-				break;
-
-			case 1: // Trigger timestamp
-				if (fClock != std::numeric_limits<uint64_t>::max()) {
-					err::Warning("dragon::MidasEvent::Init") <<
-						 "duplicate trigger TS in fifo (okay if equivalent). Serial #: " << GetSerialNumber() <<
-						 ", tsc[1][0] = " << fClock << ", tsc[1][1] = " << read_timestamp(lower, upper) << "\n";
-					if (fClock != read_timestamp(lower, upper)) {
-						throw (std::invalid_argument("Non-equivalent duplicate trigger ts"));
-					}
+		case 1: // Trigger timestamp
+			if (fClock != std::numeric_limits<uint64_t>::max()) {
+				err::Warning("dragon::MidasEvent::Init") <<
+					"duplicate trigger TS in fifo (okay if equivalent). Serial #: " << GetSerialNumber() <<
+					", tsc[1][0] = " << fClock << ", tsc[1][1] = " << read_timestamp(lower, upper) << "\n";
+				if (fClock != read_timestamp(lower, upper)) {
+					throw (std::invalid_argument("Non-equivalent duplicate trigger ts"));
 				}
-
-				fClock = read_timestamp(lower, upper);
-				fFreq  = vfreq[0];
-				if (fFreq > 0.) fTriggerTime = fClock / fFreq;
-				else {
-					err::Error("dragon::MIdasEvent::Init") << "Found a frequency <= 0: " << fFreq << ERR_FILE_LINE;
-					throw (std::invalid_argument("Read invalid frequency."));
-				}
-				break;
-
-			case 2:
-				// Sync value - skip
-				break;
-
-			default:
-				break;
 			}
+
+			fClock = read_timestamp(lower, upper);
+			fFreq  = *pfreq;
+			if (fFreq > 0.) fTriggerTime = fClock / fFreq;
+			else {
+				err::Error("dragon::MIdasEvent::Init") << "Found a frequency <= 0: " << fFreq << ERR_FILE_LINE;
+				throw (std::invalid_argument("Read invalid frequency."));
+			}
+			break;
+
+		case 2:
+			// Sync value - skip
+			break;
+
+		default:
+			break;
 		}
-	} catch (std::range_error err) {
-		err::Error("dragon::MidasEvent::Init")
-			 << "Range error in " << tsbank << "bank iterator: " << err.what() << ERR_FILE_LINE;
-		throw err; // Don't recatch - treat as fatal (for now...)
 	}
 }
 

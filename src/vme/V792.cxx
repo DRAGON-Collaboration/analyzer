@@ -2,11 +2,11 @@
 //! \author G. Chritian
 //! \brief Implements Adc.hxx
 #include <algorithm>
-#include "V792.hxx"
-#include "Constants.hxx"
+#include "dragon/MidasEvent.hxx"
 #include "utils/Bits.hxx"
 #include "utils/Error.hxx"
-
+#include "Constants.hxx"
+#include "V792.hxx"
 
 
 void vme::caen::V792::reset()
@@ -90,25 +90,12 @@ bool vme::caen::V792::unpack(const dragon::MidasEvent& event, const char* bankNa
 	 *             the event. True specifies to print a warning message if this is the case.
    * \returns True if the event was successfully unpacked, false otherwise
 	 */
-	void* bank_addr = NULL;
-  int bank_len, bank_type;
-  int found = event.FindBank(bankName, &bank_len, &bank_type, &bank_addr);
-  if (!found) {
-		if (reportMissing) {
-			err::Warning("vme::caen::V792::unpack")
-				<< "Couldn't find the MIDAS bank \"" << bankName  << "\". Skipping...\n";
-		}
-		return false;
-	}
-	if (bank_type != 6 /* TID_DWORD */) {
-		err::Error ("vme::caen::V792::unpack")
-			<< "Read an unexpected bank type ID for \"" << bankName	<< "\". Skipping...\n";
-		return false;
-	}
+  int bank_len;
+	uint32_t* pbank32 =
+		event.GetBankPointer<uint32_t>(bankName, &bank_len, reportMissing, true);
 
   // Loop over all data words in the bank
 	bool ret = true;
-	uint32_t* pbank32 = reinterpret_cast<uint32_t*>(bank_addr);
   for (int i=0; i< bank_len; ++i) {
     bool success = unpack_buffer(pbank32++, bankName);
 		if(!success) ret = false;
