@@ -4,11 +4,11 @@
 #include <string>
 #include <iostream>
 #include <algorithm>
-#include "Bgo.hxx"
 #include "utils/copy_array.h"
+#include "midas/Odb.hxx"
+#include "midas/MidasXML.hxx"
 #include "vme/Vme.hxx"
-#include "midas/odb/Odb.hxx"
-#include "midas/odb/MidasXML.hxx"
+#include "Bgo.hxx"
 
 // ========== Class dragon::gamma::Bgo ========== //
 
@@ -45,10 +45,13 @@ dragon::gamma::Bgo& dragon::gamma::Bgo::operator= (const Bgo& other)
 
 void dragon::gamma::Bgo::reset()
 {
-	reset_array(Bgo::nch, q);
-	reset_array(Bgo::nch, t);
-	reset_array(Bgo::nsorted, qsort);
-	reset_data(&qsum, &x0, &y0, &z0);
+	std::fill_n(q, Bgo::nch, vme::NONE);
+	std::fill_n(t, Bgo::nch, vme::NONE);
+	std::fill_n(qsort, Bgo::nsorted, vme::NONE);
+	qsum = vme::NONE;
+	x0   = vme::NONE;
+	y0   = vme::NONE;
+	z0   = vme::NONE;
 }
 
 void dragon::gamma::Bgo::read_data(const dragon::gamma::Modules& modules)
@@ -153,12 +156,12 @@ void dragon::gamma::Bgo::Variables::set(const char* odb)
 	else { // Read from online ODB.
 #ifdef MIDASSYS
 		for(int i=0; i< dragon::gamma::Bgo::nch; ++i) {
-			qdc_ch[i] = odb::ReadInt(pathADC.c_str(), i, 0);
-			tdc_ch[i] = odb::ReadInt(pathTDC.c_str(), i, 0);
+			qdc_ch[i] = midas::Odb::ReadInt(pathADC.c_str(), i, 0);
+			tdc_ch[i] = midas::Odb::ReadInt(pathTDC.c_str(), i, 0);
 
-			xpos[i] = odb::ReadInt(pathXpos.c_str(), i, 0);
-			ypos[i] = odb::ReadInt(pathYpos.c_str(), i, 0);
-			zpos[i] = odb::ReadInt(pathZpos.c_str(), i, 0);
+			xpos[i]   = midas::Odb::ReadInt(pathXpos.c_str(), i, 0);
+			ypos[i]   = midas::Odb::ReadInt(pathYpos.c_str(), i, 0);
+			zpos[i]   = midas::Odb::ReadInt(pathZpos.c_str(), i, 0);
 		}
 #else
 		std::cerr << "MIDASSYS not defined, can't read from online ODB, no changes made.\n";

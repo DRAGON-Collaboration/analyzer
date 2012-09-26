@@ -3,8 +3,8 @@
 #include <string>
 #include <iostream>
 #include "utils/copy_array.h"
-#include "midas/odb/Odb.hxx"
-#include "midas/odb/MidasXML.hxx"
+#include "midas/Odb.hxx"
+#include "midas/MidasXML.hxx"
 #include "HeavyIon.hxx"
 
 
@@ -160,7 +160,7 @@ void dragon::hion::HeavyIon::Variables::set(const char* odb)
 	}
 	else { // Read from online ODB.
 #ifdef MIDASSYS
-		v1190_trigger_ch = odb::ReadInt(path.c_str(), 0, 0);
+		v1190_trigger_ch = midas::Odb::ReadInt(path.c_str(), 0, 0);
 #else
 		std::cerr << "MIDASSYS not defined, can't read from online ODB, no changes made.\n";
 #endif

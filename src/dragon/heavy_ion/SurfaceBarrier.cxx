@@ -4,8 +4,8 @@
 #include <iostream>
 #include "utils/copy_array.h"
 #include "dragon/heavy_ion/SurfaceBarrier.hxx"
-#include "midas/odb/Odb.hxx"
-#include "midas/odb/MidasXML.hxx"
+#include "midas/Odb.hxx"
+#include "midas/MidasXML.hxx"
 
 
 // ====== struct dragon::hion::SurfaceBarrier ====== //
@@ -94,8 +94,8 @@ void dragon::hion::SurfaceBarrier::Variables::set(const char* odb)
 	else { // Read from online ODB.
 #ifdef MIDASSYS
 		for(int i=0; i< dragon::hion::SurfaceBarrier::nch; ++i) {
-			ch[i] = odb::ReadInt(pathCh.c_str(), i, 0);
-			module[i] = odb::ReadInt(pathModule.c_str(), i, 0);
+			ch[i] = midas::Odb::ReadInt(pathCh.c_str(), i, 0);
+			module[i] = midas::Odb::ReadInt(pathModule.c_str(), i, 0);
 		}
 #else
 		std::cerr << "MIDASSYS not defined, can't read from online ODB, no changes made.\n";

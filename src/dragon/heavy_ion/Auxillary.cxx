@@ -3,9 +3,9 @@
 #include <string>
 #include <iostream>
 #include "utils/copy_array.h"
+#include "midas/Odb.hxx"
+#include "midas/MidasXML.hxx"
 #include "Auxillary.hxx"
-#include "midas/odb/Odb.hxx"
-#include "midas/odb/MidasXML.hxx"
 
 
 // ====== struct dragon::hion::NaI ====== //
@@ -124,10 +124,10 @@ void dragon::hion::NaI::Variables::set(const char* odb)
 	else { // Read from online ODB.
 #ifdef MIDASSYS
 		for(int i=0; i< dragon::hion::NaI::nch; ++i) {
-			ch[i]     = odb::ReadInt(pathCh.c_str(), i, 0);
-			module[i] = odb::ReadInt(pathModule.c_str(), i, 0);
-			slope[i]  = odb::ReadDouble(pathSlope.c_str(), i, 0);
-			offset[i] = odb::ReadDouble(pathOffset.c_str(), i, 0);
+			ch[i]     = midas::Odb::ReadInt(pathCh.c_str(), i, 0);
+			module[i] = midas::Odb::ReadInt(pathModule.c_str(), i, 0);
+			slope[i]  = midas::Odb::ReadDouble(pathSlope.c_str(), i, 0);
+			offset[i] = midas::Odb::ReadDouble(pathOffset.c_str(), i, 0);
 		}
 #else
 		std::cerr << "MIDASSYS not defined, can't read from online ODB, no changes made.\n";
@@ -252,10 +252,10 @@ void dragon::hion::Ge::Variables::set(const char* odb)
 	else { // Read from online ODB.
 #ifdef MIDASSYS
 		for(int i=0; i< dragon::hion::Ge::nch; ++i) {
-			ch[i]     = odb::ReadInt(pathCh.c_str(), i, 0);
-			module[i] = odb::ReadInt(pathModule.c_str(), i, 0);
-			slope[i]  = odb::ReadDouble(pathSlope.c_str(), i, 0);
-			offset[i] = odb::ReadDouble(pathOffset.c_str(), i, 0);
+			ch[i]     = midas::Odb::ReadInt(pathCh.c_str(), i, 0);
+			module[i] = midas::Odb::ReadInt(pathModule.c_str(), i, 0);
+			slope[i]  = midas::Odb::ReadDouble(pathSlope.c_str(), i, 0);
+			offset[i] = midas::Odb::ReadDouble(pathOffset.c_str(), i, 0);
 		}
 #else
 		std::cerr << "MIDASSYS not defined, can't read from online ODB, no changes made.\n";

@@ -15,7 +15,7 @@ void vme::caen::V792::reset()
 	count = 0;
 	overflow = false;
 	underflow = false;
-	std::fill(data, data + MAX_CHANNELS, vme::NONE);
+	std::fill_n(data, MAX_CHANNELS, vme::NONE);
 }
 
 bool vme::caen::V792::unpack_data_buffer(const uint32_t* const pbuffer)

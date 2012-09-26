@@ -4,8 +4,8 @@
 #include <iostream>
 #include "utils/copy_array.h"
 #include "dragon/heavy_ion/IonChamber.hxx"
-#include "midas/odb/Odb.hxx"
-#include "midas/odb/MidasXML.hxx"
+#include "midas/Odb.hxx"
+#include "midas/MidasXML.hxx"
 
 
 // ====== struct dragon::hion::IonChamber ====== //
@@ -113,10 +113,10 @@ void dragon::hion::IonChamber::Variables::set(const char* odb)
 	else { // Read from online ODB.
 #ifdef MIDASSYS
 		for(int i=0; i< dragon::hion::IonChamber::nch; ++i) {
-			anode_ch[i] = odb::ReadInt(pathAnodeCh.c_str(), i, 0);
-			anode_module[i] = odb::ReadInt(pathAnodeModule.c_str(), i, 0);
+			anode_ch[i] = midas::Odb::ReadInt(pathAnodeCh.c_str(), i, 0);
+			anode_module[i] = midas::Odb::ReadInt(pathAnodeModule.c_str(), i, 0);
 		}
-		tof_ch = odb::ReadInt(pathTdcCh.c_str(), 0, 0);
+		tof_ch = midas::Odb::ReadInt(pathTdcCh.c_str(), 0, 0);
 #else
 		std::cerr << "MIDASSYS not defined, can't read from online ODB, no changes made.\n";
 #endif
