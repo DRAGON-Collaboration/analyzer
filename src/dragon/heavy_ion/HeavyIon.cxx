@@ -3,10 +3,8 @@
 #include <string>
 #include <iostream>
 #include "utils/copy_array.h"
-#include "dragon/MidasEvent.hxx"
-#include "vme/Vme.hxx"
-#include "odb/Odb.hxx"
-#include "odb/MidasXML.hxx"
+#include "midas/odb/Odb.hxx"
+#include "midas/odb/MidasXML.hxx"
 #include "HeavyIon.hxx"
 
 
@@ -84,7 +82,7 @@ void dragon::hion::HeavyIon::reset()
 #endif
 }
 
-void dragon::hion::HeavyIon::unpack(const dragon::MidasEvent& event)
+void dragon::hion::HeavyIon::unpack(const midas::Event& event)
 {
 	reset();
 	modules.unpack(event);

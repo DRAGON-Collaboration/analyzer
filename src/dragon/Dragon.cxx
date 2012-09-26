@@ -45,3 +45,50 @@ void dragon::Dragon::read_event(const dragon::gamma::Gamma& head, const dragon::
 	gamma = head;
 	hi = tail;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// DOXYGEN MAINPAGE //
+
+/*!
+	\mainpage
+	\authors G. Christian
+	\authors C. Stanford
+
+	\todo Write main page
+
+
+
+
+
+ */

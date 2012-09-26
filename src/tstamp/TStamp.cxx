@@ -9,8 +9,8 @@
 
 // ========= Class tstamp::Queue ========= //
 
-void tstamp::Queue::HandleCoinc(const dragon::MidasEvent& event1,
-																const dragon::MidasEvent& event2) const
+void tstamp::Queue::HandleCoinc(const midas::Event& event1,
+																const midas::Event& event2) const
 {
 	/*!
 	 * In the base class, simply prints information abouut both events together.
@@ -20,7 +20,7 @@ void tstamp::Queue::HandleCoinc(const dragon::MidasEvent& event1,
 	event1.PrintCoinc(event2);
 }
 
-void tstamp::Queue::HandleSingle(const dragon::MidasEvent& e) const
+void tstamp::Queue::HandleSingle(const midas::Event& e) const
 { 
 	/*!
 	 * In the base class, simply prints information on the event.
@@ -29,7 +29,7 @@ void tstamp::Queue::HandleSingle(const dragon::MidasEvent& e) const
 	e.PrintSingle();
 }
 
-void tstamp::Queue::Push(const dragon::MidasEvent& event)
+void tstamp::Queue::Push(const midas::Event& event)
 {
 	/*!
 	 * First the function inserts \e event into the internal container. Then,

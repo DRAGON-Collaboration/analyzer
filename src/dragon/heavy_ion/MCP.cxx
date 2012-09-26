@@ -5,8 +5,8 @@
 #include "utils/copy_array.h"
 #include "dragon/heavy_ion/MCP.hxx"
 #include "vme/Vme.hxx"
-#include "odb/Odb.hxx"
-#include "odb/MidasXML.hxx"
+#include "midas/odb/Odb.hxx"
+#include "midas/odb/MidasXML.hxx"
 
 
 // ====== struct dragon::hion::MCP ====== //

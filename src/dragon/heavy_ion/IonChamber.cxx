@@ -4,8 +4,8 @@
 #include <iostream>
 #include "utils/copy_array.h"
 #include "dragon/heavy_ion/IonChamber.hxx"
-#include "odb/Odb.hxx"
-#include "odb/MidasXML.hxx"
+#include "midas/odb/Odb.hxx"
+#include "midas/odb/MidasXML.hxx"
 
 
 // ====== struct dragon::hion::IonChamber ====== //

@@ -3,8 +3,8 @@
 /// \brief Defines classes for DRAGON head (gamma) detectors.
 #ifndef DRAGON_GAMMA_HXX
 #define DRAGON_GAMMA_HXX
-#include "midas/TMidasBanks.h"
-#include "dragon/gamma/Bgo.hxx"
+#include "midas/Event.hxx"
+#include "Bgo.hxx"
 
 namespace dragon {
 
@@ -24,7 +24,7 @@ public:
 	dragon::gamma::Modules modules; //!
 #endif
 
-	EventHeader_t header; //#
+	midas::Event::Header header; //#
 
 	/// Event counter
 	int32_t evt_count; //#
@@ -55,7 +55,7 @@ public:
 
 	/// \brief Unpack midas event data into \e modules data structure
 	/// \param [in] event Reference to a Midas event structure
-	void unpack(const dragon::MidasEvent& event);
+	void unpack(const midas::Event& event);
 
 	/// \brief Read data from \e modules into detector classes
 	void read_data();

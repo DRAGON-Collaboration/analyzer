@@ -4,11 +4,11 @@
 #include <string>
 #include <iostream>
 #include <algorithm>
-#include "dragon/gamma/Bgo.hxx"
+#include "Bgo.hxx"
 #include "utils/copy_array.h"
 #include "vme/Vme.hxx"
-#include "odb/Odb.hxx"
-#include "odb/MidasXML.hxx"
+#include "midas/odb/Odb.hxx"
+#include "midas/odb/MidasXML.hxx"
 
 // ========== Class dragon::gamma::Bgo ========== //
 

@@ -2,9 +2,9 @@
 //! \author G. Chritian
 //! \brief Implements Adc.hxx
 #include <algorithm>
-#include "dragon/MidasEvent.hxx"
 #include "utils/Bits.hxx"
 #include "utils/Error.hxx"
+#include "midas/Event.hxx"
 #include "Constants.hxx"
 #include "V792.hxx"
 
@@ -78,7 +78,7 @@ bool vme::caen::V792::unpack_buffer(const uint32_t* const pbuffer, const char* b
 	return success;
 }
 
-bool vme::caen::V792::unpack(const dragon::MidasEvent& event, const char* bankName, bool reportMissing)
+bool vme::caen::V792::unpack(const midas::Event& event, const char* bankName, bool reportMissing)
 {
 	/*!
 	 * Searches for a bank tagged by \e bankName and then proceeds to loop over the data contained

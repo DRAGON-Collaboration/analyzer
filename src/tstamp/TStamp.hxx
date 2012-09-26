@@ -7,7 +7,7 @@
 #define DRAGON_TSTAMP_HXX
 #include <stdint.h>
 #include <set>
-#include "dragon/MidasEvent.hxx"
+#include "midas/Event.hxx"
 
 
 /// Encloses timestamp matching classes.
@@ -48,7 +48,7 @@ public:
 	 * worth the extra code required to keep track of the earliest entry and the the reliance
 	 * on "non-standard" third-party code for a hash implementation.
 	 */
-	typedef std::multiset<dragon::MidasEvent> MultiSet_t;
+	typedef std::multiset<midas::Event> MultiSet_t;
 
 	/// Pair of MultiSet_t iterators, returned from std::multiset::equal_range()
 	typedef std::pair<MultiSet_t::iterator, MultiSet_t::iterator> EqualRange_t;
@@ -78,7 +78,7 @@ public:
 	virtual ~Queue() { }
 
 	/// Insert an element into the queue
-	void Push(const dragon::MidasEvent&);
+	void Push(const midas::Event&);
 
 	/// Erase the earliest event in the queue.
 	void Pop();
@@ -102,10 +102,10 @@ protected:
 
 private:
 	/// What to do in case of a coincidence event
-	virtual void HandleCoinc(const dragon::MidasEvent& e1, const dragon::MidasEvent& e2) const;
+	virtual void HandleCoinc(const midas::Event& e1, const midas::Event& e2) const;
 
 	/// What to do in case of a singles event
-	virtual void HandleSingle(const dragon::MidasEvent& event) const;
+	virtual void HandleSingle(const midas::Event& event) const;
 };
 
 } // namespace tstamp

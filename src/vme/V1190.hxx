@@ -8,8 +8,7 @@
 
 
 
-namespace dragon { class MidasEvent; }
-
+namespace midas { class Event; }
 
 namespace vme {
 
@@ -44,6 +43,7 @@ public:
 	/// \details 0 = leading, 1 = trailing
 	int16_t type;               ///< Measurement type
 
+	/// \todo Explore other options for handling multiple hits
 	std::vector<int32_t> leading_edge[MAX_CHANNELS]; ///< Leading edge event data
 	
 	std::vector<int32_t> trailing_edge[MAX_CHANNELS]; ///< Trailing edge event data
@@ -56,7 +56,7 @@ public:
 
 public:
 	/// Unpack TDC data from a MIDAS event
-	bool unpack(const dragon::MidasEvent& event, const char* bankName, bool reportMissing = false);
+	bool unpack(const midas::Event& event, const char* bankName, bool reportMissing = false);
 	
 	/// Reset data fields to default values
 	void reset();

@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 
-namespace dragon { class MidasEvent; }
+namespace midas { class Event; }
 
 namespace vme {
 
@@ -38,7 +38,7 @@ public:
 
 public:
 	/// Unpack all data from the io32
-	bool unpack(const dragon::MidasEvent& event, const char* bankName, bool reportMissing = false);
+	bool unpack(const midas::Event& event, const char* bankName, bool reportMissing = false);
 
 	/// Set all data fields to default values (== 0).
 	void reset();

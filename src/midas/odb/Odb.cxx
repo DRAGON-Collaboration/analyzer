@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <midas.h>
-#include "odb/Odb.hxx"
+#include "Odb.hxx"
 
 
 int odb::GetHandle()

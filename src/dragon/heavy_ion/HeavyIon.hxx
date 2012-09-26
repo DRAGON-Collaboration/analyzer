@@ -2,13 +2,12 @@
 /// \brief Defines the DRAGON tail (heavy ion) detector classes
 #ifndef DRAGON_HEAVY_ION
 #define DRAGON_HEAVY_ION
-#include "midas/TMidasBanks.h"
-#include "dragon/heavy_ion/MCP.hxx"
-#include "dragon/heavy_ion/DSSSD.hxx"
-#include "dragon/heavy_ion/Auxillary.hxx"
-#include "dragon/heavy_ion/IonChamber.hxx"
-#include "dragon/heavy_ion/SurfaceBarrier.hxx"
-
+#include "MCP.hxx"
+#include "DSSSD.hxx"
+#include "Auxillary.hxx"
+#include "IonChamber.hxx"
+#include "SurfaceBarrier.hxx"
+#include "midas/Event.hxx"
 
 namespace dragon {
 
@@ -48,7 +47,7 @@ struct HeavyIon {
 	dragon::hion::Modules modules; //!
 #endif
 
-	EventHeader_t header; //#
+	midas::Event::Header header; //#
 
 	/// Event counter
 	int32_t evt_count; //#
@@ -107,7 +106,7 @@ struct HeavyIon {
 
 	/// \brief Unpack MIDAS event data into \e modules data structure
 	/// \param [in] event Reference to a Midas event structure
-	void unpack(const dragon::MidasEvent& event);
+	void unpack(const midas::Event& event);
 
 	/// \brief Map data from \e modules into individual detector structures.
 	void read_data();

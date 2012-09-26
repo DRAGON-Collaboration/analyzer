@@ -2,8 +2,8 @@
 /// \author G. Christian
 /// \brief Implements Modules.hxx
 #include <cassert>
-#include <sstream>
 #include "utils/Error.hxx"
+#include "midas/Event.hxx"
 #include "Modules.hxx"
 
 
@@ -41,7 +41,7 @@ void dragon::gamma::Modules::reset()
 	v1190.reset();
 }
 
-void dragon::gamma::Modules::unpack(const dragon::MidasEvent& event)
+void dragon::gamma::Modules::unpack(const midas::Event& event)
 {
 	io32.unpack(event, banks.io32);
 	v792.unpack(event, banks.v792);
@@ -113,7 +113,7 @@ dragon::hion::Modules& dragon::hion::Modules::operator= (const Modules& other)
 	return* this;
 }
 
-void dragon::hion::Modules::unpack(const dragon::MidasEvent& event)
+void dragon::hion::Modules::unpack(const midas::Event& event)
 {
 	io32.unpack(event, banks.io32);
 	for(int i=0; i< 2; ++i) {

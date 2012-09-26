@@ -13,7 +13,6 @@ DYLIB=-shared
 FPIC=-fPIC
 INCFLAGS=-I$(SRC) -I$(CINT) -I$(USER) $(USER_INCLUDES)
 DEBUG=-ggdb -O0 -DDEBUG
-#-DDEBUG
 CXXFLAGS=$(DEBUG) $(INCFLAGS) -L$(PWD)/lib $(STOCK_BUFFERS) -DBUFFER_TYPE=$(USER_BUFFER_TYPE) $(DEFINITIONS)
 
 
@@ -24,30 +23,33 @@ else
 ROOTGLIBS = $(shell root-config --glibs --cflags) -lXMLParser -lThread -lTreePlayer
 endif
 
-MXML=
 UNAME=$(shell uname)
 ifeq ($(UNAME),Darwin)
 CXXFLAGS += -DOS_LINUX -DOS_DARWIN
 ifdef MIDASSYS
 CXXFLAGS += -DMIDASSYS
 MIDASLIBS = -L$(MIDASSYS)/darwin/lib -lmidas
-INCFLAGS += -I$(MIDASSYS)/include -I$(HOME)/packages/mxml
-else
-INCFLAGS += -I$(SRC)/odb/mxml
-MXML=libmxml.a
+INCFLAGS += -I$(MIDASSYS)/include
 endif
+
 DYLIB=-dynamiclib -single_module -undefined dynamic_lookup
 FPIC=
 RPATH=
+
 endif
 
-COMPILER=g++ -Wall
-#COMPILER=clang++ -I/opt/local/include/ -I/opt/local/include/root
+CXX=g++ -Wall
+#CXX=clang++ -I/opt/local/include/ -I/opt/local/include/root
 
-DEFAULTS=$(DEF_FILE_DIR) $(DEF_SAVE_DIR) $(DEF_CONFIG_DIR)
+CC=gcc -Wall
+#CC=clang -I/opt/local/include/ -I/opt/local/include/root
 
-COMPILE=$(COMPILER) $(CXXFLAGS) $(RPATH) $(DEF_EXT) $(DEFAULTS) -I/user/gchristian/soft/develop/rootbeer/src -DMIDAS_BUFFERS
-LINK=$(COMPILER) $(CXXFLAGS) $(ROOTGLIBS) $(RPATH) $(DEFAULTS) -I/user/gchristian/soft/develop/rootbeer/src -DMIDAS_BUFFERS
+LINK=$(CXX) $(CXXFLAGS) $(ROOTGLIBS) $(RPATH) $(DEFAULTS) -I/user/gchristian/soft/develop/rootbeer/src -DMIDAS_BUFFERS
+
+CXX+=$(CXXFLAGS) $(RPATH) $(DEF_EXT) $(DEFAULTS) -I/user/gchristian/soft/develop/rootbeer/src -DMIDAS_BUFFERS
+
+CC+=$(CXXFLAGS) $(RPATH) $(DEF_EXT) $(DEFAULTS) -I/user/gchristian/soft/develop/rootbeer/src -DMIDAS_BUFFERS
+
 ROOTCINT=rootcint
 
 #### DRAGON LIBRARY ####
@@ -57,10 +59,11 @@ $(OBJ)/dragon/heavy_ion/HeavyIon.o \
 $(OBJ)/dragon/heavy_ion/DSSSD.o $(OBJ)/dragon/heavy_ion/IonChamber.o \
 $(OBJ)/dragon/heavy_ion/MCP.o $(OBJ)/dragon/heavy_ion/SurfaceBarrier.o \
 $(OBJ)/dragon/heavy_ion/Auxillary.o $(OBJ)/dragon/gamma/Gamma.o $(OBJ)/dragon/gamma/Bgo.o  \
-$(OBJ)/tstamp/TStamp.o $(OBJ)/odb/Odb.o $(OBJ)/odb/MidasXML.o $(OBJ)/dragon/MidasEvent.o \
-$(OBJ)/midas/TMidasFile.o $(OBJ)/midas/TMidasEvent.o
+$(OBJ)/tstamp/TStamp.o $(OBJ)/midas/odb/Odb.o $(OBJ)/midas/odb/MidasXML.o $(OBJ)/midas/Event.o \
+$(OBJ)/midas/TMidasFile.o $(OBJ)/midas/TMidasEvent.o \
+$(OBJ)/midas/odb/mxml.o $(OBJ)/midas/odb/strlcpy.o
 
-HEADERS=$(SRC)/*/*.hxx $(SRC)/*/*/*.hxx $(SRC)/*/*.h $(SRC)/*/*/*.h
+HEADERS=$(SRC)/*/*.hxx $(SRC)/*/*/*.hxx $(SRC)/*/*.h
 
 ### DRAGON LIBRARY ###
 all: $(DRLIB)/libDragon.so
@@ -73,13 +76,12 @@ $(DRLIB)/libDragon.so: $(CINT)/DragonDictionary.cxx $(OBJECTS)
 ### OBJECT FILES ###
 
 $(OBJ)/*/%.o: $(SRC)/*/%.cxx $(CINT)/DragonDictionary.cxx
-	$(COMPILE) $(FPIC) -c \
+	$(CXX) $(FPIC) -c \
 -o $@ -p $< \
 
-libmxml: $(SRC)/odb/mxml/libmxml.a
-$(SRC)/odb/mxml/libmxml.a: $(SRC)/odb/mxml/*.c $(SRC)/odb/mxml/*.h
-	$(COMPILE) $(FPIC) -shared \
--o $@ -p $(SRC)/odb/mxml/mxml.c $(SRC)/odb/mxml/strlcpy.c
+$(OBJ)/*/%.o: $(SRC)/*/%.c $(CINT)/DragonDictionary.cxx
+	$(CC) $(FPIC) -c \
+-o $@ -p $< \
 
 ### CINT DICTIONARY ###
 dict: $(CINT)/DragonDictionary.cxx
@@ -118,5 +120,7 @@ Auxillary: $(OBJ)/dragon/heavy_ion/Auxillary.o
 Gamma: $(OBJ)/dragon/gamma/Gamma.o
 Bgo: $(OBJ)/dragon/gamma/Bgo.o
 TStamp: $(OBJ)/tstamp/TStamp.o
-Odb: $(OBJ)/odb/Odb.o
-MidasXML: $(OBJ)/odb/MidasXML.o $(MXML)
+Odb: $(OBJ)/midas/odb/Odb.o
+MidasXML: $(OBJ)/midas/odb/MidasXML.o
+mxml: $(OBJ)/midas/odb/mxml.o
+strlcpy: $(OBJ)/midas/odb/strlcpy.o

@@ -1,11 +1,12 @@
 //! \file IO32.cxx
+//! \author G. Christian
 //! \brief Implements IO32.hxx
-#include "dragon/MidasEvent.hxx"
 #include "utils/Error.hxx"
+#include "midas/Event.hxx"
 #include "IO32.hxx"
 
 
-bool vme::IO32::unpack(const dragon::MidasEvent& event, const char* bankName, bool reportMissing)
+bool vme::IO32::unpack(const midas::Event& event, const char* bankName, bool reportMissing)
 {
  /*! Here is the portion of the MIDAS frontent where values are written to the "main" bank:
 	* \code
@@ -19,7 +20,7 @@ bool vme::IO32::unpack(const dragon::MidasEvent& event, const char* bankName, bo
 	* *pdata32++ = end_time-trig_time;   // 7 - busy elapsed time
 	* \endcode
 	*
-	* The TSC4 bank is already unpacked in a dragon::MidasEvent, so we can just copy the data over
+	* The TSC4 bank is already unpacked in a midas::Event, so we can just copy the data over
 	* \param [in] event The midas event to unpack
 	* \param [in] bankName Name of the "main" IO32 bank
 	* \returns True if the event was successfully unpacked, false otherwise

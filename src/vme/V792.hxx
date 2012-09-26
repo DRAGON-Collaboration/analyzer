@@ -6,8 +6,7 @@
 #include <stdint.h>
 
 
-namespace dragon { class MidasEvent; }
-
+namespace midas { class Event; }
 
 namespace vme {
 
@@ -35,7 +34,7 @@ public:
 
 public:
 	/// Unpack ADC data from a midas event
-	bool unpack(const dragon::MidasEvent& event, const char* bankName, bool reportMissing = false);
+	bool unpack(const midas::Event& event, const char* bankName, bool reportMissing = false);
 
 	/// Reset data fields to default values
 	void reset();

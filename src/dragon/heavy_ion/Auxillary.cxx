@@ -3,9 +3,9 @@
 #include <string>
 #include <iostream>
 #include "utils/copy_array.h"
-#include "dragon/heavy_ion/Auxillary.hxx"
-#include "odb/Odb.hxx"
-#include "odb/MidasXML.hxx"
+#include "Auxillary.hxx"
+#include "midas/odb/Odb.hxx"
+#include "midas/odb/MidasXML.hxx"
 
 
 // ====== struct dragon::hion::NaI ====== //

@@ -3,9 +3,9 @@
 //! \brief Implements V1190.hxx
 #include <string>
 #include <cassert>
-#include "dragon/MidasEvent.hxx"
 #include "utils/Bits.hxx"
 #include "utils/Error.hxx"
+#include "midas/Event.hxx"
 #include "Constants.hxx"
 #include "V1190.hxx"
 
@@ -166,7 +166,7 @@ bool vme::caen::V1190::unpack_buffer(const uint32_t* const pbuffer, const char* 
 	return success;
 }
 
-bool vme::caen::V1190::unpack(const dragon::MidasEvent& event, const char* bankName, bool reportMissing)
+bool vme::caen::V1190::unpack(const midas::Event& event, const char* bankName, bool reportMissing)
 {
   /*!
 	 * \param [in] event The midas event to unpack

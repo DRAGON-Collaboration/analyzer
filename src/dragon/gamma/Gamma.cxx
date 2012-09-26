@@ -1,7 +1,7 @@
 /// \file Gamma.cxx
+/// \author G. Christian
 /// \brief Implements Gamma.hxx
-#include "dragon/MidasEvent.hxx"
-#include "dragon/gamma/Gamma.hxx"
+#include "Gamma.hxx"
 
 
 // ========== Class dragon::gamma::Gamma ========== //
@@ -42,7 +42,7 @@ void dragon::gamma::Gamma::set_variables(const char* odb)
 	bgo.variables.set(odb);
 }
 
-void dragon::gamma::Gamma::unpack(const dragon::MidasEvent& event)
+void dragon::gamma::Gamma::unpack(const midas::Event& event)
 {
 	reset();
 	modules.unpack(event);

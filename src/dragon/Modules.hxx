@@ -8,6 +8,8 @@
 #include "vme/V792.hxx"
 #include "vme/V1190.hxx"
 
+namespace midas { class Event; }
+
 namespace dragon {
 
 namespace gamma {
@@ -53,7 +55,7 @@ public:
 
 	/// Unpack Midas event data into module data structures.
 	/// \param [in] event Reference to the MidasEvent object being unpacked
-	void unpack(const dragon::MidasEvent& event);
+	void unpack(const midas::Event& event);
 
 	/// Return data from a v792 channel
 	/// \param ch channel numner
@@ -113,7 +115,7 @@ public:
 
 	/// Unpack Midas event data into module data structures.
 	/// \param [in] event Reference to the MidasEvent object being unpacked
-	void unpack(const dragon::MidasEvent& event);	 
+	void unpack(const midas::Event& event);	 
 
 	/// Return data from a v785 channel
 	/// \param which The ADC you want data from
