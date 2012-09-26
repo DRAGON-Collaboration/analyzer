@@ -49,7 +49,7 @@ void dragon::hion::DSSSD::read_data(const dragon::hion::Modules& modules, int v1
 	for(int i=0; i< DSSSD::nch; ++i) {
 		qraw[i] = modules.v785_data(variables.qdc_module[i], variables.qdc_ch[i]);
 	}
-	tof = modules.v1190b_data(variables.tof_ch) - modules.v1190b_data(v1190_trigger_ch);
+	// tof = modules.v1190b_data(variables.tof_ch) - modules.v1190b_data(v1190_trigger_ch);
 }
 
 

@@ -49,7 +49,7 @@ void dragon::hion::IonChamber::read_data(const dragon::hion::Modules& modules, i
 	for(int i=0; i< IonChamber::nch; ++i) {
 		anode[i] = modules.v785_data(variables.anode_module[i], variables.anode_ch[i]);
 	}
-	tof = modules.v1190b_data(variables.tof_ch) - modules.v1190b_data(v1190_trigger_ch);
+	// tof = modules.v1190b_data(variables.tof_ch) - modules.v1190b_data(v1190_trigger_ch);
 }
 
 void dragon::hion::IonChamber::calculate()

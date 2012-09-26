@@ -55,7 +55,7 @@ void dragon::gamma::Bgo::read_data(const dragon::gamma::Modules& modules)
 {
 	for(int i=0; i< Bgo::nch; ++i) {
 		q[i] = modules.v792_data(variables.qdc_ch[i]);
-		t[i] = modules.v1190b_data(variables.tdc_ch[i]);
+		// t[i] = modules.v1190b_data(variables.tdc_ch[i]);
 	}
 }
 

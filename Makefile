@@ -51,25 +51,6 @@ LINK=$(COMPILER) $(CXXFLAGS) $(ROOTGLIBS) $(RPATH) $(DEFAULTS) -I/user/gchristia
 ROOTCINT=rootcint
 
 #### DRAGON LIBRARY ####
-HEADERS=$(SRC)/utils/Bits.hxx $(SRC)/vme/Vme.hxx \
-$(SRC)/vme/V1190.hxx $(SRC)/vme/V792.hxx $(SRC)/vme/IO32.hxx \
-$(SRC)/dragon/Modules.hxx $(SRC)/dragon/Dragon.hxx \
-$(SRC)/dragon/heavy_ion/HeavyIon.hxx \
-$(SRC)/dragon/heavy_ion/DSSSD.hxx $(SRC)/dragon/heavy_ion/IonChamber.hxx \
-$(SRC)/dragon/heavy_ion/MCP.hxx $(SRC)/dragon/heavy_ion/SurfaceBarrier.hxx \
-$(SRC)/dragon/heavy_ion/Auxillary.hxx $(SRC)/dragon/gamma/Gamma.hxx $(SRC)/dragon/gamma/Bgo.hxx \
-$(SRC)/tstamp/TStamp.hxx $(SRC)/odb/Odb.hxx $(SRC)/odb/MidasXML.hxx $(SRC)/dragon/MidasEvent.hxx \
-$(SRC)/midas/TMidasFile.h $(SRC)/midas/TMidasBanks.h $(SRC)/midas/TMidasEvent.h
-
-SOURCES=$(SRC)/vme/V792.cxx $(SRC)/vme/V1190.cxx $(SRC)/vme/IO32.cxx \
-$(SRC)/dragon/Modules.cxx $(SRC)/dragon/Dragon.cxx \
-$(SRC)/dragon/heavy_ion/HeavyIon.cxx \
-$(SRC)/dragon/heavy_ion/DSSSD.cxx $(SRC)/dragon/heavy_ion/IonChamber.cxx \
-$(SRC)/dragon/heavy_ion/MCP.cxx $(SRC)/dragon/heavy_ion/SurfaceBarrier.cxx \
-$(SRC)/dragon/heavy_ion/Auxillary.cxx $(SRC)/dragon/gamma/Gamma.cxx $(SRC)/dragon/gamma/Bgo.cxx  \
-$(SRC)/tstamp/TStamp.cxx $(SRC)/odb/Odb.cxx $(SRC)/odb/MidasXML.cxx $(SRC)/dragon/MidasEvent.cxx \
-$(SRC)/midas/TMidasFile.cxx $(SRC)/midas/TMidasEvent.cxx
-
 OBJECTS=$(OBJ)/vme/V792.o $(OBJ)/vme/V1190.o $(OBJ)/vme/IO32.o \
 $(OBJ)/dragon/Modules.o $(OBJ)/dragon/Dragon.o \
 $(OBJ)/dragon/heavy_ion/HeavyIon.o \
@@ -78,6 +59,8 @@ $(OBJ)/dragon/heavy_ion/MCP.o $(OBJ)/dragon/heavy_ion/SurfaceBarrier.o \
 $(OBJ)/dragon/heavy_ion/Auxillary.o $(OBJ)/dragon/gamma/Gamma.o $(OBJ)/dragon/gamma/Bgo.o  \
 $(OBJ)/tstamp/TStamp.o $(OBJ)/odb/Odb.o $(OBJ)/odb/MidasXML.o $(OBJ)/dragon/MidasEvent.o \
 $(OBJ)/midas/TMidasFile.o $(OBJ)/midas/TMidasEvent.o
+
+HEADERS=$(SRC)/*/*.hxx $(SRC)/*/*/*.hxx $(SRC)/*/*.h $(SRC)/*/*/*.h
 
 ### DRAGON LIBRARY ###
 all: $(DRLIB)/libDragon.so
@@ -89,100 +72,9 @@ $(DRLIB)/libDragon.so: $(CINT)/DragonDictionary.cxx $(OBJECTS)
 
 ### OBJECT FILES ###
 
-V792: $(OBJ)/vme/V792.o
-$(OBJ)/vme/V792.o: $(CINT)/DragonDictionary.cxx $(SRC)/vme/V792.cxx
+$(OBJ)/*/%.o: $(SRC)/*/%.cxx $(CINT)/DragonDictionary.cxx
 	$(COMPILE) $(FPIC) -c \
--o $@ -p $(SRC)/vme/V792.cxx \
-
-V1190: $(OBJ)/vme/V1190.o
-$(OBJ)/vme/V1190.o: $(CINT)/DragonDictionary.cxx $(SRC)/vme/V1190.cxx
-	$(COMPILE) $(FPIC) -c \
--o $@ -p $(SRC)/vme/V1190.cxx \
-
-IO32: $(OBJ)/vme/IO32.o
-$(OBJ)/vme/IO32.o: $(CINT)/DragonDictionary.cxx $(SRC)/vme/IO32.cxx
-	$(COMPILE) $(FPIC) -c \
--o $@ -p $(SRC)/vme/IO32.cxx \
-
-Modules: $(OBJ)/dragon/Modules.o
-$(OBJ)/dragon/Modules.o: $(CINT)/DragonDictionary.cxx $(SRC)/dragon/Modules.cxx
-	$(COMPILE) $(FPIC) -c \
--o $@ -p $(SRC)/dragon/Modules.cxx \
-
-Dragon: $(OBJ)/dragon/Dragon.o
-$(OBJ)/dragon/Dragon.o: $(CINT)/DragonDictionary.cxx $(SRC)/dragon/Dragon.cxx
-	$(COMPILE) $(FPIC) -c \
--o $@ -p $(SRC)/dragon/Dragon.cxx \
-
-MidasEvent: $(OBJ)/dragon/MidasEvent.o
-$(OBJ)/dragon/MidasEvent.o: $(CINT)/DragonDictionary.cxx $(SRC)/dragon/MidasEvent.cxx
-	$(COMPILE) $(FPIC) -c \
--o $@ -p $(SRC)/dragon/MidasEvent.cxx \
-
-TMidasEvent: $(OBJ)/midas/TMidasEvent.o
-$(OBJ)/midas/TMidasEvent.o: $(CINT)/DragonDictionary.cxx $(SRC)/midas/TMidasEvent.cxx
-	$(COMPILE) $(FPIC) -c \
--o $@ -p $(SRC)/midas/TMidasEvent.cxx \
-
-TMidasFile: $(OBJ)/midas/TMidasFile.o
-$(OBJ)/midas/TMidasFile.o: $(CINT)/DragonDictionary.cxx $(SRC)/midas/TMidasFile.cxx
-	$(COMPILE) $(FPIC) -c \
--o $@ -p $(SRC)/midas/TMidasFile.cxx \
-
-HeavyIon: $(OBJ)/dragon/heavy_ion/HeavyIon.o
-$(OBJ)/dragon/heavy_ion/HeavyIon.o: $(CINT)/DragonDictionary.cxx $(SRC)/dragon/heavy_ion/HeavyIon.cxx
-	$(COMPILE) $(FPIC) -c \
--o $@ -p $(SRC)/dragon/heavy_ion/HeavyIon.cxx \
-
-DSSSD: $(OBJ)/dragon/heavy_ion/DSSSD.o
-$(OBJ)/dragon/heavy_ion/DSSSD.o: $(CINT)/DragonDictionary.cxx $(SRC)/dragon/heavy_ion/DSSSD.cxx
-	$(COMPILE) $(FPIC) -c \
--o $@ -p $(SRC)/dragon/heavy_ion/DSSSD.cxx \
-
-IonChamber: $(OBJ)/dragon/heavy_ion/IonChamber.o
-$(OBJ)/dragon/heavy_ion/IonChamber.o: $(CINT)/DragonDictionary.cxx $(SRC)/dragon/heavy_ion/IonChamber.cxx
-	$(COMPILE) $(FPIC) -c \
--o $@ -p $(SRC)/dragon/heavy_ion/IonChamber.cxx \
-
-MCP: $(OBJ)/dragon/heavy_ion/MCP.o
-$(OBJ)/dragon/heavy_ion/MCP.o: $(CINT)/DragonDictionary.cxx $(SRC)/dragon/heavy_ion/MCP.cxx
-	$(COMPILE) $(FPIC) -c \
--o $@ -p $(SRC)/dragon/heavy_ion/MCP.cxx \
-
-SurfaceBarrier: $(OBJ)/dragon/heavy_ion/SurfaceBarrier.o
-$(OBJ)/dragon/heavy_ion/SurfaceBarrier.o: $(CINT)/DragonDictionary.cxx $(SRC)/dragon/heavy_ion/SurfaceBarrier.cxx
-	$(COMPILE) $(FPIC) -c \
--o $@ -p $(SRC)/dragon/heavy_ion/SurfaceBarrier.cxx \
-
-Auxillary: $(OBJ)/dragon/heavy_ion/Auxillary.o
-$(OBJ)/dragon/heavy_ion/Auxillary.o: $(CINT)/DragonDictionary.cxx $(SRC)/dragon/heavy_ion/Auxillary.cxx
-	$(COMPILE) $(FPIC) -c \
--o $@ -p $(SRC)/dragon/heavy_ion/Auxillary.cxx \
-
-Gamma: $(OBJ)/dragon/gamma/Gamma.o
-$(OBJ)/dragon/gamma/Gamma.o: $(CINT)/DragonDictionary.cxx $(SRC)/dragon/gamma/Gamma.cxx
-	$(COMPILE) $(FPIC) -c \
--o $@ -p $(SRC)/dragon/gamma/Gamma.cxx \
-
-Bgo: $(OBJ)/dragon/gamma/Bgo.o
-$(OBJ)/dragon/gamma/Bgo.o: $(CINT)/DragonDictionary.cxx $(SRC)/dragon/gamma/Bgo.cxx
-	$(COMPILE) $(FPIC) -c \
--o $@ -p $(SRC)/dragon/gamma/Bgo.cxx \
-
-TStamp: $(OBJ)/tstamp/TStamp.o
-$(OBJ)/tstamp/TStamp.o: $(CINT)/DragonDictionary.cxx $(SRC)/tstamp/TStamp.cxx
-	$(COMPILE) $(FPIC) -c \
--o $@ -p $(SRC)/tstamp/TStamp.cxx \
-
-Odb: $(OBJ)/odb/Odb.o
-$(OBJ)/odb/Odb.o: $(CINT)/DragonDictionary.cxx $(SRC)/odb/Odb.cxx
-	$(COMPILE) $(FPIC) -c \
--o $@ -p $(SRC)/odb/Odb.cxx \
-
-MidasXML: $(OBJ)/odb/MidasXML.o $(MXML)
-$(OBJ)/odb/MidasXML.o: $(CINT)/DragonDictionary.cxx $(SRC)/odb/MidasXML.cxx
-	$(COMPILE) $(FPIC) -c \
--o $@ -p $(SRC)/odb/MidasXML.cxx \
+-o $@ -p $< \
 
 libmxml: $(SRC)/odb/mxml/libmxml.a
 $(SRC)/odb/mxml/libmxml.a: $(SRC)/odb/mxml/*.c $(SRC)/odb/mxml/*.h
@@ -204,4 +96,27 @@ clean:
 #### FOR DOXYGEN ####
 
 doc::
-	./make_doc.sh
+	doxygen doc/Doxyfile
+
+
+#### FOR UNIT TESTING ####
+
+V792: $(OBJ)/vme/V792.o
+V1190: $(OBJ)/vme/V1190.o
+IO32: $(OBJ)/vme/IO32.o
+Modules: $(OBJ)/dragon/Modules.o
+Dragon: $(OBJ)/dragon/Dragon.o
+MidasEvent: $(OBJ)/dragon/MidasEvent.o
+TMidasEvent: $(OBJ)/midas/TMidasEvent.o
+TMidasFile: $(OBJ)/midas/TMidasFile.o
+HeavyIon: $(OBJ)/dragon/heavy_ion/HeavyIon.o
+DSSSD: $(OBJ)/dragon/heavy_ion/DSSSD.o
+IonChamber: $(OBJ)/dragon/heavy_ion/IonChamber.o
+MCP: $(OBJ)/dragon/heavy_ion/MCP.o
+SurfaceBarrier: $(OBJ)/dragon/heavy_ion/SurfaceBarrier.o
+Auxillary: $(OBJ)/dragon/heavy_ion/Auxillary.o
+Gamma: $(OBJ)/dragon/gamma/Gamma.o
+Bgo: $(OBJ)/dragon/gamma/Bgo.o
+TStamp: $(OBJ)/tstamp/TStamp.o
+Odb: $(OBJ)/odb/Odb.o
+MidasXML: $(OBJ)/odb/MidasXML.o $(MXML)
