@@ -1,12 +1,15 @@
-//! \file MidasXML.hxx
+//! \file Xml.hxx
+//! \author G. Christian
 //! \brief Defines a class to parse MIDAS XML files from the ODB.
 #ifndef MIDAS_XML_HXX
 #define MIDAS_XML_HXX
 #include <vector>
 #include "mxml.h"
 
+namespace midas {
+
 /// \brief Class to parse MIDAS ODB XML files.
-class MidasXML {
+class Xml {
 public:
 	 /// Pointer to an XML node.
 	 typedef PMXML_NODE Node;
@@ -24,10 +27,10 @@ public:
 	 /// the XML data as a subset.
 	 /// \note Memory is allocated only to fTree, fOdb and any other subnodes used later
 	 /// simply refer to memory locations relative to fTree.
-	 MidasXML(const char* filename);
+	 Xml(const char* filename);
 
 	 /// Frees resources allocated to fTree
-	 ~MidasXML();
+	 ~Xml();
 
 	 /// \brief Find the node location of a specific key element within the xml file
 	 /// \param [in] path String specifying the "directory" path of the element, e.g.
@@ -88,13 +91,16 @@ public:
 private:
 	 /// \brief Helper initialization function called by the constructor.
 	 void Init(const char* filename);
+
 	 /// \brief Helper function to parse a file containing XML data and set fTree and fObd
 	 /// \note Most of the implementation was a paraphrase of mxml_parse_file() in midas.c,
 	 /// extended to handle files that contain the XML data only as a subset (i.e. MIDAS files).
 	 Node ParseFile(const char* file_name, char *error, int error_size, int *error_line);
+
 	 /// \brief Check if fTree and fOdb are non-null
 	 bool Check();
 };
 
+} // namespace midas
 
 #endif

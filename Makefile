@@ -59,7 +59,7 @@ $(OBJ)/dragon/heavy_ion/HeavyIon.o \
 $(OBJ)/dragon/heavy_ion/DSSSD.o $(OBJ)/dragon/heavy_ion/IonChamber.o \
 $(OBJ)/dragon/heavy_ion/MCP.o $(OBJ)/dragon/heavy_ion/SurfaceBarrier.o \
 $(OBJ)/dragon/heavy_ion/Auxillary.o $(OBJ)/dragon/gamma/Gamma.o $(OBJ)/dragon/gamma/Bgo.o  \
-$(OBJ)/tstamp/TStamp.o $(OBJ)/midas/Odb.o $(OBJ)/midas/MidasXML.o $(OBJ)/midas/Event.o \
+$(OBJ)/tstamp/TStamp.o $(OBJ)/midas/Odb.o $(OBJ)/midas/Xml.o $(OBJ)/midas/Event.o \
 $(OBJ)/midas/TMidasFile.o $(OBJ)/midas/TMidasEvent.o \
 $(OBJ)/midas/mxml.o $(OBJ)/midas/strlcpy.o
 

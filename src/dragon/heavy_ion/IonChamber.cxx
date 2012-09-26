@@ -3,9 +3,9 @@
 #include <string>
 #include <iostream>
 #include "utils/copy_array.h"
-#include "dragon/heavy_ion/IonChamber.hxx"
 #include "midas/Odb.hxx"
-#include "midas/MidasXML.hxx"
+#include "midas/Xml.hxx"
+#include "IonChamber.hxx"
 
 
 // ====== struct dragon::hion::IonChamber ====== //
@@ -100,7 +100,7 @@ void dragon::hion::IonChamber::Variables::set(const char* odb)
 	const std::string pathTdcCh       = "Equipment/IonChamber/Variables/TDCChannel";
 
 	if(strcmp(odb, "online")) { // Read from offline XML file
-		MidasXML mxml (odb);
+		midas::Xml mxml (odb);
 		bool success = false;
 		mxml.GetArray(pathAnodeModule.c_str(), IonChamber::nch, anode_ch, &success);
 		mxml.GetArray(pathAnodeCh.c_str(), IonChamber::nch, anode_module, &success);

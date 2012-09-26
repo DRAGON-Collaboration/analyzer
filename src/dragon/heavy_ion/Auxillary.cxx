@@ -4,7 +4,7 @@
 #include <iostream>
 #include "utils/copy_array.h"
 #include "midas/Odb.hxx"
-#include "midas/MidasXML.hxx"
+#include "midas/Xml.hxx"
 #include "Auxillary.hxx"
 
 
@@ -98,7 +98,7 @@ void dragon::hion::NaI::Variables::set(const char* odb)
 	const std::string pathSlope  = "Equipment/NaI/Variables/Slope";
 	const std::string pathOffset = "Equipment/NaI/Variables/Offset";
 	if(strcmp(odb, "online")) { // Read from offline XML file
-		MidasXML mxml (odb);
+		midas::Xml mxml (odb);
 		bool success = false;
 
 		std::vector<int> chOdb, moduleOdb;
@@ -226,7 +226,7 @@ void dragon::hion::Ge::Variables::set(const char* odb)
 	const std::string pathSlope  = "Equipment/Ge/Variables/Slope";
 	const std::string pathOffset = "Equipment/Ge/Variables/Offset";
 	if(strcmp(odb, "online")) { // Read from offline XML file
-		MidasXML mxml (odb);
+		midas::Xml mxml (odb);
 		bool success = false;
 
 		std::vector<int> chOdb, moduleOdb;

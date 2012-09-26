@@ -3,10 +3,10 @@
 #include <string>
 #include <iostream>
 #include "utils/copy_array.h"
-#include "dragon/heavy_ion/DSSSD.hxx"
 #include "vme/Vme.hxx"
 #include "midas/Odb.hxx"
-#include "midas/MidasXML.hxx"
+#include "midas/Xml.hxx"
+#include "DSSSD.hxx"
 
 
 // ====== struct dragon::hion::DSSSD ====== //
@@ -91,7 +91,7 @@ void dragon::hion::DSSSD::Variables::set(const char* odb)
 	const std::string pathTdcCh     = "Equipment/DSSSD/Variables/TDCChannel";
 
 	if(strcmp(odb, "online")) { // Read from offline XML file
-		MidasXML mxml (odb);
+		midas::Xml mxml (odb);
 		bool success = false;
 		mxml.GetArray(pathAdcModule.c_str(), DSSSD::nch, qdc_module, &success);
 		mxml.GetArray(pathAdcCh.c_str(), DSSSD::nch, qdc_ch, &success);

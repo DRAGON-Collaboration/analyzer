@@ -6,7 +6,7 @@
 #include <algorithm>
 #include "utils/copy_array.h"
 #include "midas/Odb.hxx"
-#include "midas/MidasXML.hxx"
+#include "midas/Xml.hxx"
 #include "vme/Vme.hxx"
 #include "Bgo.hxx"
 
@@ -140,7 +140,7 @@ void dragon::gamma::Bgo::Variables::set(const char* odb)
 	const std::string pathZpos = "/DRAGON/Bgo/Variables/Zpos";
 
 	if(strcmp(odb, "online")) { // Read from offline XML file
-		MidasXML mxml (odb);
+		midas::Xml mxml (odb);
 		bool success = false;
 		mxml.GetArray(pathADC.c_str(), Bgo::nch, qdc_ch, &success);
 		mxml.GetArray(pathTDC.c_str(), Bgo::nch, tdc_ch, &success);

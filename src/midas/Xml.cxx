@@ -1,5 +1,6 @@
-//! \file MidasXML.cxx
-//! \brief Implements MidasXML.hxx
+//! \file Xml.cxx
+//! \author G. Christian
+//! \brief Implements Xml.hxx
 #include <stdio.h>
 #include <fcntl.h>
 #include <string.h>
@@ -9,20 +10,20 @@
 #include <sstream>
 #include <vector>
 #include <iostream>
-#include "MidasXML.hxx"
+#include "Xml.hxx"
 
-MidasXML::MidasXML(const char* filename):
+midas::Xml::Xml(const char* filename):
 	fTree(0), fOdb(0)
 {
 	Init(filename);
 }
 
-MidasXML::~MidasXML()
+midas::Xml::~Xml()
 {
 	if(fTree) mxml_free_tree(fTree);
 }
 
-void MidasXML::Init(const char* filename)
+void midas::Xml::Init(const char* filename)
 {
 	char err[256]; int err_line;
 	fTree = ParseFile(filename, err, sizeof(err), &err_line);
@@ -37,7 +38,7 @@ void MidasXML::Init(const char* filename)
 	}
 }
 
-MidasXML::Node MidasXML::ParseFile(const char* file_name, char *error, int error_size, int *error_line)
+midas::Xml::Node midas::Xml::ParseFile(const char* file_name, char *error, int error_size, int *error_line)
 {
 	char* buf, line[1000];
 	int length = 0;
@@ -122,10 +123,10 @@ MidasXML::Node MidasXML::ParseFile(const char* file_name, char *error, int error
 }
 
 
-bool MidasXML::Check()
+bool midas::Xml::Check()
 {
 	if(fTree && fOdb) return true;
-	std::cerr << "Warning: MidasXML object was initialized with a bad XML file, "
+	std::cerr << "Warning: midas::Xml object was initialized with a bad XML file, "
 						<<"cannot perform any further operations.\n";
 	return false;
 }
@@ -153,7 +154,7 @@ std::string get_xml_path(const char* path, const char* node_type) {
 	return xmlPath.str();
 } }
 
-MidasXML::Node MidasXML::FindKey(const char* path)
+midas::Xml::Node midas::Xml::FindKey(const char* path)
 {
 	if(!Check()) return 0;
 	Node out = mxml_find_node(fOdb, get_xml_path(path, "key").c_str());
@@ -163,7 +164,7 @@ MidasXML::Node MidasXML::FindKey(const char* path)
 	return out;
 }
 
-MidasXML::Node MidasXML::FindKeyArray(const char* path)
+midas::Xml::Node midas::Xml::FindKeyArray(const char* path)
 {
 	if(!Check()) return 0;
 	Node out = mxml_find_node(fOdb, get_xml_path(path, "keyarray").c_str());
@@ -173,14 +174,14 @@ MidasXML::Node MidasXML::FindKeyArray(const char* path)
 	return out;
 }
 
-template <typename T> T MidasXML::GetValue(const char* path, bool* success)
+template <typename T> T midas::Xml::GetValue(const char* path, bool* success)
 {
 	T out;
 	GetValue(path, out, success);
 	return out;
 }
 
-template <typename T> void MidasXML::GetValue(const char* path, T& value, bool* success)
+template <typename T> void midas::Xml::GetValue(const char* path, T& value, bool* success)
 {
 	if(success) *success = true;
 	Node node = FindKey(path);
@@ -198,7 +199,7 @@ template <typename T> void MidasXML::GetValue(const char* path, T& value, bool* 
 	}
 }
 
-template <typename T> void MidasXML::GetArray(const char* path, std::vector<T>& array, bool* success)
+template <typename T> void midas::Xml::GetArray(const char* path, std::vector<T>& array, bool* success)
 {
 	if(success) *success = true;
 	Node node = FindKeyArray(path);
@@ -237,14 +238,14 @@ template <typename T> void MidasXML::GetArray(const char* path, std::vector<T>& 
 	}
 }
 
-template <typename T> std::vector<T> MidasXML::GetArray(const char* path, bool* success)
+template <typename T> std::vector<T> midas::Xml::GetArray(const char* path, bool* success)
 {
 	std::vector<T> out;
 	GetArray<T>(path, out, success);
 	return out;
 }
 
-template <typename T> void MidasXML::GetArray(const char* path, int length, T* array, bool* success)
+template <typename T> void midas::Xml::GetArray(const char* path, int length, T* array, bool* success)
 {
 	if(success) *success = true;
 	Node node = FindKeyArray(path);
@@ -292,8 +293,8 @@ template <typename T> void MidasXML::GetArray(const char* path, int length, T* a
 
 #ifdef MIDAS_XML_TESTING
 int main() {
-	MidasXML mxml("run23822.mid");
-	MidasXML::Node loc = mxml.FindKey("System/Clients/19764/Host");
+	midas::Xml mxml("run23822.mid");
+	midas::Xml::Node loc = mxml.FindKey("System/Clients/19764/Host");
 	if(!loc) return 1;
 	
 	int i = -1;

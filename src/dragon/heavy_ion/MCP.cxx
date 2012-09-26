@@ -3,10 +3,10 @@
 #include <string>
 #include <iostream>
 #include "utils/copy_array.h"
-#include "dragon/heavy_ion/MCP.hxx"
 #include "vme/Vme.hxx"
 #include "midas/Odb.hxx"
-#include "midas/MidasXML.hxx"
+#include "midas/Xml.hxx"
+#include "MCP.hxx"
 
 
 // ====== struct dragon::hion::MCP ====== //
@@ -108,7 +108,7 @@ void dragon::hion::MCP::Variables::set(const char* odb)
 	const std::string pathTacModule   = "Equipment/MCP/Variables/TACModule";
 
 	if(strcmp(odb, "online")) { // Read from offline XML file
-		MidasXML mxml (odb);
+		midas::Xml mxml (odb);
 		bool success = false;
 		mxml.GetArray(pathAnodeModule.c_str(), MCP::nch, anode_module, &success);
 		mxml.GetArray(pathAnodeCh.c_str(), MCP::nch, anode_ch, &success);

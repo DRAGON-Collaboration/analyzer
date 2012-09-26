@@ -3,9 +3,9 @@
 #include <string>
 #include <iostream>
 #include "utils/copy_array.h"
-#include "dragon/heavy_ion/SurfaceBarrier.hxx"
+#include "SurfaceBarrier.hxx"
 #include "midas/Odb.hxx"
-#include "midas/MidasXML.hxx"
+#include "midas/Xml.hxx"
 
 
 // ====== struct dragon::hion::SurfaceBarrier ====== //
@@ -82,7 +82,7 @@ void dragon::hion::SurfaceBarrier::Variables::set(const char* odb)
 	const std::string pathCh     = "Equipment/SurfaceBarrier/Variables/AnodeChannel";
 
 	if(strcmp(odb, "online")) { // Read from offline XML file
-		MidasXML mxml (odb);
+		midas::Xml mxml (odb);
 		bool success = false;
 		mxml.GetArray(pathModule.c_str(), SurfaceBarrier::nch, module, &success);
 		mxml.GetArray(pathCh.c_str(), SurfaceBarrier::nch, ch, &success);

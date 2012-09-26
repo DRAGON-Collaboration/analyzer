@@ -4,7 +4,7 @@
 #include <iostream>
 #include "utils/copy_array.h"
 #include "midas/Odb.hxx"
-#include "midas/MidasXML.hxx"
+#include "midas/Xml.hxx"
 #include "HeavyIon.hxx"
 
 
@@ -150,7 +150,7 @@ void dragon::hion::HeavyIon::Variables::set(const char* odb)
 	const std::string path = "Equipment/V1190/HeavyIon/TriggerCh";
 
 	if(strcmp(odb, "online")) { // Read from offline XML file
-		MidasXML mxml (odb);
+		midas::Xml mxml (odb);
 		bool success = false;
 		mxml.GetValue(path.c_str(), v1190_trigger_ch, &success);
 
