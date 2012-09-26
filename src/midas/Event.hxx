@@ -10,8 +10,8 @@
 #include <vector>
 #include <cassert>
 #include <typeinfo>
-#include "midas/TMidasFile.h"
-#include "midas/TMidasEvent.h"
+#include "internal/TMidasFile.h"
+#include "internal/TMidasEvent.h"
 #include "utils/Error.hxx"
 
 

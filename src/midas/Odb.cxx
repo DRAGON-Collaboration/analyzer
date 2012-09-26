@@ -4,7 +4,8 @@
 //! \brief Allows reading of data from the MIDAS Online DataBase (ODB).
 //! \note Originally copied from DRAGON frontend code directory, then edited.
 //!  Implementations originally from TMidasOnline.cxx
-#ifdef MIDASSYS
+#ifndef ODB_TEST
+#ifdef  MIDASSYS
 #include <cassert>
 #include <cstring>
 #include <stdio.h>
@@ -37,7 +38,6 @@ int midas::Odb::ReadAny(const char*name,int index,int tid,void* value,int valueL
 		status = db_get_data_index(GetHandle(), hkey, value, &size, index, tid);
 		if (status != SUCCESS)
 		{
-//    cm_msg(MERROR, frontend_name, "Cannot read \'%s\'[%d] of type %d from odb, db_get_data_index() status %d", name, index, tid, status);
 			fprintf(stderr, "Cannot read \'%s\'[%d] of type %d from odb, db_get_data_index() status %d", name, index, tid, status);
 			return -1;
 		}
@@ -46,13 +46,11 @@ int midas::Odb::ReadAny(const char*name,int index,int tid,void* value,int valueL
 	}
   else if (status == DB_NO_KEY)
 	{
-//  cm_msg(MINFO, frontend_name, "Creating \'%s\'[%d] of type %d", name, index+1, tid);
 		fprintf(stderr, "Creating \'%s\'[%d] of type %d", name, index+1, tid);
 
 		status = db_create_key(GetHandle(), hdir, (char*)name, tid);
 		if (status != SUCCESS)
 		{
-//    cm_msg (MERROR, frontend_name, "Cannot create \'%s\' of type %d, db_create_key() status %d", name, tid, status);
 			fprintf(stderr, "Cannot create \'%s\' of type %d, db_create_key() status %d", name, tid, status);
 			return -1;
 		}
@@ -60,7 +58,6 @@ int midas::Odb::ReadAny(const char*name,int index,int tid,void* value,int valueL
 		status = db_find_key (GetHandle(), hdir, (char*)name, &hkey);
 		if (status != SUCCESS)
 		{
-//    cm_msg(MERROR, frontend_name, "Cannot create \'%s\', db_find_key() status %d", name, status);
 			fprintf(stderr, "Cannot create \'%s\', db_find_key() status %d", name, status);
 			return -1;
 		}
@@ -68,7 +65,6 @@ int midas::Odb::ReadAny(const char*name,int index,int tid,void* value,int valueL
 		status = db_set_data_index(GetHandle(), hkey, value, size, index, tid);
 		if (status != SUCCESS)
 		{
-//    cm_msg(MERROR, frontend_name, "Cannot write \'%s\'[%d] of type %d to odb, db_set_data_index() status %d", name, index, tid, status);
 			fprintf(stderr, "Cannot write \'%s\'[%d] of type %d to odb, db_set_data_index() status %d", name, index, tid, status);
 			return -1;
 		}
@@ -77,7 +73,6 @@ int midas::Odb::ReadAny(const char*name,int index,int tid,void* value,int valueL
 	}
   else
 	{
-// 		cm_msg(MERROR, frontend_name, "Cannot read \'%s\'[%d] from odb, db_find_key() status %d", name, index, status);
 		fprintf(stderr, "Cannot read \'%s\'[%d] from odb, db_find_key() status %d", name, index, status);
 		return -1;
 	}
@@ -306,4 +301,25 @@ int midas::Odb::WriteString(const char*name, const char* string) { ERR_NO_MIDAS;
 
 #undef ERR_NO_MIDAS
 
+#endif
+
+
+
+#else //#ifndef ODB_TEST
+#include <midas.h>
+#include <cassert>
+#include <iostream>
+#include "Odb.hxx"
+int main()
+{
+	INT status;
+  status = cm_connect_experiment("ladd06:7071", "dragon", "test123", NULL);
+	assert (status == CM_SUCCESS);
+	bool success;
+	std::string testStr = midas::Odb::ReadValue<std::string>("/Equipment/HeadVME/Common/Frontend host", &success);
+	int w = midas::Odb::ReadValue<int>("/Equipment/HeadVME/Settings/IO32/Adc_width", &success);
+	assert(success);
+	std::cout << testStr << " " << w << "\n";
+	cm_disconnect_experiment();
+}
 #endif

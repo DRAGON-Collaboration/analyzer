@@ -4,101 +4,219 @@
 #ifndef MIDAS_XML_HXX
 #define MIDAS_XML_HXX
 #include <vector>
-#include "mxml.h"
+#include <sstream>
+#include "internal/mxml.h"
 
 namespace midas {
 
 /// \brief Class to parse MIDAS ODB XML files.
 class Xml {
 public:
-	 /// Pointer to an XML node.
-	 typedef PMXML_NODE Node;
+	/// Pointer to an XML node.
+	typedef PMXML_NODE Node;
 
 private:
-	 /// Pointer to the entire XML tree contained within a file
-	 Node fTree;
-	 /// Pointer to the ODB portion of fTree
-	 Node fOdb;
+	/// Pointer to the entire XML tree contained within a file
+	Node fTree;
+	/// Pointer to the ODB portion of fTree
+	Node fOdb;
 
 public:
-	 /// \brief Read data from an XML file
-	 /// \details Parses a file containing XML data to fill fTree and fOdb.
-	 /// Can handle either a dedicated \c .xml file or a \c .mid (or any other) file containing
-	 /// the XML data as a subset.
-	 /// \note Memory is allocated only to fTree, fOdb and any other subnodes used later
-	 /// simply refer to memory locations relative to fTree.
-	 Xml(const char* filename);
+	/// \brief Read data from an XML file
+	/// \details Parses a file containing XML data to fill fTree and fOdb.
+	/// Can handle either a dedicated \c .xml file or a \c .mid (or any other) file containing
+	/// the XML data as a subset.
+	/// \note Memory is allocated only to fTree, fOdb and any other subnodes used later
+	/// simply refer to memory locations relative to fTree.
+	Xml(const char* filename);
 
-	 /// Frees resources allocated to fTree
-	 ~Xml();
+	/// Frees resources allocated to fTree
+	~Xml();
 
-	 /// \brief Find the node location of a specific key element within the xml file
-	 /// \param [in] path String specifying the "directory" path of the element, e.g.
-	 /// "Equipment/gTrigger/Variables/Pedestals".
-	 Node FindKey(const char* path);
+	/// \brief Find the node location of a specific key element within the xml file
+	/// \param [in] path String specifying the "directory" path of the element, e.g.
+	/// "Equipment/gTrigger/Variables/Pedestals".
+	Node FindKey(const char* path);
 
-	 /// \brief Find the node location of a specific keyarray element within the xml file
-	 /// \param [in] path String specifying the "directory" path of the element, e.g.
-	 /// "Equipment/gTrigger/Variables/Pedestals".
-	 Node FindKeyArray(const char* path);
+	/// \brief Find the node location of a specific keyarray element within the xml file
+	/// \param [in] path String specifying the "directory" path of the element, e.g.
+	/// "Equipment/gTrigger/Variables/Pedestals".
+	Node FindKeyArray(const char* path);
 
-	 /// \brief Get the value of key element
-	 /// \tparam The type of the key element (e.g. int, float, string, ...)
-	 /// \param [in] path String specifying the "directory" path of the element, e.g.
-	 /// "Equipment/gTrigger/Variables/Pedestals"
-	 /// \param [out] success Sets the value to \c true if \e path was valid, \c false otherwise.
-	 ///  Passing a NULL value to the function disables the error reporting
-	 /// \returns The value of the element specified by \e path
-	 template <typename T> T GetValue(const char* path, bool* success = 0);
+	/// Get the value of key element
+	template <typename T> T GetValue(const char* path, bool* success = 0)
+		{
+			/*!
+			 * \tparam The type of the key element (e.g. int, float, string, ...)
+			 * \param [in] path String specifying the "directory" path of the element, e.g.
+			 * "Equipment/gTrigger/Variables/Pedestals"
+			 * \param [out] success Sets the value to \c true if \e path was valid, \c false otherwise.
+			 *  Passing a NULL value to the function disables the error reporting
+			 * \returns The value of the element specified by \e path
+			 */
+			T out;
+			GetValue(path, out, success);
+			return out;
+		}
 
-	 /// \brief Get the value of key element
-	 /// \tparam The type of the key element (e.g. int, float, string, ...)
-	 /// \param [in] path String specifying the "directory" path of the element, e.g.
-	 /// "Equipment/gTrigger/Variables/Pedestals"
-	 /// \param [out] value Set to the value of the element specified by \e path
-	 /// \param [in] success Sets the value to \c true if \e path was valid, \c false otherwise.
-	 ///  Passing a NULL value to the function disables the error reporting
-	 template <typename T> void GetValue(const char* path, T& value, bool* success = 0);
+  /// Get the value of key element
+	template <typename T> void GetValue(const char* path, T& value, bool* success = 0)
+		{
+			/*!
+			 * \tparam The type of the key element (e.g. int, float, string, ...)
+			 * \param [in] path String specifying the "directory" path of the element, e.g.
+			 * "Equipment/gTrigger/Variables/Pedestals"
+			 * \param [out] value Set to the value of the element specified by \e path
+			 * \param [in] success Sets the value to \c true if \e path was valid, \c false otherwise.
+			 *  Passing a NULL value to the function disables the error reporting
+			 */
+			if(success) *success = true;
+			Node node = FindKey(path);
+			if(!node) {
+				if(success) *success = false;
+				return;
+			}
+			if(typeid(T) != typeid(bool)) {
+				std::stringstream val;
+				val << node->value;
+				val >> value;
+			}
+			else {
+				value = (!strcmp("y", node->value)) ? true : false;
+			}
+		}
+	
+	///  Get the values of an array of key elements
+	template <typename T> std::vector<T> GetArray(const char* path, bool* success = 0)
+		{
+			/*!
+			 * \tparam The type of the key element (e.g. int, float, string, ...)
+			 * \param [out] path String specifying the "directory" path of the element, e.g.
+			 * "Equipment/gTrigger/Variables/Pedestals"
+			 * \param [out] success Sets the value to \c true if \e path was valid, \c false otherwise.
+			 *  Passing a NULL value to the function disables the error reporting
+			 * \returns A vector of all array values
+			 */
+			std::vector<T> out;
+			GetArray<T>(path, out, success);
+			return out;
+		}
 
-	 /// \brief Get the values of an array of key elements
-	 /// \tparam The type of the key element (e.g. int, float, string, ...)
-	 /// \param [out] path String specifying the "directory" path of the element, e.g.
-	 /// "Equipment/gTrigger/Variables/Pedestals"
-	 /// \param [out] success Sets the value to \c true if \e path was valid, \c false otherwise.
-	 ///  Passing a NULL value to the function disables the error reporting
-	 /// \returns A vector of all array values
-	 template <typename T> std::vector<T> GetArray(const char* path, bool* success = 0);
+	/// Get the values of an array of key elements
+	template <typename T> void GetArray(const char* path, std::vector<T>& array, bool* success = 0)
+		{
+			/*!
+			 * \tparam The type of the key element (e.g. int, float, string, ...)
+			 * \param [in] path String specifying the "directory" path of the element, e.g.
+			 * "Equipment/gTrigger/Variables/Pedestals"
+			 * \param [out] array Set to a vector of all array values
+			 * \param [out] success Sets the value to \c true if \e path was valid, \c false otherwise.
+			 *  Passing a NULL value to the function disables the error reporting
+			 */
+			if(success) *success = true;
+			Node node = FindKeyArray(path);
+			if(!node) {
+				if(success) *success = false;
+				return;
+			}
+			array.clear();
+			char* pAttribute = mxml_get_attribute(node, "num_values");
+			if(!pAttribute) {
+				std::cerr << "Error: \"num_values\" attribute not found for array: " << path << "\n";
+				if(success) *success = false;
+				return;
+			}
+			int size = atoi(pAttribute);
+			for(int i=0; i< size; ++i) {
+				std::stringstream valPath;
+				valPath << "/value[" << i+1 << "]";
+				Node valNode = mxml_find_node(node, valPath.str().c_str());
+				if(!valNode) {
+					std::cerr << "Error: Unable to find value node for array index " << i << "\n";
+					continue;
+				}
 
-	 /// \brief Get the values of an array of key elements
-	 /// \tparam The type of the key element (e.g. int, float, string, ...)
-	 /// \param [in] path String specifying the "directory" path of the element, e.g.
-	 /// "Equipment/gTrigger/Variables/Pedestals"
-	 /// \param [out] array Set to a vector of all array values
-	 /// \param [out] success Sets the value to \c true if \e path was valid, \c false otherwise.
-	 ///  Passing a NULL value to the function disables the error reporting
-	 template <typename T> void GetArray(const char* path, std::vector<T>& array, bool* success = 0);
+				T value;
+				if(typeid(T) != typeid(bool)) {
+					std::stringstream val;
+					val << valNode->value;
+					val >> value;
+				}
+				else {
+					value = (!strcmp("y", valNode->value)) ? true : false;
+				}
+				array.push_back(value);
 
-	 /// \brief Get the values of an array of key elements
-	 /// \tparam The type of the key element (e.g. int, float, string, ...)
-	 /// \param [in] path String specifying the "directory" path of the element, e.g.
-	 /// "Equipment/gTrigger/Variables/Pedestals"
-	 /// \param [in] length Length of the array to fill
-	 /// \param [out] array Array to fill with values from the ODB
-	 /// \param [out] success Sets the value to \c true if \e path was valid, \c false otherwise.
-	 ///  Passing a NULL value to the function disables the error reporting
-	 template <typename T> void GetArray(const char* path, int length, T* array, bool* success = 0);
+			}
+		}
+
+	/// Get the values of an array of key elements
+	template <typename T> void GetArray(const char* path, int length, T* array, bool* success = 0)
+		{
+			/*!
+			 * \tparam The type of the key element (e.g. int, float, string, ...)
+			 * \param [in] path String specifying the "directory" path of the element, e.g.
+			 * "Equipment/gTrigger/Variables/Pedestals"
+			 * \param [in] length Length of the array to fill
+			 * \param [out] array Array to fill with values from the ODB
+			 * \param [out] success Sets the value to \c true if \e path was valid, \c false otherwise.
+			 *  Passing a NULL value to the function disables the error reporting
+			 */
+			if(success) *success = true;
+			Node node = FindKeyArray(path);
+			if(!node) {
+				if(success) *success = false;
+				return;
+			}
+			char* pAttribute = mxml_get_attribute(node, "num_values");
+			if(!pAttribute) {
+				std::cerr << "Error: \"num_values\" attribute not found for array: " << path << "\n";
+				if(success) *success = false;
+				return;
+			}
+			int size = atoi(pAttribute);
+			if(size != length) {
+				std::cerr << "Error: size of the ODB array " << path << ": " << size
+									<< " is not equal to the size of the array to fill: " << length << "\n";
+				if(success) *success = false;
+				return;
+			}
+
+			for(int i=0; i< size; ++i) {
+				std::stringstream valPath;
+				valPath << "/value[" << i+1 << "]";
+				Node valNode = mxml_find_node(node, valPath.str().c_str());
+				if(!valNode) {
+					std::cerr << "Error: Unable to find value node for array index " << i << "\n";
+					continue;
+				}
+
+				T value;
+				if(typeid(T) != typeid(bool)) {
+					std::stringstream val;
+					val << valNode->value;
+					val >> value;
+				}
+				else {
+					value = (!strcmp("y", valNode->value)) ? true : false;
+				}
+				array[i] = value;
+
+			}
+		}
+
 
 private:
-	 /// \brief Helper initialization function called by the constructor.
-	 void Init(const char* filename);
+	/// \brief Helper initialization function called by the constructor.
+	void Init(const char* filename);
 
-	 /// \brief Helper function to parse a file containing XML data and set fTree and fObd
-	 /// \note Most of the implementation was a paraphrase of mxml_parse_file() in midas.c,
-	 /// extended to handle files that contain the XML data only as a subset (i.e. MIDAS files).
-	 Node ParseFile(const char* file_name, char *error, int error_size, int *error_line);
+	/// \brief Helper function to parse a file containing XML data and set fTree and fObd
+	/// \note Most of the implementation was a paraphrase of mxml_parse_file() in midas.c,
+	/// extended to handle files that contain the XML data only as a subset (i.e. MIDAS files).
+	Node ParseFile(const char* file_name, char *error, int error_size, int *error_line);
 
-	 /// \brief Check if fTree and fOdb are non-null
-	 bool Check();
+	/// \brief Check if fTree and fOdb are non-null
+	bool Check();
 };
 
 } // namespace midas

@@ -60,14 +60,16 @@ $(OBJ)/dragon/heavy_ion/DSSSD.o $(OBJ)/dragon/heavy_ion/IonChamber.o \
 $(OBJ)/dragon/heavy_ion/MCP.o $(OBJ)/dragon/heavy_ion/SurfaceBarrier.o \
 $(OBJ)/dragon/heavy_ion/Auxillary.o $(OBJ)/dragon/gamma/Gamma.o $(OBJ)/dragon/gamma/Bgo.o  \
 $(OBJ)/tstamp/TStamp.o $(OBJ)/midas/Odb.o $(OBJ)/midas/Xml.o $(OBJ)/midas/Event.o \
-$(OBJ)/midas/TMidasFile.o $(OBJ)/midas/TMidasEvent.o \
-$(OBJ)/midas/mxml.o $(OBJ)/midas/strlcpy.o
+$(OBJ)/midas/internal/TMidasFile.o $(OBJ)/midas/internal/TMidasEvent.o \
+$(OBJ)/midas/internal/mxml.o $(OBJ)/midas/internal/strlcpy.o
 
-HEADERS=$(SRC)/*/*.hxx $(SRC)/*/*/*.hxx $(SRC)/*/*.h
+HEADERS=$(SRC)/*/*.hxx $(SRC)/*/*/*.hxx $(SRC)/*/*.h $(SRC)/*/*/*.h
 
 ### DRAGON LIBRARY ###
 all: $(DRLIB)/libDragon.so
+
 lib: $(DRLIB)/libDragon.so
+
 $(DRLIB)/libDragon.so: $(CINT)/DragonDictionary.cxx $(OBJECTS)
 	$(LINK) $(DYLIB) $(FPIC) -o $@ $(MIDASLIBS) $(OBJECTS) \
 -p $(CINT)/DragonDictionary.cxx $\
@@ -124,3 +126,6 @@ Odb: $(OBJ)/midas/Odb.o
 MidasXML: $(OBJ)/midas/MidasXML.o
 mxml: $(OBJ)/midas/mxml.o
 strlcpy: $(OBJ)/midas/strlcpy.o
+odbtest: $(DRLIB)/libDragon.so
+	$(LINK) src/midas/Odb.cxx -o odbtest -DMIDAS_BUFFERS -lDragon -L$(DRLIB) -DODB_TEST
+
