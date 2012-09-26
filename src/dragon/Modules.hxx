@@ -4,8 +4,8 @@
 #ifndef DRAGON_MODULES_HXX
 #define DRAGON_MODULES_HXX
 #include "vme/IO32.hxx"
-#include "vme/caen/Adc.hxx"
-#include "vme/caen/V1190.hxx"
+#include "vme/V792.hxx"
+#include "vme/V1190.hxx"
 
 namespace dragon {
 
@@ -18,7 +18,7 @@ private:
 	vme::caen::V792 v792;
 
 	/// CAEN v1190b tdc (64 channel).
-	vme::caen::V1190b v1190b;
+	vme::caen::V1190 v1190b;
 
 	/// I032 FPGA
 	vme::IO32 io32;
@@ -77,7 +77,7 @@ private:
 	vme::caen::V785 v785[2];
 
 	/// CAEN v1190b TDC
-	vme::caen::V1190b v1190b;
+	vme::caen::V1190 v1190b;
 
 	/// IO32 FPGA
 	vme::IO32 io32;

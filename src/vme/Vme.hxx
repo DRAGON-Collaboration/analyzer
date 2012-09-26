@@ -6,15 +6,10 @@
 #include <algorithm>
 #include <cstring>
 
+#include "Constants.hxx"
+
 /// Encloses all VME related classes
 namespace vme {
-
-/// "Empty" code used when no data is present in a channel.
-#ifdef VME_NO_DATA
-const int16_t NONE = VME_NO_DATA;
-#else
-const int16_t NONE = -1;
-#endif
 
 #ifndef __MAKECINT__
 /// Reset a VME module data to default values (vme::NONE).

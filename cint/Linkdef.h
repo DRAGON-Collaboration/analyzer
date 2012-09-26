@@ -36,8 +36,8 @@
 #pragma link C++ defined_in /user/gchristian/soft/develop/dragon/analyzer/src/dragon/heavy_ion/Auxillary.hxx;
 #pragma link C++ defined_in /user/gchristian/soft/develop/dragon/analyzer/src/dragon/Modules.hxx;
 #pragma link C++ defined_in /user/gchristian/soft/develop/dragon/analyzer/src/vme/Vme.hxx;
-#pragma link C++ class vme::caen::Adc<32>+;
-#pragma link C++ class vme::caen::V1190b+;
+#pragma link C++ class vme::caen::V792+;
+#pragma link C++ class vme::caen::V1190+;
 #pragma link C++ class vme::IO32+;
 
 

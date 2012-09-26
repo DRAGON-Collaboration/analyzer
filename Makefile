@@ -51,8 +51,8 @@ LINK=$(COMPILER) $(CXXFLAGS) $(ROOTGLIBS) $(RPATH) $(DEFAULTS) -I/user/gchristia
 ROOTCINT=rootcint
 
 #### DRAGON LIBRARY ####
-HEADERS=$(SRC)/utils/Bits.hxx $(SRC)/vme/Vme.hxx $(SRC)/vme/IO32.hxx \
-$(SRC)/vme/caen/V1190.hxx $(SRC)/vme/caen/Adc.hxx $(SRC)/vme/IO32.hxx \
+HEADERS=$(SRC)/utils/Bits.hxx $(SRC)/vme/Vme.hxx \
+$(SRC)/vme/V1190.hxx $(SRC)/vme/V792.hxx $(SRC)/vme/IO32.hxx \
 $(SRC)/dragon/Modules.hxx $(SRC)/dragon/Dragon.hxx \
 $(SRC)/dragon/heavy_ion/HeavyIon.hxx \
 $(SRC)/dragon/heavy_ion/DSSSD.hxx $(SRC)/dragon/heavy_ion/IonChamber.hxx \
@@ -61,7 +61,7 @@ $(SRC)/dragon/heavy_ion/Auxillary.hxx $(SRC)/dragon/gamma/Gamma.hxx $(SRC)/drago
 $(SRC)/tstamp/TStamp.hxx $(SRC)/odb/Odb.hxx $(SRC)/odb/MidasXML.hxx $(SRC)/dragon/MidasEvent.hxx \
 $(SRC)/midas/TMidasFile.h $(SRC)/midas/TMidasBanks.h $(SRC)/midas/TMidasEvent.h
 
-SOURCES=$(SRC)/vme/caen/Adc.cxx $(SRC)/vme/caen/V1190.cxx $(SRC)/vme/IO32.cxx \
+SOURCES=$(SRC)/vme/V792.cxx $(SRC)/vme/V1190.cxx $(SRC)/vme/IO32.cxx \
 $(SRC)/dragon/Modules.cxx $(SRC)/dragon/Dragon.cxx \
 $(SRC)/dragon/heavy_ion/HeavyIon.cxx \
 $(SRC)/dragon/heavy_ion/DSSSD.cxx $(SRC)/dragon/heavy_ion/IonChamber.cxx \
@@ -70,7 +70,7 @@ $(SRC)/dragon/heavy_ion/Auxillary.cxx $(SRC)/dragon/gamma/Gamma.cxx $(SRC)/drago
 $(SRC)/tstamp/TStamp.cxx $(SRC)/odb/Odb.cxx $(SRC)/odb/MidasXML.cxx $(SRC)/dragon/MidasEvent.cxx \
 $(SRC)/midas/TMidasFile.cxx $(SRC)/midas/TMidasEvent.cxx
 
-OBJECTS=$(OBJ)/vme/caen/Adc.o $(OBJ)/vme/caen/V1190.o $(OBJ)/vme/IO32.o \
+OBJECTS=$(OBJ)/vme/V792.o $(OBJ)/vme/V1190.o $(OBJ)/vme/IO32.o \
 $(OBJ)/dragon/Modules.o $(OBJ)/dragon/Dragon.o \
 $(OBJ)/dragon/heavy_ion/HeavyIon.o \
 $(OBJ)/dragon/heavy_ion/DSSSD.o $(OBJ)/dragon/heavy_ion/IonChamber.o \
@@ -88,15 +88,16 @@ $(DRLIB)/libDragon.so: $(CINT)/DragonDictionary.cxx $(OBJECTS)
 
 
 ### OBJECT FILES ###
-Adc: $(OBJ)/vme/caen/Adc.o
-$(OBJ)/vme/caen/Adc.o: $(CINT)/DragonDictionary.cxx $(SRC)/vme/caen/Adc.cxx
-	$(COMPILE) $(FPIC) -c \
--o $@ -p $(SRC)/vme/caen/Adc.cxx \
 
-V1190: $(OBJ)/vme/caen/V1190.o
-$(OBJ)/vme/caen/V1190.o: $(CINT)/DragonDictionary.cxx $(SRC)/vme/caen/V1190.cxx
+V792: $(OBJ)/vme/V792.o
+$(OBJ)/vme/V792.o: $(CINT)/DragonDictionary.cxx $(SRC)/vme/V792.cxx
 	$(COMPILE) $(FPIC) -c \
--o $@ -p $(SRC)/vme/caen/V1190.cxx \
+-o $@ -p $(SRC)/vme/V792.cxx \
+
+V1190: $(OBJ)/vme/V1190.o
+$(OBJ)/vme/V1190.o: $(CINT)/DragonDictionary.cxx $(SRC)/vme/V1190.cxx
+	$(COMPILE) $(FPIC) -c \
+-o $@ -p $(SRC)/vme/V1190.cxx \
 
 IO32: $(OBJ)/vme/IO32.o
 $(OBJ)/vme/IO32.o: $(CINT)/DragonDictionary.cxx $(SRC)/vme/IO32.cxx

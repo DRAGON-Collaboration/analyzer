@@ -1,4 +1,5 @@
 //! \file bits.hxx
+//! \author G. Christian
 //! \brief Defines some macros to help in bitmasking
 //! \details Each READx macro corresponds to the number whose
 //! binary representation is \e x sequential true bits. For example,
