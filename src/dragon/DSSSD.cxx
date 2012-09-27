@@ -4,7 +4,6 @@
 #include <cassert>
 #include <iostream>
 #include "midas/Database.hxx"
-#include "vme/Vme.hxx"
 #include "vme/V1190.hxx"
 #include "vme/V792.hxx"
 #include "Tail.hxx"
@@ -22,9 +21,9 @@ dragon::DSSSD::DSSSD() :
 void dragon::DSSSD::reset()
 {
 	for(int i=0; i< MAX_CHANNELS; ++i) {
-		qraw[i] = vme::NONE;
+		qraw[i] = dragon::NO_DATA;
 	}
-	tof = vme::NONE;
+	tof = dragon::NO_DATA;
 }
 
 void dragon::DSSSD::read_data(const vme::V785 adcs[], const vme::V1190& v1190)
@@ -36,7 +35,7 @@ void dragon::DSSSD::read_data(const vme::V785 adcs[], const vme::V1190& v1190)
 
 		qraw[i] = adcs[whichAdc].get_data(whichAdcChannel);
 	}
-	tof = vme::NONE; /// \todo Calculate DSSSD tof
+	tof = dragon::NO_DATA; /// \todo Calculate DSSSD tof
 }
 
 
