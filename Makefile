@@ -62,7 +62,7 @@ $(OBJ)/midas/internal/TMidasFile.o  	\
 $(OBJ)/midas/internal/TMidasEvent.o 	\
 $(OBJ)/midas/Event.o                	\
 					\
-$(OBJ)/tstamp/TStamp.o              	\
+$(OBJ)/utils/TStamp.o              	\
 					\
 $(OBJ)/vme/V792.o             	      	\
 $(OBJ)/vme/V1190.o             	     	\
@@ -133,27 +133,29 @@ docclean::
 
 #### FOR UNIT TESTING ####
 
-V792: $(OBJ)/vme/V792.o
-V1190: $(OBJ)/vme/V1190.o
-IO32: $(OBJ)/vme/IO32.o
-Modules: $(OBJ)/dragon/Modules.o
-Dragon: $(OBJ)/dragon/Dragon.o
-MidasEvent: $(OBJ)/dragon/MidasEvent.o
-TMidasEvent: $(OBJ)/midas/TMidasEvent.o
-TMidasFile: $(OBJ)/midas/TMidasFile.o
-HeavyIon: $(OBJ)/dragon/HeavyIon.o
-DSSSD: $(OBJ)/dragon/DSSSD.o
-IonChamber: $(OBJ)/dragon/IonChamber.o
-MCP: $(OBJ)/dragon/MCP.o
-SurfaceBarrier: $(OBJ)/dragon/SurfaceBarrier.o
-Auxillary: $(OBJ)/dragon/Auxillary.o
-Gamma: $(OBJ)/dragon/gamma/Gamma.o
-Head: $(OBJ)/dragon/Head.o
-Bgo: $(OBJ)/dragon/Bgo.o
-TStamp: $(OBJ)/tstamp/TStamp.o
-Odb: $(OBJ)/midas/Odb.o
-MidasXML: $(OBJ)/midas/MidasXML.o
-mxml: $(OBJ)/midas/mxml.o
-strlcpy: $(OBJ)/midas/strlcpy.o
+mxml.o:           $(OBJ)/midas/internal/mxml.o
+strlcpy.o:        $(OBJ)/midas/internal/strlcpy.o
+Odb.o:            $(OBJ)/midas/Odb.o
+Xml.o:            $(OBJ)/midas/Xml.o
+TMidasFile.o:     $(OBJ)/midas/internal/TMidasFile.o
+TMidasEvent.o:    $(OBJ)/midas/internal/TMidasEvent.o
+Event.o:          $(OBJ)/midas/Event.o
+
+TStamp.o:         $(OBJ)/tstamp/TStamp.o
+
+V792.o:           $(OBJ)/vme/V792.o
+V1190.o:          $(OBJ)/vme/V1190.o
+IO32.o:           $(OBJ)/vme/IO32.o
+
+Bgo.o:            $(OBJ)/dragon/Bgo.o
+MCP.o:            $(OBJ)/dragon/MCP.o
+DSSSD.o:          $(OBJ)/dragon/DSSSD.o
+Auxillary.o:      $(OBJ)/dragon/Auxillary.o
+IonChamber.o:     $(OBJ)/dragon/IonChamber.o
+SurfaceBarrier.o: $(OBJ)/dragon/SurfaceBarrier.o
+
+Head.o:           $(OBJ)/dragon/Head.o
+Tail.o:           $(OBJ)/dragon/Tail.o
+
 odbtest: $(DRLIB)/libDragon.so
 	$(LINK) src/midas/Odb.cxx -o odbtest -DMIDAS_BUFFERS -lDragon -L$(DRLIB) -DODB_TEST
