@@ -4,46 +4,37 @@
 #define DRAGON_HXX
 #include "dragon/Modules.hxx"
 #include "dragon/heavy_ion/HeavyIon.hxx"
-#include "dragon/gamma/Gamma.hxx"
+#include "Head.hxx"
 
 /// Encloses all DRAGON classes
 namespace dragon {
 
 /// A complete Dragon (coincidence) event
 class Dragon {
-public:
-// ===== Detector data ===== //
-   /// Bgo detector
-	 gamma::Gamma gamma;
 
-	 /// Heavy ion detectors
-	 hion::HeavyIon hi;
+public:
+	/// Head (gamma-ray) part of the event
+	dragon::Head head;
+
+	/// Heavy ion detectors
+	hion::HeavyIon hi;
 
 
 // ===== Methods ===== //
-	 /// Constructor, initialize data
-	 Dragon();
+	/// Constructor, initialize data
+	Dragon();
 
-   /// Destructor, nothing to do
-	 ~Dragon() { }
+	/// Reset all modules
+	void reset();
 
-	 /// Copy constructor
-	 Dragon(const Dragon& other);
+	/// \brief Reads all variable values from an ODB (file or online)
+	/// \param [in] odb_file Name of the ODB file; passing \c "online" looks at the online ODB.
+	void set_variables(const char* odb_file);
 
-	 /// Equivalency operator
-	 Dragon& operator= (const Dragon& other);
-
-	 /// Reset all modules
-	 void reset();
-
-	 /// \brief Reads all variable values from an ODB (file or online)
-	 /// \param [in] odb_file Name of the ODB file; passing \c "online" looks at the online ODB.
-	 void set_variables(const char* odb_file);
-
-	 /// \brief Copy data from head and tail coincidence events
-	 /// \param [in] head Head (gamma-ray) event
-	 /// \param [in] tail Tail (heavy-ion) event
-	 void read_event(const dragon::gamma::Gamma& head, const dragon::hion::HeavyIon& tail);
+	/// \brief Copy data from head and tail coincidence events
+	/// \param [in] head Head (gamma-ray) event
+	/// \param [in] tail Tail (heavy-ion) event
+	void read_event(const dragon::Head& head_, const dragon::hion::HeavyIon& tail_);
 };
 
 } // namespace dragon

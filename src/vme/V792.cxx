@@ -9,6 +9,7 @@
 #include "V792.hxx"
 
 
+
 void vme::caen::V792::reset()
 {
 	n_ch  = 0;

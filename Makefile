@@ -58,10 +58,11 @@ $(OBJ)/dragon/Modules.o $(OBJ)/dragon/Dragon.o \
 $(OBJ)/dragon/heavy_ion/HeavyIon.o \
 $(OBJ)/dragon/heavy_ion/DSSSD.o $(OBJ)/dragon/heavy_ion/IonChamber.o \
 $(OBJ)/dragon/heavy_ion/MCP.o $(OBJ)/dragon/heavy_ion/SurfaceBarrier.o \
-$(OBJ)/dragon/heavy_ion/Auxillary.o $(OBJ)/dragon/gamma/Gamma.o $(OBJ)/dragon/gamma/Bgo.o  \
+$(OBJ)/dragon/heavy_ion/Auxillary.o $(OBJ)/dragon/Bgo.o  \
 $(OBJ)/tstamp/TStamp.o $(OBJ)/midas/Odb.o $(OBJ)/midas/Xml.o $(OBJ)/midas/Event.o \
 $(OBJ)/midas/internal/TMidasFile.o $(OBJ)/midas/internal/TMidasEvent.o \
-$(OBJ)/midas/internal/mxml.o $(OBJ)/midas/internal/strlcpy.o
+$(OBJ)/midas/internal/mxml.o $(OBJ)/midas/internal/strlcpy.o \
+$(OBJ)/dragon/Head.o
 
 HEADERS=$(SRC)/*/*.hxx $(SRC)/*/*/*.hxx $(SRC)/*/*.h $(SRC)/*/*/*.h
 
@@ -120,7 +121,8 @@ MCP: $(OBJ)/dragon/heavy_ion/MCP.o
 SurfaceBarrier: $(OBJ)/dragon/heavy_ion/SurfaceBarrier.o
 Auxillary: $(OBJ)/dragon/heavy_ion/Auxillary.o
 Gamma: $(OBJ)/dragon/gamma/Gamma.o
-Bgo: $(OBJ)/dragon/gamma/Bgo.o
+Head: $(OBJ)/dragon/Head.o
+Bgo: $(OBJ)/dragon/Bgo.o
 TStamp: $(OBJ)/tstamp/TStamp.o
 Odb: $(OBJ)/midas/Odb.o
 MidasXML: $(OBJ)/midas/MidasXML.o

@@ -1,11 +1,12 @@
 /// \file V1190.hxx
 /// \author G. Christian
 /// \brief Defines caen V1190b tdc class
-#include <stdint.h>
-#include <vector>
 #ifndef DRAGON_VME_V1190_HXX
 #define DRAGON_VME_V1190_HXX
-
+#include <stdint.h>
+#include <vector>
+#include "utils/Error.hxx"
+#include "Constants.hxx"
 
 
 namespace midas { class Event; }
@@ -60,6 +61,26 @@ public:
 	
 	/// Reset data fields to default values
 	void reset();
+
+	/// Get a data value, with bounds checking
+	int16_t get_data(uint16_t ch) const
+		{
+			/*!
+			 * \param ch Channel number to get data from
+			 * Returns the leading edge time value of the first hit on
+			 * channel \e ch. If \e ch is out of bounds, prints a warning
+			 * message and returns vme::NONE.
+			 */
+			if (ch > 0 && ch < MAX_CHANNELS) {
+				return leading_edge[ch].empty() ? vme::NONE : leading_edge[ch][0];
+			}
+			else {
+				err::Warning("V1190::get_data")
+					<< "Channel number " << ch << "out of bounds (valid range: [0, "
+					<< MAX_CHANNELS -1 << "]\n";
+				return vme::NONE;
+			}
+		}
 
 	/// Calls reset()
 	V1190() { reset(); }
