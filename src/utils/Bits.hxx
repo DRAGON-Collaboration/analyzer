@@ -1,14 +1,16 @@
-//! \file bits.hxx
-//! \author G. Christian
-//! \brief Defines some macros to help in bitmasking
-//! \details Each READx macro corresponds to the number whose
-//! binary representation is \e x sequential true bits. For example,
-//! READ8 corresponds to 11111111. The intended use is in extracting
-//! a subset of bits from a number, possibly combined with a shift operation.
-//! For example, to read 8 bits from a longword, starting at bit 6:
-//! \code
-//! unsigned subword = (longword >> 6) & READ8;
-//! \endcode
+/*!
+ * \file bits.hxx
+ * \author G. Christian
+ * \brief Defines some macros to help in bitmasking
+ * \details Each READx macro corresponds to the number whose
+ * binary representation is \e x sequential true bits. For example,
+ * READ8 corresponds to 11111111. The intended use is in extracting
+ * a subset of bits from a number, possibly combined with a shift operation.
+ * For example, to read 8 bits from a longword, starting at bit 6:
+ * \code
+ * unsigned subword = (longword >> 6) & READ8;
+ * \endcode
+ */
 #ifndef BITS_HXX
 #define BITS_HXX
 
