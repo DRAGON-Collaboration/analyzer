@@ -2,8 +2,8 @@
 /// \brief Defines a class for the complete DRAGON system (head + tail)
 #ifndef DRAGON_HXX
 #define DRAGON_HXX
-#include "dragon/Modules.hxx"
-#include "dragon/heavy_ion/HeavyIon.hxx"
+#include "Modules.hxx"
+#include "HeavyIon.hxx"
 #include "Head.hxx"
 
 /// Encloses all DRAGON classes

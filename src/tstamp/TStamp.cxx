@@ -24,7 +24,7 @@ void tstamp::Queue::HandleSingle(const midas::Event& e) const
 { 
 	/*!
 	 * In the base class, simply prints information on the event.
-	 * \parem event Reference to the event being handled.
+	 * \param event Reference to the event being handled.
 	 */
 	e.PrintSingle();
 }

@@ -55,16 +55,16 @@ ROOTCINT=rootcint
 #### DRAGON LIBRARY ####
 OBJECTS=$(OBJ)/vme/V792.o $(OBJ)/vme/V1190.o $(OBJ)/vme/IO32.o \
 $(OBJ)/dragon/Modules.o $(OBJ)/dragon/Dragon.o \
-$(OBJ)/dragon/heavy_ion/HeavyIon.o \
-$(OBJ)/dragon/heavy_ion/DSSSD.o $(OBJ)/dragon/heavy_ion/IonChamber.o \
-$(OBJ)/dragon/heavy_ion/MCP.o $(OBJ)/dragon/heavy_ion/SurfaceBarrier.o \
-$(OBJ)/dragon/heavy_ion/Auxillary.o $(OBJ)/dragon/Bgo.o  \
+$(OBJ)/dragon/HeavyIon.o \
+$(OBJ)/dragon/DSSSD.o $(OBJ)/dragon/IonChamber.o \
+$(OBJ)/dragon/MCP.o $(OBJ)/dragon/SurfaceBarrier.o \
+$(OBJ)/dragon/Auxillary.o $(OBJ)/dragon/Bgo.o  \
 $(OBJ)/tstamp/TStamp.o $(OBJ)/midas/Odb.o $(OBJ)/midas/Xml.o $(OBJ)/midas/Event.o \
 $(OBJ)/midas/internal/TMidasFile.o $(OBJ)/midas/internal/TMidasEvent.o \
 $(OBJ)/midas/internal/mxml.o $(OBJ)/midas/internal/strlcpy.o \
 $(OBJ)/dragon/Head.o
 
-HEADERS=$(SRC)/*/*.hxx $(SRC)/*/*/*.hxx $(SRC)/*/*.h $(SRC)/*/*/*.h
+HEADERS=$(SRC)/*/*.hxx $(SRC)/*/*.h $(SRC)/*/*/*.h
 
 ### DRAGON LIBRARY ###
 all: $(DRLIB)/libDragon.so
@@ -114,12 +114,12 @@ Dragon: $(OBJ)/dragon/Dragon.o
 MidasEvent: $(OBJ)/dragon/MidasEvent.o
 TMidasEvent: $(OBJ)/midas/TMidasEvent.o
 TMidasFile: $(OBJ)/midas/TMidasFile.o
-HeavyIon: $(OBJ)/dragon/heavy_ion/HeavyIon.o
-DSSSD: $(OBJ)/dragon/heavy_ion/DSSSD.o
-IonChamber: $(OBJ)/dragon/heavy_ion/IonChamber.o
-MCP: $(OBJ)/dragon/heavy_ion/MCP.o
-SurfaceBarrier: $(OBJ)/dragon/heavy_ion/SurfaceBarrier.o
-Auxillary: $(OBJ)/dragon/heavy_ion/Auxillary.o
+HeavyIon: $(OBJ)/dragon/HeavyIon.o
+DSSSD: $(OBJ)/dragon/DSSSD.o
+IonChamber: $(OBJ)/dragon/IonChamber.o
+MCP: $(OBJ)/dragon/MCP.o
+SurfaceBarrier: $(OBJ)/dragon/SurfaceBarrier.o
+Auxillary: $(OBJ)/dragon/Auxillary.o
 Gamma: $(OBJ)/dragon/gamma/Gamma.o
 Head: $(OBJ)/dragon/Head.o
 Bgo: $(OBJ)/dragon/Bgo.o
