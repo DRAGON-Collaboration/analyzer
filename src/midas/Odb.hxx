@@ -105,11 +105,11 @@ public:
 					return size / sizeof (T);
 			}
 
-			err::Error("midas::Odb::ReadArray") << ERR_FILE_LINE << "Cannot read \"" <<
-				path << "\" from odb, status = " << status << "\n";
+			err::Error("midas::Odb::ReadArray") << "Cannot read \"" <<
+				path << "\" from odb, status = " << status << ERR_FILE_LINE;
 			return 0;
 #else
-			err::Error("midas::Odb::ReadArray") << ERR_FILE_LINE << "MIDASSYS not defined.\n";
+			err::Error("midas::Odb::ReadArray") << "MIDASSYS not defined." << ERR_FILE_LINE;
 			return 0;
 #endif
 		}
