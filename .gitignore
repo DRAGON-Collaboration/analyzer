@@ -16,5 +16,6 @@ src/tstamp/rbeer.log
 src/tstamp/tmp
 src/tstamp/ts.dSYM/
 src/tstamp/tstamp
-
+odbtest*
+midas.log
 *.mid
