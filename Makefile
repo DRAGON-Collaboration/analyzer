@@ -73,7 +73,7 @@ lib: $(DRLIB)/libDragon.so
 
 $(DRLIB)/libDragon.so: $(CINT)/DragonDictionary.cxx $(OBJECTS)
 	$(LINK) $(DYLIB) $(FPIC) -o $@ $(MIDASLIBS) $(OBJECTS) \
--p $(CINT)/DragonDictionary.cxx $\
+-p $(CINT)/DragonDictionary.cxx  \
 
 
 ### OBJECT FILES ###

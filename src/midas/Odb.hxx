@@ -6,6 +6,17 @@
 #include <stdint.h>
 #include <iostream>
 #include <string>
+#include "utils/Error.hxx"
+
+#ifdef MIDASSYS
+#ifdef __MAKECINT__
+typedef int32_t HNDLE;
+#else
+#include <midas.h>
+#endif
+#else
+typedef int32_t HNDLE;
+#endif
 
 namespace midas {
 
@@ -14,7 +25,7 @@ class Odb {
 public:
 
   /// Get database handle
-	static int GetHandle();
+	static HNDLE GetHandle();
 
   /// Read any value from the odb
 	static int ReadAny(const char*name,int index,int tid,void* value,int valueLength = 0);
@@ -35,7 +46,7 @@ public:
 	static bool ReadBool(const char*name,int index = 0,bool defaultValue = 0);
 
   /// Read a C string from the odb
-	const char* ReadString(const char*name,int index,const char* defaultValue,int stringLength);
+	static const char* ReadString(const char*name,int index,const char* defaultValue,int stringLength);
 
   /// Get the size of an odb array
 	static int ReadArraySize(const char*name);
@@ -56,24 +67,56 @@ public:
 	static int WriteString(const char*name, const char* string);
 
 	template <typename T>
-	static T ReadValue(const char* name, bool* success = 0)
+	static bool ReadValue(const char* path, T& value)
 		{
 #ifdef MIDASSYS
-			T value = 0;
-			if(success) *success = true;
-			if ( ReadAny(name, 0, GetTID<T>(), &value, sizeof(T)) == 0 ) { }
-			else {
-				if(success) *success = false;
-				value = 0;
-			}
-			return value;
+			if ( ReadArray(path, &value, sizeof(value)) != 0 )
+				return true;
+			else
+				return false;
 #else
-			std::cerr << "Error: MIDASSYS not defined. file, line: " << __FILE__ <<  ", " << __LINE__ << "\n";
+			err::Error("midas::Odb::ReadValue") << "MIDASSYS not defined." << ERR_FILE_LINE;
+			return false;
+#endif
+		}
+
+	/// Get the values of an array of key elements
+	template <typename T>
+	static int ReadArray(const char* path, T* array, int length)
+		{
+#ifdef MIDASSYS
+			int status;
+			int size = length * sizeof(T);
+			HNDLE hdir = 0, hkey;
+			HNDLE hdb = GetHandle();
+			if (hdb == 0) return false;
+
+			status = db_find_key (hdb, hdir, path, &hkey);
+			if (status == DB_NO_KEY) {
+				err::Error("midas::Odb::ReadArray") <<
+					"Couldn't get array key for path \"" << path << "\". status = " << status
+																							 << ERR_FILE_LINE;
+				return 0;
+			}
+
+			if (status == SUCCESS) {
+				status = db_get_data(hdb, hkey, array, &size, GetTID<T>());
+				if (status == SUCCESS)
+					return size / sizeof (T);
+			}
+
+			err::Error("midas::Odb::ReadArray") << ERR_FILE_LINE << "Cannot read \"" <<
+				path << "\" from odb, status = " << status << "\n";
+			return 0;
+#else
+			err::Error("midas::Odb::ReadArray") << ERR_FILE_LINE << "MIDASSYS not defined.\n";
+			return 0;
 #endif
 		}
 
 private:
 
+	/// MIDAS TID codes
 enum {
 	tid_byte   = 1,
 	tid_sbyte  = 2,
@@ -88,6 +131,7 @@ enum {
 	tid_string = 12
 };
 
+	/// Returns the TID code for type \e T
 	template <typename T> static int GetTID();
 
 };
@@ -103,24 +147,94 @@ template<> inline int Odb::GetTID<float>()          { return tid_float;  }
 template<> inline int Odb::GetTID<double>()         { return tid_double; }
 template<> inline int Odb::GetTID<std::string>()    { return tid_string; }
 
+
 #ifndef __MAKECINT__
 #ifdef MIDASSYS
-template<> inline std::string Odb::ReadValue<std::string>(const char* name, bool* success)
+template<> inline bool Odb::ReadValue<std::string>(const char* path, std::string& value)
 {
+#ifdef MIDASSYS
+	int status;
 	char buf[256];
-	std::string value;
-	if(success) *success = true;
-	if ( ReadAny(name, 0, GetTID<std::string>(), buf, sizeof(buf)) == 0 ) {
-		value = buf;
+	int size = sizeof(buf);
+	HNDLE hdir = 0, hkey;
+	HNDLE hdb = GetHandle();
+	if (hdb == 0) return false;
+
+	status = db_find_key (hdb, hdir, path, &hkey);
+	if (status == DB_NO_KEY) {
+		err::Error("midas::Odb::ReadValue<std::string>") <<
+			"Couldn't get array key for path \"" << path << "\". status = " << status
+																					 << ERR_FILE_LINE;
+		return 0;
 	}
-	else {
-		if(success) *success = false;
+
+	if (status == SUCCESS) {
+		status = db_get_data(hdb, hkey, buf, &size, tid_string);
+		if (status == SUCCESS) {
+			value = buf;
+			return true;
+		}
 	}
-	return value;
+
+	err::Error("midas::Odb::ReadValue<std::string>") << "Cannot read \"" <<
+		path << "\" from odb, status = " << status << ERR_FILE_LINE;
+	return false;
+
+#else
+
+	err::Error("midas::Odb::ReadValue<std::string>") << "MIDASSYS not defined." << ERR_FILE_LINE;
+	return 0;
+
+#endif
 }
+
+template<> inline int Odb::ReadArray<std::string>(const char* path, std::string* array, int length)
+{
+#ifdef MIDASSYS
+	int status;
+	char buf[256];
+
+	int size = sizeof(buf);
+	HNDLE hdir = 0, hkey;
+	HNDLE hdb = GetHandle();
+	if (hdb == 0) return false;
+
+	status = db_find_key (hdb, hdir, path, &hkey);
+	if (status == DB_NO_KEY) {
+		err::Error("midas::Odb::ReadArray<std::string>") <<
+			"Couldn't get array key for path \"" << path << "\". status = " << status
+																					 << ERR_FILE_LINE;
+		return 0;
+	}
+
+	if (status == SUCCESS) {
+		for(int i=0; i< length; ++i) {
+			status = db_get_data_index(hdb, hkey, buf, &size, i, tid_string);
+			if (status != SUCCESS) break;
+			array[i] = buf;
+		}
+		
+		if (status == SUCCESS) return true;
+	}
+
+	err::Error("midas::Odb::ReadArray<std::string>")
+		<< "Cannot read \"" << path << "\" from odb, status = " << status
+		<< ERR_FILE_LINE;
+	return false;
+#else
+	err::Error("midas::Odb::ReadArray<std::string>") << "MIDASSYS not defined." << ERR_FILE_LINE;
+	return 0;
+#endif
+}
+
+
 #endif
 #endif
 
 } // namespace midas
+
+
+
+
 
 #endif

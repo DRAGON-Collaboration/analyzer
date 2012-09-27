@@ -14,11 +14,12 @@
 #include "Odb.hxx"
 
 
-int midas::Odb::GetHandle()
+HNDLE midas::Odb::GetHandle()
 {
-	static bool is_set = false;
-	static int hndle = 0;
-	if(!is_set) { cm_get_experiment_database(&hndle, 0); is_set = true; }
+	int hndle;
+	cm_get_experiment_database(&hndle, 0);
+	if (hndle == 0)
+		err::Error("midas::Odb") << "Not connected to an experiment\n";
 	return hndle;
 }
 
@@ -314,12 +315,23 @@ int main()
 {
 	INT status;
   status = cm_connect_experiment("ladd06:7071", "dragon", "test123", NULL);
-	assert (status == CM_SUCCESS);
+	//assert (status == CM_SUCCESS);
 	bool success;
-	std::string testStr = midas::Odb::ReadValue<std::string>("/Equipment/HeadVME/Common/Frontend host", &success);
-	int w = midas::Odb::ReadValue<int>("/Equipment/HeadVME/Settings/IO32/Adc_width", &success);
-	assert(success);
-	std::cout << testStr << " " << w << "\n";
+	std::string testStr;
+	success = midas::Odb::ReadValue("/Equipment/HeadVME/Common/Frontend host", testStr);
+//	assert(success);
+	int w;
+	success = midas::Odb::ReadValue("/Equipment/HeadVME/Settings/IO32/Adc_width", w);
+//	assert(success);
+	if (success)	std::cout << testStr << " " << w << "\n";
+	int arr[32];
+	midas::Odb::ReadArray ("/TEST", arr, 32);
+	if(success) {for (int i=0; i< 32; ++i) std::cout << arr[i] << " ";
+		std::cout << "\n"; }
+	std::string sarr[4];
+	midas::Odb::ReadArray ("/TEST2", sarr, 4);
+	if (success) {for (int i=0; i< 4; ++i) std::cout << sarr[i] << " ";
+		std::cout << "\n";}
 	cm_disconnect_experiment();
 }
 #endif
