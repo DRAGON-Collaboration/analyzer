@@ -4,9 +4,7 @@
 #include <string>
 #include <iostream>
 #include <algorithm>
-#include "utils/copy_array.h"
-#include "midas/Odb.hxx"
-#include "midas/Xml.hxx"
+#include "midas/Database.hxx"
 #include "vme/Vme.hxx"
 #include "vme/V1190.hxx"
 #include "vme/V792.hxx"
@@ -51,9 +49,9 @@ void dragon::Bgo::calculate()
 {
 	// calculate energy-sorted array
 	int16_t temp[Bgo::MAX_CHANNELS];
-	copy_array(this->q, temp, Bgo::MAX_CHANNELS);
-	std::sort (temp, temp + Bgo::MAX_CHANNELS, ::greater_than);
-	copy_array(temp, this->qsort, Bgo::MAX_SORTED);
+	std::copy(temp, temp + MAX_CHANNELS, q);
+	std::sort(temp, temp + MAX_CHANNELS, ::greater_than);
+	std::copy(qsort, qsort + MAX_SORTED, temp);
 
 	// calculate qsum
 	qsum = 0;
@@ -86,64 +84,20 @@ dragon::Bgo::Variables::Variables()
 	}
 }
 
-namespace {
-void copy_bgo_variables(const dragon::Bgo::Variables& from, dragon::Bgo::Variables& to)
-{
-	copy_array(from.qdc_ch, to.qdc_ch, dragon::Bgo::MAX_CHANNELS);
-	copy_array(from.tdc_ch, to.tdc_ch, dragon::Bgo::MAX_CHANNELS);
-
-	copy_array(from.xpos, to.xpos, dragon::Bgo::MAX_CHANNELS);
-	copy_array(from.ypos, to.ypos, dragon::Bgo::MAX_CHANNELS);
-	copy_array(from.zpos, to.zpos, dragon::Bgo::MAX_CHANNELS);
-} }
-
-dragon::Bgo::Variables::Variables(const Variables& other)
-{
-	copy_bgo_variables(other, *this);
-}
-
-dragon::Bgo::Variables& dragon::Bgo::Variables::operator= (const Variables& other)
-{
-	copy_bgo_variables(other, *this);
-	return *this;
-}
-
 void dragon::Bgo::Variables::set(const char* odb)
 {
 /// \todo Set actual ODB paths, TEST!!
-	const std::string pathADC  = "/DRAGON/Bgo/Variables/ChADC";
-	const std::string pathTDC  = "/DRAGON/Bgo/Variables/ChTDC";
-	const std::string pathXpos = "/DRAGON/Bgo/Variables/Xpos";
-	const std::string pathYpos = "/DRAGON/Bgo/Variables/Ypos";
-	const std::string pathZpos = "/DRAGON/Bgo/Variables/Zpos";
+	const char* const pathAdc  = "/DRAGON/Bgo/Variables/ChADC";
+	const char* const pathTdc  = "/DRAGON/Bgo/Variables/ChTDC";
+	const char* const pathXpos = "/DRAGON/Bgo/Variables/Xpos";
+	const char* const pathYpos = "/DRAGON/Bgo/Variables/Ypos";
+	const char* const pathZpos = "/DRAGON/Bgo/Variables/Zpos";
 
-	if(strcmp(odb, "online")) { // Read from offline XML file
-		midas::Xml mxml (odb);
-		bool success = false;
-		mxml.GetArray(pathADC.c_str(), Bgo::MAX_CHANNELS, qdc_ch, &success);
-		mxml.GetArray(pathTDC.c_str(), Bgo::MAX_CHANNELS, tdc_ch, &success);
-
-		mxml.GetArray(pathXpos.c_str(), Bgo::MAX_CHANNELS, xpos, &success);
-		mxml.GetArray(pathYpos.c_str(), Bgo::MAX_CHANNELS, ypos, &success);
-		mxml.GetArray(pathZpos.c_str(), Bgo::MAX_CHANNELS, zpos, &success);
-
-		if(!success) {
-			std::cerr << "Error (Bgo::Variables::set): Couldn't set one or more variable values properly.\n";
-		}
-	}
-	else { // Read from online ODB.
-#ifdef MIDASSYS
-		for(int i=0; i< dragon::Bgo::MAX_CHANNELS; ++i) {
-			qdc_ch[i] = midas::Odb::ReadInt(pathADC.c_str(), i, 0);
-			tdc_ch[i] = midas::Odb::ReadInt(pathTDC.c_str(), i, 0);
-
-			xpos[i]   = midas::Odb::ReadInt(pathXpos.c_str(), i, 0);
-			ypos[i]   = midas::Odb::ReadInt(pathYpos.c_str(), i, 0);
-			zpos[i]   = midas::Odb::ReadInt(pathZpos.c_str(), i, 0);
-		}
-#else
-		std::cerr << "MIDASSYS not defined, can't read from online ODB, no changes made.\n";
-#endif
-	}
+	midas::Database database(odb);
+	database.ReadArray(pathAdc,  qdc_ch, MAX_CHANNELS);
+	database.ReadArray(pathTdc,  tdc_ch, MAX_CHANNELS);
+	database.ReadArray(pathXpos, xpos,   MAX_CHANNELS);
+	database.ReadArray(pathYpos, ypos,   MAX_CHANNELS);
+	database.ReadArray(pathZpos, zpos,   MAX_CHANNELS);
 }
 

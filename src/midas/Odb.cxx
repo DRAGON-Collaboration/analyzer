@@ -328,12 +328,13 @@ int main()
 	success = db.ReadValue("/Equipment/HeadVME/Settings/IO32/Adc_width", w);
 	if (success)	std::cout << testStr << " " << w << "\n";
 
-/*
-	float f[4];
+
+	float f[4] = {1.,2.,3.,4.};
 	int n = db.ReadArray("TEST",f,4);
+	n=4;
 	for(int i=0;i<n;++i) cout << f[i] << " " ;
 	if (n) cout << "\n";
-*/
+
 	cm_disconnect_experiment();
 }
 #endif

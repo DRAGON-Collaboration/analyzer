@@ -4,9 +4,7 @@
 #include <string>
 #include <iostream>
 #include <algorithm>
-#include "utils/copy_array.h"
-#include "midas/Odb.hxx"
-#include "midas/Xml.hxx"
+#include "midas/Database.hxx"
 #include "vme/Constants.hxx"
 #include "vme/V1190.hxx"
 #include "vme/V792.hxx"
@@ -63,46 +61,16 @@ dragon::NaI::Variables::Variables()
 void dragon::NaI::Variables::set(const char* odb)
 {
 	/// \todo Set actual ODB paths, TEST!!
-	const std::string pathModule = "Equipment/NaI/Variables/Module";
-	const std::string pathCh     = "Equipment/NaI/Variables/Channel";
-	const std::string pathSlope  = "Equipment/NaI/Variables/Slope";
-	const std::string pathOffset = "Equipment/NaI/Variables/Offset";
-	if(strcmp(odb, "online")) { // Read from offline XML file
-		midas::Xml mxml (odb);
-		bool success = false;
+	const char* const pathModule = "Equipment/NaI/Variables/Module";
+	const char* const pathCh     = "Equipment/NaI/Variables/Channel";
+	const char* const pathSlope  = "Equipment/NaI/Variables/Slope";
+	const char* const pathOffset = "Equipment/NaI/Variables/Offset";
 
-		std::vector<int> chOdb, moduleOdb;
-		mxml.GetArray(pathModule.c_str(), moduleOdb, &success);
-		mxml.GetArray(pathCh.c_str(), chOdb, &success);
-
-		std::vector<double> slopeOdb, offsetOdb;
-		mxml.GetArray(pathSlope.c_str(), slopeOdb, &success);
-		mxml.GetArray(pathOffset.c_str(), offsetOdb, &success);
-
-		if(!success) {
-			std::cerr << "Failure reading variable values from the odb file, no changes made.\n";
-			return;
-		}
-
-		copy_array(&chOdb[0], ch, MAX_CHANNELS);
-		copy_array(&moduleOdb[0], module, MAX_CHANNELS);
-
-		copy_array(&slopeOdb[0], slope, MAX_CHANNELS);
-		copy_array(&offsetOdb[0], offset, MAX_CHANNELS);
-
-	}
-	else { // Read from online ODB.
-#ifdef MIDASSYS
-		for(int i=0; i< MAX_CHANNELS; ++i) {
-			ch[i]     = midas::Odb::ReadInt(pathCh.c_str(), i, 0);
-			module[i] = midas::Odb::ReadInt(pathModule.c_str(), i, 0);
-			slope[i]  = midas::Odb::ReadDouble(pathSlope.c_str(), i, 0);
-			offset[i] = midas::Odb::ReadDouble(pathOffset.c_str(), i, 0);
-		}
-#else
-		std::cerr << "MIDASSYS not defined, can't read from online ODB, no changes made.\n";
-#endif
-	}
+	midas::Database database(odb);
+	database.ReadArray(pathCh, ch, MAX_CHANNELS);
+	database.ReadArray(pathModule, module, MAX_CHANNELS);
+	database.ReadArray(pathSlope, slope, MAX_CHANNELS);
+	database.ReadArray(pathOffset, offset, MAX_CHANNELS);
 }
 
 
@@ -154,44 +122,14 @@ dragon::Ge::Variables::Variables()
 void dragon::Ge::Variables::set(const char* odb)
 {
 	/// \todo Set actual ODB paths, TEST!!
-	const std::string pathModule = "Equipment/Ge/Variables/Module";
-	const std::string pathCh     = "Equipment/Ge/Variables/Channel";
-	const std::string pathSlope  = "Equipment/Ge/Variables/Slope";
-	const std::string pathOffset = "Equipment/Ge/Variables/Offset";
-	if(strcmp(odb, "online")) { // Read from offline XML file
-		midas::Xml mxml (odb);
-		bool success = false;
+	const char* const pathModule = "Equipment/Ge/Variables/Module";
+	const char* const pathCh     = "Equipment/Ge/Variables/Channel";
+	const char* const pathSlope  = "Equipment/Ge/Variables/Slope";
+	const char* const pathOffset = "Equipment/Ge/Variables/Offset";
 
-		std::vector<int> chOdb, moduleOdb;
-		mxml.GetArray(pathModule.c_str(), moduleOdb, &success);
-		mxml.GetArray(pathCh.c_str(), chOdb, &success);
-
-		std::vector<double> slopeOdb, offsetOdb;
-		mxml.GetArray(pathSlope.c_str(), slopeOdb, &success);
-		mxml.GetArray(pathOffset.c_str(), offsetOdb, &success);
-
-		if(!success) {
-			std::cerr << "Failure reading variable values from the odb file, no changes made.\n";
-			return;
-		}
-
-		copy_array(&chOdb[0], ch, MAX_CHANNELS);
-		copy_array(&moduleOdb[0], module, MAX_CHANNELS);
-
-		copy_array(&slopeOdb[0], slope, MAX_CHANNELS);
-		copy_array(&offsetOdb[0], offset, MAX_CHANNELS);
-
-	}
-	else { // Read from online ODB.
-#ifdef MIDASSYS
-		for(int i=0; i< MAX_CHANNELS; ++i) {
-			ch[i]     = midas::Odb::ReadInt(pathCh.c_str(), i, 0);
-			module[i] = midas::Odb::ReadInt(pathModule.c_str(), i, 0);
-			slope[i]  = midas::Odb::ReadDouble(pathSlope.c_str(), i, 0);
-			offset[i] = midas::Odb::ReadDouble(pathOffset.c_str(), i, 0);
-		}
-#else
-		std::cerr << "MIDASSYS not defined, can't read from online ODB, no changes made.\n";
-#endif
-	}
+	midas::Database database(odb);
+	database.ReadArray(pathCh, ch, MAX_CHANNELS);
+	database.ReadArray(pathModule, module, MAX_CHANNELS);
+	database.ReadArray(pathOffset, offset, MAX_CHANNELS);
+	database.ReadArray(pathSlope, slope, MAX_CHANNELS);
 }

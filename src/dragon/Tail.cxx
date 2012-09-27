@@ -1,12 +1,11 @@
 /// \file Tail.cxx
+/// \author G. Christian
 /// \brief Implements Tail.hxx
 #include <string>
 #include <cstdio>
 #include <cassert>
 #include <iostream>
-#include "utils/copy_array.h"
-#include "midas/Odb.hxx"
-#include "midas/Xml.hxx"
+#include "midas/Database.hxx"
 #include "Tail.hxx"
 
 
@@ -131,24 +130,10 @@ dragon::Tail::Variables::Variables() :
 void dragon::Tail::Variables::set(const char* odb)
 {
 	/// \todo Set actual ODB paths, TEST!!
-	const std::string path = "Equipment/V1190/HeavyIon/TriggerCh";
+	const char* const path = "Equipment/V1190/HeavyIon/TriggerCh";
 
-	if(strcmp(odb, "online")) { // Read from offline XML file
-		midas::Xml mxml (odb);
-		bool success = false;
-		mxml.GetValue(path.c_str(), v1190_trigger_ch, &success);
-
-		if(!success) {
-			std::cerr << "Error (Tail::Variables::set): Couldn't set one or more variable values properly.\n";
-		}
-	}
-	else { // Read from online ODB.
-#ifdef MIDASSYS
-		v1190_trigger_ch = midas::Odb::ReadInt(path.c_str(), 0, 0);
-#else
-		std::cerr << "MIDASSYS not defined, can't read from online ODB, no changes made.\n";
-#endif
-	}
+	midas::Database database(odb);
+	database.ReadValue(path, v1190_trigger_ch);
 }
 
 void dragon::Tail::set_variables(const char* odb)

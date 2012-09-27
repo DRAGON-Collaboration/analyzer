@@ -3,10 +3,8 @@
 /// \brief Implements MCP.hxx
 #include <string>
 #include <iostream>
-#include "utils/copy_array.h"
+#include "midas/Database.hxx"
 #include "vme/Vme.hxx"
-#include "midas/Odb.hxx"
-#include "midas/Xml.hxx"
 #include "vme/V1190.hxx"
 #include "vme/V792.hxx"
 #include "Tail.hxx"
@@ -73,34 +71,15 @@ dragon::MCP::Variables::Variables()
 void dragon::MCP::Variables::set(const char* odb)
 {
 	/// \todo Set actual ODB paths, TEST!!
-	const std::string pathAnodeModule = "Equipment/MCP/Variables/AnodeModule";
-	const std::string pathAnodeCh     = "Equipment/MCP/Variables/AnodeChannel";
-	const std::string pathTacCh       = "Equipment/MCP/Variables/TACChannel";
-	const std::string pathTacModule   = "Equipment/MCP/Variables/TACModule";
+	const char* const pathAnodeModule = "Equipment/MCP/Variables/AnodeModule";
+	const char* const pathAnodeCh     = "Equipment/MCP/Variables/AnodeChannel";
+	const char* const pathTacCh       = "Equipment/MCP/Variables/TACChannel";
+	const char* const pathTacModule   = "Equipment/MCP/Variables/TACModule";
 
-	if(strcmp(odb, "online")) { // Read from offline XML file
-		midas::Xml mxml (odb);
-		bool success = false;
-		mxml.GetArray(pathAnodeModule.c_str(), MAX_CHANNELS, anode_module, &success);
-		mxml.GetArray(pathAnodeCh.c_str(), MAX_CHANNELS, anode_ch, &success);
-		mxml.GetValue(pathTacCh.c_str(), tac_ch, &success);
-		mxml.GetValue(pathTacModule.c_str(), tac_module, &success);
-
-		if(!success) {
-			std::cerr << "Error (MCP::Variables::set): Couldn't set one or more variable values properly.\n";
-		}
-	}
-	else { // Read from online ODB.
-#ifdef MIDASSYS
-		for(int i=0; i< MAX_CHANNELS; ++i) {
-			anode_ch[i] = midas::Odb::ReadInt(pathAnodeCh.c_str(), i, 0);
-			anode_module[i] = midas::Odb::ReadInt(pathAnodeModule.c_str(), i, 0);
-		}
-		tac_ch = midas::Odb::ReadInt(pathTacCh.c_str(), 0, 0);
-		tac_module = midas::Odb::ReadInt(pathTacModule.c_str(), 0, 0);
-#else
-		std::cerr << "MIDASSYS not defined, can't read from online ODB, no changes made.\n";
-#endif
-	}
+	midas::Database database(odb);
+	database.ReadArray(pathAnodeModule, anode_module, MAX_CHANNELS);
+	database.ReadArray(pathAnodeCh, anode_ch, MAX_CHANNELS);
+	database.ReadValue(pathTacModule, tac_module);
+	database.ReadValue(pathTacCh, tac_ch);
 }
 

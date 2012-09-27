@@ -3,10 +3,8 @@
 #include <string>
 #include <cassert>
 #include <iostream>
-#include "utils/copy_array.h"
+#include "midas/Database.hxx"
 #include "vme/Vme.hxx"
-#include "midas/Odb.hxx"
-#include "midas/Xml.hxx"
 #include "vme/V1190.hxx"
 #include "vme/V792.hxx"
 #include "Tail.hxx"
@@ -56,30 +54,12 @@ dragon::DSSSD::Variables::Variables()
 void dragon::DSSSD::Variables::set(const char* odb)
 {
 	/// \todo Set actual ODB paths, TEST!!
-	const std::string pathAdcModule = "Equipment/DSSSD/Variables/ADCModule";
-	const std::string pathAdcCh     = "Equipment/DSSSD/Variables/ADCChannel";
-	const std::string pathTdcCh     = "Equipment/DSSSD/Variables/TDCChannel";
-
-	if(strcmp(odb, "online")) { // Read from offline XML file
-		midas::Xml mxml (odb);
-		bool success = false;
-		mxml.GetArray(pathAdcModule.c_str(), MAX_CHANNELS, qdc_module, &success);
-		mxml.GetArray(pathAdcCh.c_str(), MAX_CHANNELS, qdc_ch, &success);
-		mxml.GetValue(pathTdcCh.c_str(), tof_ch, &success);
-
-		if(!success) {
-			std::cerr << "Error (DSSSD::Variables::set): Couldn't set one or more variable values properly.\n";
-		}
-	}
-	else { // Read from online ODB.
-#ifdef MIDASSYS
-		for(int i=0; i< MAX_CHANNELS; ++i) {
-			qdc_ch[i] = midas::Odb::ReadInt(pathAdcCh.c_str(), i, 0);
-			qdc_module[i] = midas::Odb::ReadInt(pathAdcModule.c_str(), i, 0);
-		}
-		tof_ch = midas::Odb::ReadInt(pathTdcCh.c_str(), 0, 0);
-#else
-		std::cerr << "MIDASSYS not defined, can't read from online ODB, no changes made.\n";
-#endif
-	}
+	const char* const pathAdcModule = "Equipment/DSSSD/Variables/ADCModule";
+	const char* const pathAdcCh     = "Equipment/DSSSD/Variables/ADCChannel";
+	const char* const pathTdcCh     = "Equipment/DSSSD/Variables/TDCChannel";
+	
+	midas::Database database(odb);
+	database.ReadArray(pathAdcModule, qdc_module, MAX_CHANNELS);
+	database.ReadArray(pathAdcCh, qdc_ch, MAX_CHANNELS);
+	database.ReadValue(pathTdcCh, tof_ch);
 }
