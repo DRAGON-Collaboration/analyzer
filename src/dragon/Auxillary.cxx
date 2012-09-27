@@ -5,10 +5,8 @@
 #include <iostream>
 #include <algorithm>
 #include "midas/Database.hxx"
-#include "vme/Constants.hxx"
 #include "vme/V1190.hxx"
 #include "vme/V792.hxx"
-#include "vme/Vme.hxx"
 #include "Tail.hxx"
 #include "Auxillary.hxx"
 
@@ -22,8 +20,8 @@ dragon::NaI::NaI()
 
 void dragon::NaI::reset()
 {
-	std::fill_n(qraw, MAX_CHANNELS, vme::NONE);
-	std::fill_n(qcal, MAX_CHANNELS, vme::NONE);
+	std::fill_n(qraw, MAX_CHANNELS, dragon::NO_DATA);
+	std::fill_n(qcal, MAX_CHANNELS, dragon::NO_DATA);
 }
 
 void dragon::NaI::read_data(const vme::V785 adcs[], const vme::V1190& tdc)
@@ -83,8 +81,8 @@ dragon::Ge::Ge()
 
 void dragon::Ge::reset()
 {
-	std::fill_n(qraw, MAX_CHANNELS, vme::NONE);
-	std::fill_n(qcal, MAX_CHANNELS, vme::NONE);
+	std::fill_n(qraw, MAX_CHANNELS, dragon::NO_DATA);
+	std::fill_n(qcal, MAX_CHANNELS, dragon::NO_DATA);
 }
 
 void dragon::Ge::read_data(const vme::V785 adcs[], const vme::V1190& tdc)

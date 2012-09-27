@@ -4,7 +4,6 @@
 #include <string>
 #include <iostream>
 #include "midas/Database.hxx"
-#include "vme/Vme.hxx"
 #include "vme/V1190.hxx"
 #include "vme/V792.hxx"
 #include "Tail.hxx"
@@ -20,10 +19,10 @@ dragon::MCP::MCP()
 
 void dragon::MCP::reset()
 {
-	tac = vme::NONE;
-	x = vme::NONE;
-	y = vme::NONE;
-	std::fill_n(anode, MAX_CHANNELS, vme::NONE);
+	tac = dragon::NO_DATA;
+	x = dragon::NO_DATA;
+	y = dragon::NO_DATA;
+	std::fill_n(anode, MAX_CHANNELS, dragon::NO_DATA);
 }
 
 void dragon::MCP::read_data(const vme::V785 adcs[], const vme::V1190& tdc)
@@ -35,7 +34,7 @@ void dragon::MCP::read_data(const vme::V785 adcs[], const vme::V1190& tdc)
 
 		anode[i] = adcs[whichAdc].get_data(whichAdcChannel);
 	}
-//	tof = vme::NONE; /// \todo Calculate DSSSD tof
+//	tof = dragon::NO_DATA; /// \todo Calculate DSSSD tof
 	
 	const int whichAdc = variables.tac_module;
 	assert (whichAdc< Tail::NUM_ADC); ///\todo Don't use an assert here

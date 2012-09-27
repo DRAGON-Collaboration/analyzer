@@ -5,7 +5,6 @@
 #include <iostream>
 #include <algorithm>
 #include "midas/Database.hxx"
-#include "vme/Vme.hxx"
 #include "vme/V1190.hxx"
 #include "vme/V792.hxx"
 #include "Bgo.hxx"
@@ -21,13 +20,13 @@ dragon::Bgo::Bgo():
 
 void dragon::Bgo::reset()
 {
-	std::fill_n(q, Bgo::MAX_CHANNELS, vme::NONE);
-	std::fill_n(t, Bgo::MAX_CHANNELS, vme::NONE);
-	std::fill_n(qsort, Bgo::MAX_SORTED, vme::NONE);
-	qsum = vme::NONE;
-	x0   = vme::NONE;
-	y0   = vme::NONE;
-	z0   = vme::NONE;
+	std::fill_n(q, Bgo::MAX_CHANNELS, dragon::NO_DATA);
+	std::fill_n(t, Bgo::MAX_CHANNELS, dragon::NO_DATA);
+	std::fill_n(qsort, Bgo::MAX_SORTED, dragon::NO_DATA);
+	qsum = dragon::NO_DATA;
+	x0   = dragon::NO_DATA;
+	y0   = dragon::NO_DATA;
+	z0   = dragon::NO_DATA;
 }
 
 void dragon::Bgo::read_data(const vme::V792& adc, const vme::V1190& tdc)
@@ -40,8 +39,8 @@ void dragon::Bgo::read_data(const vme::V792& adc, const vme::V1190& tdc)
 
 namespace { bool greater_than(int i, int j)
 {
-	if(i == vme::NONE) return false;
-	if(j == vme::NONE) return true;
+	if(i == dragon::NO_DATA) return false;
+	if(j == dragon::NO_DATA) return true;
 	return (i > j);
 } }
 
@@ -59,7 +58,7 @@ void dragon::Bgo::calculate()
 		if(!is_valid(temp[i])) break;
 		qsum += (double)temp[i];
 	}
-	if(!qsum) qsum = vme::NONE;
+	if(!qsum) qsum = dragon::NO_DATA;
 
 	// calculate x0, y0, z0
 	if(is_valid(qsum)) {

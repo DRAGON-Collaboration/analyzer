@@ -121,6 +121,10 @@ clean:
 doc::
 	doxygen doc/Doxyfile
 
+docclean::
+	rm -fr /Volumes/public/gchristian/public_html/dragon/analyzer/html \
+/Volumes/public/gchristian/public_html/dragon/analyzer/latex
+
 
 #### FOR UNIT TESTING ####
 
@@ -148,4 +152,3 @@ mxml: $(OBJ)/midas/mxml.o
 strlcpy: $(OBJ)/midas/strlcpy.o
 odbtest: $(DRLIB)/libDragon.so
 	$(LINK) src/midas/Odb.cxx -o odbtest -DMIDAS_BUFFERS -lDragon -L$(DRLIB) -DODB_TEST
-

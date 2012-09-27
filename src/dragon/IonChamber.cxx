@@ -3,10 +3,8 @@
 #include <string>
 #include <iostream>
 #include "midas/Database.hxx"
-#include "vme/Constants.hxx"
 #include "vme/V1190.hxx"
 #include "vme/V792.hxx"
-#include "vme/Vme.hxx"
 #include "Tail.hxx"
 #include "IonChamber.hxx"
 
@@ -21,10 +19,10 @@ dragon::IonChamber::IonChamber()
 void dragon::IonChamber::reset()
 {
 	for(int i=0; i< MAX_CHANNELS; ++i) {
-		anode[i] = vme::NONE;
+		anode[i] = dragon::NO_DATA;
 	}
-	tof = vme::NONE;
-	sum = vme::NONE;
+	tof = dragon::NO_DATA;
+	sum = dragon::NO_DATA;
 }
 
 void dragon::IonChamber::read_data(const vme::V785 adcs[], const vme::V1190& tdc)

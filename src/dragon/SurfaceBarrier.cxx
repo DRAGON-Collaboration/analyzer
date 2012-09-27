@@ -20,7 +20,7 @@ dragon::SurfaceBarrier::SurfaceBarrier()
 void dragon::SurfaceBarrier::reset()
 {
 	for(int i=0; i< MAX_CHANNELS; ++i) {
-		q[i] = vme::NONE;
+		q[i] = dragon::NO_DATA;
 	}
 }
 

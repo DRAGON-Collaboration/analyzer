@@ -1,11 +1,8 @@
 //! \file V792.cxx
 //! \author G. Chritian
 //! \brief Implements Adc.hxx
-#include <algorithm>
 #include "utils/Bits.hxx"
-#include "utils/Error.hxx"
 #include "midas/Event.hxx"
-#include "Constants.hxx"
 #include "V792.hxx"
 
 
@@ -16,7 +13,7 @@ void vme::V792::reset()
 	count = 0;
 	overflow = false;
 	underflow = false;
-	std::fill_n(data, MAX_CHANNELS, vme::NONE);
+	reset_array(MAX_CHANNELS, data);
 }
 
 bool vme::V792::unpack_data_buffer(const uint32_t* const pbuffer)

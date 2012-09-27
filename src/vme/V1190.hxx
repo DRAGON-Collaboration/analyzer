@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include <vector>
 #include "utils/Error.hxx"
-#include "Constants.hxx"
+#include "utils/Valid.hxx"
 
 
 namespace midas { class Event; }
@@ -67,16 +67,16 @@ public:
 			 * \param ch Channel number to get data from
 			 * Returns the leading edge time value of the first hit on
 			 * channel \e ch. If \e ch is out of bounds, prints a warning
-			 * message and returns vme::NONE.
+			 * message and returns dragon::NO_DATA.
 			 */
 			if (ch > 0 && ch < MAX_CHANNELS) {
-				return leading_edge[ch].empty() ? vme::NONE : leading_edge[ch][0];
+				return leading_edge[ch].empty() ? dragon::NO_DATA : leading_edge[ch][0];
 			}
 			else {
 				err::Warning("V1190::get_data")
 					<< "Channel number " << ch << "out of bounds (valid range: [0, "
 					<< MAX_CHANNELS -1 << "]\n";
-				return vme::NONE;
+				return dragon::NO_DATA;
 			}
 		}
 

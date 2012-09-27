@@ -5,7 +5,7 @@
 #define  DRAGON_VME_ADC_HXX
 #include <stdint.h>
 #include "utils/Error.hxx"
-#include "Constants.hxx"
+#include "utils/Valid.hxx"
 
 namespace midas { class Event; }
 
@@ -43,14 +43,14 @@ public:
 			/*!
 			 * \param ch Channel number to get data from
 			 * Returns the data value stored at \e ch. If \e ch is out of bounds
-			 * of the internal array, prints a warning message and returns vme::NONE.
+			 * of the internal array, prints a warning message and returns dragon::NO_DATA.
 			 */
 			if (ch > 0 && ch < MAX_CHANNELS) return data [ch];
 			else {
 				err::Warning("V792::get_data")
 					<< "Channel number " << ch << "out of bounds (valid range: [0, "
 					<< MAX_CHANNELS -1 << "]\n";
-				return vme::NONE;
+				return dragon::NO_DATA;
 			}
 		}
 

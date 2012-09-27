@@ -4,27 +4,19 @@
 #include <string>
 #include <cassert>
 #include "utils/Bits.hxx"
-#include "utils/Error.hxx"
 #include "midas/Event.hxx"
-#include "Constants.hxx"
 #include "V1190.hxx"
 
 
 void vme::V1190::reset()
 {
-	n_ch = 0;
-	count = 0;
-	word_count = 0;
-	trailer_word_count = 0;
-	event_id = 0;
-	bunch_id = 0;
-	status = 0;
-	type = vme::NONE;
-	extended_trigger = vme::NONE;
+	reset_data(type, extended_trigger, n_ch, count, word_count, trailer_word_count,
+						 event_id, bunch_id, status);
+
 	for (int i=0; i< MAX_CHANNELS; ++i) {
 		leading_edge[i].clear();
 		trailing_edge[i].clear();
-		nleading[i]  = 0;
+		nleading[i] = 0;
 		ntrailing[i] = 0;
 	}
 }
