@@ -4,13 +4,10 @@
 #define DRAGON_DSSSD_HXX
 
 
-namespace vme { namespace caen {
-
+namespace vme {
 class V785;
-
 class V1190;
-
-} }
+}
 
 
 namespace dragon {
@@ -63,7 +60,7 @@ public:
 	/// \brief Read midas event data
 	/// \param [in] modules Heavy-ion module structure
 	/// \param [in] v1190_trigger_ch Channel number of the v1190b trigger
-	void read_data(const vme::caen::V785 adcs[], const vme::caen::V1190& v1190);
+	void read_data(const vme::V785 adcs[], const vme::V1190& v1190);
 
 	/// Calculate (tof??)
 	void calculate();

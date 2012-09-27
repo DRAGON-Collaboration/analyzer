@@ -29,7 +29,7 @@ void dragon::DSSSD::reset()
 	tof = vme::NONE;
 }
 
-void dragon::DSSSD::read_data(const vme::caen::V785 adcs[], const vme::caen::V1190& v1190)
+void dragon::DSSSD::read_data(const vme::V785 adcs[], const vme::V1190& v1190)
 {
 	for(int i=0; i< MAX_CHANNELS; ++i) {
 		const int whichAdc = variables.qdc_module[i];

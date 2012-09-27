@@ -5,13 +5,10 @@
 #define DRAGON_MCP_HXX
 #include <stdint.h>
 
-namespace vme { namespace caen {
-
+namespace vme {
 class V785;
-
 class V1190;
-
-} }
+}
 
 
 namespace dragon {
@@ -71,7 +68,7 @@ public:
 	 
 	/// \brief Read midas event data
 	/// \param modules Heavy-ion module structure
-	void read_data(const vme::caen::V785 adcs[], const vme::caen::V1190& tdc);
+	void read_data(const vme::V785 adcs[], const vme::V1190& tdc);
 
 	/// \brief Calculate x and y positions
 	/// \details Uses relative anode signal strengths to calculate spatial position

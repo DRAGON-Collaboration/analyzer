@@ -10,7 +10,7 @@
 
 
 
-void vme::caen::V792::reset()
+void vme::V792::reset()
 {
 	n_ch  = 0;
 	count = 0;
@@ -19,7 +19,7 @@ void vme::caen::V792::reset()
 	std::fill_n(data, MAX_CHANNELS, vme::NONE);
 }
 
-bool vme::caen::V792::unpack_data_buffer(const uint32_t* const pbuffer)
+bool vme::V792::unpack_data_buffer(const uint32_t* const pbuffer)
 {
 	/*!
 	 * \param [in] pbuffer Pointer to the data buffer word.
@@ -31,7 +31,7 @@ bool vme::caen::V792::unpack_data_buffer(const uint32_t* const pbuffer)
 	underflow    = (*pbuffer >> 13) & READ1; /// Bit 13 is an underflow tag
 	uint16_t ch  = (*pbuffer >> 16) & READ5; /// Bits 16-20 tell the channel number of the conversion
 	if (ch >= MAX_CHANNELS) {
-		err::Error("vme::caen::V792::unpack_data_buffer")
+		err::Error("vme::V792::unpack_data_buffer")
 			<< ERR_FILE_LINE << "Read a channel number (" << ch
 			<< ") which is >= the maximum (" << MAX_CHANNELS << "). Skipping...\n";
 		return false;
@@ -40,7 +40,7 @@ bool vme::caen::V792::unpack_data_buffer(const uint32_t* const pbuffer)
 	return true;
 }
 
-bool vme::caen::V792::unpack_buffer(const uint32_t* const pbuffer, const char* bankName)
+bool vme::V792::unpack_buffer(const uint32_t* const pbuffer, const char* bankName)
 {
   /*!
 	 * \param [in] pbuffer Pointer to the buffer word
@@ -64,13 +64,13 @@ bool vme::caen::V792::unpack_buffer(const uint32_t* const pbuffer, const char* b
 		count = (*pbuffer >> 0) & READ24;
 		break;
 	case INVALID_BITS: /// case INVALID_BITS: bail out
-		err::Error("vme::caen::V792::unpack_buffer")
+		err::Error("vme::V792::unpack_buffer")
 			<< ERR_FILE_LINE << "Bank name: \"" << bankName
 			<< "\": Read INVALID_BITS code from a CAEN ADC output buffer. Skipping...\n";
 		success = false;
 		break;
 	default: /// Bail out if we read an unknown buffer code
-		err::Error("vme::caen::V792::unpack_buffer")
+		err::Error("vme::V792::unpack_buffer")
 			<< ERR_FILE_LINE << "Bank name: \"" << bankName
 			<< "\": Unknown ADC buffer code: 0x" << std::hex << type << ". Skipping...\n";
 		success = false;
@@ -79,7 +79,7 @@ bool vme::caen::V792::unpack_buffer(const uint32_t* const pbuffer, const char* b
 	return success;
 }
 
-bool vme::caen::V792::unpack(const midas::Event& event, const char* bankName, bool reportMissing)
+bool vme::V792::unpack(const midas::Event& event, const char* bankName, bool reportMissing)
 {
 	/*!
 	 * Searches for a bank tagged by \e bankName and then proceeds to loop over the data contained

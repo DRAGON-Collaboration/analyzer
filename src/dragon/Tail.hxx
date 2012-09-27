@@ -52,19 +52,19 @@ public:
 	vme::IO32 io32; //#
 
 	/// CAEN v785 ADC (x2)
-	vme::caen::V785 v785[NUM_ADC]; //#
+	vme::V785 v785[NUM_ADC]; //#
 
 	/// CAEN v1190 TDC
-	vme::caen::V1190 v1190; //#
+	vme::V1190 v1190; //#
 #else
 	/// IO32 FPGA
 	vme::IO32 io32; //!
 
 	/// CAEN v785 ADC (x2)
-	vme::caen::V785 v785[NUM_ADC]; //!
+	vme::V785 v785[NUM_ADC]; //!
 
 	/// CAEN v1190 TDC
-	vme::caen::V1190 v1190; //!
+	vme::V1190 v1190; //!
 #endif
 
 	/// Midas event header

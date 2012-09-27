@@ -11,9 +11,6 @@ namespace midas { class Event; }
 
 namespace vme {
 
-/// Encloses CAEN vme module classes
-namespace caen {
-
 /// CAEN v792 ADC
 class V792 {
 public:
@@ -72,7 +69,7 @@ private:
 
 /// Readout structure of CAEN V785 ADC (peak sensing) is identical to V792 QDC (charge sensing).
 /*!
- * \note Using public inheritance instead of a plain typedef to introduce the vme::caen::V785
+ * \note Using public inheritance instead of a plain typedef to introduce the vme::V785
  * symbol. The reason for doing this is to allow easy forward declarations. As the two classes
  * should behave identically, one should ensire that the constructor of V785 always exactly mirrors
  * that of V792 (ideally via a simple call to it's constructor in the initialization list).
@@ -82,8 +79,6 @@ public:
 	/// Calls V792 constructor
 	V785(): V792() { }
 };
-
-} // namespace caen
 
 } // namespace vme
 

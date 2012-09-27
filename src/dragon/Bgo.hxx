@@ -5,13 +5,10 @@
 #define DRAGON_BGO_HXX
 #include <stdint.h>
 
-namespace vme { namespace caen {
-
+namespace vme {
 class V792;
-
 class V1190;
-
-} }
+}
 
 namespace dragon {
 
@@ -98,7 +95,7 @@ public:
 	void reset();
 
 	/// Read adc & tdc data
-	void read_data(const vme::caen::V792& adc, const vme::caen::V1190& tdc);
+	void read_data(const vme::V792& adc, const vme::V1190& tdc);
 
 	/// Do higher-level parameter calculations
 	void calculate();

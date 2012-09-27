@@ -5,13 +5,10 @@
 #define DRAGON_HION_AUXILLARY_HXX
 #include <stdint.h>
 
-namespace vme { namespace caen {
-
+namespace vme {
 class V785;
-
 class V1190;
-
-} }
+}
 
 
 namespace dragon {
@@ -66,7 +63,7 @@ public:
 
 	/// \brief Read event data from \e modules structure
 	/// \param [in] modules Heavy-ion modules structure
-	void read_data(const vme::caen::V785 adcs[], const vme::caen::V1190& tdc);
+	void read_data(const vme::V785 adcs[], const vme::V1190& tdc);
 
 	/// \brief Do energy calibrations
 	void calculate();
@@ -122,7 +119,7 @@ public:
 
 	/// \brief Read event data from \e modules structure
 	/// \param [in] modules Heavy-ion modules structure
-	void read_data(const vme::caen::V785 adcs[], const vme::caen::V1190& tdc);
+	void read_data(const vme::V785 adcs[], const vme::V1190& tdc);
 
 	/// \brief Do energy calibrations
 	void calculate();

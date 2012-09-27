@@ -10,7 +10,7 @@
 #include "V1190.hxx"
 
 
-void vme::caen::V1190::reset()
+void vme::V1190::reset()
 {
 	n_ch = 0;
 	count = 0;
@@ -29,7 +29,7 @@ void vme::caen::V1190::reset()
 	}
 }
 
-bool vme::caen::V1190::unpack_data_buffer(const uint32_t* const pbuffer)
+bool vme::V1190::unpack_data_buffer(const uint32_t* const pbuffer)
 {
 	/*!
 	 * \param [in] pbuffer Pointer to the data buffer word.
@@ -44,7 +44,7 @@ bool vme::caen::V1190::unpack_data_buffer(const uint32_t* const pbuffer)
 	type     = (*pbuffer >> 26) & READ1; /// Bit 26 tells the measurement type (leading or trailing)
 	int ch   = (*pbuffer >> 19) & READ7; /// Bits 19-25 tell the channel number
 	if (ch >= MAX_CHANNELS) {
-		err::Error("vme::caen::V1190::unpack_data_buffer")
+		err::Error("vme::V1190::unpack_data_buffer")
 			<< ERR_FILE_LINE << "Read a channel number (" << ch
 			<< ") which is >= the maximum (" << MAX_CHANNELS << "). Skipping...\n";
 		return false;
@@ -61,7 +61,7 @@ bool vme::caen::V1190::unpack_data_buffer(const uint32_t* const pbuffer)
 	return true;
 }
 
-void vme::caen::V1190::unpack_footer_buffer(const uint32_t* const pbuffer, const char* bankName)
+void vme::V1190::unpack_footer_buffer(const uint32_t* const pbuffer, const char* bankName)
 {
   /*!
 	 * \param [in] pbuffer Pointer to the footer buffer
@@ -74,13 +74,13 @@ void vme::caen::V1190::unpack_footer_buffer(const uint32_t* const pbuffer, const
 	int16_t evtId = (*pbuffer >> 12) & READ12; 
 	if(evtId != event_id) { /// Bits 12 - 23 are the event id (event_id), check for consistency w/ header
 		std::cerr << ERR_FILE_LINE;
-		err::Warning("vme::caen::V1190::unpack_footer_buffer")
+		err::Warning("vme::V1190::unpack_footer_buffer")
 			<< ERR_FILE_LINE << "Bank name: \"" << bankName << "\": "
 			<< "Trailer event id (" << evtId << ") != header event Id (" << event_id << ")\n";
 	}
 }
 
-void vme::caen::V1190::handle_error_buffer(const uint32_t* const pbuffer, const char* bankName)
+void vme::V1190::handle_error_buffer(const uint32_t* const pbuffer, const char* bankName)
 {
 	/*!
 	 * Error encoding is handled with a bitmask, bits 0 - 13. Here we print the
@@ -105,7 +105,7 @@ void vme::caen::V1190::handle_error_buffer(const uint32_t* const pbuffer, const 
 		"Event lost (trigger FIFO overflow).",
 		"Internal fatal chip error has been detected."
 	};
-	err::Error error("vme::caen::handle_error_buffer");
+	err::Error error("vme::handle_error_buffer");
 	error << ERR_FILE_LINE << "Bank name: \"" << bankName << 
 		"\": TDC Error buffer: error flags:\n";
 
@@ -118,7 +118,7 @@ void vme::caen::V1190::handle_error_buffer(const uint32_t* const pbuffer, const 
 	}
 }
 
-bool vme::caen::V1190::unpack_buffer(const uint32_t* const pbuffer, const char* bankName)
+bool vme::V1190::unpack_buffer(const uint32_t* const pbuffer, const char* bankName)
 {
   /*!
 	 * \param [in] pbuffer Pointer to the buffer data
@@ -157,7 +157,7 @@ bool vme::caen::V1190::unpack_buffer(const uint32_t* const pbuffer, const char* 
 		unpack_footer_buffer(pbuffer, bankName);
 		break;
 	default: /// Bail out if we read an unknown buffer code
-		err::Error("vme::caen::V1190::unpack_buffer")
+		err::Error("vme::V1190::unpack_buffer")
 			<< ERR_FILE_LINE << "Bank name: \"" << bankName
 			<< "\": Unknown TDC buffer code: 0x" << std::hex << type << ". Skipping...\n";
 		success = false;
@@ -166,7 +166,7 @@ bool vme::caen::V1190::unpack_buffer(const uint32_t* const pbuffer, const char* 
 	return success;
 }
 
-bool vme::caen::V1190::unpack(const midas::Event& event, const char* bankName, bool reportMissing)
+bool vme::V1190::unpack(const midas::Event& event, const char* bankName, bool reportMissing)
 {
   /*!
 	 * \param [in] event The midas event to unpack

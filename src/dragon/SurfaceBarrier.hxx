@@ -5,13 +5,11 @@
 #define DRAGON_SURFACE_BARRIER_HXX
 #include <stdint.h>
 
-namespace vme { namespace caen {
-
+namespace vme {
 class V785;
-
 class V1190;
+}
 
-} }
 
 namespace dragon {
 
@@ -55,7 +53,7 @@ struct SurfaceBarrier {
 	 
 	/// \brief Read midas event data
 	/// \param modules Heavy-ion module structure
-	void read_data(const vme::caen::V785 adcs[], const vme::caen::V1190& tdc);
+	void read_data(const vme::V785 adcs[], const vme::V1190& tdc);
 
 	/// Empty
 	void calculate() { }

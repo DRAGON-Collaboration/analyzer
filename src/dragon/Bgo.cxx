@@ -32,7 +32,7 @@ void dragon::Bgo::reset()
 	z0   = vme::NONE;
 }
 
-void dragon::Bgo::read_data(const vme::caen::V792& adc, const vme::caen::V1190& tdc)
+void dragon::Bgo::read_data(const vme::V792& adc, const vme::V1190& tdc)
 {
 	for(int i=0; i< Bgo::MAX_CHANNELS; ++i) {
 		q[i] = adc.get_data( variables.qdc_ch[i] );

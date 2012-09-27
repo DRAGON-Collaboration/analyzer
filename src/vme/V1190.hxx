@@ -13,8 +13,6 @@ namespace midas { class Event; }
 
 namespace vme {
 
-namespace caen {
-
 /// \brief CAEN V1190 TDC module
 class V1190 {
 public:
@@ -102,9 +100,6 @@ private:
 	bool unpack_data_buffer(const uint32_t* const pbuffer);
 };
 
-
-} // namespace caen
-                 
 } // namespace vme
 
 

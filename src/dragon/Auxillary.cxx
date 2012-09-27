@@ -28,7 +28,7 @@ void dragon::NaI::reset()
 	std::fill_n(qcal, MAX_CHANNELS, vme::NONE);
 }
 
-void dragon::NaI::read_data(const vme::caen::V785 adcs[], const vme::caen::V1190& tdc)
+void dragon::NaI::read_data(const vme::V785 adcs[], const vme::V1190& tdc)
 {
 	for(int i=0; i< MAX_CHANNELS; ++i) {
 		const int whichAdc = variables.module[i];
@@ -119,7 +119,7 @@ void dragon::Ge::reset()
 	std::fill_n(qcal, MAX_CHANNELS, vme::NONE);
 }
 
-void dragon::Ge::read_data(const vme::caen::V785 adcs[], const vme::caen::V1190& tdc)
+void dragon::Ge::read_data(const vme::V785 adcs[], const vme::V1190& tdc)
 {
 	for(int i=0; i< MAX_CHANNELS; ++i) {
 		const int whichAdc = variables.module[i];
