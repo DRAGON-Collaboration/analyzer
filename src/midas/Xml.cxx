@@ -15,7 +15,7 @@
 midas::Xml::Xml(const char* filename):
 	fTree(0), fOdb(0)
 {
-	Init(filename);
+	fIsZombie = !Init(filename);
 }
 
 midas::Xml::~Xml()
@@ -23,19 +23,21 @@ midas::Xml::~Xml()
 	if(fTree) mxml_free_tree(fTree);
 }
 
-void midas::Xml::Init(const char* filename)
+bool midas::Xml::Init(const char* filename)
 {
 	char err[256]; int err_line;
 	fTree = ParseFile(filename, err, sizeof(err), &err_line);
 	if(!fTree) {
 		std::cerr << "Error: Bad XML file: " << filename << ", error message: " <<
 			 err << ", error line: " << err_line << "\n";
-		return;
+		return false;
 	}
 	fOdb = mxml_find_node(fTree, "/odb");
 	if(!fOdb) {
 		std::cerr << "Error: no odb tag found in xml file: " << filename << ".\n";
+		return false;
 	}
+	return true;
 }
 
 midas::Xml::Node midas::Xml::ParseFile(const char* file_name, char *error, int error_size, int *error_line)

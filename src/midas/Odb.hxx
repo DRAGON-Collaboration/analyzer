@@ -21,6 +21,24 @@ typedef int32_t HNDLE;
 namespace midas {
 
 /// ODB reader class
+/*!
+ * Currently the class consists of "legacy" functions to read the values of
+ * various types from the ODB, as well as template functions which acheive
+ * the same thing but with less duplication. There is not reason not to keep
+ * the older code around, but users should think of it as being depricated and
+ * prefer the template functions.
+ *
+ * \attention If you want to be able to cleanly read from either the
+ * ODB or an offline file, it is suggested to use the class midas::Database
+ * instead of this one, as that class can read from either. In midas::Database
+ * All of the "work" to read from the ODB is handled by the template functions
+ * of this class.
+ *
+ * \note This is intended to be a stateless "static" class and evolved
+ * from free functions. Addition of state or non-static member functions
+ * will likely cause problems; if this is ever needed then it might be
+ * better to re-write as a singleton.
+ */
 class Odb {
 public:
 

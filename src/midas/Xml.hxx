@@ -9,7 +9,14 @@
 
 namespace midas {
 
-/// \brief Class to parse MIDAS ODB XML files.
+/// Class to parse MIDAS ODB XML files.
+/*!
+ * \attention If you want to be able to cleanly read from either the
+ * ODB or an offline file, it is suggested to use the class midas::Database
+ * instead of this one, as that class can read from either. In midas::Database
+ * All of the "work" to read from an XML (or .mid) file is handled by the
+ * template functions of this class.
+ */
 class Xml {
 public:
 	/// Pointer to an XML node.
@@ -20,6 +27,8 @@ private:
 	Node fTree;
 	/// Pointer to the ODB portion of fTree
 	Node fOdb;
+	/// Flag specifying if the file was invalid
+	bool fIsZombie;
 
 public:
 	/// \brief Read data from an XML file
@@ -32,6 +41,9 @@ public:
 
 	/// Frees resources allocated to fTree
 	~Xml();
+
+	/// Returns fIsZombie
+	bool IsZombie() { return fIsZombie; }
 
 	/// \brief Find the node location of a specific key element within the xml file
 	/// \param [in] path String specifying the "directory" path of the element, e.g.
@@ -208,7 +220,7 @@ public:
 
 private:
 	/// \brief Helper initialization function called by the constructor.
-	void Init(const char* filename);
+	bool Init(const char* filename);
 
 	/// \brief Helper function to parse a file containing XML data and set fTree and fObd
 	/// \note Most of the implementation was a paraphrase of mxml_parse_file() in midas.c,
@@ -217,6 +229,12 @@ private:
 
 	/// \brief Check if fTree and fOdb are non-null
 	bool Check();
+
+	/// Disable copy
+	Xml(const Xml& other) { }
+
+	/// Disable assign
+	Xml& operator= (const Xml& other) { return *this; }
 };
 
 } // namespace midas

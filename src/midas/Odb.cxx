@@ -311,27 +311,29 @@ int midas::Odb::WriteString(const char*name, const char* string) { ERR_NO_MIDAS;
 #include <cassert>
 #include <iostream>
 #include "Odb.hxx"
+#include "Database.hxx"
 int main()
 {
+	using namespace std;
 	INT status;
   status = cm_connect_experiment("ladd06:7071", "dragon", "test123", NULL);
 	//assert (status == CM_SUCCESS);
 	bool success;
 	std::string testStr;
-	success = midas::Odb::ReadValue("/Equipment/HeadVME/Common/Frontend host", testStr);
-//	assert(success);
+
+	midas::Database db ("online");
+
+	success = db.ReadValue("/Equipment/HeadVME/Common/Frontend host", testStr);
 	int w;
-	success = midas::Odb::ReadValue("/Equipment/HeadVME/Settings/IO32/Adc_width", w);
-//	assert(success);
+	success = db.ReadValue("/Equipment/HeadVME/Settings/IO32/Adc_width", w);
 	if (success)	std::cout << testStr << " " << w << "\n";
-	int arr[32];
-	midas::Odb::ReadArray ("/TEST", arr, 32);
-	if(success) {for (int i=0; i< 32; ++i) std::cout << arr[i] << " ";
-		std::cout << "\n"; }
-	std::string sarr[4];
-	midas::Odb::ReadArray ("/TEST2", sarr, 4);
-	if (success) {for (int i=0; i< 4; ++i) std::cout << sarr[i] << " ";
-		std::cout << "\n";}
+
+/*
+	float f[4];
+	int n = db.ReadArray("TEST",f,4);
+	for(int i=0;i<n;++i) cout << f[i] << " " ;
+	if (n) cout << "\n";
+*/
 	cm_disconnect_experiment();
 }
 #endif
