@@ -1,16 +1,16 @@
-/// \file HeavyIon.cxx
-/// \brief Implements HeavyIon.hxx
+/// \file Tail.cxx
+/// \brief Implements Tail.hxx
 #include <string>
 #include <iostream>
 #include "utils/copy_array.h"
 #include "midas/Odb.hxx"
 #include "midas/Xml.hxx"
-#include "HeavyIon.hxx"
+#include "Tail.hxx"
 
 
-// ====== struct dragon::hion::HeavyIon ====== //
+// ====== struct dragon::hion::Tail ====== //
 
-dragon::hion::HeavyIon::HeavyIon() :
+dragon::Tail::Tail() :
 #ifndef DRAGON_OMIT_DSSSD
 	dsssd(),
 #endif
@@ -29,41 +29,7 @@ dragon::hion::HeavyIon::HeavyIon() :
 	reset();
 }
 
-namespace {
-void copy_hi(const dragon::hion::HeavyIon& from, dragon::hion::HeavyIon& to)
-{
-	to.variables = from.variables;
-	to.evt_count = from.evt_count;
-	to.modules   = from.modules;
-	to.header    = from.header;
-#ifndef DRAGON_OMIT_DSSSD
-	to.dsssd = from.dsssd;
-#endif
-#ifndef DRAGON_OMIT_IC
-	to.ic = from.ic;
-#endif
-	to.mcp = from.mcp;
-	to.sb  = from.sb;
-#ifndef DRAGON_OMIT_NAI
-	to.nai = from.nai;
-#endif
-#ifndef DRAGON_OMIT_GE
-	to.ge = from.ge;
-#endif
-} }
-
-dragon::hion::HeavyIon::HeavyIon(const dragon::hion::HeavyIon& other)
-{
-	copy_hi(other, *this);
-}
-
-dragon::hion::HeavyIon& dragon::hion::HeavyIon::operator= (const dragon::hion::HeavyIon& other)
-{
-	copy_hi(other, *this);
-	return *this;
-}
-
-void dragon::hion::HeavyIon::reset()
+void dragon::Tail::reset()
 {
 	modules.reset();
 #ifndef DRAGON_OMIT_DSSSD
@@ -82,14 +48,14 @@ void dragon::hion::HeavyIon::reset()
 #endif
 }
 
-void dragon::hion::HeavyIon::unpack(const midas::Event& event)
+void dragon::Tail::unpack(const midas::Event& event)
 {
 	reset();
 	modules.unpack(event);
 	event.CopyHeader(header);
 }
 
-void dragon::hion::HeavyIon::read_data()
+void dragon::Tail::read_data()
 {
 	++evt_count;
 #ifndef DRAGON_OMIT_DSSSD
@@ -108,7 +74,7 @@ void dragon::hion::HeavyIon::read_data()
 #endif
 }
 
-void dragon::hion::HeavyIon::calculate()
+void dragon::Tail::calculate()
 {
 	mcp.calculate();
 #ifndef DRAGON_OMIT_NAI
@@ -119,32 +85,32 @@ void dragon::hion::HeavyIon::calculate()
 #endif
 }
 
-// ====== struct dragon::hion::HeavyIon::Variables ====== //
+// ====== struct dragon::Tail::Variables ====== //
 
-dragon::hion::HeavyIon::Variables::Variables() :
+dragon::Tail::Variables::Variables() :
 	v1190_trigger_ch(0)
 {
 	// nothing else to do
 }
 
 namespace {
-inline void copy_hion_variables(const dragon::hion::HeavyIon::Variables& from, dragon::hion::HeavyIon::Variables& to)
+inline void copy_hion_variables(const dragon::Tail::Variables& from, dragon::Tail::Variables& to)
 {
 	to.v1190_trigger_ch = from.v1190_trigger_ch;
 } }
 
-dragon::hion::HeavyIon::Variables::Variables(const dragon::hion::HeavyIon::Variables& other)
+dragon::Tail::Variables::Variables(const dragon::Tail::Variables& other)
 {
 	copy_hion_variables(other, *this);
 }
 
-dragon::hion::HeavyIon::Variables& dragon::hion::HeavyIon::Variables::operator= (const dragon::hion::HeavyIon::Variables& other)
+dragon::Tail::Variables& dragon::Tail::Variables::operator= (const dragon::Tail::Variables& other)
 {
 	copy_hion_variables(other, *this);
 	return *this;
 }
 
-void dragon::hion::HeavyIon::Variables::set(const char* odb)
+void dragon::Tail::Variables::set(const char* odb)
 {
 	/// \todo Set actual ODB paths, TEST!!
 	const std::string path = "Equipment/V1190/HeavyIon/TriggerCh";
@@ -155,7 +121,7 @@ void dragon::hion::HeavyIon::Variables::set(const char* odb)
 		mxml.GetValue(path.c_str(), v1190_trigger_ch, &success);
 
 		if(!success) {
-			std::cerr << "Error (HeavyIon::Variables::set): Couldn't set one or more variable values properly.\n";
+			std::cerr << "Error (Tail::Variables::set): Couldn't set one or more variable values properly.\n";
 		}
 	}
 	else { // Read from online ODB.
@@ -167,7 +133,7 @@ void dragon::hion::HeavyIon::Variables::set(const char* odb)
 	}
 }
 
-void dragon::hion::HeavyIon::set_variables(const char* odb)
+void dragon::Tail::set_variables(const char* odb)
 {
 #ifndef DRAGON_OMIT_DSSSD
 	dsssd.variables.set(odb);

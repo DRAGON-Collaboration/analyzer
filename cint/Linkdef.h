@@ -28,16 +28,26 @@
 // #pragma link C++ defined_in /user/gchristian/soft/develop/dragon/analyzer/src/dragon/Dragon.hxx;
 // #pragma link C++ defined_in /user/gchristian/soft/develop/dragon/analyzer/src/dragon/Head.hxx;
 // #pragma link C++ defined_in /user/gchristian/soft/develop/dragon/analyzer/src/dragon/Bgo.hxx;
-#pragma link C++ defined_in /user/gchristian/soft/develop/dragon/analyzer/src/dragon/heavy_ion/HeavyIon.hxx;
-#pragma link C++ defined_in /user/gchristian/soft/develop/dragon/analyzer/src/dragon/heavy_ion/MCP.hxx;
-#pragma link C++ defined_in /user/gchristian/soft/develop/dragon/analyzer/src/dragon/heavy_ion/DSSSD.hxx;
-#pragma link C++ defined_in /user/gchristian/soft/develop/dragon/analyzer/src/dragon/heavy_ion/IonChamber.hxx;
-#pragma link C++ defined_in /user/gchristian/soft/develop/dragon/analyzer/src/dragon/heavy_ion/SurfaceBarrier.hxx;
-#pragma link C++ defined_in /user/gchristian/soft/develop/dragon/analyzer/src/dragon/heavy_ion/Auxillary.hxx;
+// #pragma link C++ defined_in /user/gchristian/soft/develop/dragon/analyzer/src/dragon/heavy_ion/HeavyIon.hxx;
+// #pragma link C++ defined_in /user/gchristian/soft/develop/dragon/analyzer/src/dragon/heavy_ion/MCP.hxx;
+// #pragma link C++ defined_in /user/gchristian/soft/develop/dragon/analyzer/src/dragon/heavy_ion/DSSSD.hxx;
+// #pragma link C++ defined_in /user/gchristian/soft/develop/dragon/analyzer/src/dragon/heavy_ion/IonChamber.hxx;
+// #pragma link C++ defined_in /user/gchristian/soft/develop/dragon/analyzer/src/dragon/heavy_ion/SurfaceBarrier.hxx;
+// #pragma link C++ defined_in /user/gchristian/soft/develop/dragon/analyzer/src/dragon/heavy_ion/Auxillary.hxx;
 #pragma link C++ defined_in /user/gchristian/soft/develop/dragon/analyzer/src/dragon/Modules.hxx;
 #pragma link C++ defined_in /user/gchristian/soft/develop/dragon/analyzer/src/vme/Vme.hxx;
+
+#pragma link C++ class dragon::Tail+;
+#pragma link C++ class dragon::MCP+;
+#pragma link C++ class dragon::DSSSD+;
+#pragma link C++ class dragon::IonChamber+;
+#pragma link C++ class dragon::SurfaceBarrier+;
+#pragma link C++ class dragon::NaI+;
+#pragma link C++ class dragon::Ge+;
+
 #pragma link C++ class dragon::Head+;
 #pragma link C++ class dragon::Bgo+;
+
 #pragma link C++ class vme::caen::V792+;
 #pragma link C++ class vme::caen::V1190+;
 #pragma link C++ class vme::IO32+;

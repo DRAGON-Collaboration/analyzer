@@ -1,7 +1,7 @@
-/// \file HeavyIon.hxx
+/// \file Tail.hxx
 /// \brief Defines the DRAGON tail (heavy ion) detector classes
-#ifndef DRAGON_HEAVY_ION
-#define DRAGON_HEAVY_ION
+#ifndef DRAGON_TAIL_HXX
+#define DRAGON_TAIL_HXX
 #include "MCP.hxx"
 #include "DSSSD.hxx"
 #include "Auxillary.hxx"
@@ -11,9 +11,7 @@
 
 namespace dragon {
 
-namespace hion {
-
-struct HeavyIon {
+struct Tail {
 
 // ==== Classes ==== //
 	/// Heavy ion variables
@@ -53,7 +51,7 @@ struct HeavyIon {
 	int32_t evt_count; //#
 
 // ==== Variables ==== //
-	/// HeavyIon::Variables instance
+	/// Tail::Variables instance
 	Variables variables; //!
 
 // ==== Detectors ==== //
@@ -86,16 +84,16 @@ struct HeavyIon {
 
 // ==== Methods ==== //	 
 	/// Constructor, initializes data values
-	HeavyIon();
+	Tail();
 
 	/// Destructor, nothing to do
-	~HeavyIon() { }
+	~Tail() { }
 
 	/// Copy constructor
-	HeavyIon(const HeavyIon& other);
+	Tail(const Tail& other);
 	 
 	///Equivalency operator
-	HeavyIon& operator= (const HeavyIon& other);
+	Tail& operator= (const Tail& other);
 
 	/// Sets all data values to vme::NONE
 	void reset();
@@ -114,8 +112,6 @@ struct HeavyIon {
 	/// \brief Calculate higher-level data for each detector, or across detectors
 	void calculate();
 };
-
-} // namespace hion
 
 } // namespace dragon
 

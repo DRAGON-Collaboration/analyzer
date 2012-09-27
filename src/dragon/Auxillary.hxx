@@ -1,46 +1,37 @@
-//! \file Auxillary.hxx
-//! \brief Defines classes for Auxillary Heavy-Ion detectors.
+/// \file Auxillary.hxx
+/// \author G. Christian
+/// \brief Defines classes for Auxillary Heavy-Ion detectors.
 #ifndef DRAGON_HION_AUXILLARY_HXX
 #define DRAGON_HION_AUXILLARY_HXX
-#include "dragon/Modules.hxx"
 #include "vme/Vme.hxx"
+#include "Modules.hxx"
 
 namespace dragon {
 
-namespace hion {
-
 /// Sodium Iodide (NaI) detectors
-struct NaI {
-// ==== Const Data ==== //
-	 /// Number of detectors
-	 static const int nch = 2; //!
+class NaI {
 
-// ==== Classes ==== //
+public:
+	 /// Number of detectors
+	 static const int MAX_CHANNELS = 2; //!
+
+public:
 	 /// NaI variables
 	 struct Variables {
 			/// Maps detector to adc module number
-			int module[NaI::nch];
+			int module[MAX_CHANNELS];
 			
 			/// Maps detector to adc channel number
-			int ch[NaI::nch];
+			int ch[MAX_CHANNELS];
 
 			/// Calibration slope
-			double slope[NaI::nch];
+			double slope[MAX_CHANNELS];
 
 			/// Calibration offset
-			double offset[NaI::nch];
+			double offset[MAX_CHANNELS];
 
 			/// Constructor, sets data to generic values
 			Variables();
-
-			/// Destructor, nothing to do
-			~Variables() { }
-
-			/// Copy constructor
-			Variables(const Variables& other);
-
-			/// Equivalency operator
-			Variables& operator= (const Variables& other);
 
 			/// \brief Set variable values from an ODB file
 			/// \param [in] odb_file Path of the odb file from which you are extracting variable values
@@ -48,28 +39,19 @@ struct NaI {
 			void set(const char* odb_file);
 	 };
 
-// ==== Data ==== //
+public:
 	 /// Variables instance
 	 Variables variables; //!
 
 	 /// Raw energy signals
-	 int16_t qraw[nch]; //#
+	 int16_t qraw[MAX_CHANNELS]; //#
 
 	 /// Calibrated energy signals
-	 double  qcal[nch]; //#
+	 double  qcal[MAX_CHANNELS]; //#
 
-// ==== Methods ==== //
+public:
 	 /// Constructor, initialize data
 	 NaI();
-
-	 /// Destructor, nothing to do
-	 ~NaI() { }
-
-	 /// Copy constructor
-	 NaI(const NaI& other);
-
-	 /// Equivalency operator
-	 NaI& operator= (const NaI& other);
 
 	 /// Reset all data to vme::NONE
 	 void reset();
@@ -83,37 +65,29 @@ struct NaI {
 };
 
 /// Germanium (Ge) detector
-struct Ge {
-// ==== Const Data ==== //
-	 /// Number of detectors
-	 static const int nch = 1; //!
+class Ge {
 
-// ==== Classes ==== //
+public:
+	 /// Number of detectors
+	 static const int MAX_CHANNELS = 1; //!
+
+public:
 	 /// Ge variables
 	 struct Variables {
 			/// Maps detector to adc module number
-			int module[Ge::nch];
+			int module[MAX_CHANNELS];
 			
 			/// Maps detector to adc channel number
-			int ch[Ge::nch];
+			int ch[MAX_CHANNELS];
 
 			/// Calibration slope
-			double slope[Ge::nch];
+			double slope[MAX_CHANNELS];
 
 			/// Calibration offset
-			double offset[Ge::nch];
+			double offset[MAX_CHANNELS];
 
 			/// Constructor, sets data to generic values
 			Variables();
-
-			/// Destructor, nothing to do
-			~Variables() { }
-
-			/// Copy constructor
-			Variables(const Variables& other);
-
-			/// Equivalency operator
-			Variables& operator= (const Variables& other);
 
 			/// \brief Set variable values from an ODB file
 			/// \param [in] odb_file Path of the odb file from which you are extracting variable values
@@ -121,28 +95,19 @@ struct Ge {
 			void set(const char* odb_file);
 	 };
 
-// ==== Data ==== //
+public:
 	 /// Variables instance
 	 Variables variables; //!
 
 	 /// Raw energy signals
-	 int16_t qraw[nch]; //#
+	 int16_t qraw[MAX_CHANNELS]; //#
 
 	 /// Calibrated energy signals
-	 double  qcal[nch]; //#
+	 double  qcal[MAX_CHANNELS]; //#
 
 // ==== Methods ==== //
 	 /// Constructor, initialize data
 	 Ge();
-
-	 /// Destructor, nothing to do
-	 ~Ge() { }
-
-	 /// Copy constructor
-	 Ge(const Ge& other);
-
-	 /// Equivalency operator
-	 Ge& operator= (const Ge& other);
 
 	 /// Reset all data to vme::NONE
 	 void reset();
@@ -154,8 +119,6 @@ struct Ge {
 	 /// \brief Do energy calibrations
 	 void calculate();
 };
-
-} // namespace hion
 
 } // namespace dragon
 	 

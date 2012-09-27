@@ -1,27 +1,27 @@
 /// \file MCP.hxx
+/// \author G. Christian
 /// \brief Defines a class for DRAGON Micro Channel Plate (MCP) detectors
 #ifndef DRAGON_MCP_HXX
 #define DRAGON_MCP_HXX
-#include "dragon/Modules.hxx"
+#include "Modules.hxx"
 
 namespace dragon {
 
-namespace hion {
-
 /// Micro channel plates
-struct MCP {
-// ==== Const Data ==== //
-	 /// Number of anodes
-	 static const int nch = 4; //!
+class MCP {
 
-// ==== Classes ==== //
+public:
+	 /// Number of anodes
+	 static const int MAX_CHANNELS = 4; //!
+
+public:
 	 /// MCP Variables
 	 struct Variables {
 			/// Maps anode channel to adc module number
-			int anode_module[MCP::nch];
+			int anode_module[MAX_CHANNELS];
 
 			/// Maps anode channel to adc channel number
-			int anode_ch[MCP::nch];
+			int anode_ch[MAX_CHANNELS];
 
 			/// Maps TAC to adc module number
 			int tac_module;
@@ -32,15 +32,6 @@ struct MCP {
 			/// Constructor, sets data to generic values
 			Variables();
 
-			/// Destructor, nothing to do
-			~Variables() { }
-
-			/// Copy constructor
-			Variables(const Variables& other);
-
-			/// Equivalency operator
-			Variables& operator= (const Variables& other);
-
 			/// \brief Set variable values from an ODB file
 			/// \param [in] odb_file Path of the odb file from which you are extracting variable values
 			/// \todo Needs to be implemented once ODB is set up
@@ -49,10 +40,10 @@ struct MCP {
 
 // ==== Data ==== //
 	 /// Variables instance
-	 MCP::Variables variables; //!
+	 Variables variables; //!
 	 
 	 /// Anode signals
-	 int16_t anode[nch]; //#
+	 int16_t anode[MAX_CHANNELS]; //#
 	 
 	 /// TAC (time) signal
 	 int16_t tac; //#
@@ -65,15 +56,6 @@ struct MCP {
 
 	 /// Constructor, initialize data
 	 MCP();
-
-	 /// Destructor, nothing to do
-	 ~MCP() { }
-
-	 /// Copy constructor
-	 MCP(const MCP& other);
-
-	 /// Equivalency operator
-	 MCP& operator= (const MCP& other);
 
 	 /// Reset all data to VME::none
 	 void reset();
@@ -90,8 +72,6 @@ struct MCP {
    /// dragon.triumf.ca/docs/Lamey_thesis.pdf</a>
 	 void calculate();
 };
-
-} // namespace hion
 
 } // namespace dragon
 

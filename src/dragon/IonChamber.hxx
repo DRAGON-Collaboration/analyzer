@@ -2,43 +2,33 @@
 /// \brief Defines a class for the DRAGON Ionizatin Chamber detector
 #ifndef DRAGON_ION_CHAMBER_HXX
 #define DRAGON_ION_CHAMBER_HXX
-#include "dragon/Modules.hxx"
 #include "vme/Vme.hxx"
+#include "Modules.hxx"
 
 
 namespace dragon {
 
-namespace hion {
-
 /// Ionization chamber
-struct IonChamber {
-// ==== Const Data ==== //
-	 /// Number of anodes
-	 static const int nch = 4; //!
+class IonChamber {
 
-// ==== Classes ==== //
+public:
+	 /// Number of anodes
+	 static const int MAX_CHANNELS = 4; //!
+
+public:
 	 /// Ion chamber variables
 	 struct Variables {
 			/// Maps anode channel number to adc module number
-			int anode_module[IonChamber::nch];
+			int anode_module[MAX_CHANNELS];
 
 			/// Maps anode channel number to adc channel number
-			int anode_ch[IonChamber::nch];
+			int anode_ch[MAX_CHANNELS];
 
 			/// Maps tof to TDC channel number
 			int tof_ch;
 
 			/// Constructor, sets data to generic values
 			Variables();
-			
-			/// Destructor, nothing to do
-			~Variables() { }
-
-			/// Copy constructor
-			Variables(const Variables& other);
-
-			/// Equivalency operator
-			Variables& operator= (const Variables& other);
 
 			/// \brief Set variable values from an ODB file
 			/// \param [in] odb_file Path of the odb file from which you are extracting variable values
@@ -46,12 +36,12 @@ struct IonChamber {
 			void set(const char* odb_file);
 	 };
 
-// ==== Data ==== //
+public:
 	 /// Variables instance
 	 Variables variables; //!
 	 
 	 /// Raw anode signals
-	 int16_t anode[nch]; //#
+	 int16_t anode[MAX_CHANNELS]; //#
 
 	 /// Raw time signal (channels???)
 	 int16_t tof; //#
@@ -59,18 +49,9 @@ struct IonChamber {
 	 /// Sum of anode signals
 	 double sum;
 
+public:
 	 /// Constructor, initialize data
 	 IonChamber();
-
-// ==== Methods ==== //
-	 /// Destructor, nothing to do
-	 ~IonChamber() { }
-
-	 /// Copy constructor
-	 IonChamber(const IonChamber& other);
-
-	 /// Equivalency operator
-	 IonChamber& operator= (const IonChamber& other);
 
 	 /// Reset all data to VME::none
 	 void reset();
@@ -83,8 +64,6 @@ struct IonChamber {
 	 /// \brief Calculate higher-level parameters
 	 void calculate();
 };
-
-} // namespace hion
 
 } // namespace dragon
 
