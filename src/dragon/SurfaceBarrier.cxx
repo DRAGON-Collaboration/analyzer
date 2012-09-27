@@ -1,11 +1,15 @@
 /// \file SurfaceBarrier.cxx
+/// \author G. Christian
 /// \brief Implements SurfaceBarrier.hxx
 #include <string>
 #include <iostream>
 #include "utils/copy_array.h"
-#include "SurfaceBarrier.hxx"
 #include "midas/Odb.hxx"
 #include "midas/Xml.hxx"
+#include "vme/V1190.hxx"
+#include "vme/V792.hxx"
+#include "Tail.hxx"
+#include "SurfaceBarrier.hxx"
 
 
 // ====== struct dragon::SurfaceBarrier ====== //
@@ -22,10 +26,14 @@ void dragon::SurfaceBarrier::reset()
 	}
 }
 
-void dragon::SurfaceBarrier::read_data(const dragon::hion::Modules& modules)
+void dragon::SurfaceBarrier::read_data(const vme::caen::V785 adcs[], const vme::caen::V1190& tdc)
 {
 	for(int i=0; i< MAX_CHANNELS; ++i) {
-		q[i] = modules.v785_data(variables.module[i], variables.ch[i]);
+		const int whichAdc = variables.module[i];
+		assert (whichAdc< Tail::NUM_ADC); ///\todo Don't use an assert here
+		const int whichAdcChannel = variables.ch[i];
+
+		q[i] = adcs[whichAdc].get_data(whichAdcChannel);
 	}
 }
 

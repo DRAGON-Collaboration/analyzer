@@ -3,9 +3,15 @@
 /// \brief Implements Auxillary.hxx
 #include <string>
 #include <iostream>
+#include <algorithm>
 #include "utils/copy_array.h"
 #include "midas/Odb.hxx"
 #include "midas/Xml.hxx"
+#include "vme/Constants.hxx"
+#include "vme/V1190.hxx"
+#include "vme/V792.hxx"
+#include "vme/Vme.hxx"
+#include "Tail.hxx"
 #include "Auxillary.hxx"
 
 
@@ -18,16 +24,18 @@ dragon::NaI::NaI()
 
 void dragon::NaI::reset()
 {
-	for(int i=0; i< MAX_CHANNELS; ++i) {
-		qraw[i] = vme::NONE;
-		qcal[i] = (double)vme::NONE;
-	}
+	std::fill_n(qraw, MAX_CHANNELS, vme::NONE);
+	std::fill_n(qcal, MAX_CHANNELS, vme::NONE);
 }
 
-void dragon::NaI::read_data(const dragon::hion::Modules& modules)
+void dragon::NaI::read_data(const vme::caen::V785 adcs[], const vme::caen::V1190& tdc)
 {
 	for(int i=0; i< MAX_CHANNELS; ++i) {
-		qraw[i] = modules.v785_data(variables.module[i], variables.ch[i]);
+		const int whichAdc = variables.module[i];
+		assert (whichAdc< Tail::NUM_ADC); ///\todo Don't use an assert here
+		const int whichAdcChannel = variables.ch[i];
+
+		qraw[i] = adcs[whichAdc].get_data(whichAdcChannel);
 	}
 }
 
@@ -107,16 +115,18 @@ dragon::Ge::Ge()
 
 void dragon::Ge::reset()
 {
-	for(int i=0; i< MAX_CHANNELS; ++i) {
-		qraw[i] = vme::NONE;
-		qcal[i] = (double)vme::NONE;
-	}
+	std::fill_n(qraw, MAX_CHANNELS, vme::NONE);
+	std::fill_n(qcal, MAX_CHANNELS, vme::NONE);
 }
 
-void dragon::Ge::read_data(const dragon::hion::Modules& modules)
+void dragon::Ge::read_data(const vme::caen::V785 adcs[], const vme::caen::V1190& tdc)
 {
 	for(int i=0; i< MAX_CHANNELS; ++i) {
-		qraw[i] = modules.v785_data(variables.module[i], variables.ch[i]);
+		const int whichAdc = variables.module[i];
+		assert (whichAdc< Tail::NUM_ADC); ///\todo Don't use an assert here
+		const int whichAdcChannel = variables.ch[i];
+
+		qraw[i] = adcs[whichAdc].get_data(whichAdcChannel);
 	}
 }
 

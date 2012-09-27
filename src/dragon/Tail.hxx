@@ -2,18 +2,26 @@
 /// \brief Defines the DRAGON tail (heavy ion) detector classes
 #ifndef DRAGON_TAIL_HXX
 #define DRAGON_TAIL_HXX
+#include "midas/Event.hxx"
+#include "vme/IO32.hxx"
+#include "vme/V792.hxx"
+#include "vme/V1190.hxx"
 #include "MCP.hxx"
 #include "DSSSD.hxx"
 #include "Auxillary.hxx"
 #include "IonChamber.hxx"
 #include "SurfaceBarrier.hxx"
-#include "midas/Event.hxx"
 
 namespace dragon {
 
-struct Tail {
+/// Collection of all tail detectors and VME modules
+class Tail {
 
-// ==== Classes ==== //
+public:
+	/// Number of ADC (caen v785) modules
+	static const int NUM_ADC = 2;
+
+public:
 	/// Heavy ion variables
 	struct Variables {
 		/// Channel of the V1190b TDC trigger
@@ -37,24 +45,34 @@ struct Tail {
 		void set(const char* odb_file);
 	};
 
-// ==== Data ==== //
+public:
 	/// Electronics modules
 #ifdef DISPLAY_MODULES
-	dragon::hion::Modules modules; //#
+	/// IO32 FPGA
+	vme::IO32 io32; //#
+
+	/// CAEN v785 ADC (x2)
+	vme::caen::V785 v785[NUM_ADC]; //#
+
+	/// CAEN v1190 TDC
+	vme::caen::V1190 v1190; //#
 #else
-	dragon::hion::Modules modules; //!
+	/// IO32 FPGA
+	vme::IO32 io32; //!
+
+	/// CAEN v785 ADC (x2)
+	vme::caen::V785 v785[NUM_ADC]; //!
+
+	/// CAEN v1190 TDC
+	vme::caen::V1190 v1190; //!
 #endif
 
+	/// Midas event header
 	midas::Event::Header header; //#
 
-	/// Event counter
-	int32_t evt_count; //#
-
-// ==== Variables ==== //
 	/// Tail::Variables instance
 	Variables variables; //!
 
-// ==== Detectors ==== //
 #ifndef DRAGON_OMIT_DSSSD
 	/// DSSSD detector
 	DSSSD dsssd; //#
@@ -81,35 +99,20 @@ struct Tail {
 	Ge ge; //#
 #endif
 
-
-// ==== Methods ==== //	 
-	/// Constructor, initializes data values
+public:
+	/// Initializes data values
 	Tail();
 
-	/// Destructor, nothing to do
-	~Tail() { }
-
-	/// Copy constructor
-	Tail(const Tail& other);
-	 
-	///Equivalency operator
-	Tail& operator= (const Tail& other);
-
-	/// Sets all data values to vme::NONE
+	/// Sets all data values to vme::NONE or other defaults
 	void reset();
 
-	/// \brief Reads all variable values from an ODB (file or online)
-	/// \param [in] odb_file Name of the ODB file; passing \c "online" looks at the online ODB.
+	/// Reads all variable values from an ODB (file or online)
 	void set_variables(const char* odb_file);
 
-	/// \brief Unpack MIDAS event data into \e modules data structure
-	/// \param [in] event Reference to a Midas event structure
+	/// Unpack raw data into VME modules
 	void unpack(const midas::Event& event);
 
-	/// \brief Map data from \e modules into individual detector structures.
-	void read_data();
-
-	/// \brief Calculate higher-level data for each detector, or across detectors
+	/// Calculate higher-level data for each detector, or across detectors
 	void calculate();
 };
 

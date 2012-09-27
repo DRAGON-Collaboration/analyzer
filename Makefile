@@ -53,16 +53,34 @@ CC+=$(CXXFLAGS) $(RPATH) $(DEF_EXT) $(DEFAULTS) -I/user/gchristian/soft/develop/
 ROOTCINT=rootcint
 
 #### DRAGON LIBRARY ####
-OBJECTS=$(OBJ)/vme/V792.o $(OBJ)/vme/V1190.o $(OBJ)/vme/IO32.o \
-$(OBJ)/dragon/Modules.o $(OBJ)/dragon/Dragon.o \
-$(OBJ)/dragon/HeavyIon.o \
-$(OBJ)/dragon/DSSSD.o $(OBJ)/dragon/IonChamber.o \
-$(OBJ)/dragon/MCP.o $(OBJ)/dragon/SurfaceBarrier.o \
-$(OBJ)/dragon/Auxillary.o $(OBJ)/dragon/Bgo.o  \
-$(OBJ)/tstamp/TStamp.o $(OBJ)/midas/Odb.o $(OBJ)/midas/Xml.o $(OBJ)/midas/Event.o \
-$(OBJ)/midas/internal/TMidasFile.o $(OBJ)/midas/internal/TMidasEvent.o \
-$(OBJ)/midas/internal/mxml.o $(OBJ)/midas/internal/strlcpy.o \
-$(OBJ)/dragon/Head.o
+OBJECTS=                            	\
+$(OBJ)/midas/internal/mxml.o        	\
+$(OBJ)/midas/internal/strlcpy.o     	\
+$(OBJ)/midas/Odb.o                  	\
+$(OBJ)/midas/Xml.o                  	\
+$(OBJ)/midas/internal/TMidasFile.o  	\
+$(OBJ)/midas/internal/TMidasEvent.o 	\
+$(OBJ)/midas/Event.o                	\
+					\
+$(OBJ)/tstamp/TStamp.o              	\
+					\
+$(OBJ)/vme/V792.o             	      	\
+$(OBJ)/vme/V1190.o             	     	\
+$(OBJ)/vme/IO32.o              	     	\
+					\
+$(OBJ)/dragon/Bgo.o                 	\
+$(OBJ)/dragon/MCP.o                 	\
+$(OBJ)/dragon/DSSSD.o               	\
+$(OBJ)/dragon/Auxillary.o           	\
+$(OBJ)/dragon/IonChamber.o          	\
+$(OBJ)/dragon/SurfaceBarrier.o      	\
+					\
+$(OBJ)/dragon/Head.o                	\
+$(OBJ)/dragon/Tail.o                	\
+					\
+$(OBJ)/dragon/Dragon.o
+## END OBJECTS ##
+
 
 HEADERS=$(SRC)/*/*.hxx $(SRC)/*/*.h $(SRC)/*/*/*.h
 

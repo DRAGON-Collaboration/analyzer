@@ -5,7 +5,6 @@
 #define DRAGON_HXX
 #include "Tail.hxx"
 #include "Head.hxx"
-#include "Modules.hxx"
 
 /// Encloses all DRAGON classes
 namespace dragon {

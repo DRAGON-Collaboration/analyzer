@@ -60,9 +60,6 @@ public:
 	/// Calls reset(),
 	V792() { reset(); }
 
-	/// Empty
-	~V792() { }
-
 private:
   /// Unpack event data from a caen 32 channel adc
 	bool unpack_data_buffer(const uint32_t* const pbuffer);
@@ -74,7 +71,17 @@ private:
 
 
 /// Readout structure of CAEN V785 ADC (peak sensing) is identical to V792 QDC (charge sensing).
-typedef V792 V785;
+/*!
+ * \note Using public inheritance instead of a plain typedef to introduce the vme::caen::V785
+ * symbol. The reason for doing this is to allow easy forward declarations. As the two classes
+ * should behave identically, one should ensire that the constructor of V785 always exactly mirrors
+ * that of V792 (ideally via a simple call to it's constructor in the initialization list).
+ */
+class V785: public V792 {
+public:
+	/// Calls V792 constructor
+	V785(): V792() { }
+};
 
 } // namespace caen
 

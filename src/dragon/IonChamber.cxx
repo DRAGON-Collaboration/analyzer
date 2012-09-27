@@ -5,6 +5,11 @@
 #include "utils/copy_array.h"
 #include "midas/Odb.hxx"
 #include "midas/Xml.hxx"
+#include "vme/Constants.hxx"
+#include "vme/V1190.hxx"
+#include "vme/V792.hxx"
+#include "vme/Vme.hxx"
+#include "Tail.hxx"
 #include "IonChamber.hxx"
 
 
@@ -24,12 +29,15 @@ void dragon::IonChamber::reset()
 	sum = vme::NONE;
 }
 
-void dragon::IonChamber::read_data(const dragon::hion::Modules& modules, int v1190_trigger_ch)
+void dragon::IonChamber::read_data(const vme::caen::V785 adcs[], const vme::caen::V1190& tdc)
 {
 	for(int i=0; i< MAX_CHANNELS; ++i) {
-		anode[i] = modules.v785_data(variables.anode_module[i], variables.anode_ch[i]);
+		const int whichAdc = variables.anode_module[i];
+		assert (whichAdc< Tail::NUM_ADC); ///\todo Don't use an assert here
+		const int whichAdcChannel = variables.anode_ch[i];
+
+		anode[i] = adcs[whichAdc].get_data(whichAdcChannel);
 	}
-	// tof = modules.v1190b_data(variables.tof_ch) - modules.v1190b_data(v1190_trigger_ch);
 }
 
 void dragon::IonChamber::calculate()
@@ -39,6 +47,7 @@ void dragon::IonChamber::calculate()
 	for(int i=0; i< MAX_CHANNELS; ++i) {
 		sum += (double)anode[i];
 	}
+	/// \todo calculate tof
 }
 
 

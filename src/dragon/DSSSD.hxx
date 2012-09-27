@@ -2,7 +2,16 @@
 /// \brief Defines the DRAGON Double Sided Silicon Strip Detector (DSSSD) class.
 #ifndef DRAGON_DSSSD_HXX
 #define DRAGON_DSSSD_HXX
-#include "Modules.hxx"
+
+
+namespace vme { namespace caen {
+
+class V785;
+
+class V1190;
+
+} }
+
 
 namespace dragon {
 
@@ -16,10 +25,10 @@ public:
 public:
 	/// DSSSD Variables
 	struct Variables {
-		/// Maps qraw[i] to adc module number (in dragon::Modules)
+		/// Maps qraw[i] to adc module number
 		int qdc_module[MAX_CHANNELS];
 
-		/// Maps qraw[i] to adc channel number (in dragon::Modules)
+		/// Maps qraw[i] to adc channel number
 		int qdc_ch[MAX_CHANNELS];
 
 		/// Maps tof to tdc channel number
@@ -54,7 +63,10 @@ public:
 	/// \brief Read midas event data
 	/// \param [in] modules Heavy-ion module structure
 	/// \param [in] v1190_trigger_ch Channel number of the v1190b trigger
-	void read_data(const dragon::hion::Modules& modules, int v1190_trigger_ch);
+	void read_data(const vme::caen::V785 adcs[], const vme::caen::V1190& v1190);
+
+	/// Calculate (tof??)
+	void calculate();
 };
 
 } // namespace dragon

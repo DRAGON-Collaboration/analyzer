@@ -3,9 +3,15 @@
 /// \brief Defines a class for DRAGON surface barrier (Si) detectors
 #ifndef DRAGON_SURFACE_BARRIER_HXX
 #define DRAGON_SURFACE_BARRIER_HXX
-#include "Modules.hxx"
-#include "vme/Vme.hxx"
+#include <stdint.h>
 
+namespace vme { namespace caen {
+
+class V785;
+
+class V1190;
+
+} }
 
 namespace dragon {
 
@@ -49,7 +55,10 @@ struct SurfaceBarrier {
 	 
 	/// \brief Read midas event data
 	/// \param modules Heavy-ion module structure
-	void read_data(const dragon::hion::Modules& modules);
+	void read_data(const vme::caen::V785 adcs[], const vme::caen::V1190& tdc);
+
+	/// Empty
+	void calculate() { }
 };
 
 } // namespace dragon

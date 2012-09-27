@@ -1,11 +1,15 @@
 /// \file DSSSD.cxx
 /// \brief Implements DSSSD.hxx
 #include <string>
+#include <cassert>
 #include <iostream>
 #include "utils/copy_array.h"
 #include "vme/Vme.hxx"
 #include "midas/Odb.hxx"
 #include "midas/Xml.hxx"
+#include "vme/V1190.hxx"
+#include "vme/V792.hxx"
+#include "Tail.hxx"
 #include "DSSSD.hxx"
 
 
@@ -25,12 +29,16 @@ void dragon::DSSSD::reset()
 	tof = vme::NONE;
 }
 
-void dragon::DSSSD::read_data(const dragon::hion::Modules& modules, int v1190_trigger_ch)
+void dragon::DSSSD::read_data(const vme::caen::V785 adcs[], const vme::caen::V1190& v1190)
 {
 	for(int i=0; i< MAX_CHANNELS; ++i) {
-		qraw[i] = modules.v785_data(variables.qdc_module[i], variables.qdc_ch[i]);
+		const int whichAdc = variables.qdc_module[i];
+		assert (whichAdc< Tail::NUM_ADC); ///\todo Don't use an assert here
+		const int whichAdcChannel = variables.qdc_ch[i];
+
+		qraw[i] = adcs[whichAdc].get_data(whichAdcChannel);
 	}
-	// tof = modules.v1190b_data(variables.tof_ch) - modules.v1190b_data(v1190_trigger_ch);
+	tof = vme::NONE; /// \todo Calculate DSSSD tof
 }
 
 

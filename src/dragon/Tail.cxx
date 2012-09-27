@@ -1,6 +1,8 @@
 /// \file Tail.cxx
 /// \brief Implements Tail.hxx
 #include <string>
+#include <cstdio>
+#include <cassert>
 #include <iostream>
 #include "utils/copy_array.h"
 #include "midas/Odb.hxx"
@@ -31,7 +33,11 @@ dragon::Tail::Tail() :
 
 void dragon::Tail::reset()
 {
-	modules.reset();
+	io32.reset();
+	v1190.reset();
+	for (int i=0; i< NUM_ADC; ++i) {
+		v785[i].reset();
+	}
 #ifndef DRAGON_OMIT_DSSSD
 	dsssd.reset();
 #endif
@@ -50,39 +56,68 @@ void dragon::Tail::reset()
 
 void dragon::Tail::unpack(const midas::Event& event)
 {
-	reset();
-	modules.unpack(event);
+	/*!
+	 * \param [in] event Reference to a Midas event structure
+	 *
+	 * Here is where the low-level work is done to take bitpacked data read directly
+	 * from a MIDAS file and convert it into the corresponding measurement values
+	 * of various ADC modules.
+	 *
+	 * In the specific case of unpacking the dragon::Tail VME data, we delegate
+	 * the work to the unpack() routines of the relevant vme::* classes.
+	 *
+	 * \note Recompile with <c> report = true </c> to print warning messages
+	 *  for missing banks
+	 *
+	 * \todo Don't hard code bank names
+	 */
+	const bool report = false;
+
+	io32.unpack (event, "VTRT", report);
+	
+	assert (NUM_ADC < 10);
+	for (int i=0; i< NUM_ADC; ++i) {
+		char bkname[5];
+		sprintf(bkname, "TLQ%d", i);
+		v785[i].unpack (event, bkname, report);
+	}
+
+	v1190.unpack (event, "TLT0", report);
 	event.CopyHeader(header);
 }
 
-void dragon::Tail::read_data()
-{
-	++evt_count;
-#ifndef DRAGON_OMIT_DSSSD
-	dsssd.read_data(modules, variables.v1190_trigger_ch);
-#endif
-#ifndef DRAGON_OMIT_IC
-	ic.read_data(modules, variables.v1190_trigger_ch);
-#endif
-	mcp.read_data(modules);
-	sb.read_data(modules);
-#ifndef DRAGON_OMIT_NAI
-	nai.read_data(modules);
-#endif
-#ifndef DRAGON_OMIT_GE
-	ge.read_data(modules);
-#endif
-}
+// void dragon::Tail::read_data()
+// {
+// 	++evt_count;
+// #ifndef DRAGON_OMIT_DSSSD
+// 	dsssd.read_data(modules, variables.v1190_trigger_ch);
+// #endif
+// #ifndef DRAGON_OMIT_IC
+// 	ic.read_data(modules, variables.v1190_trigger_ch);
+// #endif
+// 	mcp.read_data(modules);
+// 	sb.read_data(modules);
+// #ifndef DRAGON_OMIT_NAI
+// 	nai.read_data(modules);
+// #endif
+// #ifndef DRAGON_OMIT_GE
+// 	ge.read_data(modules);
+// #endif
+// }
 
 void dragon::Tail::calculate()
 {
-	mcp.calculate();
-#ifndef DRAGON_OMIT_NAI
-	nai.calculate();
-#endif
-#ifndef DRAGON_OMIT_GE
-	ge.calculate();
-#endif
+// 	mcp.read_data(
+// 	mcp.calculate();
+
+// #ifndef DRAGON_OMIT_NAI
+// 	nai.calculate();
+// #endif
+
+// #ifndef DRAGON_OMIT_GE
+// 	ge.calculate();
+// #endif
+
 }
 
 // ====== struct dragon::Tail::Variables ====== //
@@ -91,23 +126,6 @@ dragon::Tail::Variables::Variables() :
 	v1190_trigger_ch(0)
 {
 	// nothing else to do
-}
-
-namespace {
-inline void copy_hion_variables(const dragon::Tail::Variables& from, dragon::Tail::Variables& to)
-{
-	to.v1190_trigger_ch = from.v1190_trigger_ch;
-} }
-
-dragon::Tail::Variables::Variables(const dragon::Tail::Variables& other)
-{
-	copy_hion_variables(other, *this);
-}
-
-dragon::Tail::Variables& dragon::Tail::Variables::operator= (const dragon::Tail::Variables& other)
-{
-	copy_hion_variables(other, *this);
-	return *this;
 }
 
 void dragon::Tail::Variables::set(const char* odb)
@@ -135,6 +153,10 @@ void dragon::Tail::Variables::set(const char* odb)
 
 void dragon::Tail::set_variables(const char* odb)
 {
+	/*!
+	 * \param [in] odb_file Name of the ODB file
+	 * \note Passing \c "online" looks at the online ODB.
+	 */
 #ifndef DRAGON_OMIT_DSSSD
 	dsssd.variables.set(odb);
 #endif

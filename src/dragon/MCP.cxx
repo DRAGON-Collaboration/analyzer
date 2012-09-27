@@ -7,6 +7,9 @@
 #include "vme/Vme.hxx"
 #include "midas/Odb.hxx"
 #include "midas/Xml.hxx"
+#include "vme/V1190.hxx"
+#include "vme/V792.hxx"
+#include "Tail.hxx"
 #include "MCP.hxx"
 
 
@@ -19,20 +22,28 @@ dragon::MCP::MCP()
 
 void dragon::MCP::reset()
 {
-	for(int i=0; i< MAX_CHANNELS; ++i) {
-		anode[i] = vme::NONE;
-	}
 	tac = vme::NONE;
-	x = (double)vme::NONE;
-	y = (double)vme::NONE;
+	x = vme::NONE;
+	y = vme::NONE;
+	std::fill_n(anode, MAX_CHANNELS, vme::NONE);
 }
 
-void dragon::MCP::read_data(const dragon::hion::Modules& modules)
+void dragon::MCP::read_data(const vme::caen::V785 adcs[], const vme::caen::V1190& tdc)
 {
 	for(int i=0; i< MAX_CHANNELS; ++i) {
-		anode[i] = modules.v785_data(variables.anode_module[i], variables.anode_ch[i]);
+		const int whichAdc = variables.anode_module[i];
+		assert (whichAdc< Tail::NUM_ADC); ///\todo Don't use an assert here
+		const int whichAdcChannel = variables.anode_ch[i];
+
+		anode[i] = adcs[whichAdc].get_data(whichAdcChannel);
 	}
-	tac = modules.v785_data(variables.tac_module, variables.tac_ch);
+//	tof = vme::NONE; /// \todo Calculate DSSSD tof
+	
+	const int whichAdc = variables.tac_module;
+	assert (whichAdc< Tail::NUM_ADC); ///\todo Don't use an assert here
+	const int whichAdcChannel = variables.tac_module;
+
+	tac = adcs[whichAdc].get_data(whichAdcChannel);
 }
 
 void dragon::MCP::calculate()

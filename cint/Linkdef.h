@@ -24,7 +24,6 @@
 //! (note that the '+' at the end is required except in special cases).
 
 
-#pragma link C++ class dragon::Dragon+;
 // #pragma link C++ defined_in /user/gchristian/soft/develop/dragon/analyzer/src/dragon/Dragon.hxx;
 // #pragma link C++ defined_in /user/gchristian/soft/develop/dragon/analyzer/src/dragon/Head.hxx;
 // #pragma link C++ defined_in /user/gchristian/soft/develop/dragon/analyzer/src/dragon/Bgo.hxx;
@@ -34,9 +33,13 @@
 // #pragma link C++ defined_in /user/gchristian/soft/develop/dragon/analyzer/src/dragon/heavy_ion/IonChamber.hxx;
 // #pragma link C++ defined_in /user/gchristian/soft/develop/dragon/analyzer/src/dragon/heavy_ion/SurfaceBarrier.hxx;
 // #pragma link C++ defined_in /user/gchristian/soft/develop/dragon/analyzer/src/dragon/heavy_ion/Auxillary.hxx;
-#pragma link C++ defined_in /user/gchristian/soft/develop/dragon/analyzer/src/dragon/Modules.hxx;
+// #pragma link C++ defined_in /user/gchristian/soft/develop/dragon/analyzer/src/dragon/Modules.hxx;
 #pragma link C++ defined_in /user/gchristian/soft/develop/dragon/analyzer/src/vme/Vme.hxx;
 
+#pragma link C++ class dragon;
+#pragma link C++ class vme;
+
+#pragma link C++ class dragon::Dragon+;
 #pragma link C++ class dragon::Tail+;
 #pragma link C++ class dragon::MCP+;
 #pragma link C++ class dragon::DSSSD+;
@@ -48,8 +51,8 @@
 #pragma link C++ class dragon::Head+;
 #pragma link C++ class dragon::Bgo+;
 
-#pragma link C++ class vme::caen::V792+;
-#pragma link C++ class vme::caen::V1190+;
+#pragma link C++ class vme::V792+;
+#pragma link C++ class vme::V1190+;
 #pragma link C++ class vme::IO32+;
 
 
