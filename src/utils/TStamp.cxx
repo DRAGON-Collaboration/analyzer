@@ -49,7 +49,7 @@ void tstamp::Queue::Push(const midas::Event& event)
 		fEvents.insert(event);
 	}
 	catch (std::exception& e) { // try to handle exception gracefully
-		err::Error("tstamp::Queue::Push")
+		dragon::err::Error("tstamp::Queue::Push")
 			<< "Caught an exception from std::multiset::insert: " << e.what()
 			<< " (note: size = " << Size() << ", max size = " << fEvents.max_size()
 			<< "). Clearing the Queue and trying again... WARNING: that this could cause "
@@ -62,7 +62,7 @@ void tstamp::Queue::Push(const midas::Event& event)
 			fEvents.insert(event);
 		}
 		catch (std::exception& e) { // give up
-			err::Error("tstamp::Queue::Push")
+			dragon::err::Error("tstamp::Queue::Push")
 				<< "Caught a second exception from std::multiset::insert: " << e.what()
 				<< ". Not sure what to do: rethrowing (likely fatal!)" << ERR_FILE_LINE;
 			throw (e);

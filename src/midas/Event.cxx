@@ -8,19 +8,16 @@
 #include <iostream>
 #include <algorithm>
 #include <stdexcept>
-#include "utils/Bits.hxx"
-#include "utils/Error.hxx"
 #include "utils/definitions.h"
+#include "utils/Bits.hxx"
 #include "Event.hxx"
 
-namespace {
 
+namespace {
 inline uint64_t read_timestamp (uint64_t lower, uint64_t upper)
 {
 	return (lower & READ30) | (upper << 30);
-}
-
-}
+} }
 
 // ========= Class midas::Event ========= //
 
@@ -104,7 +101,7 @@ void midas::Event::Init(const char* tsbank, const void* header, const void* addr
 	// Check version
 	if (version == 0x1120809 || version == 0x1120810 || version == 0x1120910);
 	else {
-		err::Warning("midas::Event::Init") <<
+		dragon::err::Warning("midas::Event::Init") <<
 			"Unknown TSC version 0x" << std::hex << version << std::dec << " (id, serial #: " << GetEventId() <<
 			", " << GetSerialNumber() << ")" << ERR_FILE_LINE;
 	}
@@ -113,7 +110,7 @@ void midas::Event::Init(const char* tsbank, const void* header, const void* addr
 	uint32_t ctrl = *ptsc++, nch = ctrl & READ15;
 	bool overflow = (ctrl>>15) & READ1;
 	if (overflow) {
-		err::Warning("midas::Event::Init") <<
+		dragon::err::Warning("midas::Event::Init") <<
 			"IO32 TSC in overflow condition. Event Serial #, Id: " << GetSerialNumber() << ", " << GetEventId() << "\n";
 	}
 
@@ -127,7 +124,7 @@ void midas::Event::Init(const char* tsbank, const void* header, const void* addr
 
 		case 1: // Trigger timestamp
 			if (fClock != std::numeric_limits<uint64_t>::max()) {
-				err::Warning("midas::Event::Init") <<
+				dragon::err::Warning("midas::Event::Init") <<
 					"duplicate trigger TS in fifo (okay if equivalent). Serial #: " << GetSerialNumber() <<
 					", tsc[1][0] = " << fClock << ", tsc[1][1] = " << read_timestamp(lower, upper) << "\n";
 				if (fClock != read_timestamp(lower, upper)) {
@@ -139,7 +136,7 @@ void midas::Event::Init(const char* tsbank, const void* header, const void* addr
 			fFreq  = *pfreq;
 			if (fFreq > 0.) fTriggerTime = fClock / fFreq;
 			else {
-				err::Error("midas::Event::Init") << "Found a frequency <= 0: " << fFreq << ERR_FILE_LINE;
+				dragon::err::Error("midas::Event::Init") << "Found a frequency <= 0: " << fFreq << ERR_FILE_LINE;
 				throw (std::invalid_argument("Read invalid frequency."));
 			}
 			break;
@@ -166,7 +163,7 @@ midas::CoincEvent::CoincEvent(const Event& event1, const Event& event2):
 		fHeavyIon = &event1;
 	}
 	else {
-		err::Warning("CoincMidasEvent::CoincMidasEvent")
+		dragon::err::Warning("CoincMidasEvent::CoincMidasEvent")
 			<< ERR_FILE_LINE << "Don't know how to handle the passed events: "
 			<< "Id1 = " << event1.GetEventId() << ", Id2 = " <<event2.GetEventId()
 			<< ". Setting fGamma and fHeavyIon to NULL...\n";

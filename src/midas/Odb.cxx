@@ -19,7 +19,7 @@ HNDLE midas::Odb::GetHandle()
 	int hndle;
 	cm_get_experiment_database(&hndle, 0);
 	if (hndle == 0)
-		err::Error("midas::Odb") << "Not connected to an experiment\n";
+		dragon::err::Error("midas::Odb") << "Not connected to an experiment\n";
 	return hndle;
 }
 
@@ -312,9 +312,11 @@ int midas::Odb::WriteString(const char*name, const char* string) { ERR_NO_MIDAS;
 #include <iostream>
 #include "Odb.hxx"
 #include "Database.hxx"
+#include "utils/Error.hxx"
 int main()
 {
 	using namespace std;
+	using namespace dragon;
 	INT status;
   status = cm_connect_experiment("ladd06:7071", "dragon", "test123", NULL);
 	//assert (status == CM_SUCCESS);

@@ -36,7 +36,7 @@ bool vme::V1190::unpack_data_buffer(const uint32_t* const pbuffer)
 	type     = (*pbuffer >> 26) & READ1; /// Bit 26 tells the measurement type (leading or trailing)
 	int ch   = (*pbuffer >> 19) & READ7; /// Bits 19-25 tell the channel number
 	if (ch >= MAX_CHANNELS) {
-		err::Error("vme::V1190::unpack_data_buffer")
+		dragon::err::Error("vme::V1190::unpack_data_buffer")
 			<< ERR_FILE_LINE << "Read a channel number (" << ch
 			<< ") which is >= the maximum (" << MAX_CHANNELS << "). Skipping...\n";
 		return false;
@@ -66,7 +66,7 @@ void vme::V1190::unpack_footer_buffer(const uint32_t* const pbuffer, const char*
 	int16_t evtId = (*pbuffer >> 12) & READ12; 
 	if(evtId != event_id) { /// Bits 12 - 23 are the event id (event_id), check for consistency w/ header
 		std::cerr << ERR_FILE_LINE;
-		err::Warning("vme::V1190::unpack_footer_buffer")
+		dragon::err::Warning("vme::V1190::unpack_footer_buffer")
 			<< ERR_FILE_LINE << "Bank name: \"" << bankName << "\": "
 			<< "Trailer event id (" << evtId << ") != header event Id (" << event_id << ")\n";
 	}
@@ -97,7 +97,7 @@ void vme::V1190::handle_error_buffer(const uint32_t* const pbuffer, const char* 
 		"Event lost (trigger FIFO overflow).",
 		"Internal fatal chip error has been detected."
 	};
-	err::Error error("vme::handle_error_buffer");
+	dragon::err::Error error("vme::handle_error_buffer");
 	error << ERR_FILE_LINE << "Bank name: \"" << bankName << 
 		"\": TDC Error buffer: error flags:\n";
 
@@ -149,7 +149,7 @@ bool vme::V1190::unpack_buffer(const uint32_t* const pbuffer, const char* bankNa
 		unpack_footer_buffer(pbuffer, bankName);
 		break;
 	default: /// Bail out if we read an unknown buffer code
-		err::Error("vme::V1190::unpack_buffer")
+		dragon::err::Error("vme::V1190::unpack_buffer")
 			<< ERR_FILE_LINE << "Bank name: \"" << bankName
 			<< "\": Unknown TDC buffer code: 0x" << std::hex << type << ". Skipping...\n";
 		success = false;

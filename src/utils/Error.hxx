@@ -9,6 +9,9 @@
 #include <sstream>
 #include <stdexcept>
 
+
+namespace dragon {
+
 /// Encloses message reporting classes.
 namespace err {
 
@@ -56,10 +59,11 @@ struct Error: public Strm { Error(const char* where) : Strm("Error", where) {} }
 /// Specialized err::Strm class to print warning messages
 struct Warning: public Strm { Warning(const char* where) : Strm("Warning", where) {} };
 
-} /// namespace err
+} // namespace err
+
+} // namespace dragon
 
 #define ERR_FILE_LINE "\nFile, line: " << __FILE__ << ", " << __LINE__ << "." << std::endl
-
 
 #endif // #ifndef DRAGON_ERROR_HXX
 

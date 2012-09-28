@@ -1,7 +1,6 @@
 //! \file IO32.cxx
 //! \author G. Christian
 //! \brief Implements IO32.hxx
-#include "utils/Error.hxx"
 #include "midas/Event.hxx"
 #include "IO32.hxx"
 
