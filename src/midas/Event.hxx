@@ -135,6 +135,7 @@ public:
 			void *pbk;
 			int type;
 			int bkfound = FindBank(name, length, &type, &pbk);
+
 			if(!bkfound && reportMissing) {
 				dragon::err::Warning("midas::Event::GetBankPointer<T>")
 					<< "Couldn't find the MIDAS bank \"" << name  << "\". Skipping...\n";

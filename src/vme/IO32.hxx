@@ -36,6 +36,10 @@ public:
 	/// Busy elapsed time
 	uint32_t busy_time;
 
+	/// Dragon trigger latch code
+	/*! Bitmask defining which signal generated the trigger */
+	uint32_t trigger_latch;
+
 public:
 	/// Unpack all data from the io32
 	bool unpack(const midas::Event& event, const char* bankName, bool reportMissing = false);

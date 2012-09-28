@@ -38,17 +38,17 @@ public:
 	void reset();
 
 	/// Get a data value, with bounds checking
-	int16_t get_data(uint16_t ch) const
+	int16_t get_data(int16_t ch) const
 		{
 			/*!
 			 * \param ch Channel number to get data from
 			 * Returns the data value stored at \e ch. If \e ch is out of bounds
 			 * of the internal array, prints a warning message and returns dragon::NO_DATA.
 			 */
-			if (ch > 0 && ch < MAX_CHANNELS) return data [ch];
+			if (ch >= 0 && ch < MAX_CHANNELS) return data [ch];
 			else {
 				dragon::err::Warning("V792::get_data")
-					<< "Channel number " << ch << "out of bounds (valid range: [0, "
+					<< "Channel number " << ch << " out of bounds (valid range: [0, "
 					<< MAX_CHANNELS -1 << "]\n";
 				return dragon::NO_DATA;
 			}

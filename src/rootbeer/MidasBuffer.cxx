@@ -8,11 +8,7 @@
 
 
 
-namespace {
-
-rootbeer::TSQueue gQueue (10e6);
-
-}
+namespace { rootbeer::TSQueue gQueue (10e6); }
 
 
 Bool_t rootbeer::MidasBuffer::ReadBufferOffline()
@@ -193,7 +189,9 @@ Bool_t rootbeer::MidasBuffer::ReadBufferOnline()
 #else
 
 #define M__NO_MIDASSYS (FUNC) do {																			\
-		dragon::err::Error(FUNC) << "Online functionality requires MIDAS installed on your system" << DRAGON_ERR_FILE_LINE; } \
+		dragon::err::Error(FUNC) <<																					\
+			"Online functionality requires MIDAS installed on your system"		\
+														 << DRAGON_ERR_FILE_LINE; }									\
 	while (0)
 
 Bool_t rootbeer::MidasBuffer::ConnectOnline(const char* host, const char* experiment, char**, int)
@@ -219,24 +217,24 @@ Bool_t rootbeer::MidasBuffer::ReadBufferOnline()
 INT rootbeer_run_stop(INT runnum, char* err)
 {
 	gQueue.Flush();
-	dragon::err::Info("rb::Midas") << "Stopping run number " << runnum << ".\n";
+	dragon::err::Info("rb::Midas") << "Stopping run number " << runnum;
 	return CM_SUCCESS;
 }
 
 INT rootbeer_run_start(INT runnum, char* err)
 {
-	dragon::err::Info("rb::Midas") << "Starting run number " << runnum << ".\n";
+	dragon::err::Info("rb::Midas") << "Starting run number " << runnum;
 	return CM_SUCCESS;
 }
 
 INT rootbeer_run_pause(INT runnum, char* err)
 {
-	dragon::err::Info("rb::Midas") << "Pausing run number " << runnum << ".\n";
+	dragon::err::Info("rb::Midas") << "Pausing run number " << runnum;
 	return CM_SUCCESS;
 }
 
 INT rootbeer_run_resume(INT runnum, char* err)
 {
-	dragon::err::Info("rb::Midas") << "Resuming run number " << runnum << ".\n";
+	dragon::err::Info("rb::Midas") << "Resuming run number " << runnum;
 	return CM_SUCCESS;
 }

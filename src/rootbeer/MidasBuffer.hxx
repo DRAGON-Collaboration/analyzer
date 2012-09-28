@@ -43,8 +43,8 @@ public:
 		{
 			/*! \warning We shouldn't be callig virtual functions from a destructor.
 			 *  \todo Fix virtual calls from destructor in ROOTBEER!!!! */
-			CloseFile();
-			DisconnectOnline();
+			// CloseFile();
+			// DisconnectOnline();
 		}
 
 	/// Opens an offline MIDAS file
