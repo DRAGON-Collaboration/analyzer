@@ -13,6 +13,10 @@ namespace dragon {
 class Coinc {
 
 public:
+	/// Separator time-of-flight (x-over tof).
+	double xtof;
+
+public:
 	/// Head (gamma-ray) part of the event
 	Head head;
 
@@ -34,6 +38,9 @@ public:
 
 	/// Copy data from head and tail coincidence events
 	void read_event(const Head& head_, const Tail& tail_);
+
+	/// Calculates xtof
+	void calculate();
 };
 
 } // namespace dragon

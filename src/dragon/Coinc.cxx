@@ -1,18 +1,20 @@
 /// \file Coinc.cxx
 /// \author G. Christian
 /// \brief Implements Coinc.hxx
+#include "utils/Valid.hxx"
 #include "Coinc.hxx"
 
 
 // ========== Class dragon::Coinc ========== //
 
 dragon::Coinc::Coinc():
-	head(), tail()
+	xtof(dragon::NO_DATA), head(), tail()
 {
 	reset();
 }
 
-dragon::Coinc::Coinc(const dragon::Head& head, const dragon::Tail& tail)
+dragon::Coinc::Coinc(const dragon::Head& head, const dragon::Tail& tail):
+	xtof(dragon::NO_DATA)
 {
 	read_event(head, tail);
 }
@@ -21,6 +23,7 @@ void dragon::Coinc::reset()
 {
 	head.reset();
 	tail.reset();
+	reset_data(xtof);
 }
 
 void dragon::Coinc::set_variables(const char* odb)
@@ -43,7 +46,11 @@ void dragon::Coinc::read_event(const dragon::Head& head_, const dragon::Tail& ta
 	tail = tail_;
 }
 
-
+void dragon::Coinc::calculate()
+{
+	/// \todo Implement dragon::Coinc::calculate() properly
+	xtof = dragon::NO_DATA ; // head - tail //
+}
 
 
 
