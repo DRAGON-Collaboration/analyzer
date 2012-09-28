@@ -63,7 +63,7 @@ struct Warning: public Strm { Warning(const char* where) : Strm("Warning", where
 
 } // namespace dragon
 
-#define ERR_FILE_LINE "\nFile, line: " << __FILE__ << ", " << __LINE__ << "." << std::endl
+#define DRAGON_ERR_FILE_LINE "\nFile, line: " << __FILE__ << ", " << __LINE__ << "." << std::endl
 
 #endif // #ifndef DRAGON_ERROR_HXX
 

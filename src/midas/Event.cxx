@@ -103,7 +103,7 @@ void midas::Event::Init(const char* tsbank, const void* header, const void* addr
 	else {
 		dragon::err::Warning("midas::Event::Init") <<
 			"Unknown TSC version 0x" << std::hex << version << std::dec << " (id, serial #: " << GetEventId() <<
-			", " << GetSerialNumber() << ")" << ERR_FILE_LINE;
+			", " << GetSerialNumber() << ")" << DRAGON_ERR_FILE_LINE;
 	}
 
 	// Get TSC4 info
@@ -136,7 +136,7 @@ void midas::Event::Init(const char* tsbank, const void* header, const void* addr
 			fFreq  = *pfreq;
 			if (fFreq > 0.) fTriggerTime = fClock / fFreq;
 			else {
-				dragon::err::Error("midas::Event::Init") << "Found a frequency <= 0: " << fFreq << ERR_FILE_LINE;
+				dragon::err::Error("midas::Event::Init") << "Found a frequency <= 0: " << fFreq << DRAGON_ERR_FILE_LINE;
 				throw (std::invalid_argument("Read invalid frequency."));
 			}
 			break;
@@ -164,7 +164,7 @@ midas::CoincEvent::CoincEvent(const Event& event1, const Event& event2):
 	}
 	else {
 		dragon::err::Warning("CoincMidasEvent::CoincMidasEvent")
-			<< ERR_FILE_LINE << "Don't know how to handle the passed events: "
+			<< DRAGON_ERR_FILE_LINE << "Don't know how to handle the passed events: "
 			<< "Id1 = " << event1.GetEventId() << ", Id2 = " <<event2.GetEventId()
 			<< ". Setting fGamma and fHeavyIon to NULL...\n";
 	}

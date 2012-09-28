@@ -29,7 +29,7 @@ bool vme::V792::unpack_data_buffer(const uint32_t* const pbuffer)
 	uint16_t ch  = (*pbuffer >> 16) & READ5; /// Bits 16-20 tell the channel number of the conversion
 	if (ch >= MAX_CHANNELS) {
 		dragon::err::Error("vme::V792::unpack_data_buffer")
-			<< ERR_FILE_LINE << "Read a channel number (" << ch
+			<< DRAGON_ERR_FILE_LINE << "Read a channel number (" << ch
 			<< ") which is >= the maximum (" << MAX_CHANNELS << "). Skipping...\n";
 		return false;
 	}
@@ -62,13 +62,13 @@ bool vme::V792::unpack_buffer(const uint32_t* const pbuffer, const char* bankNam
 		break;
 	case INVALID_BITS: /// case INVALID_BITS: bail out
 		dragon::err::Error("vme::V792::unpack_buffer")
-			<< ERR_FILE_LINE << "Bank name: \"" << bankName
+			<< DRAGON_ERR_FILE_LINE << "Bank name: \"" << bankName
 			<< "\": Read INVALID_BITS code from a CAEN ADC output buffer. Skipping...\n";
 		success = false;
 		break;
 	default: /// Bail out if we read an unknown buffer code
 		dragon::err::Error("vme::V792::unpack_buffer")
-			<< ERR_FILE_LINE << "Bank name: \"" << bankName
+			<< DRAGON_ERR_FILE_LINE << "Bank name: \"" << bankName
 			<< "\": Unknown ADC buffer code: 0x" << std::hex << type << ". Skipping...\n";
 		success = false;
 		break;

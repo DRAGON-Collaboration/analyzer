@@ -37,7 +37,7 @@ bool vme::V1190::unpack_data_buffer(const uint32_t* const pbuffer)
 	int ch   = (*pbuffer >> 19) & READ7; /// Bits 19-25 tell the channel number
 	if (ch >= MAX_CHANNELS) {
 		dragon::err::Error("vme::V1190::unpack_data_buffer")
-			<< ERR_FILE_LINE << "Read a channel number (" << ch
+			<< DRAGON_ERR_FILE_LINE << "Read a channel number (" << ch
 			<< ") which is >= the maximum (" << MAX_CHANNELS << "). Skipping...\n";
 		return false;
 	}
@@ -65,9 +65,9 @@ void vme::V1190::unpack_footer_buffer(const uint32_t* const pbuffer, const char*
 	word_count = (*pbuffer >> 0) & READ12; /// Bits 0 - 11 are the event counter (word_count)
 	int16_t evtId = (*pbuffer >> 12) & READ12; 
 	if(evtId != event_id) { /// Bits 12 - 23 are the event id (event_id), check for consistency w/ header
-		std::cerr << ERR_FILE_LINE;
+		std::cerr << DRAGON_ERR_FILE_LINE;
 		dragon::err::Warning("vme::V1190::unpack_footer_buffer")
-			<< ERR_FILE_LINE << "Bank name: \"" << bankName << "\": "
+			<< DRAGON_ERR_FILE_LINE << "Bank name: \"" << bankName << "\": "
 			<< "Trailer event id (" << evtId << ") != header event Id (" << event_id << ")\n";
 	}
 }
@@ -98,7 +98,7 @@ void vme::V1190::handle_error_buffer(const uint32_t* const pbuffer, const char* 
 		"Internal fatal chip error has been detected."
 	};
 	dragon::err::Error error("vme::handle_error_buffer");
-	error << ERR_FILE_LINE << "Bank name: \"" << bankName << 
+	error << DRAGON_ERR_FILE_LINE << "Bank name: \"" << bankName << 
 		"\": TDC Error buffer: error flags:\n";
 
 	int flag;
@@ -150,7 +150,7 @@ bool vme::V1190::unpack_buffer(const uint32_t* const pbuffer, const char* bankNa
 		break;
 	default: /// Bail out if we read an unknown buffer code
 		dragon::err::Error("vme::V1190::unpack_buffer")
-			<< ERR_FILE_LINE << "Bank name: \"" << bankName
+			<< DRAGON_ERR_FILE_LINE << "Bank name: \"" << bankName
 			<< "\": Unknown TDC buffer code: 0x" << std::hex << type << ". Skipping...\n";
 		success = false;
 		break;
