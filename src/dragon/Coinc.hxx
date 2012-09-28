@@ -1,8 +1,8 @@
-/// \file Dragon.hxx
+/// \file Coinc.hxx
 /// \author G. Christian
-/// \brief Defines a class for the complete DRAGON system (head + tail)
-#ifndef DRAGON_HXX
-#define DRAGON_HXX
+/// \brief Defines a class for the a complete DRAGON coincidence event.
+#ifndef DRAGON_COINC_HXX
+#define DRAGON_COINC_HXX
 #include "Tail.hxx"
 #include "Head.hxx"
 
@@ -10,18 +10,21 @@
 namespace dragon {
 
 /// A complete Dragon (coincidence) event
-class Dragon {
+class Coinc {
 
 public:
 	/// Head (gamma-ray) part of the event
 	Head head;
 
-	/// Heavy ion detectors
+	/// Tail (heavy-ion) part of the event
 	Tail tail;
 
 public:
-	/// Initialize all data to defaults
-	Dragon();
+	/// Empty
+	Coinc();
+
+	/// Construct from a head and tail event
+	Coinc(const Head& head, const Tail& tail);
 
 	/// Reset all modules (set data to defaults)
 	void reset();

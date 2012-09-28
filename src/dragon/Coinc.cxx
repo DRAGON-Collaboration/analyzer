@@ -1,24 +1,29 @@
-/// \file Dragon.cxx
+/// \file Coinc.cxx
 /// \author G. Christian
-/// \brief Implements Dragon.hxx
-#include "Dragon.hxx"
+/// \brief Implements Coinc.hxx
+#include "Coinc.hxx"
 
 
-// ========== Class Dragon ========== //
+// ========== Class dragon::Coinc ========== //
 
-dragon::Dragon::Dragon():
+dragon::Coinc::Coinc():
 	head(), tail()
 {
 	reset();
 }
 
-void dragon::Dragon::reset()
+dragon::Coinc::Coinc(const dragon::Head& head, const dragon::Tail& tail)
+{
+	read_event(head, tail);
+}
+
+void dragon::Coinc::reset()
 {
 	head.reset();
 	tail.reset();
 }
 
-void dragon::Dragon::set_variables(const char* odb)
+void dragon::Coinc::set_variables(const char* odb)
 {
 	/*!
 	 * \param [in] odb_file Name of the ODB file (*.xml or *.mid) from which to read
@@ -28,7 +33,7 @@ void dragon::Dragon::set_variables(const char* odb)
 	tail.set_variables(odb);
 }
 
-void dragon::Dragon::read_event(const dragon::Head& head_, const dragon::Tail& tail_)
+void dragon::Coinc::read_event(const dragon::Head& head_, const dragon::Tail& tail_)
 {
 	/*!
 	 * \param [in] head_ Head (gamma-ray) event

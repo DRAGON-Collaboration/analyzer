@@ -78,7 +78,7 @@ $(OBJ)/dragon/SurfaceBarrier.o      	\
 $(OBJ)/dragon/Head.o                	\
 $(OBJ)/dragon/Tail.o                	\
 					\
-$(OBJ)/dragon/Dragon.o
+$(OBJ)/dragon/Coinc.o
 ## END OBJECTS ##
 
 

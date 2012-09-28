@@ -26,7 +26,7 @@
 #pragma link C++ class dragon;
 #pragma link C++ class vme;
 
-#pragma link C++ class dragon::Dragon+;
+#pragma link C++ class dragon::Coinc+;
 #pragma link C++ class dragon::Tail+;
 #pragma link C++ class dragon::MCP+;
 #pragma link C++ class dragon::DSSSD+;
