@@ -5,6 +5,16 @@
 #include "DragonEvents.hxx"
 
 
+namespace {
+template <class T, class E>
+inline void handle_event(rb::data::Wrapper<T>& data, const E* buf)
+{
+	data->reset();
+	data->unpack(*buf);
+	data->calculate();
+} }
+
+
 // ======== Class dragon::GammaEvent ======== //
 
 rootbeer::GammaEvent::GammaEvent():
@@ -28,9 +38,7 @@ Bool_t rootbeer::GammaEvent::DoProcess(const void* addr, Int_t nchar)
 		return false;
 	}
 
-	fGamma->unpack( *(AsMidasEvent(addr)) );
-	fGamma->calculate();
-
+	handle_event(fGamma, AsMidasEvent(addr));
 	return true;
 }
 
@@ -58,9 +66,7 @@ Bool_t rootbeer::HeavyIonEvent::DoProcess(const void* addr, Int_t nchar)
 		return false;
 	}
 
-	fHeavyIon->unpack( *(AsMidasEvent(addr)) );
-	fHeavyIon->calculate();
-
+	handle_event(fHeavyIon, AsMidasEvent(addr));
 	return true;
 }
 
@@ -91,17 +97,6 @@ Bool_t rootbeer::CoincEvent::DoProcess(const void* addr, Int_t nchar)
 		return false;
 	}
 
-	const midas::Event& midasHead = *(AsCoincMidasEvent(addr)->fGamma);
-	const midas::Event& midasTail = *(AsCoincMidasEvent(addr)->fHeavyIon);
-
-	fCoinc->head.unpack(midasHead);
-	fCoinc->tail.unpack(midasTail);
-	
-	fCoinc->head.calculate();
-	fCoinc->tail.calculate();
-
-	fCoinc->calculate();
-
+	handle_event(fCoinc, AsCoincMidasEvent(addr));
 	return true;
 }
-

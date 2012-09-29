@@ -46,10 +46,27 @@ void dragon::Coinc::read_event(const dragon::Head& head_, const dragon::Tail& ta
 	tail = tail_;
 }
 
-void dragon::Coinc::calculate()
+void dragon::Coinc::unpack(const midas::CoincEvent& coincEvent)
+{
+	head.unpack( *(coincEvent.fGamma) );
+	tail.unpack( *(coincEvent.fHeavyIon) );
+}
+
+void dragon::Coinc::calculate_coinc()
 {
 	/// \todo Implement dragon::Coinc::calculate() properly
 	xtof = dragon::NO_DATA ; // head - tail //
+}	
+
+void dragon::Coinc::calculate()
+{
+	/*!
+	 * Does calculation for internal head and tail fields first,
+	 * then calculates coincidence parameters.
+	 */
+	head.calculate();
+	tail.calculate();
+	calculate_coinc();
 }
 
 

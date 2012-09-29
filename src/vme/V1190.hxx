@@ -4,7 +4,6 @@
 #ifndef DRAGON_VME_V1190_HXX
 #define DRAGON_VME_V1190_HXX
 #include <stdint.h>
-#include <vector>
 #include "utils/Error.hxx"
 #include "utils/Valid.hxx"
 
@@ -24,6 +23,7 @@ public:
 	static const uint16_t GLOBAL_TRAILER        = 0x10; ///< Global trailer buffer code
 	static const uint16_t EXTENDED_TRIGGER_TIME = 0x11; ///< Extended trigger time buffer code
 	static const uint16_t MAX_CHANNELS = 64;            ///< Number of data channels available in the TDC
+	static const uint16_t MAX_HITS     = 5;             ///< Maximum number of hits (head + tail) in a channel
 
 	int16_t n_ch;               ///< Number of channels present in an event
 
@@ -43,9 +43,9 @@ public:
 	int16_t type;               ///< Measurement type
 
 	/// \todo Explore other options for handling multiple hits
-	std::vector<int32_t> leading_edge[MAX_CHANNELS]; ///< Leading edge event data
+	int32_t leading_edge[MAX_HITS][MAX_CHANNELS];  ///< Leading edge event data
 	
-	std::vector<int32_t> trailing_edge[MAX_CHANNELS]; ///< Trailing edge event data
+	int32_t trailing_edge[MAX_HITS][MAX_CHANNELS]; ///< Trailing edge event data
 
 	int16_t nleading[MAX_CHANNELS];   ///< Number of leading-edge measurements
 
@@ -70,7 +70,7 @@ public:
 			 * message and returns dragon::NO_DATA.
 			 */
 			if (ch >= 0 && ch < MAX_CHANNELS) {
-				return leading_edge[ch].empty() ? dragon::NO_DATA : leading_edge[ch][0];
+				return leading_edge[0][ch];
 			}
 			else {
 				dragon::err::Warning("V1190::get_data")

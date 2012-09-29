@@ -6,6 +6,10 @@
 #include "Tail.hxx"
 #include "Head.hxx"
 
+
+namespace midas { class CoincEvent; }
+
+
 /// Encloses all DRAGON classes
 namespace dragon {
 
@@ -39,7 +43,13 @@ public:
 	/// Copy data from head and tail coincidence events
 	void read_event(const Head& head_, const Tail& tail_);
 
-	/// Calculates xtof
+	/// Unpack raw data from a midas::CoincEvent
+	void unpack(const midas::CoincEvent& coincEvent);
+
+	/// Calculates coincidence parameters \e only
+	void calculate_coinc();
+
+	/// Calculates both singles and coincidence parameters
 	void calculate();
 };
 

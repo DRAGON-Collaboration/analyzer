@@ -38,14 +38,8 @@ public:
 	/// Sets fIsTruncated to false
 	MidasBuffer(): fIsTruncated(false) { }
 
-	/// Closes file & disconnects from online stuff
-	virtual ~MidasBuffer()
-		{
-			/*! \warning We shouldn't be callig virtual functions from a destructor.
-			 *  \todo Fix virtual calls from destructor in ROOTBEER!!!! */
-			// CloseFile();
-			// DisconnectOnline();
-		}
+	/// Empyt
+	virtual ~MidasBuffer() { }
 
 	/// Opens an offline MIDAS file
 	virtual Bool_t OpenFile(const char* file_name, char** other = 0, int nother = 0)

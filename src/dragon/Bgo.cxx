@@ -1,10 +1,12 @@
 /// \file Bgo.cxx
+/// \author G. Christian
 /// \brief Implements Bgo.hxx
-#include <assert.h>
-#include <string>
-#include <iostream>
+#include <cassert>
+#include <numeric>
 #include <algorithm>
+#include <functional>
 #include "midas/Database.hxx"
+#include "utils/Error.hxx"
 #include "vme/V1190.hxx"
 #include "vme/V792.hxx"
 #include "Bgo.hxx"
@@ -14,19 +16,21 @@
 dragon::Bgo::Bgo():
 	variables()
 {
-	assert(Bgo::MAX_SORTED <= Bgo::MAX_CHANNELS);
+	if (MAX_CHANNELS < MAX_SORTED) {
+		dragon::err::Error("dragon::Bgo::Bgo") 
+			<< "(Fatal): Bgo::MAX_CHANNELS (==" << MAX_CHANNELS << ") < Bgo::MAX_SORTED (=="
+			<< MAX_SORTED << ")" << DRAGON_ERR_FILE_LINE;
+		assert(0);
+	}
 	reset();
 }	
 
 void dragon::Bgo::reset()
 {
-	std::fill_n(q, Bgo::MAX_CHANNELS, dragon::NO_DATA);
-	std::fill_n(t, Bgo::MAX_CHANNELS, dragon::NO_DATA);
-	std::fill_n(qsort, Bgo::MAX_SORTED, dragon::NO_DATA);
-	qsum = dragon::NO_DATA;
-	x0   = dragon::NO_DATA;
-	y0   = dragon::NO_DATA;
-	z0   = dragon::NO_DATA;
+	reset_array(MAX_CHANNELS, q);
+	reset_array(MAX_CHANNELS, t);
+	reset_array(MAX_SORTED, qsort);
+	reset_data(qsum, x0, y0, z0);
 }
 
 void dragon::Bgo::read_data(const vme::V792& adc, const vme::V1190& tdc)
@@ -37,32 +41,37 @@ void dragon::Bgo::read_data(const vme::V792& adc, const vme::V1190& tdc)
 	}
 }
 
-namespace { bool greater_than(int i, int j)
-{
-	if(i == dragon::NO_DATA) return false;
-	if(j == dragon::NO_DATA) return true;
-	return (i > j);
-} }
+
+namespace {
+template<typename T>
+bool is_invalid (T t) { return !is_valid(t); } 
+}
 
 void dragon::Bgo::calculate()
 {
-	// calculate energy-sorted array
-	int16_t temp[Bgo::MAX_CHANNELS];
-	std::copy(temp, temp + MAX_CHANNELS, q);
-	std::sort(temp, temp + MAX_CHANNELS, ::greater_than);
-	std::copy(qsort, qsort + MAX_SORTED, temp);
+	int16_t temp[MAX_CHANNELS]; // temp array of sorted energies
+	std::copy(this->q, this->q + MAX_CHANNELS, temp); // temp == q
+
+	// remove invalid entries
+	int16_t *tempBegin = temp, *tempEnd = temp + MAX_CHANNELS;
+	std::remove_if(tempBegin, tempEnd, is_invalid<int16_t>);
+
+	// put { tempBegin...tempEnd } in descending order
+	std::sort(tempBegin, tempEnd, std::greater<int16_t>());
+
+	// copy first MAX_SORTED elements to this->qsort
+	const ptrdiff_t ncopy = std::max(static_cast<ptrdiff_t> (MAX_SORTED), tempEnd - tempBegin);
+	std::copy(tempBegin, tempBegin + ncopy, this->qsort);
+	if (ncopy < MAX_SORTED)
+		std::fill(this->qsort + ncopy, this->qsort + MAX_SORTED, dragon::NO_DATA);
 
 	// calculate qsum
-	qsum = 0;
-	for(int i=0; i< Bgo::MAX_CHANNELS; ++i) {
-		if(!is_valid(temp[i])) break;
-		qsum += (double)temp[i];
-	}
-	if(!qsum) qsum = dragon::NO_DATA;
+	qsum = std::accumulate(tempBegin, tempEnd, 0);
+	if(qsum == 0) qsum = dragon::NO_DATA;
 
 	// calculate x0, y0, z0
 	if(is_valid(qsum)) {
-		int which = std::max_element(q, q + Bgo::MAX_CHANNELS) - q; // which detector was max hit?
+		int which = std::max_element(q, q + MAX_CHANNELS) - q; // which detector was max hit?
 		x0 = variables.xpos[which];
 		y0 = variables.ypos[which];
 		z0 = variables.zpos[which];

@@ -39,5 +39,8 @@
 #pragma link C++ class dragon::Bgo+;
 
 #pragma link C++ class vme::V792+;
+#pragma link C++ class vme::V785+;
 #pragma link C++ class vme::V1190+;
 #pragma link C++ class vme::IO32+;
+
+#pragma link C++ class midas::Event::Header+;

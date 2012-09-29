@@ -137,7 +137,7 @@ $(DRLIB)/libRBDragon.so: $(RB_OBJECTS) $(RB_HEADERS)
 
 libRBDragon: $(DRLIB)/libRBDragon.so
 
-$(OBJ)/rootbeer/%.o: $(SRC)/rootbeer/%.cxx $(SRC)/rootbeer/%.hxx
+$(OBJ)/rootbeer/%.o: $(SRC)/rootbeer/%.cxx $(SRC)/rootbeer/*.hxx
 	$(CXX) $(FPIC) -c \
 -o $@ -p $< \
 
