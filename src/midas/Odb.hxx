@@ -84,6 +84,8 @@ public:
   /// Write a string to the odb
 	static int WriteString(const char*name, const char* string);
 
+#ifndef __MAKECINT__
+
 	template <typename T>
 	static bool ReadValue(const char* path, T& value)
 		{
@@ -132,7 +134,9 @@ public:
 #endif
 		}
 
-private:
+#endif // #ifndef __MAKECINT__
+
+public:
 
 	/// MIDAS TID codes
 enum {
@@ -149,10 +153,17 @@ enum {
 	tid_string = 12
 };
 
+#ifndef __MAKECINT__
+
 	/// Returns the TID code for type \e T
 	template <typename T> static int GetTID();
 
+#endif
+
 };
+
+
+#ifndef __MAKECINT__
 
 template<> inline int Odb::GetTID<char>()           { return tid_sbyte;  }
 template<> inline int Odb::GetTID<unsigned char>()  { return tid_char;   }
@@ -165,8 +176,6 @@ template<> inline int Odb::GetTID<float>()          { return tid_float;  }
 template<> inline int Odb::GetTID<double>()         { return tid_double; }
 template<> inline int Odb::GetTID<std::string>()    { return tid_string; }
 
-
-#ifndef __MAKECINT__
 #ifdef MIDASSYS
 template<> inline bool Odb::ReadValue<std::string>(const char* path, std::string& value)
 {

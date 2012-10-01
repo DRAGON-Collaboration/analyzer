@@ -131,6 +131,8 @@ void rootbeer::MidasBuffer::DisconnectOnline()
 	/*! Calls cm_disconnect_experiment() and flushes queue */
 	cm_disconnect_experiment();
 	gQueue.Flush();
+	dragon::err::Info("rootbeer::MidasBuffer::DisconnectOnline")
+		<< "Disconnecting from experiment";
 }
 
 

@@ -94,12 +94,12 @@ dragon::Bgo::Variables::Variables()
 
 void dragon::Bgo::Variables::set(const char* odb)
 {
-/// \todo Set actual ODB paths, TEST!!
-	const char* const pathAdc  = "/DRAGON/Bgo/Variables/ChADC";
-	const char* const pathTdc  = "/DRAGON/Bgo/Variables/ChTDC";
-	const char* const pathXpos = "/DRAGON/Bgo/Variables/Xpos";
-	const char* const pathYpos = "/DRAGON/Bgo/Variables/Ypos";
-	const char* const pathZpos = "/DRAGON/Bgo/Variables/Zpos";
+  /// \todo Set actual ODB paths, TEST!!
+	const char* const pathAdc  = "/Dragon/Bgo/Variables/Adc_channel";
+	const char* const pathTdc  = "/Dragon/Bgo/Variables/Tdc_channel";
+	const char* const pathXpos = "/Dragon/Bgo/Variables/Xpos";
+	const char* const pathYpos = "/Dragon/Bgo/Variables/Ypos";
+	const char* const pathZpos = "/Dragon/Bgo/Variables/Zpos";
 
 	midas::Database database(odb);
 	database.ReadArray(pathAdc,  qdc_ch, MAX_CHANNELS);
@@ -108,4 +108,3 @@ void dragon::Bgo::Variables::set(const char* odb)
 	database.ReadArray(pathYpos, ypos,   MAX_CHANNELS);
 	database.ReadArray(pathZpos, zpos,   MAX_CHANNELS);
 }
-
