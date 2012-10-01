@@ -8,7 +8,14 @@
 
 
 
-namespace { rootbeer::TSQueue gQueue (10e6); }
+namespace {
+
+const int FLUSH_TIME = 5;
+const double QUEUE_TIME = 10e6;
+
+rootbeer::TSQueue gQueue (QUEUE_TIME);
+
+}
 
 
 Bool_t rootbeer::MidasBuffer::ReadBufferOffline()
@@ -130,7 +137,7 @@ void rootbeer::MidasBuffer::DisconnectOnline()
 {
 	/*! Calls cm_disconnect_experiment() and flushes queue */
 	cm_disconnect_experiment();
-	gQueue.Flush();
+	gQueue.Flush(FLUSH_TIME);
 	dragon::err::Info("rootbeer::MidasBuffer::DisconnectOnline")
 		<< "Disconnecting from experiment";
 }
@@ -150,14 +157,14 @@ Bool_t rootbeer::MidasBuffer::ReadBufferOnline()
 	do {
 		size = sizeof(fBuffer);
 
-		/// - First check for an event
-		status = bm_receive_event (fBufferHandle, fBuffer, &size, ASYNC);
+		/// - Check status of client w/ cm_yield()
+		status = cm_yield(timeout);
+
+		/// - Then check for an event
+		if (status != RPC_SHUTDOWN) status = bm_receive_event (fBufferHandle, fBuffer, &size, ASYNC);
 
 		/// - If we have an event (full or partial), return to outer loop (rb::attach::Online)
 		if (status == BM_SUCCESS || status == BM_TRUNCATED) have_event = true;
-
-		/// - If no event, call cm_yield() to try again
-		else if (status == BM_ASYNC_RETURN) status = cm_yield (timeout);
 
 		/// - Exit loop if any of the following are true:
 		///     - We have an event
@@ -180,6 +187,11 @@ Bool_t rootbeer::MidasBuffer::ReadBufferOnline()
 	/// - Print an error message if the buffer handle was invalid
 	if (status == BM_INVALID_HANDLE) {
 		dragon::err::Error("rootbeer::MidasBuffer::ReadBufferOnline") << "Invalid buffer handle: " << fBufferHandle;
+	}
+
+	if(!have_event && rb::Thread::IsRunning(rb::attach::ONLINE_THREAD_NAME)) {
+		dragon::err::Info("rootbeer::MidasBuffer::ReadBufferOnline")
+			<< "Received external command to shut down: status = " << status;
 	}
 	
 	/// \returns true if we received an event (full or partial), false otherwise 
@@ -218,7 +230,7 @@ Bool_t rootbeer::MidasBuffer::ReadBufferOnline()
 
 INT rootbeer_run_stop(INT runnum, char* err)
 {
-	gQueue.Flush();
+	gQueue.Flush(FLUSH_TIME);
 	dragon::err::Info("rb::Midas") << "Stopping run number " << runnum;
 	return CM_SUCCESS;
 }

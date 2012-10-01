@@ -3,6 +3,7 @@
  * \author G. Christian
  * \brief Implements tstamp::Queue class
  */
+#include <ctime>
 #include "TStamp.hxx"
 #include "utils/Error.hxx"
 
@@ -69,7 +70,7 @@ void tstamp::Queue::Push(const midas::Event& event)
 		}
 	}
 
-	while (IsFull()) Pop(); // erase overfull events from the front of the queue
+	if (IsFull()) Pop(); // erase event from the front of the queue
 }
 
 
@@ -92,4 +93,37 @@ void tstamp::Queue::Pop()
 
 	HandleSingle(*fEvents.begin());
 	fEvents.erase(fEvents.begin());
+}
+
+void tstamp::Queue::Flush(int max_time)
+{
+	/*!
+	 * \param max_time Maximum of amount of time (in seconds) to spend clearing the
+	 *  queue before returning. Any unhandled events at the end of the time limit will
+	 * simply be deleted. Default value (-1) blocks indefinitely until all events are
+	 * emptied from the queue.
+	 */
+	time_t t_begin = time(0);
+	while (!fEvents.empty()) {
+		if (max_time > 0 && difftime(time(0), t_begin) < max_time) {
+			Pop();
+		}
+		else {
+			FlushTimeoutMessage(max_time);
+			fEvents.clear();
+		}
+	}
+}
+
+void tstamp::Queue::FlushTimeoutMessage(int max_time) const
+{
+	/*!
+	 * Derived classes may wish to override this method to make use of a local
+	 * message handling system (e.g. cm_msg() in MIDAS).
+	 *
+	 * \param max_time Length of max Flush() timeout in seconds
+	 */
+	dragon::err::Info("tstamp::Queue::Flush()")
+		<< "Maximum timeout of " << max_time << " seconds reached. Clearing event queue (skipping "
+		<< fEvents.size() << " events...).";
 }

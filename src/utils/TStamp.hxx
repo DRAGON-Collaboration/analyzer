@@ -84,7 +84,7 @@ public:
 	void Pop();
  
 	/// Flush all events from the queue.
-	void Flush() { while (!fEvents.empty()) Pop(); }
+	void Flush(int max_time = -1);
 
 	/// Returns total number of entries in the queue
 	size_t Size() const { return fEvents.size(); }
@@ -106,6 +106,9 @@ private:
 
 	/// What to do in case of a singles event
 	virtual void HandleSingle(const midas::Event& event) const;
+	
+	/// Prints a message telling that Flush() timeout has been reached
+	virtual void FlushTimeoutMessage(int max_time) const;
 };
 
 } // namespace tstamp
