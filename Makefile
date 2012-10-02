@@ -1,9 +1,12 @@
 ### SET OPTIONAL #defines HERE ###
 DEFINITIONS=-DDISPLAY_MODULES
 
-### Set to YES (NO) to turn on (off) ROOT usage ###
+### Set to YES (NO) to turn on (off) ROOT [or ROOTBEER] usage ###
 USE_ROOT=YES
-USE_ROOTBEER=NO
+USE_ROOTBEER=YES
+
+### Set ROOTBEER home directory (ignore if USE_ROOTBEER=NO) ###
+RB_HOME=/Users/gchristian/soft/develop/rootbeer
 
 
 ### CHOOSE YOUR COMPILER IF YOU WANT ###
@@ -177,7 +180,7 @@ $(PWD)/src/utils/
 
 ### FOR ROOTBEER ###
 
-RBINC=/Users/gchristian/soft/develop/rootbeer/src
+RBINC=-I$(RB_HOME)/src
 RB_OBJECTS= 				\
 $(OBJ)/rootbeer/Timestamp.o		\
 $(OBJ)/rootbeer/MidasBuffer.o		\
@@ -188,12 +191,12 @@ RB_HEADERS= $(SRC)/rootbeer/*.hxx
 
 
 $(DRLIB)/libRBDragon.so: $(RB_OBJECTS) $(RB_HEADERS)
-	$(LINK) $(DYLIB) $(FPIC) -o $@ $(MIDASLIBS) $(RB_OBJECTS) \
+	$(LINK) $(RBINC) $(DYLIB) $(FPIC) -o $@ $(MIDASLIBS) $(RB_OBJECTS) \
 
 libRBDragon: $(DRLIB)/libRBDragon.so
 
 $(OBJ)/rootbeer/%.o: $(SRC)/rootbeer/%.cxx $(SRC)/rootbeer/*.hxx
-	$(CXX) $(FPIC) -c \
+	$(CXX) $(RBINC) $(FPIC) -c \
 -o $@ -p $< \
 
 
