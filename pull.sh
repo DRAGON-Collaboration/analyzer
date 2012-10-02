@@ -5,9 +5,9 @@ import sys
 
 cmds = { \
         'ladd06' : \
-        ['git', 'pull', 'dragon@ladd06.triumf.ca:/home/dragon/gc/dragon/analyzer'], \
+        ['git', 'pull', 'dragon@ladd06.triumf.ca:/home/dragon/gc/dragon/analyzer', 'dev'], \
         'jabberwock' : \
-        ['git', 'pull', 'gchristian@jabberwock.triumf.ca:/Users/gchristian/soft/develop/dragon/analyzer'] }
+        ['git', 'pull', 'gchristian@jabberwock.triumf.ca:/Users/gchristian/soft/develop/dragon/analyzer', 'dev'] }
 
 if len(sys.argv) == 1:
     print 'usage: pull.sh <remote machine>'
