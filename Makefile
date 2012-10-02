@@ -3,7 +3,7 @@ DEFINITIONS=-DDISPLAY_MODULES
 
 ### Set to YES (NO) to turn on (off) ROOT [or ROOTBEER] usage ###
 USE_ROOT=YES
-USE_ROOTBEER=NO
+USE_ROOTBEER=YES
 
 ### Set ROOTBEER home directory (ignore if USE_ROOTBEER=NO) ###
 RB_HOME=/Users/gchristian/soft/develop/rootbeer
