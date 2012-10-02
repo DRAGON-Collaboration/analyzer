@@ -35,21 +35,6 @@
 
 #include "Globals.h"
 
-#define HAVE_VTR 1
-#define HAVE_V1190 1
-
-#include "HandleV1190.h"
-#include "HandleV792.h"
-#ifdef HAVE_VTR
-#include "HandleVTR.h"
-#endif
-
-#ifdef HAVE_TOF
-extern void HandleBOR_TOF(int run, int time);
-extern void HandleEOR_TOF(int run, int time);
-extern void HandleTOF();
-#endif
-
 // Global Variables
 int  gRunNumber = 0;
 bool gIsRunning = false;
