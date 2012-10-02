@@ -38,6 +38,11 @@ void dragon::DSSSD::read_data(const vme::V785 adcs[], const vme::V1190& v1190)
 	tof = dragon::NO_DATA; /// \todo Calculate DSSSD tof
 }
 
+void dragon::DSSSD::calculate()
+{
+	/// \todo Implement DSSSD::calculate()
+}
+
 
 // ====== class dragon::DSSSD::Variables ====== //
 

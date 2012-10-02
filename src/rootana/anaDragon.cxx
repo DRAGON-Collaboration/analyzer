@@ -32,8 +32,13 @@
 #include <TGClient.h>
 #include <TGFrame.h>
 #include <TFolder.h>
+#include <TH1D.h>
 
 #include "Globals.h"
+
+#include "utils/definitions.h"
+#include "midas/Event.hxx"
+#include "Timestamp.hxx"
 
 // Global Variables
 int  gRunNumber = 0;
@@ -46,6 +51,8 @@ int  gEventCutoff = 0;
 TDirectory* gOnlineHistDir = NULL;
 TFile* gOutputFile = NULL;
 VirtualOdb* gOdb = NULL;
+
+rootana::TSQueue gQueue (10e6);
 
 //TCanvas  *gMainWindow = NULL; 	// the online histogram window
 
@@ -114,41 +121,19 @@ void startRun(int transition,int run,int time)
   }  
 
   char filename[1024];
-  //sprintf(filename, "/home/dragon/online/ana/rootfiles/output%05d.root", run);
-  sprintf(filename, "output%05d.root", run);
+  sprintf(filename, "output%05d.root", run); /// \todo better Output directory
   gOutputFile = new TFile(filename,"RECREATE");
 
 #ifdef HAVE_LIBNETDIRECTORY
   NetDirectoryExport(gOutputFile, "outputFile");
 #endif
 
-#ifdef HAVE_VTR
-  HandleBOR_VTR(run, time);
-#endif
-#ifdef HAVE_V1190
-  HandleBOR_V1190(run, time);
-#endif
-  HandleBOR_V792(run, time);
-#ifdef HAVE_TOF
-  HandleBOR_TOF(run, time);
-#endif
 }
 
 void endRun(int transition,int run,int time)
 {
   gIsRunning = false;
   gRunNumber = run;
-
-#ifdef HAVE_V1190
-  //HandleEOR_V1190(run, time);
-#endif
-  HandleEOR_V792(run, time);
-#ifdef HAVE_TOF
-  HandleEOR_TOF(run, time);
-#endif
-#ifdef HAVE_VTR
-  HandleEOR_VTR(run, time);
-#endif
 
 #ifdef OLD_SERVER
   if (gManaHistosFolder)
@@ -165,7 +150,6 @@ void endRun(int transition,int run,int time)
   printf("End of run %d\n",run);
 }
 
-#include <TH1D.h>
 
 void HandleSample(int ichan, void* ptr, int wsize)
 {
@@ -199,76 +183,35 @@ void HandleSample(int ichan, void* ptr, int wsize)
 }
 
 
-void HandleMidasEvent(TMidasEvent& event)
+void HandleMidasEvent(const void* header, const void* pdata, int size)
 {
-
-  int eventId = event.GetEventId();
-  //uint32_t timeStamp = event.GetTimeStamp();
-  //uint32_t serialN = event.GetSerialNumber();
-  
-
-  if ((eventId == 1))
-    { 
-      int size;
-
-#ifdef HAVE_V1190
-      void *tptr;
-      size = event.LocateBank(NULL, "VTDC", &tptr);
-      if (tptr) { HandleV1190(event, tptr, size, 0); }
-
-      size = event.LocateBank(NULL, "TDC0", &tptr);
-      if (tptr) { HandleV1190(event, tptr, size, 0); }
-#endif
-
-      void *aptr;
-      size = event.LocateBank(NULL, "VADC", &aptr);
-      if (aptr) { HandleV792(event, aptr, size, 0);  }   
-
-      size = event.LocateBank(NULL, "ADC0", &aptr);
-      if (aptr) { HandleV792(event, aptr, size, 0);  }   
-
-#ifdef HAVE_VTR
-      void *vtr_ptr;
-      size = event.LocateBank(NULL, "VTR0", &vtr_ptr);
-      if (vtr_ptr) { HandleVTR(event, vtr_ptr, size, 0);  }   
-#endif
-
-#ifdef HAVE_TOF
-      if (aptr && tptr)
-	HandleTOF();
-#endif
-    }
-  else if (false&&(eventId == 2)&&(gIsRunning==true)) // ADC data
-    {
-      //printf("ADC event\n");
-      //event.Print();
-      //void *ptr;
-      //int size = event.LocateBank(event.GetData(),"ADC",&ptr);
-      //HandleBeamADC(kMaxADCChannels,size,ptr,event);
-    }
-  else if (false&&(eventId==5)&&(gIsRunning==true)&&(gIsPedestalsRun==false))// Scaler data
-    {
-      //event.Print();
-      //void *sclrptr;
-      //int sclrsize = event.LocateBank(event.GetData(),"SCLR",&sclrptr);
-      //void *scrtptr;
-      //int scrtsize = event.LocateBank(event.GetData(),"SCRT",&scrtptr);
-      //HandleScaler(kMaxScalerChannels,sclrsize,sclrptr,scrtsize,scrtptr,event);
-    }
-  else
-    {
-      // unknown event type
-      //event.Print();
-    }
+	const EventHeader_t* head = reinterpret_cast<const EventHeader_t*>(header);
+	switch (head->fEventId) {
+	case DRAGON_HEAD_EVENT:  /// - DRAGON_HEAD_EVENT: Insert into timestamp matching queue
+		gQueue.Push(midas::Event("TSCH", header, pdata, head->fDataSize));
+		break;
+	case DRAGON_TAIL_EVENT:  /// - DRAGON_TAIL_EVENT: Insert into timestamp matching queue
+		gQueue.Push(midas::Event("TSCT", header, pdata, head->fDataSize));
+		break;
+	case DRAGON_HEAD_SCALER: /// - DRAGON_HEAD_SCALER: TODO: implement C. Stanford's scaler codes
+		// <...process...> //
+		break;
+	case DRAGON_TAIL_SCALER: /// - DRAGON_TAIL_SCALER: TODO: implement C. Stanford's scaler codes
+		// <...process...> //
+		break;
+	default: /// - Silently ignore other event types
+		break;
+	}
 }
 
-void eventHandler(const void*pheader,const void*pdata,int size)
+inline void HandleMidasEvent(TMidasEvent& event)
 {
-  TMidasEvent event;
-  memcpy(event.GetEventHeader(), pheader, sizeof(EventHeader_t));
-  event.SetData(size, (char*)pdata);
-  event.SetBankList();
-  HandleMidasEvent(event);
+	HandleMidasEvent(event.GetEventHeader(), event.GetData(), event.GetDataSize());
+}
+
+inline void eventHandler(const void*pheader,const void*pdata,int size)
+{
+  HandleMidasEvent(pheader, pdata, size);
 }
 
 int ProcessMidasFile(TApplication*app,const char*fname)

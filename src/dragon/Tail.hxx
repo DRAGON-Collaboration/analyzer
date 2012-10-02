@@ -33,12 +33,6 @@ public:
 		/// Destructor, nothing to do
 		~Variables() { }
 
-		/// Copy constructor
-		Variables(const Variables& other);
-
-		/// Equivalency operator
-		Variables& operator= (const Variables& other);
-
 		/// \brief Set variable values from an ODB file
 		/// \param [in] odb_file Path of the odb file from which you are extracting variable values
 		/// \todo Needs to be implemented once ODB is set up

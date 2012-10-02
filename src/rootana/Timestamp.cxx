@@ -3,7 +3,6 @@
 /// \brief Implements rootana/Timestamp.hxx 
 #include "utils/definitions.h"
 #include "utils/Error.hxx"
-#include "DragonEvents.hxx"
 #include "Timestamp.hxx"
 
 
