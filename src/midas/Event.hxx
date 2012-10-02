@@ -9,6 +9,7 @@
 #include <cstdio>
 #include <vector>
 #include <cassert>
+#include <cstring>
 #include <typeinfo>
 #include "internal/TMidasFile.h"
 #include "internal/TMidasEvent.h"

@@ -1,56 +1,86 @@
 ### SET OPTIONAL #defines HERE ###
 DEFINITIONS=-DDISPLAY_MODULES
 
-### Variable definitions
-SRC=$(PWD)/src
-OBJ=$(PWD)/obj
-CINT=$(PWD)/cint
-DRLIB=$(PWD)/lib
-
-ROOTGLIBS = $(shell root-config --glibs) -lXMLParser -lThread -lTreePlayer
-RPATH    += -Wl,-rpath,$(ROOTSYS)/lib -Wl,-rpath,$(PWD)/lib
-DYLIB=-shared
-FPIC=-fPIC
-INCFLAGS=-I$(SRC) -I$(CINT) -I$(USER) $(USER_INCLUDES)
-DEBUG=-ggdb -O3 -DDEBUG
-CXXFLAGS=$(DEBUG) $(INCFLAGS) -L$(PWD)/lib $(STOCK_BUFFERS) -DBUFFER_TYPE=$(USER_BUFFER_TYPE) $(DEFINITIONS)
+### Set to YES (NO) to turn on (off) ROOT usage ###
+USE_ROOT=YES
+USE_ROOTBEER=NO
 
 
-ifdef ROOTSYS
-ROOTGLIBS = -L$(ROOTSYS)/lib $(shell $(ROOTSYS)/bin/root-config --glibs) -lXMLParser -lThread -lTreePlayer
-CXXFLAGS += -L$(ROOTSYS)/lib $(shell $(ROOTSYS)/bin/root-config --cflags) -I$(ROOTSYS)/include
-else
-ROOTGLIBS = $(shell root-config --glibs --cflags) -lXMLParser -lThread -lTreePlayer
-endif
-
-UNAME=$(shell uname)
-ifeq ($(UNAME),Darwin)
-CXXFLAGS += -DOS_LINUX -DOS_DARWIN
-ifdef MIDASSYS
-CXXFLAGS += -DMIDASSYS
-MIDASLIBS = -L$(MIDASSYS)/darwin/lib -lmidas
-INCFLAGS += -I$(MIDASSYS)/include
-endif
-
-DYLIB=-dynamiclib -single_module -undefined dynamic_lookup
-FPIC=
-RPATH=
-
-endif
-
+### CHOOSE YOUR COMPILER IF YOU WANT ###
 CXX=g++ -Wall
 #CXX=clang++ -I/opt/local/include/ -I/opt/local/include/root
 
 CC=gcc -Wall
 #CC=clang -I/opt/local/include/ -I/opt/local/include/root
 
-LINK=$(CXX) $(CXXFLAGS) $(ROOTGLIBS) $(RPATH) $(DEFAULTS) -I/user/gchristian/soft/develop/rootbeer/src -DMIDAS_BUFFERS
 
-CXX+=$(CXXFLAGS) $(RPATH) $(DEF_EXT) $(DEFAULTS) -I/user/gchristian/soft/develop/rootbeer/src -DMIDAS_BUFFERS
 
-CC+=$(CXXFLAGS) $(RPATH) $(DEF_EXT) $(DEFAULTS) -I/user/gchristian/soft/develop/rootbeer/src -DMIDAS_BUFFERS
 
-ROOTCINT=rootcint
+### Variable definitions
+SRC=$(PWD)/src
+OBJ=$(PWD)/obj
+CINT=$(PWD)/cint
+DRLIB=$(PWD)/lib
+
+##RPATH    += -Wl,-rpath,$(ROOTSYS)/lib -Wl,-rpath,$(PWD)/lib
+DYLIB=-shared
+FPIC=-fPIC
+INCFLAGS=-I$(SRC) -I$(CINT)
+DEBUG=-ggdb -O3 -DDEBUG
+CXXFLAGS=$(DEBUG) $(INCFLAGS) -L$(PWD)/lib $(DEFINITIONS)
+
+
+ROOTLIBS=
+ifeq ($(USE_ROOT),YES)
+ifdef ROOTSYS
+ROOTLIBS= -L$(ROOTSYS)/lib $(shell $(ROOTSYS)/bin/root-config --cflags) -I$(ROOTSYS)/include
+else
+ROOTLIBS= - $(shell $(ROOTSYS)/bin/root-config --cflags) -lXMLParser -lThread -lTreePlayer
+endif
+endif
+
+ifdef MIDASSYS
+CXXFLAGS += -DMIDASSYS
+MIDASLIBS = -lmidas -L$(MIDAS_LIB_DIR)
+INCFLAGS += -I$(MIDASSYS)/include
+endif
+
+
+UNAME=$(shell uname)
+ifeq ($(UNAME),Darwin)
+ifdef MIDASSYS
+CXXFLAGS += -DOS_LINUX -DOS_DARWIN
+MIDAS_LIB_DIR=$(MIDASSYS)/darwin/lib
+endif
+DYLIB=-dynamiclib -single_module -undefined dynamic_lookup
+FPIC=
+RPATH=
+endif
+
+ifeq ($(UNAME),Linux)
+ifdef MIDASSYS
+CXXFLAGS += -DOS_LINUX
+MIDAS_LIB_DIR=$(MIDASSYS)/linux/lib
+endif
+endif
+
+
+
+CXX+=$(CXXFLAGS)
+
+CC+=$(CXXFLAGS)
+
+LINK=$(CXX) $(RPATH) $(ROOTLIBS)
+
+MAKE_DRAGON_DICT=
+DR_DICT=
+DR_DICT_DEP=
+ifeq ($(USE_ROOT),YES)
+MAKE_DRAGON_DICT+=rootcint -f $@ -c $(CXXFLAGS) -p $(HEADERS) $(CINT)/Linkdef.h
+DR_DICT=-p $(CINT)/DragonDictionary.cxx 
+DR_DICT_DEP=$(CINT)/DragonDictionary.cxx 
+endif
+
 
 #### DRAGON LIBRARY ####
 OBJECTS=                            	\
@@ -91,30 +121,54 @@ $(SRC)/vme/*.hxx          \
 $(SRC)/dragon/*.hxx       \
 
 ### DRAGON LIBRARY ###
-all: $(DRLIB)/libDragon.so $(DRLIB)/libRBDragon.so
+MAKE__ALL=$(DRLIB)/libDragon.so
+ifeq ($(USE_ROOTBEER),YES)
+MAKE__ALL+=$(DRLIB)/libRBDragon.so
+endif
+
+all:  $(MAKE__ALL)
 
 libDragon: $(DRLIB)/libDragon.so
 
-$(DRLIB)/libDragon.so: $(CINT)/DragonDictionary.cxx $(OBJECTS)
-	$(LINK) $(DYLIB) $(FPIC) -o $@ $(MIDASLIBS) $(OBJECTS) \
--p $(CINT)/DragonDictionary.cxx  \
-
+$(DRLIB)/libDragon.so: $(DR_DICT_DEP) $(OBJECTS)
+	$(LINK) $(DYLIB) $(FPIC) $(MIDASLIBS) \
+\
+$(OBJECTS) $(DR_DICT) \
+\
+-o $@
 
 ### OBJECT FILES ###
 
-$(OBJ)/*/%.o: $(SRC)/*/%.cxx $(CINT)/DragonDictionary.cxx
+$(OBJ)/dragon/%.o: $(SRC)/dragon/%.cxx $(DR_DICT_DEP)
 	$(CXX) $(FPIC) -c \
 -o $@ -p $< \
 
-$(OBJ)/*/%.o: $(SRC)/*/%.c $(CINT)/DragonDictionary.cxx
+$(OBJ)/utils/%.o: $(SRC)/utils/%.cxx $(DR_DICT_DEP)
+	$(CXX) $(FPIC) -c \
+-o $@ -p $< \
+
+$(OBJ)/vme/%.o: $(SRC)/vme/%.cxx $(DR_DICT_DEP)
+	$(CXX) $(FPIC) -c \
+-o $@ -p $< \
+
+$(OBJ)/midas/internal/%.o: $(SRC)/midas/internal/%.c $(DR_DICT_DEP)
 	$(CC) $(FPIC) -c \
+-o $@ -p $< \
+
+$(OBJ)/midas/internal/%.o: $(SRC)/midas/internal/%.cxx $(DR_DICT_DEP)
+	$(CXX) $(FPIC) -c \
+-o $@ -p $< \
+
+$(OBJ)/midas/%.o: $(SRC)/midas/%.cxx $(DR_DICT_DEP)
+	$(CXX) $(FPIC) -c \
 -o $@ -p $< \
 
 ### CINT DICTIONARY ###
 dict: $(CINT)/DragonDictionary.cxx
-$(CINT)/DragonDictionary.cxx:  $(HEADERS) $(CINT)/Linkdef.h
-	rootcint -f $@ -c $(CXXFLAGS) -p $(HEADERS) $(CINT)/Linkdef.h \
 
+
+$(CINT)/DragonDictionary.cxx:  $(HEADERS) $(CINT)/Linkdef.h
+	$(MAKE_DRAGON_DICT) \
 
 definitions:
 	scp dragon@ladd06.triumf.ca:/home/dragon/online/src/definitions.h \
@@ -132,6 +186,7 @@ $(OBJ)/rootbeer/DragonRootbeer.o	\
 
 RB_HEADERS= $(SRC)/rootbeer/*.hxx
 
+
 $(DRLIB)/libRBDragon.so: $(RB_OBJECTS) $(RB_HEADERS)
 	$(LINK) $(DYLIB) $(FPIC) -o $@ $(MIDASLIBS) $(RB_OBJECTS) \
 
@@ -140,6 +195,7 @@ libRBDragon: $(DRLIB)/libRBDragon.so
 $(OBJ)/rootbeer/%.o: $(SRC)/rootbeer/%.cxx $(SRC)/rootbeer/*.hxx
 	$(CXX) $(FPIC) -c \
 -o $@ -p $< \
+
 
 Timestamp: $(OBJ)/rootbeer/Timestamp.o
 MidasBuffer: $(OBJ)/rootbeer/MidasBuffer.o

@@ -280,11 +280,12 @@ int midas::Odb::WriteString(const char*name, const char* string)
 
 #else
 #include <iostream>
-#include "odb/Odb.hxx"
+#include "Odb.hxx"
 
 #define ERR_NO_MIDAS																										\
 	std::cerr << "Error: MIDASSYS not defined. file, line: " << __FILE__ <<  ", " << __LINE__ << "\n"
 
+HNDLE midas::Odb::GetHandle() { ERR_NO_MIDAS; return 0; }
 int midas::Odb::ReadAny(const char*name,int index,int tid,void* value,int valueLength) { ERR_NO_MIDAS; return -1; }
 int midas::Odb::ReadInt(const char*name,int index,int defaultValue) { ERR_NO_MIDAS; return -1; }
 uint32_t midas::Odb::ReadUint32(const char*name,int index,uint32_t defaultValue) { ERR_NO_MIDAS; return 1; }
