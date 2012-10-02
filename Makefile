@@ -189,4 +189,7 @@ Head.o:           $(OBJ)/dragon/Head.o
 Tail.o:           $(OBJ)/dragon/Tail.o
 
 odbtest: $(DRLIB)/libDragon.so
-	$(LINK) src/midas/Odb.cxx -o odbtest -DMIDAS_BUFFERS -lDragon -L$(DRLIB) -DODB_TEST
+	$(LINK) src/midas/Odb.cxx -o test/odbtest -DMIDAS_BUFFERS -lDragon -L$(DRLIB) -DODB_TEST -I$(PWD)/src
+
+filltest: test/filltest.cxx $(DRLIB)/libDragon.so
+	$(LINK) test/filltest.cxx -o test/filltest -DMIDAS_BUFFERS -lDragon -L$(DRLIB) -I$(PWD)/src \

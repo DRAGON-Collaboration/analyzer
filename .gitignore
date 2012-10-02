@@ -1,3 +1,4 @@
+*.root
 cint/DragonDictionary.cxx
 cint/DragonDictionary.h
 doc/
