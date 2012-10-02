@@ -44,7 +44,7 @@ endif
 
 ifdef MIDASSYS
 CXXFLAGS += -DMIDASSYS
-MIDASLIBS = -lmidas -L$(MIDAS_LIB_DIR) -lm -lz -lutil -lnsl -lpthread -lrt
+MIDASLIBS = -lmidas -L$(MIDAS_LIB_DIR) -lm -lz -lutil -lpthread -lrt
 INCFLAGS += -I$(MIDASSYS)/include
 endif
 
