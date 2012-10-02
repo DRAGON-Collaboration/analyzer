@@ -44,7 +44,7 @@ endif
 
 ifdef MIDASSYS
 CXXFLAGS += -DMIDASSYS
-MIDASLIBS = -lmidas -L$(MIDAS_LIB_DIR) -lm -lz -lutil -lpthread -lrt
+MIDASLIBS = -lmidas -L$(MIDAS_LIB_DIR)
 INCFLAGS += -I$(MIDASSYS)/include
 endif
 
@@ -64,6 +64,7 @@ ifeq ($(UNAME),Linux)
 ifdef MIDASSYS
 CXXFLAGS += -DOS_LINUX
 MIDAS_LIB_DIR=$(MIDASSYS)/linux/lib
+MIDASLIBS+= -lm -lz -lutil -lnsl -lpthread -lrt
 endif
 endif
 
