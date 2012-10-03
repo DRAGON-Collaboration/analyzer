@@ -1,3 +1,6 @@
+anaDragon
+*.png
+gmon.out
 *.root
 cint/DragonDictionary.cxx
 cint/DragonDictionary.h

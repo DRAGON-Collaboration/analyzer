@@ -40,7 +40,14 @@
 #include "midas/Event.hxx"
 #include "Timestamp.hxx"
 
+#include <algorithm>
+#include <sstream>
+#include <string>
+#include <vector>
+#include <memory>
 #include "rootana/Histos.hxx"
+#include "rootana/Events.hxx"
+#include "dragon/Coinc.hxx"
 #include <TRandom3.h>
 #include <TCanvas.h>
 
@@ -56,7 +63,13 @@ TDirectory* gOnlineHistDir = NULL;
 TFile* gOutputFile = NULL;
 VirtualOdb* gOdb = NULL;
 
-rootana::TSQueue gQueue (10e6);
+rootana::TSQueue gQueue ( ROOTANA_QUEUE_TIME );
+
+extern dragon::Head gHead;
+extern dragon::Tail gTail;
+extern dragon::Coinc gCoinc;
+
+
 
 //TCanvas  *gMainWindow = NULL; 	// the online histogram window
 
@@ -109,6 +122,9 @@ public:
   }
 };
 
+struct doClear {
+	void operator() (rootana::HistBase* p) { p->clear(); }
+};
 
 void startRun(int transition,int run,int time)
 {
@@ -124,6 +140,8 @@ void startRun(int transition,int run,int time)
     gOutputFile=NULL;
   }  
 
+	rootana::EventHandler::Instance()->BeginRun();
+
   char filename[1024];
   sprintf(filename, "output%05d.root", run); /// \todo better Output directory
   gOutputFile = new TFile(filename,"RECREATE");
@@ -131,7 +149,6 @@ void startRun(int transition,int run,int time)
 #ifdef HAVE_LIBNETDIRECTORY
   NetDirectoryExport(gOutputFile, "outputFile");
 #endif
-
 }
 
 void endRun(int transition,int run,int time)
@@ -143,6 +160,8 @@ void endRun(int transition,int run,int time)
   if (gManaHistosFolder)
     gManaHistosFolder->Clear();
 #endif
+
+	rootana::EventHandler::Instance()->EndRun();
 
   if (gOutputFile)
     {
@@ -185,7 +204,6 @@ void HandleSample(int ichan, void* ptr, int wsize)
   for(int ti=0; ti<numSamples; ti++)
     samplePlot->SetBinContent(ti, samples[ti]);
 }
-
 
 void HandleMidasEvent(const void* header, const void* pdata, int size)
 {
@@ -311,7 +329,7 @@ int ProcessMidasOnline(TApplication*app, const char* hostname, const char* exptn
 {
    TMidasOnline *midas = TMidasOnline::instance();
 
-   int err = midas->connect(hostname, exptname, "rootana");
+   int err = midas->connect(hostname, exptname, "anaDragon");
    printf("Connecting to experiment %s on host %s!\n", hostname, exptname);
 
    if (err != 0)
@@ -328,7 +346,7 @@ int ProcessMidasOnline(TApplication*app, const char* hostname, const char* exptn
    /* reqister event requests */
 
    midas->setEventHandler(eventHandler);
-   midas->eventRequest("SYSTEM",-1,-1,(1<<1));
+   midas->eventRequest("SYNC",-1,-1,(1<<1));
 
    /* fill present run parameters */
 
@@ -502,7 +520,7 @@ void help()
 
 int main(int argc, char *argv[])
 {
-#if 0
+#if 1
 
    setbuf(stdout,NULL);
    setbuf(stderr,NULL);
@@ -563,6 +581,8 @@ int main(int argc, char *argv[])
        else if (arg[0] == '-')
 	 help(); // does not return
     }
+
+	 if (!tcpPort) tcpPort = 9091;
     
    MainWindow *mainWindow = NULL;
 
@@ -623,25 +643,39 @@ int main(int argc, char *argv[])
    gIsOffline = false;
    //gEnableGraphics = true;
 
-   char exp_name[500][32];
-   cm_list_experiments(hostname, exp_name);
-   for(int i=0;i<5;++i) {
-     printf("EXPT:: %s\n", exp_name[i]); }
-
 #ifdef HAVE_MIDAS
-   ProcessMidasOnline(app, hostname, exptname);
+
+	 gOnlineHistDir->cd();
+
+	const int nhists = 1;
+	for (int i=0; i< nhists; ++i) {
+		std::stringstream name; name << "bgo_q" << i;
+		std::stringstream title; title << "BGO energy, channel " << i;
+		rootana::HistBase* h = new rootana::Hist<TH1D>(
+			new TH1D(name.str().c_str(), title.str().c_str(), 256, 0, 4096), rootana::DataPointer::New(gHead.bgo.q[i]));
+		rootana::EventHandler::Instance()->AddHisto(h, DRAGON_HEAD_EVENT, gOnlineHistDir, "histos/gamma_singles");
+	}
+
+	ProcessMidasOnline(app, hostname, exptname);
 #endif
    
    return 0;
 #else
-	double xx,yy,zz;
-	rootana::Hist<TH1D> h1d(new TH1D("hst","",100,-10,10), xx);
-	for (int i=0; i< 100000; ++i) {
-		xx = gRandom->Gaus(0, 5);
-		h1d.Fill();
-	}
-	h1d->Draw();
-	gPad->SaveAs("c1.png");
+	
+	 int x[9];
+	 rootana::DataPointer* xx = rootana::DataPointer::New(x, 9);
+	 rootana::Hist<TH2D> hist ("hist", "", 100, 0, 100, xx);
+
+	 for (int i=0; i< 100000; ++i) {
+		 for (int j=0; j< 9; ++j) {
+			 x[j] = gRandom->Uniform(0, 100);
+		 }
+		 hist.fill();
+	 }
+
+	 hist->Draw("COLZ");
+	 gPad->SaveAs("c1.png");
+
 #endif
 }
 

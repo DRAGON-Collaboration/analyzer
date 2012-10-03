@@ -1,39 +1,34 @@
 /// \file Timestamp.cxx
 /// \author G. Christian
 /// \brief Implements rootana/Timestamp.hxx 
+#include <algorithm>
 #include "utils/definitions.h"
 #include "utils/Error.hxx"
+#include "Events.hxx"
 #include "Timestamp.hxx"
 
 
 void rootana::TSQueue::HandleSingle(const midas::Event& event) const
 {
 	/*!
-	 * Determine event ID, then send onto the appropriate event processor.
+	 * Determine event ID, send on to EventHandler::Prcess(const midas::Event&)
 	 */
 	switch (event.GetEventId()) {
-
-	case DRAGON_HEAD_EVENT:
-		// do something //
-		break;
-
-	case DRAGON_TAIL_EVENT:
-		// do something //
-		break;
-
+	case DRAGON_HEAD_EVENT: break;
+	case DRAGON_TAIL_EVENT:	break;
 	default:
 		dragon::err::Error("rootana::TSQueue::HandleSingle")
 			<< "Unknown event id: " << event.GetEventId() << ", skipping...\n";
-		break;
+		return;
 	}
+	rootana::EventHandler::Instance()->Process(event);
 }
 
 void rootana::TSQueue::HandleCoinc(const midas::Event& event1, const midas::Event& event2) const
 {
 	/*!
-	 * \todo Write...
+	 * Construct coinc event, send on to EventHandler::Prcess(const midas::CoincEvent&)
 	 */
-#if 0 
 	midas::CoincEvent coincEvent(event1, event2);
 
 	if (coincEvent.fHeavyIon == 0 ||	coincEvent.fGamma == 0) {
@@ -42,6 +37,5 @@ void rootana::TSQueue::HandleCoinc(const midas::Event& event1, const midas::Even
 		return;
 	}
 
-	rb::Event::Instance<rootana::CoincEvent>()->Process(&coincEvent, 0);
-#endif
+	rootana::EventHandler::Instance()->Process(coincEvent);
 }

@@ -25,7 +25,6 @@ OBJ=$(PWD)/obj
 CINT=$(PWD)/cint
 DRLIB=$(PWD)/lib
 
-##RPATH    += -Wl,-rpath,$(ROOTSYS)/lib -Wl,-rpath,$(PWD)/lib
 DYLIB=-shared
 FPIC=-fPIC
 INCFLAGS=-I$(SRC) -I$(CINT)
@@ -181,20 +180,21 @@ $(PWD)/src/utils/
 
 ### FOR ROOTANA ###
 ROOTANA=$(HOME)/packages/rootana
-ROOTANA_FLAGS=-ansi -Df2cFortran -DHAVE_LIBNETDIRECTORY -I$(ROOTANA)
+ROOTANA_FLAGS=-ansi -Df2cFortran -DHAVE_LIBNETDIRECTORY -DHAVE_MIDAS -I$(ROOTANA)
 
 ROOTANA_OBJS=					\
 $(ROOTANA)/libNetDirectory/netDirectoryServer.o \
-$(OBJ)/rootana/Timestamp.o
+$(OBJ)/rootana/Timestamp.o			\
+$(OBJ)/rootana/Events.o
 
 ROOTANA_LIBS=-lrootana -lNetDirectory -L/home/dragon/packages/rootana/libNetDirectory/ -L/home/dragon/packages/rootana/
 
 $(OBJ)/rootana/%.o: $(SRC)/rootana/%.cxx $(SRC)/rootana/*.hxx
 	$(CXX) -c \
--o $@ -p $<
+-o $@ -p $< $(ROOTLIBS)
 
 anaDragon: $(SRC)/rootana/anaDragon.cxx $(DRLIB)/libDragon.so $(ROOTANA_OBJS) $(SRC)/rootana/Globals.h $(SRC)/rootana/Histos.hxx
-	$(LINK) $(RBINC) $(ROOTANA_FLAGS) \
+	$(LINK) $(RBINC) $(ROOTANA_FLAGS) -DROOTANA_QUEUE_TIME=10e6 \
 -o $@ -p $< $(ROOTANA_OBJS) -lDragon -L$(DRLIB) $(MIDASLIBS) $(ROOTANA_LIBS) \
 
 

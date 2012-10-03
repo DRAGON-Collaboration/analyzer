@@ -3,18 +3,20 @@
 /// \brief Defines a child class of tstamp::Queue for use in rootana
 #ifndef DRAGON_ROOTANA_TIMESTAMP_HXX
 #define DRAGON_ROOTANA_TIMESTAMP_HXX
+#include <list>
 #include "utils/TStamp.hxx"
-
+#include "dragon/Coinc.hxx"
 
 namespace rootana {
+
+class HistBase;
 
 /// Derived class of tstamp::Queue for use in rootana
 class TSQueue : public tstamp::Queue
 {
 public:
 	/// Just Calls tstamp::Queue::Queue()
-	TSQueue(double maxDelta)
-	: tstamp::Queue(maxDelta) { }
+	TSQueue(double maxDelta): tstamp::Queue(maxDelta) { }
 
 	/// Empty
 	~TSQueue() { }
