@@ -193,9 +193,9 @@ $(OBJ)/rootana/%.o: $(SRC)/rootana/%.cxx $(SRC)/rootana/*.hxx
 	$(CXX) -c \
 -o $@ -p $<
 
-anaDragon: $(SRC)/rootana/anaDragon.cxx $(DRLIB)/libDragon.so $(ROOTANA_OBJS) $(SRC)/rootana/Globals.h
+anaDragon: $(SRC)/rootana/anaDragon.cxx $(DRLIB)/libDragon.so $(ROOTANA_OBJS) $(SRC)/rootana/Globals.h $(SRC)/rootana/Histos.hxx
 	$(LINK) $(RBINC) $(ROOTANA_FLAGS) \
--o $@ -p $< $(ROOTANA_OBJS) $(MIDASLIBS) $(ROOTANA_LIBS) -lDragon -L$(DRLIB) \
+-o $@ -p $< $(ROOTANA_OBJS) -lDragon -L$(DRLIB) $(MIDASLIBS) $(ROOTANA_LIBS) \
 
 
 

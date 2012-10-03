@@ -40,6 +40,10 @@
 #include "midas/Event.hxx"
 #include "Timestamp.hxx"
 
+#include "rootana/Histos.hxx"
+#include <TRandom3.h>
+#include <TCanvas.h>
+
 // Global Variables
 int  gRunNumber = 0;
 bool gIsRunning = false;
@@ -495,8 +499,11 @@ void help()
 
 // Main function call
 
+
 int main(int argc, char *argv[])
 {
+#if 0
+
    setbuf(stdout,NULL);
    setbuf(stderr,NULL);
  
@@ -626,6 +633,16 @@ int main(int argc, char *argv[])
 #endif
    
    return 0;
+#else
+	double xx,yy,zz;
+	rootana::Hist<TH1D> h1d(new TH1D("hst","",100,-10,10), xx);
+	for (int i=0; i< 100000; ++i) {
+		xx = gRandom->Gaus(0, 5);
+		h1d.Fill();
+	}
+	h1d->Draw();
+	gPad->SaveAs("c1.png");
+#endif
 }
 
 //end
