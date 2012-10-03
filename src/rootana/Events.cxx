@@ -12,11 +12,11 @@
 #include "Events.hxx"
 
 
-/// Gamma events
+/// Gamma events (global)
 dragon::Head gHead;
-/// Heavy-ion events
+/// Heavy-ion events (global)
 dragon::Tail gTail;
-/// Coinc Events
+/// Coinc Events (global)
 dragon::Coinc gCoinc;
 
 
@@ -53,11 +53,17 @@ namespace {
 
 struct hFill   { void operator() (rootana::HistBase* h) { h->fill();  } };
 struct hWrite  { void operator() (rootana::HistBase* h) { h->write(); } };
+struct hClear  { void operator() (rootana::HistBase* h) { h->clear(); } };
 struct hDelete { void operator() (rootana::HistBase* h) { delete h;   } };
 
 struct hListWrite {
 	void operator() (std::pair<const uint16_t, std::list<rootana::HistBase*> >& p)
 		{ std::for_each (p.second.begin(), p.second.end(), hWrite()); }
+};
+
+struct hListClear {
+	void operator() (std::pair<const uint16_t, std::list<rootana::HistBase*> >& p)
+		{ std::for_each (p.second.begin(), p.second.end(), hClear()); }
 };
 
 template <class T, class E>
@@ -108,4 +114,5 @@ void rootana::EventHandler::EndRun()
 
 void rootana::EventHandler::BeginRun()
 {
+	std::for_each (fHistos.begin(), fHistos.end(), hListClear());
 }

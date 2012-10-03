@@ -1,8 +1,9 @@
 ### SET OPTIONAL #defines HERE ###
 DEFINITIONS=-DDISPLAY_MODULES
 
-### Set to YES (NO) to turn on (off) ROOT [or ROOTBEER] usage ###
+### Set to YES (NO) to turn on (off) root [or rootbeer, or rootana] usage ###
 USE_ROOT=YES
+USE_ROOTANA=YES
 USE_ROOTBEER=NO
 
 ### Set ROOTBEER home directory (ignore if USE_ROOTBEER=NO) ###
@@ -127,6 +128,9 @@ $(SRC)/dragon/*.hxx       \
 MAKE__ALL=$(DRLIB)/libDragon.so
 ifeq ($(USE_ROOTBEER),YES)
 MAKE__ALL+=$(DRLIB)/libRBDragon.so
+endif
+ifeq ($(USE_ROOTANA),YES)
+MAKE__ALL+=anaDragon
 endif
 
 all:  $(MAKE__ALL)
