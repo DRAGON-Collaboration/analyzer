@@ -1,0 +1,35 @@
+DIR:
+histos/gamma_singles
+
+HIST:
+	TH1D("bgo_q0", "Bgo energy, ch 0", 256, 0, 4096)
+	gCoinc.head.bgo.q[0]
+
+SUMMARY_HIST:
+	"bgo_q", "Bgo energies [coinc]", 256, 0, 4096
+	gHead.bgo.q
+	30
+
+DIR:
+histos/hion_singles
+
+HIST:
+	TH1D("dsssd_qraw_0", "DSSSD energy, ch 0", 256, 0, 4096)
+	gTail.dsssd.qraw[0]
+
+DIR:
+histos/coinc
+
+HIST:
+	TH1D("bgo_q0", "Bgo energy [coincidences], ch 0", 256, 0, 4096)
+	gCoinc.head.bgo.q[0]
+
+HIST:
+	TH2D("bgo_q1_q0", "Bgo energy 1 vs. 0 [coinc]", 256, 0, 4096, 256, 0, 4096)
+	gCoinc.head.bgo.q[1]
+	gCoinc.head.bgo.q[0]
+
+SUMMARY_HIST:
+	"bgo_q", "Bgo energies [coinc]", 256, 0, 4096
+	gCoinc.head.bgo.q
+	30

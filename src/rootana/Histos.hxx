@@ -6,11 +6,12 @@
 #ifndef DRAGON_ROOTANA_HISTOS_HXX
 #define DRAGON_ROOTANA_HISTOS_HXX
 #include <cassert>
+#include <TColor.h>
 #include <TDirectory.h>
 #include <TH1D.h>
 #include <TH2D.h>
 #include <TH3D.h>
-
+#include "utils/Valid.hxx"
 
 /// Encloses all rootana-specific classes
 namespace rootana {
@@ -71,7 +72,6 @@ public:
 	unsigned length() const { return 0; }
 };
 
-
 /// Base histogram class
 /*!
  * Abstract interface for Rootana histograms
@@ -90,6 +90,8 @@ public:
 	virtual void clear() = 0;
 	/// Sets owner TDirectory
 	virtual void set_directory(TDirectory*) = 0;
+	/// Creation function for "summary" histograms
+	static HistBase* NewSummary(const char* name, const char* title, Int_t nbins, double low, double high, const DataPointer* paramArray);
 };
 
 /// Rootana histogram class
@@ -135,13 +137,11 @@ public:
 	Int_t fill();
 	/// Calls TH1::Write()
 	void write() { fHist->Write(); }
-	/// Calls TH1::Ckear()
+	/// Calls TH1::Clear()
 	void clear() { fHist->Clear(); }
 	/// Calls TH1::SetDirectory
 	void set_directory(TDirectory* directory)
 		{ fHist->SetDirectory(directory); }
-	/// Cast from TObject
-	static Hist<T>& upcast(TObject*);
 };
 
 } // namespace rootana
@@ -171,12 +171,6 @@ inline rootana::DataPointer* rootana::DataPointer::New(T* array, unsigned length
 }
 
 template <class T>
-inline rootana::Hist<T>& rootana::Hist<T>::upcast(TObject* object)
-{
-	return *static_cast<Hist<T>*>(object);
-}
-
-template <class T>
 inline rootana::Hist<T>::~Hist()
 {
 	delete fHist;
@@ -200,6 +194,21 @@ inline rootana::Hist<T>& rootana::Hist<T>::operator= (const Hist& other)
 	return *this;
 }
 
+namespace {
+void rainbow_colz(TH2D* hist)
+{
+	const Int_t NRGBs = 5;
+	const Int_t NCont = 255;
+
+	Double_t stops[NRGBs] = { 0.00, 0.34, 0.61, 0.84, 1.00 };
+	Double_t red[NRGBs]   = { 0.00, 0.00, 0.87, 1.00, 0.51 };
+	Double_t green[NRGBs] = { 0.00, 0.81, 1.00, 0.20, 0.00 };
+	Double_t blue[NRGBs]  = { 0.51, 1.00, 0.12, 0.00, 0.00 };
+	TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
+	hist->SetContour(NCont);
+	hist->SetOption("COLZ");
+} }
+
 namespace rootana {
 
 template <>
@@ -210,7 +219,9 @@ inline rootana::Hist<TH1D>::Hist(TH1D* hist, const DataPointer* param):
 template <>
 inline rootana::Hist<TH2D>::Hist(TH2D* hist, const DataPointer* paramx, const DataPointer* paramy):
 	fHist(hist), fParamx(paramx), fParamy(paramy), fParamz(DataPointer::New())
-{ }
+{ 
+	rainbow_colz(fHist);
+}
 
 template <>
 inline rootana::Hist<TH3D>::Hist(TH3D* hist, const DataPointer* paramx, const DataPointer* paramy, const DataPointer* paramz):
@@ -222,28 +233,47 @@ inline rootana::Hist<TH2D>::Hist(const char* name, const char* title, Int_t nbin
 	fParamx (paramArray), fParamy(DataPointer::New()), fParamz(DataPointer::New())
 {
 	fHist = new TH2D(name, title, nbins, low, high, paramArray->length(), 0, paramArray->length());
+	rainbow_colz(fHist);
 }
 
 template <>
 inline Int_t rootana::Hist<TH1D>::fill()
 {
-	return fHist->Fill (fParamx->get());
+	if (is_valid(fParamx->get()))
+		return fHist->Fill (fParamx->get());
+	else return 0;
 }
 
 template <>
 inline Int_t rootana::Hist<TH2D>::fill()
 {
-	if (fParamy->length()) return fHist->Fill (fParamx->get(), fParamy->get());
-	for (int bin = 0 ; bin < fHist->GetYaxis()->GetNbins(); ++bin) {
-		fHist->Fill (fParamx->get(bin), bin);
+	// "Normal" 2D version
+	if (fParamy->length()) {
+		if (is_valid(fParamx->get(), fParamy->get()))
+			return fHist->Fill (fParamx->get(), fParamy->get());
+		else return 0;
 	}
-	return 1;
+
+	// "Summary" version
+	int filled = 0;
+	for (int bin = 0 ; bin < fHist->GetYaxis()->GetNbins(); ++bin) {
+		if (is_valid(fParamx->get(bin))) {
+			filled = 1;
+			fHist->Fill (fParamx->get(bin), bin);
+		}
+	}
+	return filled;
 }
 
 template<>
 inline Int_t rootana::Hist<TH3D>::fill()
 {
 	return fHist->Fill (fParamx->get(), fParamy->get(), fParamz->get());
+}
+
+inline HistBase* HistBase::NewSummary(const char* name, const char* title, Int_t nbins, double low, double high, const DataPointer* paramArray)
+{
+	return new Hist<TH2D>(name, title, nbins, low, high, paramArray);
 }
 
 }

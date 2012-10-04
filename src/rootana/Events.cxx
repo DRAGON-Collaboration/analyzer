@@ -11,14 +11,7 @@
 #include "Histos.hxx"
 #include "Events.hxx"
 
-
-/// Gamma events (global)
-dragon::Head gHead;
-/// Heavy-ion events (global)
-dragon::Tail gTail;
-/// Coinc Events (global)
-dragon::Coinc gCoinc;
-
+#include "DragonGlobals.h"
 
 rootana::EventHandler* rootana::EventHandler::Instance()
 {
@@ -40,11 +33,12 @@ void rootana::EventHandler::AddHisto(rootana::HistBase* hist, uint16_t eventId, 
 		TDirectory* dir = dynamic_cast<TDirectory*>(gDirectory->FindObject(dirname.Data()));
 		if(dir) dir->cd();
 		else {
-			gDirectory->mkdir(dirname.Data());
-			gDirectory->cd(dirname.Data());
+			TDirectory* d = gDirectory->mkdir(dirname.Data());
+			d->cd();
 		}
 	}
 	hist->set_directory(gDirectory);
+	
 	fHistos[eventId].push_back(hist);
 	file->cd();
 }
