@@ -185,8 +185,11 @@ $(PWD)/src/utils/
 ROOTANA=$(HOME)/packages/rootana
 ROOTANA_FLAGS=-ansi -Df2cFortran -DHAVE_LIBNETDIRECTORY -DHAVE_MIDAS -I$(ROOTANA)
 
+ROOTANA_REMOTE_OBJS=				\
+$(ROOTANA)/libNetDirectory/netDirectoryServer.o
+
 ROOTANA_OBJS=					\
-$(ROOTANA)/libNetDirectory/netDirectoryServer.o \
+$(OBJ)/rootana/HistParser.o			\
 $(OBJ)/rootana/Timestamp.o			\
 $(OBJ)/rootana/Events.o
 
@@ -200,12 +203,12 @@ $(OBJ)/rootana/%.o: $(SRC)/rootana/%.cxx $(SRC)/rootana/*.hxx $(CINT)/rootana/Di
 	$(CXX) -c  $(FPIC) \
 -o $@ -p $< $(ROOTLIBS) \
 
-libRootanaDragon.so: $(DRLIB)/libDragon.so $(OBJ)/rootana/Timestamp.o $(OBJ)/rootana/Events.o $(SRC)/rootana/Globals.h $(SRC)/rootana/Histos.hxx
+libRootanaDragon.so: $(DRLIB)/libDragon.so $(ROOTANA_OBJS) $(SRC)/rootana/Globals.h $(SRC)/rootana/Histos.hxx
 	$(LINK) $(DYLIB) $(FPIC) $(RBINC) $(ROOTANA_FLAGS) -DROOTANA_QUEUE_TIME=10e6 \
--o $@ -p $< $(CINT)/rootana/Dict.cxx $(OBJ)/rootana/Timestamp.o $(OBJ)/rootana/Events.o -lDragon -L$(DRLIB) $(MIDASLIBS) \
+-o $@ -p $< $(CINT)/rootana/Dict.cxx $(ROOTANA_OBJS) -lDragon -L$(DRLIB) $(MIDASLIBS) \
 
 
-anaDragon: $(SRC)/rootana/anaDragon.cxx $(DRLIB)/libDragon.so $(ROOTANA_OBJS) $(SRC)/rootana/Globals.h $(SRC)/rootana/Histos.hxx
+anaDragon: $(SRC)/rootana/anaDragon.cxx $(DRLIB)/libDragon.so $(ROOTANA_OBJS) $(ROOTNAN_REMOTE_OBJS) $(SRC)/rootana/Globals.h $(SRC)/rootana/Histos.hxx
 	$(LINK) $(RBINC) $(ROOTANA_FLAGS) -DROOTANA_QUEUE_TIME=10e6 \
 -o $@ -p $< $(CINT)/rootana/Dict.cxx $(ROOTANA_OBJS) -lDragon -L$(DRLIB) $(MIDASLIBS) $(ROOTANA_LIBS) \
 

@@ -88,6 +88,8 @@ public:
 	virtual void write() = 0;
 	/// Clears the histogram
 	virtual void clear() = 0;
+	/// Returns histogram name
+	virtual const char* name() const = 0;
 	/// Sets owner TDirectory
 	virtual void set_directory(TDirectory*) = 0;
 	/// Creation function for "summary" histograms
@@ -137,6 +139,8 @@ public:
 	Int_t fill();
 	/// Calls TH1::Write()
 	void write() { fHist->Write(); }
+	/// Calls TH1::GetName()
+	const char* name() const { return fHist->GetName(); }
 	/// Calls TH1::Clear()
 	void clear() { fHist->Clear(); }
 	/// Calls TH1::SetDirectory
