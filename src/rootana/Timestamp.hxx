@@ -1,4 +1,4 @@
-/// \file Timestamp.hxx
+/// \file rootana/Timestamp.hxx
 /// \author G. Christian
 /// \brief Defines a child class of tstamp::Queue for use in rootana
 #ifndef DRAGON_ROOTANA_TIMESTAMP_HXX
