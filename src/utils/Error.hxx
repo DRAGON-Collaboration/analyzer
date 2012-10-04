@@ -6,7 +6,6 @@
 #define DRAGON_ERROR_HXX
 #include <iostream>
 #include <string>
-#include <sstream>
 #include <stdexcept>
 
 
@@ -24,45 +23,51 @@ namespace err {
 class Strm {
 
 protected:
-	 typedef std::basic_ostream<char, std::char_traits<char> > CoutType;
-	 typedef CoutType& (*StandardEndLine)(CoutType&);
+	typedef std::basic_ostream<char, std::char_traits<char> > CoutType;
+	typedef CoutType& (*StandardEndLine)(CoutType&);
+	std::ostream& fStream;
 
 public:
 	/// Sets the message formatting.
-	Strm(const char* what, const char* where)
+	Strm(const char* what, const char* where, std::ostream& stream):
+		fStream (stream)
 		{
 			/*!
 			 * \param what The type of message (error, warning, etc.)
 			 * \param where The location of the message (function name)
+			 * \param stream Instance std::ostream to use for streaming
 			 */
-			std::cerr << what << " in <" << where << ">: ";
+			fStream << what << " in <" << where << ">: ";
 		}
 
 	/// Stream operator
 	template <typename T> Strm& operator<< (T arg)
-		{	std::cerr << arg; return *this; }
+		{	fStream << arg; return *this; }
 
 	/// Stream operator, for std::endl
 	Strm& operator<<(StandardEndLine manip)
-		{	manip(std::cerr);	return *this;	}
+		{	manip(fStream);	return *this;	}
 
 	/// Automatic printing of std::endl
-	virtual ~Strm() { std::endl(std::cerr); }
+	virtual ~Strm() { std::endl(fStream); }
 };
 
+/// Template specialization for std::cout
+
 /// Specialized err::Strm class to print informational messages
-struct Info: public Strm { Info(const char* where) : Strm("Info", where) {} };
+struct Info: public Strm { Info(const char* where) : Strm("Info", where, std::cout) {} };
 
 /// Specialized err::Strm class to print error messages
-struct Error: public Strm { Error(const char* where) : Strm("Error", where) {} };
+struct Error: public Strm { Error(const char* where) : Strm("Error", where, std::cerr) {} };
 
 /// Specialized err::Strm class to print warning messages
-struct Warning: public Strm { Warning(const char* where) : Strm("Warning", where) {} };
+struct Warning: public Strm { Warning(const char* where) : Strm("Warning", where, std::cerr) {} };
 
 } // namespace err
 
 } // namespace dragon
 
+/// For printing in-place file & line messages
 #define DRAGON_ERR_FILE_LINE "\nFile, line: " << __FILE__ << ", " << __LINE__ << "." << std::endl
 
 #endif // #ifndef DRAGON_ERROR_HXX

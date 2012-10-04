@@ -122,8 +122,8 @@ public:
  */
 class SummaryHist: public Hist<TH2D> {
 public:
-	/// Mimics TH1D constructor (use x-axis bins), with array specification determining y-axis binning
-	SummaryHist(const char* name, const char* title, Int_t nbins, double low, double high, const DataPointer* paramArray);
+	/// Sets x-axis binning from \e hist, y-axis from \e paramArray
+	SummaryHist(TH1D* hist, const DataPointer* paramArray);
 	/// Empty, ~Hist<TH2D> takes care of everything
 	virtual ~SummaryHist() { }
 	/// Override the fill() method to act appropriately for summary histograms
@@ -235,10 +235,30 @@ inline Int_t rootana::Hist<TH3D>::fill()
 	else return 0;
 }
 
-inline rootana::SummaryHist::SummaryHist(const char* name, const char* title, Int_t nbins, double low, double high, const DataPointer* paramArray):
-	Hist<TH2D>(new TH2D(name, title, nbins, low, high, paramArray->length(), 0, paramArray->length()), paramArray, DataPointer::New())
+namespace {
+inline TH2D* get_summary_2d(TH1D* xaxis, const DataPointer* param)
+{
+	const std::string name  = xaxis->GetName();
+	const std::string title = xaxis->GetTitle();
+	const Int_t  nX = xaxis->GetNbinsX();
+	const double lX = xaxis->GetXaxis()->GetBinUpEdge(0);
+	const double hX = xaxis->GetXaxis()->GetBinUpEdge(nX);
+	const Int_t  nY = param->length();
+	const double lY = 0.;
+	const double hY = param->length();
+	delete xaxis;
+	return new TH2D(name.c_str(), title.c_str(), nX, lX, hX, nY, lY, hY);
+} }
+
+inline rootana::SummaryHist::SummaryHist(TH1D* hist, const DataPointer* paramArray):
+	Hist<TH2D>(get_summary_2d(hist, paramArray), paramArray, DataPointer::New())
 { 
-	/*! Calls Hist<TH2D>::Hist() with appropriate arguments for a summary histogram. */
+	/*!
+	 *  Calls Hist<TH2D>::Hist() with appropriate arguments for a summary histogram.
+	 *  Takes name, title, and x-axis binning from \e hist, then deletes it.
+	 *  Takes y-axis binning from paramArray, and sets it as the internal data pointer.
+	 *  Sets the expected y-axis data poiner to DataPointerNull.
+	 */
 }
 
 inline Int_t rootana::SummaryHist::fill()
