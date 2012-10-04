@@ -200,6 +200,7 @@ void HandleSample(int ichan, void* ptr, int wsize)
     samplePlot->SetBinContent(ti, samples[ti]);
 }
 
+#if 0
 void HandleMidasEvent(const void* header, const void* pdata, int size)
 {
 	const EventHeader_t* head = reinterpret_cast<const EventHeader_t*>(header);
@@ -220,16 +221,23 @@ void HandleMidasEvent(const void* header, const void* pdata, int size)
 		break;
 	}
 }
+#endif
 
 inline void HandleMidasEvent(TMidasEvent& event)
 {
+#if 0
 	HandleMidasEvent(event.GetEventHeader(), event.GetData(), event.GetDataSize());
+#else
+	rootana_handle_event(event.GetEventHeader(), event.GetData(), event.GetDataSize());
+#endif
 }
 
+#if 0
 inline void eventHandler(const void*pheader,const void*pdata,int size)
 {
   HandleMidasEvent(pheader, pdata, size);
 }
+#endif
 
 int ProcessMidasFile(TApplication*app,const char*fname)
 {
@@ -352,7 +360,11 @@ int ProcessMidasOnline(TApplication*app, const char* hostname, const char* exptn
 
    /* reqister event requests */
 
+#if 0
    midas->setEventHandler(eventHandler);
+#else
+   midas->setEventHandler(rootana_handle_event);
+#endif
    midas->eventRequest("SYNC",-1,-1,(1<<1));
 
    /* fill present run parameters */

@@ -9,11 +9,14 @@
 #include "libNetDirectory/netDirectoryServer.h"
 #endif
 
+#include "utils/definitions.h"
 #include "utils/Error.hxx"
 #include "Events.hxx"
 #include "Timestamp.hxx"
 #include "RootanaDragon.hxx"
 
+
+/// \todo Reduce globals as much as possible
 extern int  gRunNumber;
 extern bool gIsRunning;
 extern bool gIsPedestalsRun;
@@ -102,5 +105,22 @@ void rootana_handle_event(const void* pheader, const void* pdata, int size)
 	/*!
 	 *
 	 */
+	const EventHeader_t* head = reinterpret_cast<const EventHeader_t*>(pheader);
+	switch (head->fEventId) {
+	case DRAGON_HEAD_EVENT:  /// - DRAGON_HEAD_EVENT: Insert into timestamp matching queue
+		gQueue.Push(midas::Event("TSCH", pheader, pdata, head->fDataSize));
+		break;
+	case DRAGON_TAIL_EVENT:  /// - DRAGON_TAIL_EVENT: Insert into timestamp matching queue
+		gQueue.Push(midas::Event("TSCT", pheader, pdata, head->fDataSize));
+		break;
+	case DRAGON_HEAD_SCALER: /// - DRAGON_HEAD_SCALER: TODO: implement C. Stanford's scaler codes
+		// <...process...> //
+		break;
+	case DRAGON_TAIL_SCALER: /// - DRAGON_TAIL_SCALER: TODO: implement C. Stanford's scaler codes
+		// <...process...> //
+		break;
+	default: /// - Silently ignore other event types
+		break;
+	}
 }
 
