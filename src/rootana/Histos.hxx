@@ -28,18 +28,17 @@ private:
 	Cut* fCut; ///< Cut (gate) condition
 public:
 	/// Sets fCut to NULL, otherwise empty
-	HistBase():
-		fCut(0) { }
+	HistBase():	fCut(0) { }
+
 	/// Deletes fCut if it's non-NULL
-	virtual ~HistBase()
-		{ if (fCut) delete fCut; }
+	virtual ~HistBase() { if (fCut) delete fCut; }
+
 	/// Sets the cut (gate) condition
 	template <class C>
-	void set_cut(const C& cut)
-		{ if (fCut) delete fCut; fCut = new C(); }
+	void set_cut(const C& cut);
+
   /// Applies the cut condition
-	bool apply_cut()
-		{ return !fCut ? true: (*fCut)(); }
+	bool apply_cut();
 
 	/// Fills the histogram with appropriate data
 	virtual Int_t fill() = 0;
@@ -53,7 +52,9 @@ public:
 	virtual void set_directory(TDirectory*) = 0;
 
 private:
+	/// Disallow copy
 	HistBase(const HistBase& other) { }
+	/// Disallow assign
 	HistBase& operator= (const HistBase& other) { return *this; }
 };
 
@@ -131,6 +132,30 @@ public:
 
 
 // INLINE IMPLEMENTATIONS //
+
+
+template <class C>
+inline void rootana::HistBase::set_cut(const C& cut)
+{
+	/*!
+	 * Should be called with an empty instance of 
+	 * a class derived from rootana::Cut, e.g.
+	 * \code
+	 * struct MyCut: public rootana::Cut {
+	 *   bool operator() () { return gHead.bgo.q[0] > 100; }
+	 * };
+	 * 
+	 * SomeHist->set_cut(MyCut());
+	 */
+	if (fCut) delete fCut;
+	fCut = new C ();
+}
+
+inline bool rootana::HistBase::apply_cut()
+{
+	/*! \returns true if fCut == 0, otherwise, the value of fCut->operator() */
+	return !fCut ? true: (*fCut)();
+}
 
 template <class T>
 inline rootana::Hist<T>::~Hist()
