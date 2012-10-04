@@ -1,4 +1,4 @@
-/// \file Timestamp.cxx
+/// \file rootbeer/Timestamp.cxx
 /// \author G. Christian
 /// \brief Implements Timestamp.hxx
 

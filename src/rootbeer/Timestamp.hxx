@@ -1,4 +1,4 @@
-/// \file Timestamp.hxx
+/// \file rootbeer/Timestamp.hxx
 /// \author G. Christian
 /// \brief Defines a child class of tstamp::Queue for use in ROOTBEER
 #ifndef DRAGON_RB_TIMESTAMP_HXX

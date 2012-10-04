@@ -1,4 +1,4 @@
-/// \file Timestamp.cxx
+/// \file rootana/Timestamp.cxx
 /// \author G. Christian
 /// \brief Implements rootana/Timestamp.hxx 
 #include <algorithm>
