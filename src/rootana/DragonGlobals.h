@@ -8,6 +8,9 @@
 #define EXTERN
 #endif
 
+
+namespace rootana {
+
 /// Gamma events (global)
 EXTERN dragon::Head gHead;
 /// Heavy-ion events (global)
@@ -15,6 +18,7 @@ EXTERN dragon::Tail gTail;
 /// Coinc Events (global)
 EXTERN dragon::Coinc gCoinc;
 
+}
 
 #undef EXTERN
 

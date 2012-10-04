@@ -7,13 +7,14 @@
 #pragma link off all functions;
 #pragma link C++ nestedclasses;
 
+#pragma link C++ class rootana;
 
 #pragma link C++ class rootana::DataPointer+;
 #pragma link C++ class rootana::HistBase+;
 
-#pragma link C++ global gHead;
-#pragma link C++ global gTail;
-#pragma link C++ global gCoinc;
+#pragma link C++ global rootana::gHead;
+#pragma link C++ global rootana::gTail;
+#pragma link C++ global rootana::gCoinc;
 
 #pragma link C++ function rootana::DataPointer::New(Char_t);
 #pragma link C++ function rootana::DataPointer::New(Short_t);
