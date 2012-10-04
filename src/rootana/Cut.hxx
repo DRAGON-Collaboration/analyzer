@@ -18,9 +18,17 @@ namespace rootana {
 class Cut {
 public:
 	/// Empty
-	Cut() { }
+	Cut()
+		{
+			/*!
+			 * \note Non-empty constructors in derived classes will invalidate
+			 * the intended usage of rootana::HistBase::set_cut()
+			 */
+		}
+
 	/// Empty
 	virtual ~Cut() { }
+
 	/// Determines cut condition
 	virtual bool operator() () const = 0;
 };
