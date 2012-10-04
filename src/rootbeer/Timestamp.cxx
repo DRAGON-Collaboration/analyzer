@@ -1,6 +1,6 @@
 /// \file rootbeer/Timestamp.cxx
 /// \author G. Christian
-/// \brief Implements Timestamp.hxx
+/// \brief Implements rootbeer/Timestamp.hxx
 
 // ROOTBEER includes //
 #include "Event.hxx"

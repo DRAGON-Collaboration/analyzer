@@ -15,9 +15,10 @@
 /// Encloses all rootana-specific classes
 namespace rootana {
 
-/// Base histogram class
+/// Abstract interface for Rootana histograms
 /*!
- * Abstract interface for Rootana histograms
+ * Provides a pure virtual interface with functions needed in the standard
+ * ROOTANA framework.
  */
 class HistBase {
 public:
@@ -35,8 +36,6 @@ public:
 	virtual const char* name() const = 0;
 	/// Sets owner TDirectory
 	virtual void set_directory(TDirectory*) = 0;
-	/// Creation function for "summary" histograms
-	static HistBase* NewSummary(const char* name, const char* title, Int_t nbins, double low, double high, const DataPointer* paramArray);
 };
 
 /// Rootana histogram class
@@ -49,7 +48,7 @@ public:
  */
 template <class T>
 class Hist: public HistBase {
-private:
+protected:
 	T* fHist; ///< Internal ROOT histogram
 	const DataPointer* fParamx; ///< X-axis parameter
 	const DataPointer* fParamy; ///< Y-axis parameter
@@ -62,15 +61,15 @@ public:
 	Hist(T* hist, const DataPointer* paramx, const DataPointer* paramy);
 	/// 3d (TH3D) constructor
 	Hist(T* hist, const DataPointer* paramx, const DataPointer* paramy, const DataPointer* paramz);
-	/// "Summary" hist (TH2D) constructor
-	Hist(const char* name, const char* title, Int_t nbins, double low, double high, const DataPointer* paramArray);
-	/// Frees memory allocated to fHist
+	/// Frees memory allocated to fHist, and fParamx (y, z)
 	virtual ~Hist();
+
 private:
 	/// Copy constructor
 	Hist(const Hist& other);
 	/// Equivalency operator
 	Hist& operator= (const Hist& other);
+
 public:
 	/// Grants access to the internal histogram
 	T* get() { return fHist; }
@@ -78,20 +77,41 @@ public:
 	T* operator->() { return fHist; }
 	/// Dereference operator, for pointer-like bahavior
 	T& operator*() { return *fHist; }
+
 	/// Calls TH1::Fill using fParamx, fParamy, fParamz
-	Int_t fill();
+	virtual Int_t fill();
 	/// Calls TH1::Write()
-	void write() { fHist->Write(); }
+	virtual void write()
+		{ fHist->Write(); }
 	/// Calls TH1::GetName()
-	const char* name() const { return fHist->GetName(); }
+	virtual const char* name() const
+		{ return fHist->GetName(); }
 	/// Calls TH1::Clear()
-	void clear() { fHist->Clear(); }
+	virtual void clear()
+		{ fHist->Clear(); }
 	/// Calls TH1::SetDirectory
-	void set_directory(TDirectory* directory)
+	virtual void set_directory(TDirectory* directory)
 		{ fHist->SetDirectory(directory); }
 };
 
-} // namespace rootana
+/// Specialized case of TH2D that displays "summary" information
+/*!
+ *  By "summary", we mean that each y-axis bin corresponds to a single parameter,
+ *  and the x-axis corresponds to parameter values. Currently this is only supported
+ *  for arrays, not individual separate parameters.
+ */
+class SummaryHist: public Hist<TH2D> {
+public:
+	/// Mimics TH1D constructor (use x-axis bins), with array specification determining y-axis binning
+	SummaryHist(const char* name, const char* title, Int_t nbins, double low, double high, const DataPointer* paramArray);
+	/// Empty, ~Hist<TH2D> takes care of everything
+	virtual ~SummaryHist() { }
+	/// Override the fill() method to act appropriately for summary histograms
+	virtual Int_t fill();
+};
+
+
+// INLINE IMPLEMENTATIONS //
 
 template <class T>
 inline rootana::Hist<T>::~Hist()
@@ -105,7 +125,9 @@ inline rootana::Hist<T>::~Hist()
 template <class T>
 inline rootana::Hist<T>::Hist(const Hist& other):
 	fParamx(other.fParamx), fParamy(other.fParamy), fParamz(other.fParamz)
-{	fHist = new T (*(other.fHist)); }
+{
+	fHist = new T (*(other.fHist));
+}
 
 template <class T>
 inline rootana::Hist<T>& rootana::Hist<T>::operator= (const Hist& other)
@@ -117,13 +139,13 @@ inline rootana::Hist<T>& rootana::Hist<T>::operator= (const Hist& other)
 	return *this;
 }
 
-namespace rootana {
-
+/// Specialized constructor for TH1D
 template <>
 inline rootana::Hist<TH1D>::Hist(TH1D* hist, const DataPointer* param):
 	fHist(hist), fParamx(param), fParamy(DataPointer::New()), fParamz(DataPointer::New())
 { }
 
+/// Specialized constructor for TH2D
 template <>
 inline rootana::Hist<TH2D>::Hist(TH2D* hist, const DataPointer* paramx, const DataPointer* paramy):
 	fHist(hist), fParamx(paramx), fParamy(paramy), fParamz(DataPointer::New())
@@ -131,19 +153,13 @@ inline rootana::Hist<TH2D>::Hist(TH2D* hist, const DataPointer* paramx, const Da
 	fHist->SetOption("COLZ");
 }
 
+/// Specialized constructor for TH3D
 template <>
 inline rootana::Hist<TH3D>::Hist(TH3D* hist, const DataPointer* paramx, const DataPointer* paramy, const DataPointer* paramz):
 	fHist(hist), fParamx(paramx), fParamy(paramy), fParamz(paramz)
 { }
 
-template<>
-inline rootana::Hist<TH2D>::Hist(const char* name, const char* title, Int_t nbins, double low, double high, const DataPointer* paramArray):
-	fParamx (paramArray), fParamy(DataPointer::New()), fParamz(DataPointer::New())
-{
-	fHist = new TH2D(name, title, nbins, low, high, paramArray->length(), 0, paramArray->length());
-	fHist->SetOption("COLZ");
-}
-
+/// Specialized fill() for TH1D
 template <>
 inline Int_t rootana::Hist<TH1D>::fill()
 {
@@ -152,38 +168,40 @@ inline Int_t rootana::Hist<TH1D>::fill()
 	else return 0;
 }
 
+/// Specialized fill() for TH2D
 template <>
 inline Int_t rootana::Hist<TH2D>::fill()
 {
-	// "Normal" 2D version
-	if (fParamy->length()) {
-		if (is_valid(fParamx->get(), fParamy->get()))
-			return fHist->Fill (fParamx->get(), fParamy->get());
-		else return 0;
-	}
-
-	// "Summary" version
-	int filled = 0;
-	for (int bin = 0 ; bin < fHist->GetYaxis()->GetNbins(); ++bin) {
-		if (is_valid(fParamx->get(bin))) {
-			filled = 1;
-			fHist->Fill (fParamx->get(bin), bin);
-		}
-	}
-	return filled;
+	if (is_valid(fParamx->get(), fParamy->get()))
+		return fHist->Fill (fParamx->get(), fParamy->get());
+	else return 0;
 }
 
+/// Specialized fill() for TH3D
 template<>
 inline Int_t rootana::Hist<TH3D>::fill()
 {
 	return fHist->Fill (fParamx->get(), fParamy->get(), fParamz->get());
 }
 
-inline HistBase* HistBase::NewSummary(const char* name, const char* title, Int_t nbins, double low, double high, const DataPointer* paramArray)
-{
-	return new Hist<TH2D>(name, title, nbins, low, high, paramArray);
+inline rootana::SummaryHist::SummaryHist(const char* name, const char* title, Int_t nbins, double low, double high, const DataPointer* paramArray):
+	Hist<TH2D>(new TH2D(name, title, nbins, low, high, paramArray->length(), 0, paramArray->length()), paramArray, DataPointer::New())
+{ 
+	/*! Calls Hist<TH2D>::Hist() with appropriate arguments for a summary histogram. */
 }
 
+inline Int_t rootana::SummaryHist::fill()
+{
+	Int_t filled = 0;
+	for (Int_t bin = 0; bin < fHist->GetYaxis()->GetNbins(); ++bin) {
+		if (is_valid(fParamx->get(bin))) {
+			fHist->Fill (fParamx->get(bin), bin);
+			filled = 1;
+		}
+	}
+	return filled;
 }
+
+} // namespace rootana
 
 #endif

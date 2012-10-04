@@ -10,6 +10,7 @@
 #pragma link C++ class rootana;
 
 #pragma link C++ class rootana::DataPointer+;
+#pragma link C++ class rootana::SummaryHist+;
 #pragma link C++ class rootana::HistParser+;
 #pragma link C++ class rootana::HistBase+;
 

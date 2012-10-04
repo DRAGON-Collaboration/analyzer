@@ -104,7 +104,7 @@ void rootana::HistParser::handle_summary()
 	if (!data) throw_bad_line(spar, lpar, fFileName);
 
 	std::stringstream cmdHist;
-	cmdHist << "rootana::HistBase::NewSummary(" << shst << ", " << cmdData.str() << ")";
+	cmdHist << "new rootana::SummaryHist(" << shst << ", " << cmdData.str() << ")";
 	rootana::HistBase* hst = (rootana::HistBase*)gROOT->ProcessLineFast(cmdHist.str().c_str());
 	if (!hst) throw_bad_line(shst, lhst, fFileName);
 

@@ -7,7 +7,7 @@ HIST:
 
 SUMMARY_HIST:
 	"bgo_q", "Bgo energies [coinc]", 256, 0, 4096
-	rootana::gHead.bgo.qf
+	rootana::gHead.bgo.q
 	30
 
 DIR:
