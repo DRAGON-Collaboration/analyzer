@@ -11,6 +11,7 @@
 #include <TDirectory.h>
 #include "utils/Valid.hxx"
 #include "DataPointer.hxx"
+#include "Cut.hxx"
 
 /// Encloses all rootana-specific classes
 namespace rootana {
@@ -19,13 +20,27 @@ namespace rootana {
 /*!
  * Provides a pure virtual interface with functions needed in the standard
  * ROOTANA framework.
+ * 
+ * Also handles application of cuts for derived classes
  */
 class HistBase {
+private:
+	Cut* fCut; ///< Cut (gate) condition
 public:
-	/// Empty
-	HistBase() { }
-	/// Empty
-	virtual ~HistBase() { }
+	/// Sets fCut to NULL, otherwise empty
+	HistBase():
+		fCut(0) { }
+	/// Deletes fCut if it's non-NULL
+	virtual ~HistBase()
+		{ if (fCut) delete fCut; }
+	/// Sets the cut (gate) condition
+	template <class C>
+	void set_cut(const C& cut)
+		{ if (fCut) delete fCut; fCut = new C(); }
+  /// Applies the cut condition
+	bool apply_cut()
+		{ return !fCut ? true: (*fCut)(); }
+
 	/// Fills the histogram with appropriate data
 	virtual Int_t fill() = 0;
 	/// Writes the histogram to disk
@@ -36,6 +51,10 @@ public:
 	virtual const char* name() const = 0;
 	/// Sets owner TDirectory
 	virtual void set_directory(TDirectory*) = 0;
+
+private:
+	HistBase(const HistBase& other) { }
+	HistBase& operator= (const HistBase& other) { return *this; }
 };
 
 /// Rootana histogram class
@@ -123,19 +142,21 @@ inline rootana::Hist<T>::~Hist()
 }
 
 template <class T>
-inline rootana::Hist<T>::Hist(const Hist& other):
-	fParamx(other.fParamx), fParamy(other.fParamy), fParamz(other.fParamz)
+inline rootana::Hist<T>::Hist(const Hist& other)
 {
-	fHist = new T (*(other.fHist));
+	fParamx = new DataPointer(other.fParamx);
+	fParamy = new DataPointer(other.fParamy);
+	fParamz = new DataPointer(other.fParamz);
+	fHist   = new T (*(other.fHist));
 }
 
 template <class T>
 inline rootana::Hist<T>& rootana::Hist<T>::operator= (const Hist& other)
 {
-	fParamx = other.fParamx;
-	fParamy = other.fParamy;
-	fParamz = other.fParamz;
-	fHist = new T (*(other.fHist));
+	fParamx = new DataPointer(other.fParamx);
+	fParamy = new DataPointer(other.fParamy);
+	fParamz = new DataPointer(other.fParamz);
+	fHist   = new T (*(other.fHist));
 	return *this;
 }
 
@@ -163,7 +184,8 @@ inline rootana::Hist<TH3D>::Hist(TH3D* hist, const DataPointer* paramx, const Da
 template <>
 inline Int_t rootana::Hist<TH1D>::fill()
 {
-	if (is_valid(fParamx->get()))
+	/*! Fills the histogram if x param is valid and fCut is satisfied */
+	if ( is_valid(fParamx->get()) && apply_cut() )
 		return fHist->Fill (fParamx->get());
 	else return 0;
 }
@@ -172,7 +194,8 @@ inline Int_t rootana::Hist<TH1D>::fill()
 template <>
 inline Int_t rootana::Hist<TH2D>::fill()
 {
-	if (is_valid(fParamx->get(), fParamy->get()))
+	/*! Fills the histogram if x,y params are valid and fCut is satisfied */
+	if ( is_valid(fParamx->get(), fParamy->get()) && apply_cut() )
 		return fHist->Fill (fParamx->get(), fParamy->get());
 	else return 0;
 }
@@ -181,7 +204,10 @@ inline Int_t rootana::Hist<TH2D>::fill()
 template<>
 inline Int_t rootana::Hist<TH3D>::fill()
 {
-	return fHist->Fill (fParamx->get(), fParamy->get(), fParamz->get());
+	/*! Fills the histogram if x,y,z params are valid and fCut is satisfied */
+	if (is_valid(fParamx->get(), fParamy->get(), fParamz->get()) && apply_cut() )
+		return fHist->Fill (fParamx->get(), fParamy->get(), fParamz->get());
+	else return 0;
 }
 
 inline rootana::SummaryHist::SummaryHist(const char* name, const char* title, Int_t nbins, double low, double high, const DataPointer* paramArray):
@@ -192,7 +218,9 @@ inline rootana::SummaryHist::SummaryHist(const char* name, const char* title, In
 
 inline Int_t rootana::SummaryHist::fill()
 {
+	/*! If fCut is satisfied, fills bin-by-bin whenever the corresponding param is valid */
 	Int_t filled = 0;
+	if (!apply_cut()) return filled;
 	for (Int_t bin = 0; bin < fHist->GetYaxis()->GetNbins(); ++bin) {
 		if (is_valid(fParamx->get(bin))) {
 			fHist->Fill (fParamx->get(bin), bin);

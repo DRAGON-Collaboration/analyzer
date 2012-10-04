@@ -6,6 +6,8 @@
 /// \authors K. Olchanski
 /// \authors G. Christian
 ///
+#ifndef ROOTANA_GLOBALS_H
+#define ROOTANA_GLOBALS_H
 
 class TFile;
 
@@ -52,5 +54,4 @@ EXTERN dragon::Coinc gCoinc;
 }
 
 
-// end
-
+#endif // end

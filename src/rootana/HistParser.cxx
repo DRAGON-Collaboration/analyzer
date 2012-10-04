@@ -83,6 +83,10 @@ void throw_summary_missing(int linenum, const char* fname) {
 	throw std::invalid_argument (error.str().c_str());
 } }
 
+struct testCut: public rootana::Cut {
+	bool operator() () const { return rootana::gHead.bgo.q[0] > 1000; }
+};
+
 void rootana::HistParser::handle_summary()
 {
 	unsigned lhst, lpar, lnum;
