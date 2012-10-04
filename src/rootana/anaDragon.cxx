@@ -40,7 +40,17 @@
 #include "midas/Event.hxx"
 #include "Timestamp.hxx"
 
+#include <algorithm>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <vector>
+#include <memory>
+#include "rootana/DragonGlobals.h"
 #include "rootana/Histos.hxx"
+#include "rootana/Events.hxx"
+#include "midas/Database.hxx"
+#include "dragon/Coinc.hxx"
 #include <TRandom3.h>
 #include <TCanvas.h>
 
@@ -56,7 +66,13 @@ TDirectory* gOnlineHistDir = NULL;
 TFile* gOutputFile = NULL;
 VirtualOdb* gOdb = NULL;
 
-rootana::TSQueue gQueue (10e6);
+rootana::TSQueue gQueue ( ROOTANA_QUEUE_TIME );
+
+// extern dragon::Head gHead;
+// extern dragon::Tail gTail;
+// extern dragon::Coinc gCoinc;
+
+
 
 //TCanvas  *gMainWindow = NULL; 	// the online histogram window
 
@@ -109,6 +125,9 @@ public:
   }
 };
 
+struct doClear {
+	void operator() (rootana::HistBase* p) { p->clear(); }
+};
 
 void startRun(int transition,int run,int time)
 {
@@ -124,6 +143,8 @@ void startRun(int transition,int run,int time)
     gOutputFile=NULL;
   }  
 
+	rootana::EventHandler::Instance()->BeginRun();
+
   char filename[1024];
   sprintf(filename, "output%05d.root", run); /// \todo better Output directory
   gOutputFile = new TFile(filename,"RECREATE");
@@ -131,7 +152,6 @@ void startRun(int transition,int run,int time)
 #ifdef HAVE_LIBNETDIRECTORY
   NetDirectoryExport(gOutputFile, "outputFile");
 #endif
-
 }
 
 void endRun(int transition,int run,int time)
@@ -143,6 +163,8 @@ void endRun(int transition,int run,int time)
   if (gManaHistosFolder)
     gManaHistosFolder->Clear();
 #endif
+
+	rootana::EventHandler::Instance()->EndRun();
 
   if (gOutputFile)
     {
@@ -185,7 +207,6 @@ void HandleSample(int ichan, void* ptr, int wsize)
   for(int ti=0; ti<numSamples; ti++)
     samplePlot->SetBinContent(ti, samples[ti]);
 }
-
 
 void HandleMidasEvent(const void* header, const void* pdata, int size)
 {
@@ -311,7 +332,7 @@ int ProcessMidasOnline(TApplication*app, const char* hostname, const char* exptn
 {
    TMidasOnline *midas = TMidasOnline::instance();
 
-   int err = midas->connect(hostname, exptname, "rootana");
+   int err = midas->connect(hostname, exptname, "anaDragon");
    printf("Connecting to experiment %s on host %s!\n", hostname, exptname);
 
    if (err != 0)
@@ -328,7 +349,7 @@ int ProcessMidasOnline(TApplication*app, const char* hostname, const char* exptn
    /* reqister event requests */
 
    midas->setEventHandler(eventHandler);
-   midas->eventRequest("SYSTEM",-1,-1,(1<<1));
+   midas->eventRequest("SYNC",-1,-1,(1<<1));
 
    /* fill present run parameters */
 
@@ -336,6 +357,145 @@ int ProcessMidasOnline(TApplication*app, const char* hostname, const char* exptn
 
    if ((gOdb->odbReadInt("/runinfo/State") == 3))
      startRun(0,gRunNumber,0);
+
+	 std::ifstream ifs ("src/rootana/histos.dat");
+	 assert (ifs.good());
+	 std::string line, gDir;
+	 while (std::getline(ifs, line)) {
+
+		 rootana::HistBase* h = 0;
+		 std::string sParam;
+		 
+		 if (line.find("DIR:") < line.size()) {
+			 std::getline(ifs, line);
+			 gDir = line;
+			 std::cout << "new directory: " << gDir << "\n";
+		 }
+
+		 else if (line.find("SUMMARY_HIST:") < line.size()) {
+			 std::string sHst, sNum;
+			 assert (std::getline(ifs, sHst));
+			 {
+				 TString tmp(sHst); tmp.ReplaceAll("\t", " ");
+				 sHst = tmp.Data();
+			 }
+			 assert (std::getline(ifs, sParam));
+			 {
+				 TString tmp(sParam); tmp.ReplaceAll("\t", " ");
+				 sParam = tmp.Data();
+			 }
+			 assert (std::getline(ifs, sNum));
+			 {
+				 TString tmp(sNum); tmp.ReplaceAll("\t", " ");
+				 sNum = tmp.Data();
+			 }
+
+			 std::stringstream cmdData;
+			 cmdData << "rootana::DataPointer::New(" << sParam << ", " << sNum << ")";
+			 rootana::DataPointer* data = (rootana::DataPointer*)gROOT->ProcessLineFast(cmdData.str().c_str());
+			 assert(data);
+
+			 std::stringstream cmdHst;
+			 cmdHst << "rootana::HistBase::NewSummary(" << sHst << ", " << cmdData.str() << ")";
+			 h = (rootana::HistBase*)gROOT->ProcessLineFast(cmdHst.str().c_str());
+			 assert(h);
+		 }
+		 else if (line.find("HIST:") < line.size()) {
+			 
+			 std::string sHst;
+			 assert (std::getline(ifs, sHst));
+			 {
+				 TString tmp(sHst); tmp.ReplaceAll("\t", " ");
+				 sHst = tmp.Data();
+			 }
+			 assert (std::getline(ifs, sParam));
+			 {
+				 TString tmp(sParam); tmp.ReplaceAll("\t", " ");
+				 sParam = tmp.Data();
+			 }
+
+			 std::stringstream cmdHst, cmdParam;
+			 cmdHst << "new " << sHst;
+			 cmdParam << "rootana::DataPointer::New(" << sParam << ")";
+
+			 if (0) { }
+			 else if (sHst.find("TH1D") < sHst.size()) {
+				 TH1D* hst = (TH1D*)gROOT->ProcessLineFast(cmdHst.str().c_str());
+				 assert (hst);
+				 rootana::DataPointer* data = (rootana::DataPointer*)gROOT->ProcessLineFast(cmdParam.str().c_str());
+				 assert (data);
+				 h = new rootana::Hist<TH1D>(hst, data);
+				 assert (h);
+			 }
+			 else if (sHst.find("TH2D") < sHst.size()) {
+				 TH2D* hst = (TH2D*)gROOT->ProcessLineFast(cmdHst.str().c_str());
+				 assert (hst);
+				 rootana::DataPointer* datax = (rootana::DataPointer*)gROOT->ProcessLineFast(cmdParam.str().c_str());
+				 assert (datax);
+				 assert (std::getline(ifs, sParam));
+				 {
+					 TString tmp(sParam); tmp.ReplaceAll("\t", " ");
+					 sParam = tmp.Data();
+					 cmdParam.str("");
+					 cmdParam << "rootana::DataPointer::New(" << sParam << ")";
+				 }
+				 rootana::DataPointer* datay = (rootana::DataPointer*)gROOT->ProcessLineFast(cmdParam.str().c_str());
+				 assert(datay);
+
+				 h = new rootana::Hist<TH2D>(hst, datax, datay);
+				 assert (h);
+			 }
+			 else if (sHst.find("TH3D") < sHst.size()) {
+				 // TH3D* hst = (TH3D*)gROOT->ProcessLineFast(cmdHst.str().c_str());
+				 // assert (hst);
+				 // rootana::DataPointer* data = (rootana::DataPointer*)gROOT->ProcessLineFast(cmdParam.str().c_str());
+				 // assert (data);
+				 // h = new rootana::Hist<TH3D>(hst, data);
+				 // assert (h);
+				 assert (!"TH3:: Not yet!");
+			 }
+			 else {
+				 std::cerr << "Bad Hist line: " << sHst << "\n";
+				 assert (0);
+			 }
+		 }
+
+		 if (h) {
+			 uint16_t type;
+			 if (0) { }
+			 else if (sParam.find("gHead")  < sParam.size())  type = DRAGON_HEAD_EVENT;
+			 else if (sParam.find("gTail")  < sParam.size())  type = DRAGON_TAIL_EVENT;
+			 else if (sParam.find("gCoinc") < sParam.size())  type = DRAGON_COINC_EVENT;
+			 else { std::cout << "Bad Param:: " << sParam << "\n"; assert (0); }
+
+			 rootana::EventHandler::Instance()->AddHisto(h, type, gOutputFile, gDir.c_str());
+		 }
+	 }
+			 
+
+/*
+	const int nhists = 1;
+	for (int i=0; i< nhists; ++i) {
+		std::stringstream name; name << "bgo_q" << i;
+		std::stringstream title; title << "BGO energy, channel " << i;
+
+		std::stringstream cmd;
+		cmd << "new TH1D(\"" << name.str() << "\", \"" << title.str() << "\", 256, 0, 4096)";
+		TH1D* hst = (TH1D*)gROOT->ProcessLineFast(cmd.str().c_str());
+		assert (hst);
+
+		cmd.str("");
+		cmd << "rootana::DataPointer::New(gHead.bgo.q[" << i << "])";
+		rootana::DataPointer* data = (rootana::DataPointer*)gROOT->ProcessLineFast(cmd.str().c_str());
+		assert (data);
+
+		rootana::HistBase* b = new rootana::Hist<TH1D>(hst, data);
+		assert (b);
+
+		rootana::EventHandler::Instance()->AddHisto(b, DRAGON_HEAD_EVENT, gOutputFile, "histos/gamma_singles");
+
+	}
+*/
 
    printf("Startup: run %d, is running: %d, is pedestals run: %d\n",gRunNumber,gIsRunning,gIsPedestalsRun);
    printf("Hostname: %s, exptname: %s\n", hostname, exptname);
@@ -499,10 +659,12 @@ void help()
 
 // Main function call
 
-
+#include <TStyle.h>
 int main(int argc, char *argv[])
 {
-#if 0
+#if 1
+
+	gStyle->SetPalette(1);
 
    setbuf(stdout,NULL);
    setbuf(stderr,NULL);
@@ -563,6 +725,8 @@ int main(int argc, char *argv[])
        else if (arg[0] == '-')
 	 help(); // does not return
     }
+
+	 if (!tcpPort) tcpPort = 9091;
     
    MainWindow *mainWindow = NULL;
 
@@ -623,25 +787,27 @@ int main(int argc, char *argv[])
    gIsOffline = false;
    //gEnableGraphics = true;
 
-   char exp_name[500][32];
-   cm_list_experiments(hostname, exp_name);
-   for(int i=0;i<5;++i) {
-     printf("EXPT:: %s\n", exp_name[i]); }
-
 #ifdef HAVE_MIDAS
-   ProcessMidasOnline(app, hostname, exptname);
+	ProcessMidasOnline(app, hostname, exptname);
 #endif
    
    return 0;
 #else
-	double xx,yy,zz;
-	rootana::Hist<TH1D> h1d(new TH1D("hst","",100,-10,10), xx);
-	for (int i=0; i< 100000; ++i) {
-		xx = gRandom->Gaus(0, 5);
-		h1d.Fill();
-	}
-	h1d->Draw();
-	gPad->SaveAs("c1.png");
+	
+	 int x[9];
+	 rootana::DataPointer* xx = rootana::DataPointer::New(x, 9);
+	 rootana::Hist<TH2D> hist ("hist", "", 100, 0, 100, xx);
+
+	 for (int i=0; i< 100000; ++i) {
+		 for (int j=0; j< 9; ++j) {
+			 x[j] = gRandom->Uniform(0, 100);
+		 }
+		 hist.fill();
+	 }
+
+	 hist->Draw("COLZ");
+	 gPad->SaveAs("c1.png");
+
 #endif
 }
 
