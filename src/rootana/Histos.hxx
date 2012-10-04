@@ -145,6 +145,7 @@ inline void rootana::HistBase::set_cut(const C& cut)
 	 * };
 	 * 
 	 * SomeHist->set_cut(MyCut());
+	 * \endcode
 	 */
 	if (fCut) delete fCut;
 	fCut = new C ();
