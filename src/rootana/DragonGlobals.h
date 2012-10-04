@@ -1,8 +1,13 @@
+/// \file DragonGlobals.h
+/// \author G. Christian
+/// \brief Defines global instances of dragon::*
+/// data structures for use in rootana.
 #ifndef DRAGON_GLOBALS_H
 #define DRAGON_GLOBALS_H
 
 
 #ifndef G__DICTIONARY
+/// Provide 'extern' linkage except in CINT dictionary
 #define EXTERN extern
 #else
 #define EXTERN
@@ -11,11 +16,13 @@
 
 namespace rootana {
 
-/// Gamma events (global)
+/// Gloal gamma event class
 EXTERN dragon::Head gHead;
-/// Heavy-ion events (global)
+
+/// Global heavy-ion event class
 EXTERN dragon::Tail gTail;
-/// Coinc Events (global)
+
+/// Global coincidence event class
 EXTERN dragon::Coinc gCoinc;
 
 }
