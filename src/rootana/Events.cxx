@@ -74,12 +74,12 @@ void rootana::EventHandler::Process(const midas::Event& event)
 	switch (EID) {
 
 	case DRAGON_HEAD_EVENT:  /// - DRAGON_HEAD_EVENT: Insert into timestamp matching queue
-		handle_event(gHead, event);
+		handle_event(rootana::gHead, event);
 		std::for_each(fHistos[EID].begin(), fHistos[EID].end(), hFill());
 		break;
 
 	case DRAGON_TAIL_EVENT:  /// - DRAGON_TAIL_EVENT: Insert into timestamp matching queue
-		handle_event(gTail, event);
+		handle_event(rootana::gTail, event);
 		std::for_each(fHistos[EID].begin(), fHistos[EID].end(), hFill());
 		break;
 
@@ -97,7 +97,7 @@ void rootana::EventHandler::Process(const midas::Event& event)
 
 void rootana::EventHandler::Process(const midas::CoincEvent& coincEvent)
 {
-	handle_event(gCoinc, coincEvent);
+	handle_event(rootana::gCoinc, coincEvent);
 	std::for_each(fHistos[DRAGON_COINC_EVENT].begin(), fHistos[DRAGON_COINC_EVENT].end(), hFill());
 }
 

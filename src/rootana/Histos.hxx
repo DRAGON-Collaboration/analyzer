@@ -206,7 +206,7 @@ template <>
 inline rootana::Hist<TH2D>::Hist(TH2D* hist, const DataPointer* paramx, const DataPointer* paramy):
 	fHist(hist), fParamx(paramx), fParamy(paramy), fParamz(DataPointer::New())
 { 
-	fHist->SetDrawOption("COLZ");
+	fHist->SetOption("COLZ");
 }
 
 template <>
@@ -219,7 +219,7 @@ inline rootana::Hist<TH2D>::Hist(const char* name, const char* title, Int_t nbin
 	fParamx (paramArray), fParamy(DataPointer::New()), fParamz(DataPointer::New())
 {
 	fHist = new TH2D(name, title, nbins, low, high, paramArray->length(), 0, paramArray->length());
-	fHist->SetDrawOption("COLZ");
+	fHist->SetOption("COLZ");
 }
 
 template <>

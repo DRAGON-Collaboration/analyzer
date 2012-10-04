@@ -26,15 +26,16 @@ extern TFile* gOutputFile;
 
 extern VirtualOdb* gOdb;
 
-// ADC data
-extern std::vector<int> chADC;
-extern std::vector<double> dataADC;
+/* // ADC data */
+/* extern std::vector<int> chADC; */
+/* extern std::vector<double> dataADC; */
 
-extern double gADC[];
+/* extern double gADC[]; */
 
-// TDC data
-extern std::vector<int> chTDC;
-extern std::vector<double> dataTDC;
+/* // TDC data */
+/* extern std::vector<int> chTDC; */
+/* extern std::vector<double> dataTDC; */
+
 
 // end
 
