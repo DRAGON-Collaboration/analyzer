@@ -1,5 +1,5 @@
 /*!
- * \file RootanaDragon.hxx
+ * \file RootanaDragon.cxx
  * \author G. Christian
  * \brief Implements RootanaDragon.hxx
  */
