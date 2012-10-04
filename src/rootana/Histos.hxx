@@ -13,7 +13,7 @@
 #include "DataPointer.hxx"
 #include "Cut.hxx"
 
-/// Encloses all rootana-specific classes
+/// \brief Encloses all rootana-specific classes
 namespace rootana {
 
 /// Abstract interface for Rootana histograms
@@ -132,7 +132,6 @@ public:
 
 
 // INLINE IMPLEMENTATIONS //
-
 
 template <class C>
 inline void rootana::HistBase::set_cut(const C& cut)
