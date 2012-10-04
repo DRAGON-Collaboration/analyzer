@@ -4,7 +4,7 @@
 /// data structures for use in rootana.
 #ifndef DRAGON_GLOBALS_H
 #define DRAGON_GLOBALS_H
-
+#include "dragon/Coinc.hxx"
 
 #ifndef G__DICTIONARY
 /// Provide 'extern' linkage except in CINT dictionary
