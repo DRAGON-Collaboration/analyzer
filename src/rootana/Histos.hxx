@@ -194,20 +194,6 @@ inline rootana::Hist<T>& rootana::Hist<T>::operator= (const Hist& other)
 	return *this;
 }
 
-namespace {
-void rainbow_colz(TH2D* hist)
-{
-	const Int_t NRGBs = 5;
-	const Int_t NCont = 255;
-
-	Double_t stops[NRGBs] = { 0.00, 0.34, 0.61, 0.84, 1.00 };
-	Double_t red[NRGBs]   = { 0.00, 0.00, 0.87, 1.00, 0.51 };
-	Double_t green[NRGBs] = { 0.00, 0.81, 1.00, 0.20, 0.00 };
-	Double_t blue[NRGBs]  = { 0.51, 1.00, 0.12, 0.00, 0.00 };
-	TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
-	hist->SetContour(NCont);
-	hist->SetOption("COLZ");
-} }
 
 namespace rootana {
 
@@ -220,7 +206,7 @@ template <>
 inline rootana::Hist<TH2D>::Hist(TH2D* hist, const DataPointer* paramx, const DataPointer* paramy):
 	fHist(hist), fParamx(paramx), fParamy(paramy), fParamz(DataPointer::New())
 { 
-	rainbow_colz(fHist);
+	fHist->SetDrawOption("COLZ");
 }
 
 template <>
@@ -233,7 +219,7 @@ inline rootana::Hist<TH2D>::Hist(const char* name, const char* title, Int_t nbin
 	fParamx (paramArray), fParamy(DataPointer::New()), fParamz(DataPointer::New())
 {
 	fHist = new TH2D(name, title, nbins, low, high, paramArray->length(), 0, paramArray->length());
-	rainbow_colz(fHist);
+	fHist->SetDrawOption("COLZ");
 }
 
 template <>
