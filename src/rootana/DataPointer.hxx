@@ -10,6 +10,14 @@
 namespace rootana {
 
 /// Abstract interface for generic pointer-to-data classes
+/*!
+ * This interface is inherited by template classes which implement
+ * the pure virtual get() and length() methods for a given basic data type.
+ *
+ * The class also provides static template "creation" functions, allowing the
+ * appropriate derived class to be constructed without explicitly specifying the
+ * data type.
+ */
 class DataPointer {
 public:
 	/// Empty
@@ -59,8 +67,7 @@ class DataPointerNull: public DataPointer {
 public:
 	DataPointerNull() { }
 	/// Runtime failure if we try to call get()
-	double get(unsigned index = 0) const
-		{ assert(0&&"Can't call this!"); return 0; }
+	double get(unsigned index = 0) const;
 	/// Returns zero
 	unsigned length() const { return 0; }
 };
@@ -92,5 +99,9 @@ inline rootana::DataPointer* rootana::DataPointer::New(T* array, unsigned length
 	return new DataPointerT<T>(array, length);
 }
 
+inline double rootana::DataPointerNull::get(unsigned) const
+{
+	assert ( 0 && "rootana::DataPointerNull::get(): May not call this function!" );
+}
 
 #endif
