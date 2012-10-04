@@ -189,6 +189,7 @@ ROOTANA_REMOTE_OBJS=				\
 $(ROOTANA)/libNetDirectory/netDirectoryServer.o
 
 ROOTANA_OBJS=					\
+$(OBJ)/rootana/RootanaDragon.o			\
 $(OBJ)/rootana/HistParser.o			\
 $(OBJ)/rootana/Timestamp.o			\
 $(OBJ)/rootana/Events.o
