@@ -193,28 +193,28 @@ $(OBJ)/rootana/HistParser.o			\
 $(OBJ)/rootana/Timestamp.o			\
 $(OBJ)/rootana/Events.o
 
+ROOTANA_HEADERS= $(SRC)/rootana/Globals.h $(SRC)/rootana/*.hxx
+
 ROOTANA_LIBS=-lrootana -lNetDirectory -L/home/dragon/packages/rootana/libNetDirectory/ -L/home/dragon/packages/rootana/
 
-$(CINT)/rootana/Dict.cxx: $(SRC)/rootana/*.hxx $(SRC)/rootana/DragonGlobals.h $(SRC)/rootana/Linkdef.h
-	rootcint -f $@ -c $(CXXFLAGS) \
--p $(SRC)/rootana/*.hxx $(SRC)/rootana/DragonGlobals.h $(SRC)/rootana/Linkdef.h \
+$(CINT)/rootana/Dict.cxx: $(ROOTANA_HEADERS) $(SRC)/rootana/Linkdef.h
+	rootcint -f $@ -c $(CXXFLAGS) $(ROOTANA_FLAGS) -p $(ROOTANA_HEADERS) $(SRC)/rootana/Linkdef.h \
 
-$(OBJ)/rootana/%.o: $(SRC)/rootana/%.cxx $(SRC)/rootana/*.hxx $(CINT)/rootana/Dict.cxx
-	$(CXX) -c  $(FPIC) \
+$(OBJ)/rootana/%.o: $(SRC)/rootana/%.cxx $(CINT)/rootana/Dict.cxx
+	$(CXX) $(ROOTANA_FLAGS) -c $(FPIC) \
 -o $@ -p $< $(ROOTLIBS) \
 
-libRootanaDragon.so: $(DRLIB)/libDragon.so $(ROOTANA_OBJS) $(SRC)/rootana/Globals.h $(SRC)/rootana/Histos.hxx
+libRootanaDragon.so: $(DRLIB)/libDragon.so $(CINT)/rootana/Dict.cxx $(ROOTANA_OBJS)
 	$(LINK) $(DYLIB) $(FPIC) $(RBINC) $(ROOTANA_FLAGS) -DROOTANA_QUEUE_TIME=10e6 \
 -o $@ -p $< $(CINT)/rootana/Dict.cxx $(ROOTANA_OBJS) -lDragon -L$(DRLIB) $(MIDASLIBS) \
 
 
-anaDragon: $(SRC)/rootana/anaDragon.cxx $(DRLIB)/libDragon.so $(ROOTANA_OBJS) $(ROOTNAN_REMOTE_OBJS) $(SRC)/rootana/Globals.h $(SRC)/rootana/Histos.hxx
+anaDragon: $(SRC)/rootana/anaDragon.cxx $(DRLIB)/libDragon.so $(CINT)/rootana/Dict.cxx $(ROOTANA_OBJS) $(ROOTANA_REMOTE_OBJS)
 	$(LINK) $(RBINC) $(ROOTANA_FLAGS) -DROOTANA_QUEUE_TIME=10e6 \
 -o $@ -p $< $(CINT)/rootana/Dict.cxx $(ROOTANA_OBJS) -lDragon -L$(DRLIB) $(MIDASLIBS) $(ROOTANA_LIBS) \
 
-
-
-rootanaTimestamp: $(OBJ)/rootana/Timestamp.o
+rootana_clean:
+	rm -f $(ROOTANA_OBJS) anaDragon libRootanaDragon.so
 
 
 ### FOR ROOTBEER ###

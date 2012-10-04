@@ -5,72 +5,15 @@
  */
 #ifndef DRAGON_ROOTANA_HISTOS_HXX
 #define DRAGON_ROOTANA_HISTOS_HXX
-#include <cassert>
-#include <TColor.h>
-#include <TDirectory.h>
 #include <TH1D.h>
 #include <TH2D.h>
 #include <TH3D.h>
+#include <TDirectory.h>
 #include "utils/Valid.hxx"
+#include "DataPointer.hxx"
 
 /// Encloses all rootana-specific classes
 namespace rootana {
-
-/// Abstract interface for generic pointer-to-data classes
-class DataPointer {
-public:
-	/// Empty
-	DataPointer() { }
-	/// Empty
-	virtual ~DataPointer() { }
-	/// Returns the data value as a double
-	/*! \param index Array index, defaults to zero for single values */
-	virtual double get (unsigned index = 0) const = 0;
-	/// Returns array length
-	virtual unsigned length() const = 0;
-	/// Create a NULL instance
-	static DataPointer* New ();
-	/// Create from a single value
-	template <typename T>
-	static DataPointer* New (T& value);
-	/// Create from an array
-	template <typename T>
-	static DataPointer* New (T* array, unsigned length);
-};
-
-/// Generic pointer-to-data class
-/*!
- * Stores the address of a generic basic type, and converts the
- * value to a double using the inherited vitrual get() method.
- */
-template <typename T>
-class DataPointerT: public DataPointer {
-private:
-	/// Internal pointer-to-data
-	const T* const fData;
-	/// Length of the array pointer by fData
-	const unsigned fLength;
-public:
-	/// Sets fData to the address of it's argument, fLength to zero
-	DataPointerT(T& value): fData(&value), fLength(1) { }
-	/// Sets fData & fLength to the argument values
-	DataPointerT(T* array, unsigned length): fData(array), fLength(length) { }
-	/// Returns the data value as a double
-	double get(unsigned index = 0) const;
-	/// Returns array length
-	unsigned length() const { return fLength; }
-};
-
-/// Type corresponding to a NULL DataPointer
-class DataPointerNull: public DataPointer { 
-public:
-	DataPointerNull() { }
-	/// Runtime failure if we try to call get()
-	double get(unsigned index = 0) const
-		{ assert(0&&"Can't call this!"); return 0; }
-	/// Returns zero
-	unsigned length() const { return 0; }
-};
 
 /// Base histogram class
 /*!
@@ -150,30 +93,6 @@ public:
 
 } // namespace rootana
 
-template <typename T>
-inline double rootana::DataPointerT<T>::get(unsigned index) const
-{
-	assert(index < fLength);
-	return *(fData + index);
-}
-
-inline rootana::DataPointer* rootana::DataPointer::New()
-{
-	return new DataPointerNull();
-}
-
-template <typename T>
-inline rootana::DataPointer* rootana::DataPointer::New(T& value)
-{
-	return new DataPointerT<T>(value);
-}
-
-template <typename T>
-inline rootana::DataPointer* rootana::DataPointer::New(T* array, unsigned length)
-{
-	return new DataPointerT<T>(array, length);
-}
-
 template <class T>
 inline rootana::Hist<T>::~Hist()
 {
@@ -197,7 +116,6 @@ inline rootana::Hist<T>& rootana::Hist<T>::operator= (const Hist& other)
 	fHist = new T (*(other.fHist));
 	return *this;
 }
-
 
 namespace rootana {
 

@@ -1,10 +1,13 @@
-//
-// Global variables for the ROOT analyzer
-//
-// Name: Globals.h
-//
-// $Id$
-//
+///
+/// \file Globals.h
+///
+/// \brief Global variables for the ROOT analyzer
+///
+/// \authors K. Olchanski
+/// \authors G. Christian
+///
+
+class TFile;
 
 // Run parameters
 
@@ -13,8 +16,6 @@ extern bool gIsRunning;
 extern bool gIsPedestalsRun;
 extern bool gIsOffline;
 extern bool gDebugEnable;
-//extern int gUserMod;
-//extern int gUserChan;
 
 // Output files
 
@@ -26,15 +27,29 @@ extern TFile* gOutputFile;
 
 extern VirtualOdb* gOdb;
 
-/* // ADC data */
-/* extern std::vector<int> chADC; */
-/* extern std::vector<double> dataADC; */
 
-/* extern double gADC[]; */
+// DRAGON Globals //
+#include "dragon/Coinc.hxx"
 
-/* // TDC data */
-/* extern std::vector<int> chTDC; */
-/* extern std::vector<double> dataTDC; */
+#ifndef G__DICTIONARY
+/// Provide 'extern' linkage except in CINT dictionary
+#define EXTERN extern
+#else
+#define EXTERN
+#endif
+
+namespace rootana {
+
+/// Gloal gamma event class
+EXTERN dragon::Head gHead;
+
+/// Global heavy-ion event class
+EXTERN dragon::Tail gTail;
+
+/// Global coincidence event class
+EXTERN dragon::Coinc gCoinc;
+
+}
 
 
 // end
