@@ -49,9 +49,11 @@
 #include "midas/Database.hxx"
 #include "midas/Event.hxx"
 #include "dragon/Coinc.hxx"
+#include "RootanaDragon.hxx"
 #include "HistParser.hxx"
 #include "Histos.hxx"
 #include "Events.hxx"
+
 
 // Global Variables
 int  gRunNumber = 0;
@@ -118,10 +120,7 @@ public:
   }
 };
 
-struct doClear {
-	void operator() (rootana::HistBase* p) { p->clear(); }
-};
-
+#if 0
 void startRun(int transition,int run,int time)
 {
   gIsRunning = true;
@@ -168,7 +167,7 @@ void endRun(int transition,int run,int time)
 
   printf("End of run %d\n",run);
 }
-
+#endif
 
 void HandleSample(int ichan, void* ptr, int wsize)
 {
@@ -271,7 +270,11 @@ int ProcessMidasFile(TApplication*app,const char*fname)
 	    delete gOdb;
 	  gOdb = new XmlOdb(event.GetData(),event.GetDataSize());
 
+#if 0
 	  startRun(0,event.GetSerialNumber(),0);
+#else
+		rootana_run_start(0, event.GetSerialNumber(), 0);
+#endif
 	}
       else if ((eventId & 0xFFFF) == 0x8001)
 	{
@@ -305,7 +308,11 @@ int ProcessMidasFile(TApplication*app,const char*fname)
   
   f.Close();
 
+#if 0
   endRun(0,gRunNumber,0);
+#else
+	rootana_run_stop(0, gRunNumber, 0);
+#endif
 
   // start the ROOT GUI event loop
   //  app->Run(kTRUE);
@@ -336,7 +343,11 @@ int ProcessMidasOnline(TApplication*app, const char* hostname, const char* exptn
 
    gOdb = midas;
 
+#if 0
    midas->setTransitionHandlers(startRun,endRun,NULL,NULL);
+#else
+   midas->setTransitionHandlers(rootana_run_start, rootana_run_stop, rootana_run_resume, rootana_run_pause);
+#endif
    midas->registerTransitions();
 
    /* reqister event requests */
@@ -348,8 +359,13 @@ int ProcessMidasOnline(TApplication*app, const char* hostname, const char* exptn
 
    gRunNumber = gOdb->odbReadInt("/runinfo/Run number");
 
+#if 0
    if ((gOdb->odbReadInt("/runinfo/State") == 3))
      startRun(0,gRunNumber,0);
+#else
+   if ((gOdb->odbReadInt("/runinfo/State") == 3))
+     rootana_run_start(0, gRunNumber, 0);
+#endif
 
 #if 0
 
@@ -538,8 +554,13 @@ Bool_t MainWindow::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
 	      default:
 		break;
 	      case M_FILE_EXIT:
+#if 0
 	        if(gIsRunning)
     		   endRun(0,gRunNumber,0);
+#else
+					if(gIsRunning)
+						rootana_run_stop(0, gRunNumber, 0);
+#endif
 		gSystem->ExitLoop();
 		break;
 	      }
@@ -591,8 +612,13 @@ MainWindow::~MainWindow()
 
 void MainWindow::CloseWindow()
 {
+#if 0
     if(gIsRunning)
     	endRun(0,gRunNumber,0);
+#else
+		if(gIsRunning)
+    	rootana_run_stop(0, gRunNumber, 0);
+#endif
     gSystem->ExitLoop();
 }
 
