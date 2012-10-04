@@ -36,9 +36,6 @@
 
 #include "Globals.h"
 
-#include "utils/definitions.h"
-#include "midas/Event.hxx"
-#include "Timestamp.hxx"
 
 #include <algorithm>
 #include <fstream>
@@ -46,12 +43,15 @@
 #include <string>
 #include <vector>
 #include <memory>
-#include "rootana/Histos.hxx"
-#include "rootana/Events.hxx"
+#include "Timestamp.hxx"
+#include "utils/definitions.h"
+#include "utils/Error.hxx"
 #include "midas/Database.hxx"
+#include "midas/Event.hxx"
 #include "dragon/Coinc.hxx"
-#include <TRandom3.h>
-#include <TCanvas.h>
+#include "HistParser.hxx"
+#include "Histos.hxx"
+#include "Events.hxx"
 
 // Global Variables
 int  gRunNumber = 0;
@@ -351,6 +351,8 @@ int ProcessMidasOnline(TApplication*app, const char* hostname, const char* exptn
    if ((gOdb->odbReadInt("/runinfo/State") == 3))
      startRun(0,gRunNumber,0);
 
+#if 0
+
 	 std::ifstream ifs ("src/rootana/histos.dat");
 	 assert (ifs.good());
 	 std::string line, gDir;
@@ -464,7 +466,18 @@ int ProcessMidasOnline(TApplication*app, const char* hostname, const char* exptn
 			 rootana::EventHandler::Instance()->AddHisto(h, type, gOutputFile, gDir.c_str());
 		 }
 	 }
-			 
+#else
+	 rootana::HistParser parse ("src/rootana/histos.dat");
+	 try { parse.run(); }
+	 catch (std::exception& e) {
+		 std::cerr << "\n*******\n";
+		 dragon::err::Error("HistParser") << e.what();
+		 std::cerr << "*******\n\n";
+		 midas->disconnect();
+		 exit(1);
+	 }
+#endif
+
    printf("Startup: run %d, is running: %d, is pedestals run: %d\n",gRunNumber,gIsRunning,gIsPedestalsRun);
    printf("Hostname: %s, exptname: %s\n", hostname, exptname);
 

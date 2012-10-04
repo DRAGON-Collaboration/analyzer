@@ -11,7 +11,7 @@
 #include "Histos.hxx"
 #include "Events.hxx"
 
-#include "DragonGlobals.h"
+#include "Globals.h"
 
 rootana::EventHandler* rootana::EventHandler::Instance()
 {
