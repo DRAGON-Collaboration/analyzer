@@ -51,7 +51,6 @@
 // Global Variables
 int  gRunNumber = 0;
 bool gIsRunning = false;
-bool gIsPedestalsRun = false;
 int  gEventCutoff = 0;
 
 TDirectory* gOnlineHistDir = NULL;

@@ -27,7 +27,6 @@
 /// \todo Reduce globals as much as possible
 extern int  gRunNumber;
 extern bool gIsRunning;
-extern bool gIsPedestalsRun;
 extern bool gDebugEnable;
 extern int  gEventCutoff;
 
@@ -291,7 +290,7 @@ int rootana::App::midas_online(const char* host, const char* experiment)
 		return -1;
 	}
 
-	printf("Startup: run %d, is running: %d, is pedestals run: %d\n",gRunNumber,gIsRunning,gIsPedestalsRun);
+	printf("Startup: run %d, is running: %d\n",gRunNumber,gIsRunning);
 	printf("Host: %s, experiment: %s\n", host, experiment);
 	printf("Enter \"!\" to exit.\n");
 
