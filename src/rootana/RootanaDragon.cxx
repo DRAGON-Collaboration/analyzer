@@ -6,6 +6,10 @@
 #include <cassert>
 #include <cstring>
 
+#include <vector>
+#include <string>
+
+#include <TROOT.h>
 #include <TFile.h>
 #include <TSystem.h>
 
@@ -129,8 +133,52 @@ void rootana_handle_event(const void* pheader, const void* pdata, int size)
 // APPLICATION CLASS //
 
 rootana::App::App(const char* appClassName, Int_t* argc, char** argv, void* options, Int_t numOptions):
-	TApplication (appClassName, argc, argv, options, numOptions)
-{ }
+	TApplication (appClassName, argc, argv, options, numOptions),
+	fMode(ONLINE), fCutoff(0), fReturn(0),
+	fFilename(""), fHost(""), fExpt("")
+{ 
+/*!
+ *  Also: process command line arguments, starts histogram server.
+ */
+	int  tcpPort = 9091;
+
+	std::vector<std::string> args(argv, argv + *argc);
+	for (std::vector<std::string>::iterator iarg = args.begin(); iarg != args.end(); ++iarg) {
+
+		if (0) { }
+
+		else if ( iarg->compare(0, 2, "-h") == 0 )
+			this->help();
+
+		else if ( iarg->compare(0, 2, "-e") == 0 )
+			fCutoff =  atoi (iarg->substr(2).c_str() );
+
+		else if ( iarg->compare(0, 2, "-P") == 0 )
+			tcpPort = atoi (iarg->substr(2).c_str() );
+
+		else if ( iarg->compare(0, 2, "-H") == 0 )
+			fHost = iarg->substr(2);
+
+		else if ( iarg->compare(0, 2, "-E") == 0 )
+			fExpt = iarg->substr(2);
+
+		else if ( iarg->compare(0, 2, "-q") == 0 )
+			gQueueTime = atof (iarg->substr(2).c_str() );
+
+		else if ( iarg->compare(0, 1, "-" ) == 0 )
+			this->help();
+
+		else if ( iarg->compare(0, 1, "-" ) != 0 ) {
+			// fMode = OFFLINE;
+			// fFilename = *iarg;
+		}
+	}
+	if (fMode == ONLINE) {
+		gROOT->cd();
+		gOnlineHistDir = new TDirectory("rootana", "rootana online plots");
+		if (tcpPort) StartNetDirectoryServer(tcpPort, gOnlineHistDir);
+	}
+}
 
 rootana::App* rootana::App::instance()
 {
@@ -278,7 +326,7 @@ int rootana::App::midas_online(const char* host, const char* experiment)
 	gRunNumber = gOdb->odbReadInt("/runinfo/Run number");
 
 	if ((gOdb->odbReadInt("/runinfo/State") == 3)) {
-		printf ("State is running... executing run start transitino handler.\n");
+		printf ("State is running... executing run start transitinon handler.\n");
 		rootana_run_start(0, gRunNumber, 0);
 	}
 
@@ -298,7 +346,7 @@ int rootana::App::midas_online(const char* host, const char* experiment)
 	/*---- start main loop ----*/
 
 	//loop_online();
-	this->Run(kTRUE);
+	TApplication::Run(kTRUE);
 
 	/* disconnect from experiment */
 	midas->disconnect();
@@ -307,3 +355,45 @@ int rootana::App::midas_online(const char* host, const char* experiment)
 	return 0;
 }
 
+void rootana::App::Run(Bool_t)
+{
+	/*!
+	 *  Calls either midas_online() or midas_file() depending on 'mode'.
+	 */
+	switch (fMode) {
+
+	case OFFLINE:
+		midas_file (fFilename.c_str(), fCutoff);
+		break;
+
+	case ONLINE:
+#ifdef MIDASSYS
+		fReturn = midas_online (fHost.c_str(), fExpt.c_str());
+#else
+		fprintf(stderr, "Can't run in online mode without MIDAS libraries.\n");
+		fReturn = 1;
+#endif
+		break;
+
+	default:
+		assert ("Shouldn't get here!" && 0);
+	}
+}
+
+void rootana::App::help()
+{
+  printf("\nUsage:\n");
+  printf("\n./analyzer.exe [-h] [-Hhostname] [-Eexptname] [-eMaxEvents] [-P9091] [file1 file2 ...]\n");
+  printf("\n");
+  printf("\t-h: print this help message\n");
+  printf("\t-T: test mode - start and serve a test histogram\n");
+  printf("\t-Hhostname: connect to MIDAS experiment on given host\n");
+  printf("\t-Eexptname: connect to this MIDAS experiment\n");
+	printf("\t-qQueueTime: Set timestamp matching queue time in microseconds (default: 10e6)\n");
+  printf("\t-P: Start the TNetDirectory server on specified tcp port (for use with roody -Plocalhost:9091)\n");
+  printf("\t-e: Number of events to read from input data files\n");
+  printf("\n");
+  printf("Example1: analyze online data: ./analyzer.exe -P9091\n");
+  printf("Example2: analyze existing data: ./analyzer.exe /data/alpha/current/run00500.mid\n");
+  exit(1);
+}

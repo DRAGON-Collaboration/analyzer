@@ -87,7 +87,8 @@ int main(int argc, char *argv[])
 	signal(SIGILL,  SIG_DFL);
 	signal(SIGBUS,  SIG_DFL);
 	signal(SIGSEGV, SIG_DFL);
- 
+
+#if 0 
 	std::vector<std::string> args;
 	for (int i=0; i<argc; i++)
 	{
@@ -95,8 +96,6 @@ int main(int argc, char *argv[])
 			help(); // does not return
 		args.push_back(argv[i]);
 	}
-
-	rootana::App* app = new rootana::App("rootana", &argc, argv);
 
 	bool testMode = false;
 	int  tcpPort = 0;
@@ -134,7 +133,12 @@ int main(int argc, char *argv[])
 
 	if (tcpPort)
 		StartNetDirectoryServer(tcpPort, gOnlineHistDir);
-	 
+#endif
+	rootana::App* app = new rootana::App("rootana", &argc, argv);
+	app->Run();
+	return app->ReturnVal();
+
+#if 0
 	for (unsigned int i=1; i<args.size(); i++)
 	{
 		const char* arg = args[i].c_str();
@@ -160,6 +164,7 @@ int main(int argc, char *argv[])
 
 #ifdef MIDASSYS
 	app->midas_online(hostname, exptname);
+#endif
 #endif
    
 	return 0;
