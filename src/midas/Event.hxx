@@ -46,6 +46,17 @@ public:
 	using TMidasEvent::IterateBank32;
 
 	/// Provide typdef for EventHeader_t
+	/*!
+	 * \code
+	 * struct EventHeader_t {
+	 *   uint16_t fEventId;      ///< event id
+	 *   uint16_t fTriggerMask;  ///< event trigger mask
+	 *   uint32_t fSerialNumber; ///< event serial number
+	 *   uint32_t fTimeStamp;    ///< event timestamp in seconds
+	 *   uint32_t fDataSize;     ///< event size in bytes
+	 *  };
+	 * \endcode
+	 */
 	typedef EventHeader_t Header;
 
 private:
