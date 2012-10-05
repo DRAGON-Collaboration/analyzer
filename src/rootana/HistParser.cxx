@@ -5,15 +5,12 @@
 #include <stdexcept>
 #include <sstream>
 #include <TROOT.h>
-#include <TFile.h>
+#include <TDirectory.h>
 #include "utils/definitions.h"
 #include "utils/Error.hxx"
 #include "Histos.hxx"
 #include "Events.hxx"
 #include "HistParser.hxx"
-
-extern TFile* gOutputFile;
-extern TDirectory* gOnlineHistDir;
 
 
 // HELPER FUNCTIONS & CLASSES //
@@ -57,8 +54,10 @@ inline void throw_missing_arg(const char* which, int linenum, const char* fname)
 
 // HIST PARSER //
 
-rootana::HistParser::HistParser(const char* filename):
-	fFilename(filename), fFile(filename), fLine(""), fLineNumber(0), fDir("")
+rootana::HistParser::HistParser(const char* filename, TDirectory* owner):
+	fFilename(filename), fFile(filename),
+	fLine(""), fLineNumber(0), fDir(""),
+	fOwner(owner)
 {
 	/*!
 	 *  \param filename Path to the histogram definition file
@@ -193,7 +192,7 @@ void rootana::HistParser::handle_summary()
 
 void rootana::HistParser::add_hist(rootana::HistBase* hst, Int_t type)
 {
-	rootana::EventHandler::Instance()->AddHisto(hst, type, gOutputFile, fDir.c_str());
+	rootana::EventHandler::Instance()->AddHisto(hst, type, fOwner, fDir.c_str());
 
 	std::cout << "\t";
 	dragon::err::Info("HistParser")

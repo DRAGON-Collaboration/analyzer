@@ -28,71 +28,17 @@
 #include "RootanaDragon.hxx"
 
 
-/// \todo Reduce globals as much as possible
-extern int  gRunNumber;
-extern bool gIsRunning;
-extern bool gDebugEnable;
-
-extern TDirectory* gOnlineHistDir;
-extern TFile* gOutputFile;
-extern VirtualOdb* gOdb;
-
-extern double gQueueTime;
-namespace {
-rootana::TSQueue gQueue ( gQueueTime );
-}
-
 
 // CALLBACKS //
 
 void rootana_run_start(int transition, int run, int time)
 {
-	/*!
-	 *  Sets status flags, calls EventHandler::BeginRun(), opens output file.
-	 */
-  gIsRunning = true;
-  gRunNumber = run;
-    
-  if(gOutputFile!=NULL) {
-    gOutputFile->Write();
-    gOutputFile->Close();
-    gOutputFile=NULL;
-  }
-	
-	rootana::EventHandler::Instance()->BeginRun();
-
-  char filename[1024];
-  sprintf(filename, "output%05d.root", run); /// \todo better Output directory
-  gOutputFile = new TFile(filename,"RECREATE");
-
-  NetDirectoryExport(gOutputFile, "outputFile");
-
-	dragon::err::Info("rootana") << "Start of run " << run;
+	rootana::App::instance()->run_start(run);
 }
 
 void rootana_run_stop(int transition, int run, int time)
 {
-	/*!
-	 *  Sets appropriate status flags, calls EventHandler::EndRun() to
-	 *  save histograms, closes output root file.
-	 */
-  gIsRunning = false;
-  gRunNumber = run;
-
-#ifdef OLD_SERVER
-  if (gManaHistosFolder)
-    gManaHistosFolder->Clear();
-#endif
-
-	rootana::EventHandler::Instance()->EndRun();
-
-  if(gOutputFile) {
-		gOutputFile->Write();
-		gOutputFile->Close();		//close the histogram file
-		gOutputFile = NULL;
-	}
-
-	dragon::err::Info("rootana") << "End of run " << run;
+	rootana::App::instance()->run_stop(run);
 }
 
 void rootana_run_pause(int transition, int run, int time)
@@ -129,54 +75,24 @@ void rootana_handle_event(const void* pheader, const void* pdata, int size)
 }
 
 
-
 // APPLICATION CLASS //
 
 rootana::App::App(const char* appClassName, Int_t* argc, char** argv, void* options, Int_t numOptions):
 	TApplication (appClassName, argc, argv, options, numOptions),
-	fMode(ONLINE), fCutoff(0), fReturn(0),
-	fFilename(""), fHost(""), fExpt("")
+	fRunNumber(0), fMode(ONLINE), fCutoff(0), fReturn(0), fTcp(9091),
+	fFilename(""), fHost(""), fExpt(""),
+	fOutputFile(0), fOnlineHistDir(0), fOdb(0)
 { 
 /*!
- *  Also: process command line arguments, starts histogram server.
+ *  Also: process command line arguments, starts histogram server if appropriate.
  */
-	int  tcpPort = 9091;
-
-	std::vector<std::string> args(argv, argv + *argc);
-	for (std::vector<std::string>::iterator iarg = args.begin(); iarg != args.end(); ++iarg) {
-
-		if (0) { }
-
-		else if ( iarg->compare(0, 2, "-h") == 0 )
-			this->help();
-
-		else if ( iarg->compare(0, 2, "-e") == 0 )
-			fCutoff =  atoi (iarg->substr(2).c_str() );
-
-		else if ( iarg->compare(0, 2, "-P") == 0 )
-			tcpPort = atoi (iarg->substr(2).c_str() );
-
-		else if ( iarg->compare(0, 2, "-H") == 0 )
-			fHost = iarg->substr(2);
-
-		else if ( iarg->compare(0, 2, "-E") == 0 )
-			fExpt = iarg->substr(2);
-
-		else if ( iarg->compare(0, 2, "-q") == 0 )
-			gQueueTime = atof (iarg->substr(2).c_str() );
-
-		else if ( iarg->compare(0, 1, "-" ) == 0 )
-			this->help();
-
-		else if ( iarg->compare(0, 1, "-" ) != 0 ) {
-			// fMode = OFFLINE;
-			// fFilename = *iarg;
-		}
-	}
+	process_argv (*argc, argv);
+	if (!fQueue) fQueue = new TSQueue(10e6);
 	if (fMode == ONLINE) {
 		gROOT->cd();
-		gOnlineHistDir = new TDirectory("rootana", "rootana online plots");
-		if (tcpPort) StartNetDirectoryServer(tcpPort, gOnlineHistDir);
+		fOnlineHistDir = new TDirectory("rootana", "rootana online plots");
+		if (fTcp) StartNetDirectoryServer(fTcp, fOnlineHistDir);
+		else fprintf(stderr, "TCP port == 0, can't start histogram server!\n");
 	}
 }
 
@@ -191,6 +107,32 @@ rootana::App* rootana::App::instance()
 	return app;
 }
 
+void rootana::App::process_argv(int argc, char** argv)
+{
+	std::vector<std::string> args(argv + 1, argv + argc);
+	for (std::vector<std::string>::iterator iarg = args.begin(); iarg != args.end(); ++iarg) {
+		if (0) { }
+		else if ( iarg->compare(0, 2, "-h") == 0 )
+			this->help();
+		else if ( iarg->compare(0, 2, "-e") == 0 )
+			fCutoff =  atoi (iarg->substr(2).c_str() );
+		else if ( iarg->compare(0, 2, "-P") == 0 )
+			fTcp  = atoi (iarg->substr(2).c_str() );
+		else if ( iarg->compare(0, 2, "-H") == 0 )
+			fHost = iarg->substr(2);
+		else if ( iarg->compare(0, 2, "-E") == 0 )
+			fExpt = iarg->substr(2);
+		else if ( iarg->compare(0, 2, "-q") == 0 )
+			fQueue = new TSQueue ( atof(iarg->substr(2).c_str()) );
+		else if ( iarg->compare(0, 1, "-" ) == 0 )
+			this->help();
+		else {
+			fMode = OFFLINE;
+			fFilename = *iarg;
+		}
+	}
+}
+
 void rootana::App::handle_event(midas::Event& event)
 {
 	/*!
@@ -198,10 +140,10 @@ void rootana::App::handle_event(midas::Event& event)
 	 */
 	switch (event.GetEventId()) {
 	case DRAGON_HEAD_EVENT:  /// - DRAGON_HEAD_EVENT: Insert into timestamp matching queue
-		gQueue.Push(event);
+		fQueue->Push(event);
 		break;
 	case DRAGON_TAIL_EVENT:  /// - DRAGON_TAIL_EVENT: Insert into timestamp matching queue
-		gQueue.Push(event);
+		fQueue->Push(event);
 		break;
 	case DRAGON_HEAD_SCALER: /// - DRAGON_HEAD_SCALER: TODO: implement C. Stanford's scaler codes
 		// <...process...> //
@@ -219,8 +161,9 @@ int rootana::App::create_histograms(const char* definition_file)
 	/*!
 	 * Parses histogram definition file & creates histograms.
 	 * \returns 0 if successful, -1 otherwise
+	 * \todo Also add option for separate online-only histos
 	 */
-	rootana::HistParser parse (definition_file);
+	rootana::HistParser parse (definition_file, fOutputFile);
 	try {
 		parse.run();
 	}
@@ -233,12 +176,16 @@ int rootana::App::create_histograms(const char* definition_file)
 	return 0;
 }
 
-int rootana::App::midas_file(const char* fname, int cutoff)
+int rootana::App::midas_file(const char* fname)
 {
 	/*!
 	 *  \todo Write detailed documentation
 	 *  \returns 0 if successful, -1 if failure
 	 */
+	printf ("Processing offline file: %s", fname);
+	if (fCutoff) printf (" (%i events)\n", fCutoff);
+	else printf("\n");
+
   TMidasFile f;
   bool tryOpen = f.Open(fname);
   if (!tryOpen) {
@@ -261,9 +208,9 @@ int rootana::App::midas_file(const char* fname, int cutoff)
 
 			printf("---- BEGIN RUN ---- \n");
 
-			if (gOdb)
-				delete gOdb;
-			gOdb = new XmlOdb(event.GetData(),event.GetDataSize());
+			if (fOdb)
+				delete fOdb;
+			fOdb = new XmlOdb(event.GetData(),event.GetDataSize());
 
 			rootana_run_start(0, event.GetSerialNumber(), 0);
 		}
@@ -282,7 +229,7 @@ int rootana::App::midas_file(const char* fname, int cutoff)
 		
 		i++;
 
-		if ( (cutoff!=0) && (i >= cutoff) ) {
+		if ( (fCutoff!=0) && (i >= fCutoff) ) {
 			printf("Reached event %d, exiting loop.\n",i);
 			break;
 		}
@@ -290,7 +237,7 @@ int rootana::App::midas_file(const char* fname, int cutoff)
   
   f.Close();
 
-	rootana_run_stop(0, gRunNumber, 0);
+	rootana_run_stop(0, fRunNumber, 0);
 
   return 0;
 }
@@ -304,14 +251,14 @@ int rootana::App::midas_online(const char* host, const char* experiment)
 	TMidasOnline *midas = TMidasOnline::instance();
 
 	int err = midas->connect(host, experiment, "anaDragon");
-	printf("Connecting to experiment %s on host %s!\n", host, experiment);
+	printf("Connecting to experiment \"%s\" on host \"%s\"!\n", host, experiment);
 
 	if (err != 0) {
 		fprintf(stderr,"Cannot connect to MIDAS, error %d\n", err);
 		return -1;
 	}
 
-	gOdb = midas;
+	fOdb = midas;
 
 	midas->setTransitionHandlers(rootana_run_start, rootana_run_stop, rootana_run_resume, rootana_run_pause);
 	midas->registerTransitions();
@@ -323,11 +270,11 @@ int rootana::App::midas_online(const char* host, const char* experiment)
 
 	/* fill present run parameters */
 
-	gRunNumber = gOdb->odbReadInt("/runinfo/Run number");
+	fRunNumber = fOdb->odbReadInt("/runinfo/Run number");
 
-	if ((gOdb->odbReadInt("/runinfo/State") == 3)) {
+	if ((fOdb->odbReadInt("/runinfo/State") == 3)) {
 		printf ("State is running... executing run start transitinon handler.\n");
-		rootana_run_start(0, gRunNumber, 0);
+		rootana_run_start(0, fRunNumber, 0);
 	}
 
 	/* create histograms */
@@ -337,8 +284,8 @@ int rootana::App::midas_online(const char* host, const char* experiment)
 		return -1;
 	}
 
-	printf("Startup: run %d, is running: %d\n",gRunNumber,gIsRunning);
-	printf("Host: %s, experiment: %s\n", host, experiment);
+	printf("Startup: run %d\n",fRunNumber);
+	printf("Host: \"%s\", experiment: \"%s\"\n", host, experiment);
 	printf("Enter \"!\" to exit.\n");
 
 	rootana::Timer tm(100);
@@ -350,7 +297,7 @@ int rootana::App::midas_online(const char* host, const char* experiment)
 
 	/* disconnect from experiment */
 	midas->disconnect();
-	rootana_run_stop(0, gRunNumber, 0);
+	rootana_run_stop(0, fRunNumber, 0);
 
 	return 0;
 }
@@ -363,7 +310,7 @@ void rootana::App::Run(Bool_t)
 	switch (fMode) {
 
 	case OFFLINE:
-		midas_file (fFilename.c_str(), fCutoff);
+		midas_file (fFilename.c_str());
 		break;
 
 	case ONLINE:
@@ -379,6 +326,63 @@ void rootana::App::Run(Bool_t)
 		assert ("Shouldn't get here!" && 0);
 	}
 }
+
+void rootana::App::Terminate(Int_t status)
+{
+	if (fQueue) { delete fQueue; fQueue = 0; }
+	printf ("Terminating application...\n");
+	TApplication::Terminate();
+}
+
+rootana::App::~App()
+{
+	if (fQueue) delete fQueue;
+}
+
+void rootana::App::run_start(int runnum)
+{
+	/*!
+	 *  Sets status flags, calls EventHandler::BeginRun(), opens output file.
+	 */
+  fRunNumber = runnum;
+    
+  if(fOutputFile!=NULL) {
+    fOutputFile->Write();
+    fOutputFile->Close();
+    fOutputFile=NULL;
+  }
+	
+	rootana::EventHandler::Instance()->BeginRun();
+
+  char filename[1024];
+  sprintf(filename, "output%05d.root", runnum); /// \todo better Output directory
+  fOutputFile = new TFile(filename,"RECREATE");
+
+  NetDirectoryExport(fOutputFile, "outputFile");
+
+	dragon::err::Info("rootana") << "Start of run " << runnum;
+}
+
+void rootana::App::run_stop(int runnum)
+{
+	/*!
+	 *  Sets appropriate status flags, calls EventHandler::EndRun() to
+	 *  save histograms, closes output root file.
+	 */
+  fRunNumber = runnum;
+
+	rootana::EventHandler::Instance()->EndRun();
+	fQueue->Flush(30);
+
+  if(fOutputFile) {
+		fOutputFile->Write();
+		fOutputFile->Close();		//close the histogram file
+		fOutputFile = NULL;
+	}
+
+	dragon::err::Info("rootana") << "End of run " << runnum;
+}
+
 
 void rootana::App::help()
 {

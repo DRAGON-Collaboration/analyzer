@@ -31,9 +31,15 @@ EXTERN_C void rootana_handle_event(const void* pheader, const void* pdata, int s
 
 #include <TApplication.h>
 
+class TFile;
+class TDirectory;
+class VirtualOdb;
 namespace midas { class Event; }
 
+
 namespace rootana {
+
+class TSQueue;
 
 /// Application class for dragon rootana
 class App: public TApplication {
@@ -42,12 +48,18 @@ class App: public TApplication {
 	enum Mode_t { ONLINE, OFFLINE };
 
 private:
-	int fMode; ///< Running mode (online or offline)
-	int fCutoff; ///< Event cutoff (offline only)
-	int fReturn; ///< Return value
-	std::string fFilename; ///< Offline file name
-	std::string fHost;     ///< Online host name
-	std::string fExpt;     ///< Online experiment name
+	int fRunNumber; ///< Current run number
+	int fMode;      ///< Running mode (online or offline)
+	int fCutoff;    ///< Event cutoff (offline only)
+	int fReturn;    ///< Return value
+	int fTcp;       ///< TCP port value
+	std::string fFilename;      ///< Offline file name
+	std::string fHost;          ///< Online host name
+	std::string fExpt;          ///< Online experiment name
+	TFile* fOutputFile;         ///< Output ROOT file
+	TDirectory* fOnlineHistDir; ///< Online-only histogram directory
+	VirtualOdb* fOdb;           ///< Database class. \todo Switch to midas::Database
+	TSQueue* fQueue;            ///< Timestamping queue
 
 public:
 	/// Calls TApplication constructor
@@ -59,14 +71,23 @@ public:
 	/// Runs the application
 	virtual void Run(Bool_t retrn = kFALSE);
 
+	/// Terminates the application
+	virtual void Terminate(Int_t status = 0);
+
 	/// Gets fReturn
 	int ReturnVal() { return fReturn; }
+
+	/// Start-of-run actions
+	void run_start(int runnum);
+
+	/// End-of-run acitons
+	void run_stop(int runnum);
 
 	/// Handle a midas event
 	void handle_event(midas::Event& event);
 
 	/// Process an offline MIDAS file
-	int midas_file(const char* fname, int cutoff = 0);
+	int midas_file(const char* fname);
 
 	/// Process online MIDAS data
 	int midas_online(const char* host = "", const char* experiment = "dragon");
@@ -74,12 +95,15 @@ public:
 	/// Create histograms from definitions file
 	int create_histograms(const char* definition_file);
 
-	/// Empty
-	virtual ~App() { }
+	/// Deletes fQueue if it's non-null;
+	virtual ~App();
 
 private:
 	/// Prints 'help' message
 	void help();
+
+	/// Processes command line args
+	void process_argv(int argc, char** argv);
 
 	ClassDef (rootana::App, 0);
 };

@@ -9,24 +9,6 @@
 #ifndef ROOTANA_GLOBALS_H
 #define ROOTANA_GLOBALS_H
 
-class TFile;
-
-// Run parameters
-
-extern int  gRunNumber;
-extern bool gIsRunning;
-
-// Output files
-
-extern TFile* gOutputFile;
-
-// ODB access
-
-#include "VirtualOdb.h"
-
-extern VirtualOdb* gOdb;
-
-
 // DRAGON Globals //
 #include "dragon/Coinc.hxx"
 
