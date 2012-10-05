@@ -6,26 +6,31 @@
 #define ROOTANA_TIMER_HXX
 #include <sys/time.h>
 #include <cassert>
+#include <TSystem.h>
 #include <TTimer.h>
+
+#ifdef MIDASSYS
+#ifndef __MAKECINT__
+#include "midas.h"
+#endif
+#include "IncludeMidasOnline.h"
+#endif
 
 namespace rootana {
 
 /// TTimer class for rootana event loop
 class Timer: public TTimer {
-
-public:
-  typedef void (*TimerHandler)(void); ///< Callback type
-
 private:
   int          fPeriod_msec; ///< Period in milliseconds
-  TimerHandler fHandler;     ///< Periodic callback routine
   double       fLastTime;    ///< Time of last callback
 
 public:
 	/// Sets period and callback function
-	Timer(int period_msec, TimerHandler handler);
+	Timer(int period_msec);
 	/// Calls callback function
   Bool_t Notify();
+	/// Function to execute perioducally from within Notify()
+	virtual void PeriodicAction();
 	/// Calls TTimer::TurnOff()
 	~Timer();
 
@@ -36,10 +41,9 @@ private:
 
 }
 
-inline rootana::Timer::Timer(int period_msec, TimerHandler handler):
-	fPeriod_msec(period_msec), fHandler(handler)
+inline rootana::Timer::Timer(int period_msec):
+	fPeriod_msec(period_msec)
 {
-	assert(handler != NULL);
 	fLastTime = GetTimeSec();
 	Start(period_msec,kTRUE);
 }
@@ -54,8 +58,7 @@ inline Bool_t rootana::Timer::Notify()
 	double t = GetTimeSec();
 	
 	if (t - fLastTime >= 0.9*fPeriod_msec*0.001) {
-		if (fHandler)
-			(*fHandler)();
+		PeriodicAction();
 		fLastTime = t;
 	}
 	Reset();
@@ -68,6 +71,28 @@ inline double	rootana::Timer::GetTimeSec()
   gettimeofday(&tv,NULL);
   return tv.tv_sec + 0.000001*tv.tv_usec;
 }
+
+
+#ifdef MIDASSYS
+
+inline void rootana::Timer::PeriodicAction()
+{
+	/*!
+	 * Call TMidasOnline::poll() to request events; also check for
+	 * manual shutdown via '!' on the command line.
+	 */
+	char c = ss_getchar(0);
+  if (!(TMidasOnline::instance()->poll(0)) || c == '!') {
+		ss_getchar(1);
+    gSystem->ExitLoop();
+	}
+}
+
+#else
+
+inline void rootana::Timer::PeriodicAction() { }
+
+#endif
 
 
 #endif

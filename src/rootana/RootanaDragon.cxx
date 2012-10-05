@@ -11,7 +11,6 @@
 
 #include "midas.h"
 #include "XmlOdb.h"
-#include "TMidasOnline.h"
 #include "libNetDirectory/netDirectoryServer.h"
 
 #include "utils/definitions.h"
@@ -21,6 +20,7 @@
 #include "Events.hxx"
 #include "Timestamp.hxx"
 #include "HistParser.hxx"
+#include "IncludeMidasOnline.h"
 #include "RootanaDragon.hxx"
 
 
@@ -249,15 +249,6 @@ int rootana::App::midas_file(const char* fname)
   return 0;
 }
 
-
-void MidasPollHandler2()
-{
-	char c;
-	c = ss_getchar(0);
-  if (!(TMidasOnline::instance()->poll(0)) || c == '!')
-    gSystem->ExitLoop();
-}
-
 int rootana::App::midas_online(const char* host, const char* experiment)
 {
 	/*!
@@ -304,16 +295,14 @@ int rootana::App::midas_online(const char* host, const char* experiment)
 	printf("Host: %s, experiment: %s\n", host, experiment);
 	printf("Enter \"!\" to exit.\n");
 
-	rootana::Timer tm (100, MidasPollHandler2);
+	rootana::Timer tm(100);
 
 	/*---- start main loop ----*/
 
 	//loop_online();
-	ss_getchar(0);
 	this->Run(kTRUE);
 
 	/* disconnect from experiment */
-	ss_getchar(1);
 	midas->disconnect();
 	rootana_run_stop(0, gRunNumber, 0);
 

@@ -11,7 +11,6 @@
 #include <assert.h>
 #include <signal.h>
 
-#include "TMidasOnline.h"
 #include "TMidasEvent.h"
 #include "TMidasFile.h"
 #include "XmlOdb.h"
@@ -39,9 +38,10 @@
 #include "midas/Database.hxx"
 #include "midas/Event.hxx"
 #include "dragon/Coinc.hxx"
-#include "Timestamp.hxx"
+#include "IncludeMidasOnline.h"
 #include "RootanaDragon.hxx"
 #include "HistParser.hxx"
+#include "Timestamp.hxx"
 #include "Histos.hxx"
 #include "Events.hxx"
 #include "Timer.hxx"
