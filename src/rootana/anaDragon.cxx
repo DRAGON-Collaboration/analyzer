@@ -252,131 +252,109 @@ void help()
 
 // Main function call
 
-#include <TStyle.h>
 int main(int argc, char *argv[])
 {
-#if 1
-
-	gStyle->SetPalette(1);
-
-   setbuf(stdout,NULL);
-   setbuf(stderr,NULL);
+	setbuf(stdout,NULL);
+	setbuf(stderr,NULL);
  
-   signal(SIGILL,  SIG_DFL);
-   signal(SIGBUS,  SIG_DFL);
-   signal(SIGSEGV, SIG_DFL);
+	signal(SIGILL,  SIG_DFL);
+	signal(SIGBUS,  SIG_DFL);
+	signal(SIGSEGV, SIG_DFL);
  
-   std::vector<std::string> args;
-   for (int i=0; i<argc; i++)
-     {
-       if (strcmp(argv[i],"-h")==0)
-	 help(); // does not return
-       args.push_back(argv[i]);
-     }
+	std::vector<std::string> args;
+	for (int i=0; i<argc; i++)
+	{
+		if (strcmp(argv[i],"-h")==0)
+			help(); // does not return
+		args.push_back(argv[i]);
+	}
 
-   TApplication *app = new TApplication("rootana", &argc, argv);
+	TApplication *app = new TApplication("rootana", &argc, argv);
 
-   bool forceEnableGraphics = false;
-   bool testMode = false;
-   int  oldTcpPort = 0;
-   int  tcpPort = 0;
-   const char* hostname = NULL;
-   const char* exptname = NULL;
+	bool forceEnableGraphics = false;
+	bool testMode = false;
+	int  oldTcpPort = 0;
+	int  tcpPort = 0;
+	const char* hostname = NULL;
+	const char* exptname = NULL;
 
-   for (unsigned int i=1; i<args.size(); i++) // loop over the commandline options
-     {
-       const char* arg = args[i].c_str();
-       //printf("argv[%d] is %s\n",i,arg);
+	for (unsigned int i=1; i<args.size(); i++) // loop over the commandline options
+	{
+		const char* arg = args[i].c_str();
+		//printf("argv[%d] is %s\n",i,arg);
 	   
-       if (strncmp(arg,"-e",2)==0)  // Event cutoff flag (only applicable in offline mode)
-	 gEventCutoff = atoi(arg+2);
-       else if (strncmp(arg,"-m",2)==0) // Enable memory debugging
-	 gEnableShowMem = true;
-       else if (strncmp(arg,"-p",2)==0) // Set the histogram server port
-	 oldTcpPort = atoi(arg+2);
-       else if (strncmp(arg,"-P",2)==0) // Set the histogram server port
-	 tcpPort = atoi(arg+2);
-       else if (strcmp(arg,"-T")==0)
-	 testMode = true;
-       else if (strcmp(arg,"-d")==0)
-	 gDebugEnable = true;
-       else if (strcmp(arg,"-g")==0)
-	 forceEnableGraphics = true;
-       else if (strncmp(arg,"-H",2)==0)
-	 hostname = strdup(arg+2);
-       else if (strncmp(arg,"-E",2)==0)
-	 exptname = strdup(arg+2);
-       else if (strcmp(arg,"-h")==0)
-	 help(); // does not return
-       else if (arg[0] == '-')
-	 help(); // does not return
-    }
+		if (strncmp(arg,"-e",2)==0)  // Event cutoff flag (only applicable in offline mode)
+			gEventCutoff = atoi(arg+2);
+		else if (strncmp(arg,"-m",2)==0) // Enable memory debugging
+			gEnableShowMem = true;
+		else if (strncmp(arg,"-p",2)==0) // Set the histogram server port
+			oldTcpPort = atoi(arg+2);
+		else if (strncmp(arg,"-P",2)==0) // Set the histogram server port
+			tcpPort = atoi(arg+2);
+		else if (strcmp(arg,"-T")==0)
+			testMode = true;
+		else if (strcmp(arg,"-d")==0)
+			gDebugEnable = true;
+		else if (strcmp(arg,"-g")==0)
+			forceEnableGraphics = true;
+		else if (strncmp(arg,"-H",2)==0)
+			hostname = strdup(arg+2);
+		else if (strncmp(arg,"-E",2)==0)
+			exptname = strdup(arg+2);
+		else if (strcmp(arg,"-h")==0)
+			help(); // does not return
+		else if (arg[0] == '-')
+			help(); // does not return
+	}
 
-	 if (!tcpPort) tcpPort = 9091;
+	if (!tcpPort) tcpPort = 9091;
     
-   gROOT->cd();
-   gOnlineHistDir = new TDirectory("rootana", "rootana online plots");
+	gROOT->cd();
+	gOnlineHistDir = new TDirectory("rootana", "rootana online plots");
 
-   if (tcpPort)
-     StartNetDirectoryServer(tcpPort, gOnlineHistDir);
+	if (tcpPort)
+		StartNetDirectoryServer(tcpPort, gOnlineHistDir);
 	 
-   gIsOffline = false;
+	gIsOffline = false;
 
-   for (unsigned int i=1; i<args.size(); i++)
-     {
-       const char* arg = args[i].c_str();
+	for (unsigned int i=1; i<args.size(); i++)
+	{
+		const char* arg = args[i].c_str();
 
-       if (arg[0] != '-')  
-	 {  
-	   gIsOffline = true;
-	   //gEnableGraphics = false;
-	   //gEnableGraphics |= forceEnableGraphics;
-	   ProcessMidasFile(app,arg);
-	 }
-     }
+		if (arg[0] != '-')  
+		{  
+			gIsOffline = true;
+			//gEnableGraphics = false;
+			//gEnableGraphics |= forceEnableGraphics;
+			ProcessMidasFile(app,arg);
+		}
+	}
 
-   if (testMode)
-     {
-       gOnlineHistDir->cd();
-       TH1D* hh = new TH1D("test", "test", 100, 0, 100);
-       hh->Fill(1);
-       hh->Fill(10);
-       hh->Fill(50);
+	if (testMode)
+	{
+		gOnlineHistDir->cd();
+		TH1D* hh = new TH1D("test", "test", 100, 0, 100);
+		hh->Fill(1);
+		hh->Fill(10);
+		hh->Fill(50);
 
-       app->Run(kTRUE);
-       return 0;
-     }
+		app->Run(kTRUE);
+		return 0;
+	}
 
-   // if we processed some data files,
-   // do not go into online mode.
-   if (gIsOffline)
-     return 0;
+	// if we processed some data files,
+	// do not go into online mode.
+	if (gIsOffline)
+		return 0;
 	   
-   gIsOffline = false;
-   //gEnableGraphics = true;
+	gIsOffline = false;
+	//gEnableGraphics = true;
 
 #ifdef MIDASSYS
 	ProcessMidasOnline(app, hostname, exptname);
 #endif
    
-   return 0;
-#else
-	
-	 int x[9];
-	 rootana::DataPointer* xx = rootana::DataPointer::New(x, 9);
-	 rootana::Hist<TH2D> hist ("hist", "", 100, 0, 100, xx);
-
-	 for (int i=0; i< 100000; ++i) {
-		 for (int j=0; j< 9; ++j) {
-			 x[j] = gRandom->Uniform(0, 100);
-		 }
-		 hist.fill();
-	 }
-
-	 hist->Draw("COLZ");
-	 gPad->SaveAs("c1.png");
-
-#endif
+	return 0;
 }
 
 //end
