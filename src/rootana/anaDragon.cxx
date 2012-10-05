@@ -52,7 +52,6 @@
 int  gRunNumber = 0;
 bool gIsRunning = false;
 bool gIsPedestalsRun = false;
-bool gIsOffline = false;
 bool gDebugEnable = false;
 int  gEventCutoff = 0;
 
@@ -172,19 +171,14 @@ int main(int argc, char *argv[])
 	if (tcpPort)
 		StartNetDirectoryServer(tcpPort, gOnlineHistDir);
 	 
-	gIsOffline = false;
-
 	for (unsigned int i=1; i<args.size(); i++)
 	{
 		const char* arg = args[i].c_str();
 
 		if (arg[0] != '-')  
 		{  
-			gIsOffline = true;
-			//gEnableGraphics = false;
-			//gEnableGraphics |= forceEnableGraphics;
-
-			app->midas_file(arg);
+			int retval = app->midas_file(arg);
+			return retval;
 		}
 	}
 
@@ -199,14 +193,6 @@ int main(int argc, char *argv[])
 		app->Run(kTRUE);
 		return 0;
 	}
-
-	// if we processed some data files,
-	// do not go into online mode.
-	if (gIsOffline)
-		return 0;
-	   
-	gIsOffline = false;
-	//gEnableGraphics = true;
 
 #ifdef MIDASSYS
 	app->midas_online(hostname, exptname);

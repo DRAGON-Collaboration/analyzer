@@ -28,7 +28,6 @@
 extern int  gRunNumber;
 extern bool gIsRunning;
 extern bool gIsPedestalsRun;
-extern bool gIsOffline;
 extern bool gDebugEnable;
 extern int  gEventCutoff;
 

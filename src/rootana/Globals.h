@@ -16,7 +16,6 @@ class TFile;
 extern int  gRunNumber;
 extern bool gIsRunning;
 extern bool gIsPedestalsRun;
-extern bool gIsOffline;
 extern bool gDebugEnable;
 
 // Output files
