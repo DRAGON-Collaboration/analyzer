@@ -49,7 +49,7 @@ public:
 	void handle_event(midas::Event& event);
 
 	/// Process an offline MIDAS file
-	int midas_file(const char* fname);
+	int midas_file(const char* fname, int cutoff = 0);
 
 	/// Process online MIDAS data
 	int midas_online(const char* host = "", const char* experiment = "dragon");

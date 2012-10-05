@@ -51,7 +51,6 @@
 // Global Variables
 int  gRunNumber = 0;
 bool gIsRunning = false;
-int  gEventCutoff = 0;
 
 TDirectory* gOnlineHistDir = NULL;
 TFile* gOutputFile = NULL;
@@ -101,6 +100,7 @@ int main(int argc, char *argv[])
 
 	bool testMode = false;
 	int  tcpPort = 0;
+	int  cutoff = 0;
 	const char* hostname = NULL;
 	const char* exptname = NULL;
 
@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
 		//printf("argv[%d] is %s\n",i,arg);
 	   
 		if (strncmp(arg,"-e",2)==0)  // Event cutoff flag (only applicable in offline mode)
-			gEventCutoff = atoi(arg+2);
+			cutoff = atoi(arg+2);
 		else if (strncmp(arg,"-P",2)==0) // Set the histogram server port
 			tcpPort = atoi(arg+2);
 		else if (strcmp(arg,"-T")==0)
@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
 
 		if (arg[0] != '-')  
 		{  
-			int retval = app->midas_file(arg);
+			int retval = app->midas_file(arg, cutoff);
 			return retval;
 		}
 	}

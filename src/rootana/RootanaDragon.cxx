@@ -28,7 +28,6 @@
 extern int  gRunNumber;
 extern bool gIsRunning;
 extern bool gDebugEnable;
-extern int  gEventCutoff;
 
 extern TDirectory* gOnlineHistDir;
 extern TFile* gOutputFile;
@@ -186,7 +185,7 @@ int rootana::App::create_histograms(const char* definition_file)
 	return 0;
 }
 
-int rootana::App::midas_file(const char* fname)
+int rootana::App::midas_file(const char* fname, int cutoff)
 {
 	/*!
 	 *  \todo Write detailed documentation
@@ -235,7 +234,7 @@ int rootana::App::midas_file(const char* fname)
 		
 		i++;
 
-		if ((gEventCutoff!=0)&&(i>=gEventCutoff)) {
+		if ( (cutoff!=0) && (i >= cutoff) ) {
 			printf("Reached event %d, exiting loop.\n",i);
 			break;
 		}
