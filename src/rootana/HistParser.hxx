@@ -7,6 +7,8 @@
 #include <string>
 
 
+class TDirectory;
+
 namespace rootana {
 
 class HistBase;
@@ -28,10 +30,12 @@ private:
 	unsigned fLineNumber;
 	/// Current directory argument
 	std::string fDir;
+	/// Owner ('top-level') directory (or file)
+	TDirectory* fOwner;
 
 public:
 	/// Sets fFile
-	HistParser(const char* filename);
+	HistParser(const char* filename, TDirectory* owner);
 	/// Empty
 	~HistParser() { }
 	/// Checks if fFile is 'good'

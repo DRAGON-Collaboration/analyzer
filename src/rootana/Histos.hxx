@@ -13,6 +13,8 @@
 #include "DataPointer.hxx"
 #include "Cut.hxx"
 
+
+
 /// \brief Encloses all rootana-specific classes
 namespace rootana {
 
@@ -26,6 +28,7 @@ namespace rootana {
 class HistBase {
 private:
 	Cut* fCut; ///< Cut (gate) condition
+
 public:
 	/// Sets fCut to NULL, otherwise empty
 	HistBase():	fCut(0) { }
