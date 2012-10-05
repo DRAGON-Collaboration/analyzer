@@ -7,6 +7,7 @@
 #include <map>
 #include <list>
 #include "dragon/Coinc.hxx"
+#include "Timestamp.hxx"
 
 class TDirectory;
 namespace midas { class Event; }
@@ -38,8 +39,6 @@ public:
 	void EndRun();
 	/// Handles begin-of-run
 	void BeginRun();
-
-	size_t S() { return fHistos[1].size(); }
 };
 
 } // namespace rootana
