@@ -7,7 +7,6 @@
 //
 #include "midas.h"
 #include <stdio.h>
-#include <sys/time.h>
 #include <iostream>
 #include <assert.h>
 #include <signal.h>
@@ -28,15 +27,13 @@
 #include <TFolder.h>
 #include <TH1D.h>
 
-#include "Globals.h"
-
-
 #include <algorithm>
 #include <fstream>
 #include <sstream>
 #include <string>
 #include <vector>
 #include <memory>
+
 #include "utils/definitions.h"
 #include "utils/Error.hxx"
 #include "midas/Database.hxx"
@@ -48,6 +45,8 @@
 #include "Histos.hxx"
 #include "Events.hxx"
 #include "Timer.hxx"
+#include "Globals.h"
+
 
 // Global Variables
 int  gRunNumber = 0;
@@ -63,13 +62,6 @@ VirtualOdb* gOdb = NULL;
 
 rootana::TSQueue gQueue ( ROOTANA_QUEUE_TIME );
 
-//TCanvas  *gMainWindow = NULL; 	// the online histogram window
-
-
-inline void HandleMidasEvent(TMidasEvent& event)
-{
-	rootana_handle_event(event.GetEventHeader(), event.GetData(), event.GetDataSize());
-}
 
 int ProcessMidasFile(TApplication*app,const char*fname)
 {
@@ -123,7 +115,7 @@ int ProcessMidasFile(TApplication*app,const char*fname)
 	  //printf("case 3\n");	  
 	  event.SetBankList();
 	  //event.Print();
-	  HandleMidasEvent(event);
+	  rootana_handle_event(event.GetEventHeader(), event.GetData(), event.GetDataSize());
 	}
       
       if((i%500)==0)
@@ -215,105 +207,6 @@ if ((gOdb->odbReadInt("/runinfo/State") == 3))
 }
 
 #endif
-
-#include <TGMenu.h>
-
-class MainWindow: public TGMainFrame {
-
-private:
-  TGPopupMenu*		menuFile;
-  //TGPopupMenu* 		menuControls;
-  TGMenuBar*		menuBar;
-  TGLayoutHints*	menuBarLayout;
-  TGLayoutHints*	menuBarItemLayout;
-  
-public:
-  MainWindow(const TGWindow*w,int s1,int s2);
-  virtual ~MainWindow(); // Closing the control window closes the whole program
-  virtual void CloseWindow();
-  
-  Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2);
-};
-
-#define M_FILE_EXIT 0
-
-Bool_t MainWindow::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
-{
-   // printf("GUI Message %d %d %d\n",(int)msg,(int)parm1,(int)parm2);
-    switch (GET_MSG(msg))
-      {
-      default:
-	break;
-      case kC_COMMAND:
-	switch (GET_SUBMSG(msg))
-	  {
-	  default:
-	    break;
-	  case kCM_MENU:
-	    switch (parm1)
-	      {
-	      default:
-		break;
-	      case M_FILE_EXIT:
-					if(gIsRunning)
-						rootana_run_stop(0, gRunNumber, 0);
-
-		gSystem->ExitLoop();
-		break;
-	      }
-	    break;
-	  }
-	break;
-      }
-
-    return kTRUE;
-}
-
-MainWindow::MainWindow(const TGWindow*w,int s1,int s2) // ctor
-    : TGMainFrame(w,s1,s2)
-{
-   //SetCleanup(kDeepCleanup);
-   
-   SetWindowName("ROOT Analyzer Control");
-
-   // layout the gui
-   menuFile = new TGPopupMenu(gClient->GetRoot());
-   menuFile->AddEntry("Exit", M_FILE_EXIT);
-
-   menuBarItemLayout = new TGLayoutHints(kLHintsTop|kLHintsLeft, 0, 4, 0, 0);
-
-   menuFile->Associate(this);
-   //menuControls->Associate(this);
-
-   menuBar = new TGMenuBar(this, 1, 1, kRaisedFrame);
-   menuBar->AddPopup("&File",     menuFile,     menuBarItemLayout);
-   //menuBar->AddPopup("&Controls", menuControls, menuBarItemLayout);
-   menuBar->Layout();
-
-   menuBarLayout = new TGLayoutHints(kLHintsTop|kLHintsLeft|kLHintsExpandX);
-   AddFrame(menuBar,menuBarLayout);
-   
-   MapSubwindows(); 
-   Layout();
-   MapWindow();
-}
-
-MainWindow::~MainWindow()
-{
-    delete menuFile;
-    //delete menuControls;
-    delete menuBar;
-    delete menuBarLayout;
-    delete menuBarItemLayout;
-}
-
-void MainWindow::CloseWindow()
-{
-		if(gIsRunning)
-    	rootana_run_stop(0, gRunNumber, 0);
-
-    gSystem->ExitLoop();
-}
 
 static bool gEnableShowMem = false;
 
@@ -421,12 +314,6 @@ int main(int argc, char *argv[])
 
 	 if (!tcpPort) tcpPort = 9091;
     
-   MainWindow *mainWindow = NULL;
-
-   if (!gROOT->IsBatch()) {
-     mainWindow = new MainWindow(gClient->GetRoot(), 200, 300);
-   }
-
    gROOT->cd();
    gOnlineHistDir = new TDirectory("rootana", "rootana online plots");
 
