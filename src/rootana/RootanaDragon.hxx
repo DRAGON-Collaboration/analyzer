@@ -29,9 +29,32 @@ EXTERN_C void rootana_run_resume(int transition, int run, int time);
 EXTERN_C void rootana_handle_event(const void* pheader, const void* pdata, int size);
 
 
+#include <TApplication.h>
+
+namespace midas { class Event; }
+
 namespace rootana {
 
+/// Application class for dragon rootana
+class App: public TApplication {
 
+public:
+	/// Calls TApplication constructor
+	App(const char* appClassName, Int_t* argc, char** argv, void* options = 0, Int_t numOptions = 0):
+		TApplication (appClassName, argc, argv, options, numOptions) { }
+
+	/// Return gApplication cast to rootana::App
+	static App* instance();
+private:
+	/// Process an offline MIDAS file
+	int midas_file(const char* fname);
+	/// Process online MIDAS data
+	int midas_online(const char* host = "", const char* experiment = "dragon");
+	/// Handle a midas event
+	void handle_event(midas::Event& event);
+
+	ClassDef (rootana::App, 0);
+};
 
 }
 

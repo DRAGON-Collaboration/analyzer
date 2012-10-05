@@ -1,6 +1,6 @@
 /// \file HistParser.hxx
 /// \author G. Christian
-/// \brief Defines a class for parsing histogram definition files
+/// \brief Defines a class for parsing histogram definition files.
 #ifndef ROTANA_HIST_PARSER_HXX
 #define ROTANA_HIST_PARSER_HXX
 #include <fstream>
@@ -11,6 +11,11 @@ namespace rootana {
 
 class HistBase;
 
+/// Parses text file to create histograms at program startup.
+/*!
+ *  Allows histogram definitions to be changed without requiring
+ *  the program to be re-compiled.
+ */
 class HistParser {
 private:
 	/// Hist definitinon filename

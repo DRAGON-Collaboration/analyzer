@@ -144,7 +144,9 @@ int ProcessMidasFile(TApplication*app,const char*fname)
 
 void MidasPollHandler()
 {
-  if (!(TMidasOnline::instance()->poll(0)))
+	char c;
+	c = ss_getchar(0);
+  if (!(TMidasOnline::instance()->poll(0)) || c == '!')
     gSystem->ExitLoop();
 }
 
@@ -193,16 +195,20 @@ int ProcessMidasOnline(TApplication*app, const char* hostname, const char* exptn
 
 	printf("Startup: run %d, is running: %d, is pedestals run: %d\n",gRunNumber,gIsRunning,gIsPedestalsRun);
 	printf("Hostname: %s, exptname: %s\n", hostname, exptname);
+	printf("Enter \"!\" to exit.\n");
 
 	rootana::Timer tm (100, MidasPollHandler);
 
 	/*---- start main loop ----*/
 
 	//loop_online();
+	ss_getchar(0);
 	app->Run(kTRUE);
 
 	/* disconnect from experiment */
+	ss_getchar(1);
 	midas->disconnect();
+	rootana_run_stop(0, gRunNumber, 0);
 
 	return 0;
 }
