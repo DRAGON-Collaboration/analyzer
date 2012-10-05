@@ -73,23 +73,24 @@ void rootana::EventHandler::Process(const midas::Event& event)
 	const uint16_t EID = event.GetEventId();
 	switch (EID) {
 
-	case DRAGON_HEAD_EVENT:  /// - DRAGON_HEAD_EVENT: Insert into timestamp matching queue
+	case DRAGON_HEAD_EVENT:  /// - DRAGON_HEAD_EVENT: Calculate head params & fill head histos
 		handle_event(rootana::gHead, event);
 		std::for_each(fHistos[EID].begin(), fHistos[EID].end(), hFill());
 		break;
 
-	case DRAGON_TAIL_EVENT:  /// - DRAGON_TAIL_EVENT: Insert into timestamp matching queue
+	case DRAGON_TAIL_EVENT:  /// - DRAGON_TAIL_EVENT: Calculate tail params & fill tail histos
 		handle_event(rootana::gTail, event);
 		std::for_each(fHistos[EID].begin(), fHistos[EID].end(), hFill());
 		break;
 
-	case DRAGON_HEAD_SCALER: /// - DRAGON_HEAD_SCALER: TODO: implement C. Stanford's scaler codes
+	case DRAGON_HEAD_SCALER: /// - DRAGON_HEAD_SCALER: \todo implement C. Stanford's scaler codes
 		// <...process...> //
 		break;
 
-	case DRAGON_TAIL_SCALER: /// - DRAGON_TAIL_SCALER: TODO: implement C. Stanford's scaler codes
+	case DRAGON_TAIL_SCALER: /// - DRAGON_TAIL_SCALER: \todo implement C. Stanford's scaler codes
 		// <...process...> //
 		break;
+
 	default: /// - Silently ignore other event types
 		break;
 	}
@@ -97,6 +98,8 @@ void rootana::EventHandler::Process(const midas::Event& event)
 
 void rootana::EventHandler::Process(const midas::CoincEvent& coincEvent)
 {
+	/// Calculate coinc params & fill histograms
+	/// \todo Avoid extra unpacking step
 	handle_event(rootana::gCoinc, coincEvent);
 	std::for_each(fHistos[DRAGON_COINC_EVENT].begin(), fHistos[DRAGON_COINC_EVENT].end(), hFill());
 }

@@ -60,8 +60,7 @@ TDirectory* gOnlineHistDir = NULL;
 TFile* gOutputFile = NULL;
 VirtualOdb* gOdb = NULL;
 
-rootana::TSQueue gQueue ( ROOTANA_QUEUE_TIME );
-
+double gQueueTime = 10e6;
 
 int ProcessMidasFile(TApplication*app,const char*fname)
 {
@@ -240,8 +239,8 @@ void help()
   printf("\t-T: test mode - start and serve a test histogram\n");
   printf("\t-Hhostname: connect to MIDAS experiment on given host\n");
   printf("\t-Eexptname: connect to this MIDAS experiment\n");
+	printf("\t-qQueueTime: Set timestamp matching queue time in microseconds (default: 10e6)\n");
   printf("\t-P: Start the TNetDirectory server on specified tcp port (for use with roody -Plocalhost:9091)\n");
-  printf("\t-p: Start the old midas histogram server on specified tcp port (for use with roody -Hlocalhost:9090)\n");
   printf("\t-e: Number of events to read from input data files\n");
   printf("\t-m: Enable memory leak debugging\n");
   printf("\t-g: Enable graphics display when processing data files\n");
@@ -305,6 +304,8 @@ int main(int argc, char *argv[])
 			exptname = strdup(arg+2);
 		else if (strcmp(arg,"-h")==0)
 			help(); // does not return
+		else if (strcmp(arg,"-q")==0)
+			gQueueTime = atof(arg+2);
 		else if (arg[0] == '-')
 			help(); // does not return
 	}

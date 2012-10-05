@@ -28,8 +28,10 @@ extern TDirectory* gOnlineHistDir;
 extern TFile* gOutputFile;
 // extern VirtualOdb* gOdb;
 
-extern rootana::TSQueue gQueue;
-
+extern double gQueueTime;
+namespace {
+rootana::TSQueue gQueue ( gQueueTime );
+}
 
 void rootana_run_start(int transition, int run, int time)
 {
