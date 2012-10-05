@@ -16,17 +16,11 @@
 #include "TMidasEvent.h"
 #include "TMidasFile.h"
 #include "XmlOdb.h"
-#ifdef OLD_SERVER
-#include "midasServer.h"
-#endif
-#ifdef HAVE_LIBNETDIRECTORY
 #include "libNetDirectory/netDirectoryServer.h"
-#endif
 
 #include <TSystem.h>
 #include <TROOT.h>
 #include <TApplication.h>
-#include <TTimer.h>
 #include <TFile.h>
 #include <TDirectory.h>
 #include <TGClient.h>
@@ -43,17 +37,17 @@
 #include <string>
 #include <vector>
 #include <memory>
-#include "Timestamp.hxx"
 #include "utils/definitions.h"
 #include "utils/Error.hxx"
 #include "midas/Database.hxx"
 #include "midas/Event.hxx"
 #include "dragon/Coinc.hxx"
+#include "Timestamp.hxx"
 #include "RootanaDragon.hxx"
 #include "HistParser.hxx"
 #include "Histos.hxx"
 #include "Events.hxx"
-
+#include "Timer.hxx"
 
 // Global Variables
 int  gRunNumber = 0;
@@ -70,55 +64,6 @@ VirtualOdb* gOdb = NULL;
 rootana::TSQueue gQueue ( ROOTANA_QUEUE_TIME );
 
 //TCanvas  *gMainWindow = NULL; 	// the online histogram window
-
-double GetTimeSec()
-{
-  struct timeval tv;
-  gettimeofday(&tv,NULL);
-  return tv.tv_sec + 0.000001*tv.tv_usec;
-}
-
-class MyPeriodic : public TTimer
-{
-public:
-  typedef void (*TimerHandler)(void);
-
-  int          fPeriod_msec;
-  TimerHandler fHandler;
-  double       fLastTime;
-
-  MyPeriodic(int period_msec,TimerHandler handler)
-  {
-    assert(handler != NULL);
-    fPeriod_msec = period_msec;
-    fHandler  = handler;
-    fLastTime = GetTimeSec();
-    Start(period_msec,kTRUE);
-  }
-
-  Bool_t Notify()
-  {
-    double t = GetTimeSec();
-    //printf("timer notify, period %f should be %f!\n",t-fLastTime,fPeriod_msec*0.001);
-
-    if (t - fLastTime >= 0.9*fPeriod_msec*0.001)
-      {
-	//printf("timer: call handler %p\n",fHandler);
-	if (fHandler)
-	  (*fHandler)();
-
-	fLastTime = t;
-      }
-
-    Reset();
-    return kTRUE;
-  }
-
-  ~MyPeriodic()
-  {
-    TurnOff();
-  }
-};
 
 
 inline void HandleMidasEvent(TMidasEvent& event)
@@ -204,7 +149,7 @@ int ProcessMidasFile(TApplication*app,const char*fname)
   return 0;
 }
 
-#ifdef HAVE_MIDAS
+#ifdef MIDASSYS
 
 void MidasPollHandler()
 {
@@ -256,7 +201,7 @@ if ((gOdb->odbReadInt("/runinfo/State") == 3))
    printf("Startup: run %d, is running: %d, is pedestals run: %d\n",gRunNumber,gIsRunning,gIsPedestalsRun);
    printf("Hostname: %s, exptname: %s\n", hostname, exptname);
 
-   MyPeriodic tm(100,MidasPollHandler);
+	 rootana::Timer tm (100, MidasPollHandler);
 
    /*---- start main loop ----*/
 
@@ -485,20 +430,8 @@ int main(int argc, char *argv[])
    gROOT->cd();
    gOnlineHistDir = new TDirectory("rootana", "rootana online plots");
 
-#ifdef OLD_SERVER
-   if (oldTcpPort)
-     StartMidasServer(oldTcpPort);
-#else
-   if (oldTcpPort)
-     fprintf(stderr,"ERROR: No support for the old midas server!\n");
-#endif
-#ifdef HAVE_LIBNETDIRECTORY
    if (tcpPort)
      StartNetDirectoryServer(tcpPort, gOnlineHistDir);
-#else
-   if (tcpPort)
-     fprintf(stderr,"ERROR: No support for the TNetDirectory server!\n");
-#endif
 	 
    gIsOffline = false;
 
@@ -535,7 +468,7 @@ int main(int argc, char *argv[])
    gIsOffline = false;
    //gEnableGraphics = true;
 
-#ifdef HAVE_MIDAS
+#ifdef MIDASSYS
 	ProcessMidasOnline(app, hostname, exptname);
 #endif
    

@@ -183,7 +183,7 @@ $(PWD)/src/utils/
 
 ### FOR ROOTANA ###
 ROOTANA=$(HOME)/packages/rootana
-ROOTANA_FLAGS=-ansi -Df2cFortran -DHAVE_LIBNETDIRECTORY -DHAVE_MIDAS -I$(ROOTANA)
+ROOTANA_FLAGS=-ansi -Df2cFortran -I$(ROOTANA)
 
 ROOTANA_REMOTE_OBJS=				\
 $(ROOTANA)/libNetDirectory/netDirectoryServer.o
@@ -215,7 +215,7 @@ anaDragon: $(SRC)/rootana/anaDragon.cxx $(DRLIB)/libDragon.so $(CINT)/rootana/Di
 -o $@ -p $< $(CINT)/rootana/Dict.cxx $(ROOTANA_OBJS) -lDragon -L$(DRLIB) $(MIDASLIBS) $(ROOTANA_LIBS) \
 
 rootana_clean:
-	rm -f $(ROOTANA_OBJS) anaDragon libRootanaDragon.so
+	rm -f $(ROOTANA_OBJS) anaDragon libRootanaDragon.so $(CINT)/rootana/*
 
 
 ### FOR ROOTBEER ###
