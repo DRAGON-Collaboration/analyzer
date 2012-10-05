@@ -6,7 +6,7 @@
 // $Id: analyzer.cxx 64 2008-12-22 03:14:11Z olchansk $
 //
 #include <signal.h>
-#include "RootanaDragon.hxx"
+#include "Callbacks.hxx"
 
 // Main function call
 

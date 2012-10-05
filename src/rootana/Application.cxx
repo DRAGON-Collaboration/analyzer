@@ -1,7 +1,7 @@
 /*!
- * \file RootanaDragon.cxx
+ * \file Application.cxx
  * \author G. Christian
- * \brief Implements RootanaDragon.hxx
+ * \brief Implements Application.hxx
  */
 #include <cassert>
 #include <cstring>
@@ -13,66 +13,18 @@
 #include <TFile.h>
 #include <TSystem.h>
 
+#ifdef MIDASSYS
 #include "midas.h"
+#endif
 #include "XmlOdb.h"
 #include "libNetDirectory/netDirectoryServer.h"
 
-#include "utils/definitions.h"
-#include "utils/Error.hxx"
-#include "midas/Event.hxx"
 #include "Timer.hxx"
 #include "Events.hxx"
 #include "Timestamp.hxx"
 #include "HistParser.hxx"
 #include "IncludeMidasOnline.h"
-#include "RootanaDragon.hxx"
-
-
-
-// CALLBACKS //
-
-void rootana_run_start(int transition, int run, int time)
-{
-	rootana::App::instance()->run_start(run);
-}
-
-void rootana_run_stop(int transition, int run, int time)
-{
-	rootana::App::instance()->run_stop(run);
-}
-
-void rootana_run_pause(int transition, int run, int time)
-{
-	/*!
-	 * Prints an information message.
-	 */
-	dragon::err::Info("rootana") << "Pausing run " << run;
-}
-
-void rootana_run_resume(int transition, int run, int time)
-{
-	/*!
-	 * Prints an information message.
-	 */
-	dragon::err::Info("rootana") << "Resuming run " << run;
-}
-
-void rootana_handle_event(const void* pheader, const void* pdata, int size)
-{
-	/*!
-	 * Figure out the TSC bank name from event id, then pass on the work to
-	 * rootana::App::handle_event().
-	 */
-	const midas::Event::Header* head = reinterpret_cast<const midas::Event::Header*>(pheader);
-	char tscBk[5];
-	if (head->fEventId == DRAGON_TAIL_EVENT)
-		strcpy(tscBk, "TSCT");
-	else 
-		strcpy(tscBk, "TSCH");
-
-	midas::Event e(tscBk, pheader, pdata, head->fDataSize);
-	rootana::App::instance()->handle_event(e);
-}
+#include "Callbacks.hxx"
 
 
 // APPLICATION CLASS //
