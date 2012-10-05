@@ -62,6 +62,7 @@ VirtualOdb* gOdb = NULL;
 
 double gQueueTime = 10e6;
 
+#if 0
 int ProcessMidasFile(TApplication*app,const char*fname)
 {
   TMidasFile f;
@@ -214,6 +215,8 @@ int ProcessMidasOnline(TApplication*app, const char* hostname, const char* exptn
 }
 
 #endif
+#endif
+
 
 static bool gEnableShowMem = false;
 
@@ -276,7 +279,11 @@ int main(int argc, char *argv[])
 		args.push_back(argv[i]);
 	}
 
+#if 0
 	TApplication *app = new TApplication("rootana", &argc, argv);
+#else
+	rootana::App* app = new rootana::App("rootana", &argc, argv);
+#endif
 
 	bool forceEnableGraphics = false;
 	bool testMode = false;
@@ -335,7 +342,11 @@ int main(int argc, char *argv[])
 			gIsOffline = true;
 			//gEnableGraphics = false;
 			//gEnableGraphics |= forceEnableGraphics;
+#if 0
 			ProcessMidasFile(app,arg);
+#else
+			app->midas_file(arg);
+#endif
 		}
 	}
 
@@ -360,7 +371,11 @@ int main(int argc, char *argv[])
 	//gEnableGraphics = true;
 
 #ifdef MIDASSYS
+#if 0
 	ProcessMidasOnline(app, hostname, exptname);
+#else
+	app->midas_online(hostname, exptname);
+#endif
 #endif
    
 	return 0;

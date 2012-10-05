@@ -106,7 +106,7 @@ void rootana::EventHandler::Process(const midas::CoincEvent& coincEvent)
 
 void rootana::EventHandler::EndRun()
 {
-	std::for_each (fHistos.begin(), fHistos.end(), hListWrite());
+	;
 }
 
 void rootana::EventHandler::BeginRun()

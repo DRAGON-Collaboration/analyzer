@@ -13,6 +13,7 @@
 #include "HistParser.hxx"
 
 extern TFile* gOutputFile;
+extern TDirectory* gOnlineHistDir;
 
 
 // HELPER FUNCTIONS & CLASSES //
@@ -20,7 +21,7 @@ extern TFile* gOutputFile;
 namespace {
 
 struct replace_tab { 
-	void operator()(char& c)
+	void operator() (char& c)
 		{ if (c == '\t') c = ' '; }
 };
 

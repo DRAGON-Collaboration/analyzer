@@ -40,18 +40,25 @@ class App: public TApplication {
 
 public:
 	/// Calls TApplication constructor
-	App(const char* appClassName, Int_t* argc, char** argv, void* options = 0, Int_t numOptions = 0):
-		TApplication (appClassName, argc, argv, options, numOptions) { }
+	App(const char* appClassName, Int_t* argc, char** argv, void* options = 0, Int_t numOptions = 0);
 
 	/// Return gApplication cast to rootana::App
 	static App* instance();
-private:
-	/// Process an offline MIDAS file
-	int midas_file(const char* fname);
-	/// Process online MIDAS data
-	int midas_online(const char* host = "", const char* experiment = "dragon");
+
 	/// Handle a midas event
 	void handle_event(midas::Event& event);
+
+	/// Process an offline MIDAS file
+	int midas_file(const char* fname);
+
+	/// Process online MIDAS data
+	int midas_online(const char* host = "", const char* experiment = "dragon");
+
+	/// Create histograms from definitions file
+	int create_histograms(const char* definition_file);
+
+	/// Empty
+	virtual ~App() { }
 
 	ClassDef (rootana::App, 0);
 };

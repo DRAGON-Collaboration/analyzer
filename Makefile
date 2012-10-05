@@ -212,7 +212,7 @@ libRootanaDragon.so: $(DRLIB)/libDragon.so $(CINT)/rootana/Dict.cxx $(ROOTANA_OB
 
 anaDragon: $(SRC)/rootana/anaDragon.cxx $(DRLIB)/libDragon.so $(CINT)/rootana/Dict.cxx $(ROOTANA_OBJS) $(ROOTANA_REMOTE_OBJS)
 	$(LINK) $(RBINC) $(ROOTANA_FLAGS) -DROOTANA_QUEUE_TIME=10e6 \
--o $@ -p $< $(CINT)/rootana/Dict.cxx $(ROOTANA_OBJS) -lDragon -L$(DRLIB) $(MIDASLIBS) $(ROOTANA_LIBS) \
+-o $@ -p $< $(CINT)/rootana/Dict.cxx $(ROOTANA_OBJS) -lDragon -L$(DRLIB) $(MIDASLIBS) $(ROOTANA_LIBS) $(ROOTLIBS) \
 
 rootana_clean:
 	rm -f $(ROOTANA_OBJS) anaDragon libRootanaDragon.so $(CINT)/rootana/*
