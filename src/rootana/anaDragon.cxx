@@ -59,24 +59,6 @@ VirtualOdb* gOdb = NULL;
 double gQueueTime = 10e6;
 
 
-void help()
-{
-  printf("\nUsage:\n");
-  printf("\n./analyzer.exe [-h] [-Hhostname] [-Eexptname] [-eMaxEvents] [-P9091] [file1 file2 ...]\n");
-  printf("\n");
-  printf("\t-h: print this help message\n");
-  printf("\t-T: test mode - start and serve a test histogram\n");
-  printf("\t-Hhostname: connect to MIDAS experiment on given host\n");
-  printf("\t-Eexptname: connect to this MIDAS experiment\n");
-	printf("\t-qQueueTime: Set timestamp matching queue time in microseconds (default: 10e6)\n");
-  printf("\t-P: Start the TNetDirectory server on specified tcp port (for use with roody -Plocalhost:9091)\n");
-  printf("\t-e: Number of events to read from input data files\n");
-  printf("\n");
-  printf("Example1: analyze online data: ./analyzer.exe -P9091\n");
-  printf("Example2: analyze existing data: ./analyzer.exe /data/alpha/current/run00500.mid\n");
-  exit(1);
-}
-
 // Main function call
 
 int main(int argc, char *argv[])
@@ -88,86 +70,9 @@ int main(int argc, char *argv[])
 	signal(SIGBUS,  SIG_DFL);
 	signal(SIGSEGV, SIG_DFL);
 
-#if 0 
-	std::vector<std::string> args;
-	for (int i=0; i<argc; i++)
-	{
-		if (strcmp(argv[i],"-h")==0)
-			help(); // does not return
-		args.push_back(argv[i]);
-	}
-
-	bool testMode = false;
-	int  tcpPort = 0;
-	int  cutoff = 0;
-	const char* hostname = NULL;
-	const char* exptname = NULL;
-
-	for (unsigned int i=1; i<args.size(); i++) // loop over the commandline options
-	{
-		const char* arg = args[i].c_str();
-		//printf("argv[%d] is %s\n",i,arg);
-	   
-		if (strncmp(arg,"-e",2)==0)  // Event cutoff flag (only applicable in offline mode)
-			cutoff = atoi(arg+2);
-		else if (strncmp(arg,"-P",2)==0) // Set the histogram server port
-			tcpPort = atoi(arg+2);
-		else if (strcmp(arg,"-T")==0)
-			testMode = true;
-		else if (strncmp(arg,"-H",2)==0)
-			hostname = strdup(arg+2);
-		else if (strncmp(arg,"-E",2)==0)
-			exptname = strdup(arg+2);
-		else if (strcmp(arg,"-h")==0)
-			help(); // does not return
-		else if (strcmp(arg,"-q")==0)
-			gQueueTime = atof(arg+2);
-		else if (arg[0] == '-')
-			help(); // does not return
-	}
-
-	if (!tcpPort) tcpPort = 9091;
-    
-	gROOT->cd();
-	gOnlineHistDir = new TDirectory("rootana", "rootana online plots");
-
-	if (tcpPort)
-		StartNetDirectoryServer(tcpPort, gOnlineHistDir);
-#endif
 	rootana::App* app = new rootana::App("rootana", &argc, argv);
 	app->Run();
 	return app->ReturnVal();
-
-#if 0
-	for (unsigned int i=1; i<args.size(); i++)
-	{
-		const char* arg = args[i].c_str();
-
-		if (arg[0] != '-')  
-		{  
-			int retval = app->midas_file(arg, cutoff);
-			return retval;
-		}
-	}
-
-	if (testMode)
-	{
-		gOnlineHistDir->cd();
-		TH1D* hh = new TH1D("test", "test", 100, 0, 100);
-		hh->Fill(1);
-		hh->Fill(10);
-		hh->Fill(50);
-
-		app->Run(kTRUE);
-		return 0;
-	}
-
-#ifdef MIDASSYS
-	app->midas_online(hostname, exptname);
-#endif
-#endif
-   
-	return 0;
 }
 
 //end
