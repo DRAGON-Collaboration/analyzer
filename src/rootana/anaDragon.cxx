@@ -62,161 +62,6 @@ VirtualOdb* gOdb = NULL;
 
 double gQueueTime = 10e6;
 
-#if 0
-int ProcessMidasFile(TApplication*app,const char*fname)
-{
-  TMidasFile f;
-  bool tryOpen = f.Open(fname);
-
-  if (!tryOpen)
-	{
-		printf("Cannot open input file \"%s\"\n",fname);
-		return -1;
-	}
-
-  int i=0;
-  while (1)
-	{
-		TMidasEvent event;
-		if (!f.Read(&event))
-			break;
-
-
-		int eventId = event.GetEventId();
-
-		if ((eventId & 0xFFFF) == 0x8000)
-		{
-			// begin run
-			printf("---- BEGIN RUN ---- \n");
-			//event.Print();
-
-			//char buf[256];
-			//memset(buf,0,sizeof(buf));
-			//memcpy(buf,event.GetData(),255);
-			//printf("buf is [%s]\n",buf);
-
-			//
-			// Load ODB contents from the ODB XML file
-			//
-			if (gOdb)
-				delete gOdb;
-			gOdb = new XmlOdb(event.GetData(),event.GetDataSize());
-
-			rootana_run_start(0, event.GetSerialNumber(), 0);
-		}
-		else if ((eventId & 0xFFFF) == 0x8001)
-		{
-			printf("---- END RUN ---- \n");
-			// end run
-			//event.Print();
-		}
-		else
-		{
-			//printf("case 3\n");	  
-			event.SetBankList();
-			//event.Print();
-			rootana_handle_event(event.GetEventHeader(), event.GetData(), event.GetDataSize());
-		}
-      
-		if((i%500)==0)
-		{
-			//resetClock2time();
-			printf("Processing event %d\n",i);
-			//SISperiodic();
-			//StepThroughSISBuffer();
-		}
-	
-		i++;
-		if ((gEventCutoff!=0)&&(i>=gEventCutoff))
-		{
-			printf("Reached event %d, exiting loop.\n",i);
-			break;
-		}
-	}
-  
-  f.Close();
-
-	rootana_run_stop(0, gRunNumber, 0);
-
-  return 0;
-}
-
-#ifdef MIDASSYS
-
-void MidasPollHandler()
-{
-	char c;
-	c = ss_getchar(0);
-  if (!(TMidasOnline::instance()->poll(0)) || c == '!')
-    gSystem->ExitLoop();
-}
-
-int ProcessMidasOnline(TApplication*app, const char* hostname, const char* exptname)
-{
-	TMidasOnline *midas = TMidasOnline::instance();
-
-	int err = midas->connect(hostname, exptname, "anaDragon");
-	printf("Connecting to experiment %s on host %s!\n", hostname, exptname);
-
-	if (err != 0)
-	{
-		fprintf(stderr,"Cannot connect to MIDAS, error %d\n", err);
-		return -1;
-	}
-
-	gOdb = midas;
-
-	midas->setTransitionHandlers(rootana_run_start, rootana_run_stop, rootana_run_resume, rootana_run_pause);
-	midas->registerTransitions();
-
-	/* reqister event requests */
-
-	midas->setEventHandler(rootana_handle_event);
-	midas->eventRequest("SYNC",-1,-1,(1<<1));
-
-	/* fill present run parameters */
-
-	gRunNumber = gOdb->odbReadInt("/runinfo/Run number");
-
-	if ((gOdb->odbReadInt("/runinfo/State") == 3))
-		rootana_run_start(0, gRunNumber, 0);
-
-	/* create histograms */
-	rootana::HistParser parse ("src/rootana/histos.dat");
-	try {
-		parse.run();
-	}
-	catch (std::exception& e) {
-		std::cerr << "\n*******\n";
-		dragon::err::Error("HistParser") << e.what();
-		std::cerr << "*******\n\n";
-		midas->disconnect();
-		exit(1);
-	}
-
-	printf("Startup: run %d, is running: %d, is pedestals run: %d\n",gRunNumber,gIsRunning,gIsPedestalsRun);
-	printf("Hostname: %s, exptname: %s\n", hostname, exptname);
-	printf("Enter \"!\" to exit.\n");
-
-	rootana::Timer tm (100, MidasPollHandler);
-
-	/*---- start main loop ----*/
-
-	//loop_online();
-	ss_getchar(0);
-	app->Run(kTRUE);
-
-	/* disconnect from experiment */
-	ss_getchar(1);
-	midas->disconnect();
-	rootana_run_stop(0, gRunNumber, 0);
-
-	return 0;
-}
-
-#endif
-#endif
-
 
 static bool gEnableShowMem = false;
 
@@ -279,11 +124,7 @@ int main(int argc, char *argv[])
 		args.push_back(argv[i]);
 	}
 
-#if 0
-	TApplication *app = new TApplication("rootana", &argc, argv);
-#else
 	rootana::App* app = new rootana::App("rootana", &argc, argv);
-#endif
 
 	bool forceEnableGraphics = false;
 	bool testMode = false;
@@ -342,11 +183,8 @@ int main(int argc, char *argv[])
 			gIsOffline = true;
 			//gEnableGraphics = false;
 			//gEnableGraphics |= forceEnableGraphics;
-#if 0
-			ProcessMidasFile(app,arg);
-#else
+
 			app->midas_file(arg);
-#endif
 		}
 	}
 
@@ -371,11 +209,7 @@ int main(int argc, char *argv[])
 	//gEnableGraphics = true;
 
 #ifdef MIDASSYS
-#if 0
-	ProcessMidasOnline(app, hostname, exptname);
-#else
 	app->midas_online(hostname, exptname);
-#endif
 #endif
    
 	return 0;
