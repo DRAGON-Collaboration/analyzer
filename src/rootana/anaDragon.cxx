@@ -1,14 +1,11 @@
-//
-// ROOT analyzer
-//
-// K.Olchanski
-//
-// $Id: analyzer.cxx 64 2008-12-22 03:14:11Z olchansk $
-//
+/*!
+ * \file anaDragon.cxx
+ * \authors K. Olchanski
+ * \authors G. Christian
+ * \brief Defines main() program for dragon rootana analyzer.
+ */
 #include <signal.h>
 #include "Callbacks.hxx"
-
-// Main function call
 
 int main(int argc, char *argv[])
 {
@@ -26,5 +23,3 @@ int main(int argc, char *argv[])
 	delete app;
 	return ret;
 }
-
-//end

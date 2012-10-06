@@ -4,8 +4,6 @@
  * \brief Implements Application.hxx
  */
 #include <cassert>
-#include <cstring>
-
 #include <vector>
 #include <string>
 
@@ -15,6 +13,7 @@
 
 #ifdef MIDASSYS
 #include "midas.h"
+#include "IncludeMidasOnline.h"
 #endif
 #include "XmlOdb.h"
 #include "libNetDirectory/netDirectoryServer.h"
@@ -23,17 +22,29 @@
 #include "Events.hxx"
 #include "Timestamp.hxx"
 #include "HistParser.hxx"
-#include "IncludeMidasOnline.h"
 #include "Callbacks.hxx"
 
 
 // APPLICATION CLASS //
 
-rootana::App::App(const char* appClassName, Int_t* argc, char** argv, void* options, Int_t numOptions):
-	TApplication (appClassName, argc, argv, options, numOptions),
-	fRunNumber(0), fMode(ONLINE), fCutoff(0), fReturn(0), fTcp(9091),
-	fFilename(""), fHost(""), fExpt(""),
-	fOutputFile(0), fOnlineHistDir(0), fOdb(0)
+#define ROOTANA_STRINGIFY_MACRO(S) ROOTANA_STRINGIFY (S)
+#define ROOTANA_STRINGIFY(S) #S
+
+rootana::App::App(const char* appClassName, Int_t* argc, char** argv):
+	TApplication (appClassName, argc, argv, 0, -1),
+	fRunNumber(0),
+	fMode(ONLINE),
+	fCutoff(0),
+	fReturn(0),
+	fTcp(9091),
+	fFilename(""),
+	fHost(""),
+	fExpt(""),
+	fHistos( ROOTANA_STRINGIFY_MACRO(ROOTANA_DEFAULT_HISTOS) ),
+	fHistosOnline(""),
+	fOutputFile(0),
+	fOnlineHistDir(0),
+	fOdb(0)
 { 
 /*!
  *  Also: process command line arguments, starts histogram server if appropriate.
@@ -51,7 +62,7 @@ rootana::App::App(const char* appClassName, Int_t* argc, char** argv, void* opti
 rootana::App* rootana::App::instance()
 {
 	/*!
-	 *  \note Runtime failure if gApplication is NULL or not as instance
+	 *  \note Runtime failure if gApplication is NULL or not an instance
 	 *   of rootana::App
 	 */
 	App* app = dynamic_cast<App*>( gApplication );
@@ -64,7 +75,7 @@ void rootana::App::process_argv(int argc, char** argv)
 	std::vector<std::string> args(argv + 1, argv + argc);
 	for (std::vector<std::string>::iterator iarg = args.begin(); iarg != args.end(); ++iarg) {
 		if (0) { }
-		else if ( iarg->compare(0, 2, "-h") == 0 )
+		else if ( iarg->compare("-h") == 0 )
 			this->help();
 		else if ( iarg->compare(0, 2, "-e") == 0 )
 			fCutoff =  atoi (iarg->substr(2).c_str() );
@@ -74,8 +85,12 @@ void rootana::App::process_argv(int argc, char** argv)
 			fHost = iarg->substr(2);
 		else if ( iarg->compare(0, 2, "-E") == 0 )
 			fExpt = iarg->substr(2);
-		else if ( iarg->compare(0, 2, "-q") == 0 )
+		else if ( iarg->compare(0, 2, "-Q") == 0 )
 			fQueue = new TSQueue ( atof(iarg->substr(2).c_str()) );
+		else if ( iarg->compare("-histos")  == 0 )
+			fHistos = *(++iarg);
+		else if ( iarg->compare("-histos0")  == 0 )
+			fHistosOnline = *(++iarg);
 		else if ( iarg->compare(0, 1, "-" ) == 0 )
 			this->help();
 		else {
@@ -108,15 +123,16 @@ void rootana::App::handle_event(midas::Event& event)
 	}
 }
 
-int rootana::App::create_histograms(const char* definition_file)
+int rootana::App::create_histograms(const char* definition_file, TDirectory* output)
 {
 	/*!
 	 * Parses histogram definition file & creates histograms.
 	 * \returns 0 if successful, -1 otherwise
 	 * \todo Also add option for separate online-only histos
+	 * \todo Cmd line hist file specification
 	 */
-	rootana::HistParser parse (definition_file, fOutputFile);
 	try {
+		rootana::HistParser parse (definition_file, output);
 		parse.run();
 	}
 	catch (std::exception& e) {
@@ -131,8 +147,9 @@ int rootana::App::create_histograms(const char* definition_file)
 int rootana::App::midas_file(const char* fname)
 {
 	/*!
-	 *  \todo Write detailed documentation
-	 *  \returns 0 if successful, -1 if failure
+	 * Loops through a midas file and processes the events, up
+	 * to fCutoff.
+	 * \returns 0 if successful, -1 if failure
 	 */
 	printf ("Processing offline file: %s", fname);
 	if (fCutoff) printf (" (%i events)\n", fCutoff);
@@ -145,8 +162,8 @@ int rootana::App::midas_file(const char* fname)
 		return -1;
 	}
 
-	int hists = create_histograms("src/rootana/histos.dat");
-	if (hists != 0) return -1;	
+	int hists = create_histograms(fHistos.c_str(), fOutputFile);
+	if (hists != 0) return -1;
 
   int i=0;
   while (1) {
@@ -188,9 +205,6 @@ int rootana::App::midas_file(const char* fname)
 	}
   
   f.Close();
-
-	rootana_run_stop(0, fRunNumber, 0);
-
   return 0;
 }
 
@@ -225,17 +239,22 @@ int rootana::App::midas_online(const char* host, const char* experiment)
 	fRunNumber = fOdb->odbReadInt("/runinfo/Run number");
 
 	if ((fOdb->odbReadInt("/runinfo/State") == 3)) {
-		printf ("State is running... executing run start transitinon handler.\n");
+		printf ("State is running... executing run start transition handler.\n");
 		rootana_run_start(0, fRunNumber, 0);
 	}
 
 	/* create histograms */
-	int hists = create_histograms("src/rootana/histos.dat");
-	if(hists != 0) {
+	int success = create_histograms(fHistos.c_str(), fOutputFile);
+	BAD_HISTS:
+	if(success != 0) {
 		midas->disconnect();
 		return -1;
 	}
-
+	if (fHistosOnline != "") {
+		success = create_histograms(fHistosOnline.c_str(), fOnlineHistDir);
+		if (success != 0) goto BAD_HISTS;
+	}
+	
 	printf("Startup: run %d\n",fRunNumber);
 	printf("Host: \"%s\", experiment: \"%s\"\n", host, experiment);
 	printf("Enter \"!\" to exit.\n");
@@ -249,7 +268,6 @@ int rootana::App::midas_online(const char* host, const char* experiment)
 
 	/* disconnect from experiment */
 	midas->disconnect();
-	rootana_run_stop(0, fRunNumber, 0);
 
 	return 0;
 }
@@ -262,12 +280,12 @@ void rootana::App::Run(Bool_t)
 	switch (fMode) {
 
 	case OFFLINE:
-		midas_file (fFilename.c_str());
+		fReturn = midas_file(fFilename.c_str());
 		break;
 
 	case ONLINE:
 #ifdef MIDASSYS
-		fReturn = midas_online (fHost.c_str(), fExpt.c_str());
+		fReturn = midas_online(fHost.c_str(), fExpt.c_str());
 #else
 		fprintf(stderr, "Can't run in online mode without MIDAS libraries.\n");
 		fReturn = 1;
@@ -277,6 +295,8 @@ void rootana::App::Run(Bool_t)
 	default:
 		assert ("Shouldn't get here!" && 0);
 	}
+
+	if(fReturn == 0) rootana_run_stop(0, fRunNumber, 0);
 }
 
 void rootana::App::Terminate(Int_t status)
@@ -339,13 +359,14 @@ void rootana::App::run_stop(int runnum)
 void rootana::App::help()
 {
   printf("\nUsage:\n");
-  printf("\n./analyzer.exe [-h] [-Hhostname] [-Eexptname] [-eMaxEvents] [-P9091] [file1 file2 ...]\n");
+  printf("\n./anaDragon [-h] [-histos <histogram file>] [-Qtime] [-Hhostname] [-Eexptname] [-eMaxEvents] [-P9091] [file1 file2 ...]\n");
   printf("\n");
   printf("\t-h: print this help message\n");
   printf("\t-T: test mode - start and serve a test histogram\n");
+	printf("\t-histos: Specify histogram definition file\n");
   printf("\t-Hhostname: connect to MIDAS experiment on given host\n");
   printf("\t-Eexptname: connect to this MIDAS experiment\n");
-	printf("\t-qQueueTime: Set timestamp matching queue time in microseconds (default: 10e6)\n");
+	printf("\t-Qtime: Set timestamp matching queue time in microseconds (default: 10e6)\n");
   printf("\t-P: Start the TNetDirectory server on specified tcp port (for use with roody -Plocalhost:9091)\n");
   printf("\t-e: Number of events to read from input data files\n");
   printf("\n");
