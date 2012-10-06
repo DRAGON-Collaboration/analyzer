@@ -11,6 +11,7 @@
 
 #pragma link C++ class rootana::App+;
 
+#pragma link C++ class rootana::Cut+;
 #pragma link C++ class rootana::HistBase+;
 #pragma link C++ class rootana::HistParser+;
 #pragma link C++ class rootana::SummaryHist+;

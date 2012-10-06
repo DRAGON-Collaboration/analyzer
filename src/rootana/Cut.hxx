@@ -5,6 +5,7 @@
  */
 #ifndef ROOTANA_CUT_HXX
 #define ROOTANA_CUT_HXX
+#include <list>
 #include "Globals.h"
 
 namespace rootana {
@@ -31,6 +32,9 @@ public:
 
 	/// Determines cut condition
 	virtual bool operator() () const = 0;
+
+	static void Create(std::list<std::string>& lines);
+	static void Test();
 };
 
 /// \todo Add support for non-rectangular condidions (TCutG).

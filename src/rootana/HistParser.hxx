@@ -30,6 +30,8 @@ private:
 	unsigned fLineNumber;
 	/// Current directory argument
 	std::string fDir;
+	/// Most recently created histogram
+	HistBase* fLastHist;
 	/// Owner ('top-level') directory (or file)
 	TDirectory* fOwner;
 
@@ -52,6 +54,8 @@ private:
 	void handle_summary();
 	/// Handle a hist flag in the file
 	void handle_hist(const char* type);
+	/// Handle a cut flag in the file
+	void handle_cut();
 	/// Adds a histogram to rootana
 	void add_hist(rootana::HistBase* hst, Int_t type);
 };

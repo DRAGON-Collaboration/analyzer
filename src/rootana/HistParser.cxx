@@ -57,7 +57,7 @@ inline void throw_missing_arg(const char* which, int linenum, const char* fname)
 rootana::HistParser::HistParser(const char* filename, TDirectory* owner):
 	fFilename(filename), fFile(filename),
 	fLine(""), fLineNumber(0), fDir(""),
-	fOwner(owner)
+	fLastHist(0), fOwner(owner)
 {
 	/*!
 	 *  \param filename Path to the histogram definition file
@@ -190,9 +190,27 @@ void rootana::HistParser::handle_summary()
 	add_hist(h, type);
 }
 
+void rootana::HistParser::handle_cut()
+{
+	if (!fLastHist) {
+		std::stringstream err;
+		err << "CUT: line without a prior histogram, in file " << fFilename << " at line " << fLineNumber;
+		throw(std::invalid_argument(err.str().c_str()));
+	}
+
+	if(!read_line()) throw_missing_arg("CUT:", fLineNumber, fFilename);
+	
+
+
+	std::cout << "\t\t";
+	dragon::err::Info("HistParser")
+		<< "Applying cut condition: " << fLine << " to histogram " << fLastHist->name();
+}
+
 void rootana::HistParser::add_hist(rootana::HistBase* hst, Int_t type)
 {
 	rootana::EventHandler::Instance()->AddHisto(hst, type, fOwner, fDir.c_str());
+	fLastHist = hst;
 
 	std::cout << "\t";
 	dragon::err::Info("HistParser")
@@ -203,6 +221,7 @@ void rootana::HistParser::run()
 {
 	while (read_line()) {
 		if      (contains(fLine, "DIR:"))     handle_dir();
+		else if (contains(fLine, "CUT:"))     handle_cut();
 		else if (contains(fLine, "TH1D:"))    handle_hist("TH1D");
 		else if (contains(fLine, "TH2D:"))    handle_hist("TH2D");
 		else if (contains(fLine, "TH3D:"))    handle_hist("TH3D");
@@ -213,3 +232,58 @@ void rootana::HistParser::run()
 	dragon::err::Info("rootana::HistParser")
 		<< "Done creating histograms from file " << fFilename << std::endl;
 }		
+
+
+
+#include <TSystem.h>
+void rootana::Cut::Create(std::list<std::string>& lines)
+{
+
+// int GetPathInfo(const char* path, Long_t* id, Long_t* size, Long_t* flags, Long_t* modtime)
+// returns 1 if no file, 0 otherwise
+
+	if(lines.empty()) return;
+	int ncuts = 0;
+
+	{
+		std::ofstream ofs("Cuts.C");
+		ofs << "#include \"rootana/Cut.hxx\"\n";
+		ofs << "namespace rootana {\n\n";
+	
+		for (std::list<std::string>::iterator it = lines.begin(); it!= lines.end(); ++it) {
+			ofs << "struct Cut" << ncuts++ << ": public rootana::Cut { bool operator() () const {\n";
+			ofs << "  return " << *it << ";\n";
+			ofs << "} };\n\n";
+		}
+		ofs << "}\n";
+	}
+	
+	gSystem->AddIncludePath("-I\"/home/dragon/packages/dragon/analyzer/src\"");
+	gROOT->ProcessLine(".L Cuts.C+");
+	gSystem->Exec("rm -f Cuts_C.d");
+
+	std::vector<rootana::Cut*> vCuts;
+	for (int i=0; i< ncuts; ++i) {
+		std::stringstream cmd; cmd << "new rootana::Cut" << i << "();";
+		rootana::Cut* cut = (rootana::Cut*)gROOT->ProcessLineFast(cmd.str().c_str());
+		assert (cut);
+		vCuts.push_back(cut);
+		std::string out = (*cut)() ? "true" : "false";
+		std::cout << out << "\n";
+	}
+
+	gHead.bgo.q[0] = 4000; gHead.bgo.q[1] = 4001;
+	for (int i=0; i< ncuts; ++i) {
+		std::string out = (*(vCuts[i]))() ? "true" : "false";
+		std::cout << out << "\n";
+	}
+}
+
+void rootana::Cut::Test() {
+	std::list<std::string> lines_;
+	lines_.push_back("gHead.bgo.q[0] < 3000");
+	lines_.push_back("gHead.bgo.q[0] > 300");
+	lines_.push_back("gHead.bgo.q[1] > 3000");
+	Create(lines_);
+}
+
