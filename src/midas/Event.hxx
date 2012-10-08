@@ -86,7 +86,7 @@ public:
 	Event(const char* tsbank, char* buf, int size);
 
 	/// Copy constructor
-	Event(const Event& other) { CopyDerived(other); }
+	Event(const Event& other): TMidasEvent(other) { CopyDerived(other); }
 
 	/// Assignment operator
 	Event& operator= (const Event& other)
@@ -224,10 +224,10 @@ struct CoincEvent {
 
 private:
 	/// Disallow copy
-	CoincEvent(const CoincEvent& other) { }
+	CoincEvent(const CoincEvent&) { }
 
 	/// Disallow assign
-	CoincEvent operator= (const CoincEvent &other) { return *this; }
+	CoincEvent operator= (const CoincEvent) { return *this; }
 };
 
 } // namespace midas

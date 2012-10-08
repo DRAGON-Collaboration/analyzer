@@ -32,6 +32,8 @@ private:
 	std::string fFilename;      ///< Offline file name
 	std::string fHost;          ///< Online host name
 	std::string fExpt;          ///< Online experiment name
+	std::string fHistos;        ///< Histogram specification file (online + file)
+	std::string fHistosOnline;  ///< Histogram specification file (online only)
 	TFile* fOutputFile;         ///< Output ROOT file
 	TDirectory* fOnlineHistDir; ///< Online-only histogram directory
 	VirtualOdb* fOdb;           ///< Database class. \todo Switch to midas::Database
@@ -39,7 +41,7 @@ private:
 
 public:
 	/// Calls TApplication constructor
-	App(const char* appClassName, Int_t* argc, char** argv, void* options = 0, Int_t numOptions = 0);
+	App(const char* appClassName, Int_t* argc, char** argv);
 
 	/// Return gApplication cast to rootana::App
 	static App* instance();
@@ -68,13 +70,13 @@ public:
 	/// Process online MIDAS data
 	int midas_online(const char* host = "", const char* experiment = "dragon");
 
-	/// Create histograms from definitions file
-	int create_histograms(const char* definition_file);
-
 	/// Deletes fQueue if it's non-null;
 	virtual ~App();
 
 private:
+	/// Create histograms from definitions file
+	int create_histograms(const char* definition_file, TDirectory* output);
+
 	/// Prints 'help' message
 	void help();
 

@@ -1,7 +1,7 @@
 #ifndef ROOTANA_LINKDEF_H
 #define ROOTANA_LINKDEF_H
 
-#ifdef __CINT__
+#ifdef __MAKECINT__
 #pragma link off all globals;
 #pragma link off all classes;
 #pragma link off all functions;
@@ -49,7 +49,6 @@
 
 #pragma link C++ function rootana::DataPointer::New(Float_t*, unsigned);
 #pragma link C++ function rootana::DataPointer::New(Double_t*, unsigned);
-
 
 #endif
 #endif

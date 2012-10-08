@@ -35,10 +35,11 @@ inline Int_t get_type(const std::string& spar)
 	else return -1;
 }
 
-inline void throw_bad_line(const std::string& line, int linenum, const char* fname)
+inline void throw_bad_line(const std::string& line, int linenum, const char* fname, std::stringstream* pcmd = 0)
 {
 	std::stringstream error;
 	error << "Bad line in file \"" << fname << "\": "<< line << ", line number: " << linenum;
+	if(pcmd) error << "\n(Cmd: " << pcmd->str() << " )";
 	throw std::invalid_argument (error.str().c_str());
 }	
 
@@ -57,7 +58,7 @@ inline void throw_missing_arg(const char* which, int linenum, const char* fname)
 rootana::HistParser::HistParser(const char* filename, TDirectory* owner):
 	fFilename(filename), fFile(filename),
 	fLine(""), fLineNumber(0), fDir(""),
-	fOwner(owner)
+	fLastHist(0), fOwner(owner)
 {
 	/*!
 	 *  \param filename Path to the histogram definition file
@@ -190,9 +191,31 @@ void rootana::HistParser::handle_summary()
 	add_hist(h, type);
 }
 
+void rootana::HistParser::handle_cut()
+{
+	if (!fLastHist) {
+		std::stringstream err;
+		err << "CUT: line without a prior histogram, in file " << fFilename << " at line " << fLineNumber;
+		throw(std::invalid_argument(err.str().c_str()));
+	}
+
+	if(!read_line()) throw_missing_arg("CUT:", fLineNumber, fFilename);
+	std::stringstream cmd;
+	cmd << fLine << ".get()->clone();";
+	rootana::Condition* condition = (rootana::Condition*)gROOT->ProcessLineFast(cmd.str().c_str());
+	if(!condition) throw_bad_line(fLine, fLineNumber, fFilename, &cmd);
+
+	fLastHist->set_cut( rootana::Cut(condition) );
+
+	std::cout << "\t\t";
+	dragon::err::Info("HistParser")
+		<< "Applying cutn: " << fLine << " to histogram " << fLastHist->name();
+}
+
 void rootana::HistParser::add_hist(rootana::HistBase* hst, Int_t type)
 {
 	rootana::EventHandler::Instance()->AddHisto(hst, type, fOwner, fDir.c_str());
+	fLastHist = hst;
 
 	std::cout << "\t";
 	dragon::err::Info("HistParser")
@@ -203,6 +226,7 @@ void rootana::HistParser::run()
 {
 	while (read_line()) {
 		if      (contains(fLine, "DIR:"))     handle_dir();
+		else if (contains(fLine, "CUT:"))     handle_cut();
 		else if (contains(fLine, "TH1D:"))    handle_hist("TH1D");
 		else if (contains(fLine, "TH2D:"))    handle_hist("TH2D");
 		else if (contains(fLine, "TH3D:"))    handle_hist("TH3D");
@@ -212,4 +236,5 @@ void rootana::HistParser::run()
 	std::cout << "\n";
 	dragon::err::Info("rootana::HistParser")
 		<< "Done creating histograms from file " << fFilename << std::endl;
-}		
+}
+
