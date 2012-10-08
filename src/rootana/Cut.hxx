@@ -1,5 +1,5 @@
 /*!
- * \file Cut2.hxx
+ * \file Cut.hxx
  * \author G. Christian
  * \brief Defines "Cut" (logical condition) classes and functions.
  * \details In order to achieve runtime assignment of logical conditions
@@ -10,11 +10,26 @@
  * set of equivalency and logical operators. Furthermore, by definition of template
  * functions and operator overrides, we can create a fairly natural and intuitive
  * syntax for specifying a cut condition that can be utilized in histogram definition
- * files.
+ * files. See rootana::Cut documentation for use suggestions.
  *
- * \note Due to the use of template functions/classes, and also the short length of
- * nearly every method/function, the entire contents of this header file are inlined;
- * there is no separate .cxx implementation file.
+ * Although the classes defined in this file could be used in a variety of ways, the
+ * intended use is for instances of rootana::Cut to be created with a combination of
+ * the template free functions defined in this file and the logical operators defined
+ * in rootana::Cut (which return a rootana::Cut instance). Here's a few examples:
+ * \code
+ * rootana::Cut cut1 = Less (1, 5);
+ * cut1(); // returns true (1 < 5)
+ * 
+ * rootana::Cut cut2 = Less (5, 1) || GreaterEqual (2, 2);
+ * cut2(); // true
+ *
+ * int i = 1, j = 9;
+ * rootana::Cut cut3 = Less (i, 5) && Greater (j, 1);
+ * cut3(); // true
+ * i = 4;
+ * j = 2;
+ * cut3(); // false
+ * \endcode
  */
 #ifndef ROOTANA_CUT_HXX
 #define ROOTANA_CUT_HXX
@@ -55,7 +70,7 @@ public:
  * \tparam T1 type of the first value to compare.
  * \tparam T2 type of the second value to compare.
  * \tparam F "Functional" class defining the equivalency comparision
- * (e.g. std::less_than<double>, std::less_equal<double, etc.)
+ * (e.g. std::less_than<double>, std::less_equal<double>, etc.)
  */
 template <class T1, class T2, class F>
 class Equivalency: public Condition {
@@ -81,6 +96,7 @@ public:
  * without having to worry about explicit memory management. It provides the
  * basic "smart pointer" functionality found in, e.g. std::auto_ptr, and also
  * forwards logical operators from Condition.
+ * \note See Cut.hxx for usage suggestions.
  */
 class Cut {
 private:

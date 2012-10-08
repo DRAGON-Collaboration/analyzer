@@ -1,4 +1,4 @@
-///\file Periodic.hxx
+///\file Timer.hxx
 ///\author K. Olchanski
 ///\author G. Christian
 ///\brief Defines a TTimer class for use in rootana
