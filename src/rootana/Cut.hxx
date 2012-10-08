@@ -101,7 +101,7 @@ public:
 
 	/// See Cut (const Cut& other) (copy constructor)
 	Cut& operator= (Cut& other)
-		{ fCondition = other.fCondition->clone(); return *this; }
+		{ free_(); fCondition = other.fCondition->clone(); return *this; }
 
 	/// Frees memory allocated to fCondition
 	~Cut()
@@ -122,6 +122,10 @@ public:
 	/// Re-assigns fCondition, freeing any previouly allocated memory
 	void reset(Condition* c)
 		{ free_(); fCondition = c; }
+
+	/// Re-asigns fCondition as a deep copy of another Cut
+	void reset(const Cut& other)
+		{ free_(); fCondition = other.fCondition->clone(); }
 
 	/// "Cut" operator, forwards to fCondition->operator()
 	bool operator() () const
@@ -251,19 +255,6 @@ inline rootana::Cut Or(const rootana::Cut& t1, const rootana::Cut& t2)
 { return t1.operator||(t2); }
 
 
-
-#ifdef __MAKECINT__
-/*
-for i in Less Equal Greater NotEqual LessEqual GreaterEqual;
-do for j in Char_t Short_t Int_t Long_t Long64_t UChar_t UShort_t UInt_t ULong_t ULong64_t Float_t Double_t;
-do for k in Char_t Short_t Int_t Long_t Long64_t UChar_t UShort_t UInt_t ULong_t ULong64_t Float_t Double_t;
-do echo "#pragma link C++ function ${i}(${j}&, ${k}&);"
-done
-done
-done > LinkCut.h
-*/
-#include "LinkCut.h"
-#endif
 
 #endif
 

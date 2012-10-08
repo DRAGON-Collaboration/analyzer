@@ -5,7 +5,7 @@ TH1D:
 	("bgo_q0", "Bgo energy, ch 0 [singles]", 256, 0, 4096)
 	rootana::gHead.bgo.q[0]
 CUT:
-	rootana::gHead.bgo.q[0] > 2000
+	Greater(rootana::gHead.bgo.q[0], 2000)
 
 SUMMARY:
         ("bgo_q", "Bgo energies [singles]", 256, 0, 4096)
