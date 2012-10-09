@@ -213,11 +213,11 @@ $(OBJ)/rootana/%.o: $(SRC)/rootana/%.cxx $(CINT)/rootana/Dict.cxx
 	$(CXX) $(ROOTANA_FLAGS) $(ROOTANA_DEFS) -c $(FPIC) \
 -o $@ -p $< $(ROOTLIBS) \
 
-libRootanaDragon.so: $(DRLIB)/libDragon.so $(CINT)/rootana/Dict.cxx $(ROOTANA_OBJS)
+libRootanaDragon.so: $(DRLIB)/libDragon.so $(CINT)/rootana/Dict.cxx $(DRLIB)/libRootanaCut.so $(ROOTANA_OBJS)
 	$(LINK) $(DYLIB) $(FPIC) $(RBINC) $(ROOTANA_FLAGS) $(ROOTANA_DEFS)  \
 -o $@ -p $< $(CINT)/rootana/Dict.cxx $(ROOTANA_OBJS) -lDragon -lRootanaCut -L$(DRLIB) $(MIDASLIBS) \
 
-anaDragon: $(SRC)/rootana/anaDragon.cxx $(DRLIB)/libDragon.so $(CINT)/rootana/Dict.cxx $(ROOTANA_OBJS) $(ROOTANA_REMOTE_OBJS)
+anaDragon: $(SRC)/rootana/anaDragon.cxx $(DRLIB)/libDragon.so $(CINT)/rootana/Dict.cxx $(DRLIB)/libRootanaCut.so $(ROOTANA_OBJS) $(ROOTANA_REMOTE_OBJS)
 	$(LINK) $(RBINC) $(ROOTANA_FLAGS) $(ROOTANA_DEFS) \
 -o $@ -p $< $(CINT)/rootana/Dict.cxx $(ROOTANA_OBJS) -lDragon -lRootanaCut -L$(DRLIB) $(MIDASLIBS) $(ROOTANA_LIBS) \
 
