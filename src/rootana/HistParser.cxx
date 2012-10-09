@@ -224,6 +224,7 @@ void rootana::HistParser::add_hist(rootana::HistBase* hst, Int_t type)
 
 void rootana::HistParser::run()
 {
+	gROOT->ProcessLine("using namespace rootana;");
 	while (read_line()) {
 		if      (contains(fLine, "DIR:"))     handle_dir();
 		else if (contains(fLine, "CUT:"))     handle_cut();
