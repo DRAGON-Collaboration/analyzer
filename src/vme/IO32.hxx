@@ -7,6 +7,7 @@
 
 namespace midas { class Event; }
 
+/// Encloses all VME module classes
 namespace vme {
 
 /// IO32 FPGA

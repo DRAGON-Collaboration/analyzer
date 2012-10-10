@@ -105,11 +105,9 @@ void dragon::Coinc::calculate()
 	\mainpage
 	\authors G. Christian
 	\authors C. Stanford
+	\authors K. Olchanski
 
-	\todo Write main page
-
-
-
+	\section intro Introduction
 
 
  */
