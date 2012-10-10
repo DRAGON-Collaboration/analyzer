@@ -4,10 +4,8 @@ gmon.out
 *.root
 cint/DragonDictionary.cxx
 cint/DragonDictionary.h
-doc/
 lib/libDragon.so.dSYM/
 longAttach.dat
-make_doc.sh
 rbeer.log
 run00068.mid
 run00068.root
