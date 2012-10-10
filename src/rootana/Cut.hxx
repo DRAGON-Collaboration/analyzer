@@ -230,7 +230,7 @@ private:
 };
 
 
-/// LOgical NOT implementation of Condition
+/// Logical NOT implementation of Condition
 /*!
  * Negates an internally stored instnace of rootana::Cut
  */
