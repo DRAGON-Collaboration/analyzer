@@ -290,7 +290,7 @@ inline Cut Cut::operator|| (const Cut& other) const
 { Cut c(new LogicalCondition<std::logical_or<Condition> > (*this, other)); return c; }
 
 // Also implement long Condition2D constructors here
-inline rootana::Condition2D::Condition2D(const T1& xpar, const T2& ypar, TCutG& cutg):
+inline Condition2D::Condition2D(const T1& xpar, const T2& ypar, TCutG& cutg):
 	fXpar(xpar), fYpar(ypar), fXpoints(cutg.GetN()), fYpoints(cutg.GetN())
 {
 	/*!
@@ -302,7 +302,7 @@ inline rootana::Condition2D::Condition2D(const T1& xpar, const T2& ypar, TCutG& 
 	std::copy (cutg.GetY(), cutg.GetY() + fYpoints.size(), fYpoints.begin());
 }
 
-inline rootana::Condition2D::Condition2D(const T1& xpar, const T2& ypar, ROOTANA_CUT2D_POINT_ARGS):
+inline Condition2D::Condition2D(const T1& xpar, const T2& ypar, ROOTANA_CUT2D_POINT_ARGS):
 	fXpar(xpar), fYpar(ypar), fXpoints(0), fYpoints(0)
 {
 	/*!
