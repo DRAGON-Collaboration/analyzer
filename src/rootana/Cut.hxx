@@ -311,7 +311,8 @@ inline rootana::Condition2D::Condition2D(const T1& xpar, const T2& ypar, ROOTANA
 	 * \param ROOTANA_CUT2D_POINT_ARGS (x0, y0, x1, y1</b>, etc.) Series of point pairs defining the \e closed polygon.
 	 * Up to 14 points are allowed (CINT limitation prevents more). Once a point pair is set to the
 	 * the default argument, any others coming after it in the parameter list are ignored. Also see
-	 * ROOTANA_CUT2D_POINT_ARGS
+	 * <a href="http://trshare.triumf.ca/~gchristian/dragon/analyzer/html/_cut_8hxx.html">
+	 * ROOTANA_CUT2D_POINT_ARGS</a>
 	 */
 	double* px[14] = { &x0, &x1, &x2, &x3, &x4, &x5, &x6, &x7, &x8, &x9, &x10, &x11, &x12, &x13 };
 	double* py[14] = { &y0, &y1, &y2, &y3, &y4, &y5, &y6, &y7, &y8, &y9, &y10, &y11, &y12, &y13 };
