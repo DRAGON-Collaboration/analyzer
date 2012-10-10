@@ -43,6 +43,9 @@
 /// Point-by-point arguments for use with rootana::Condition2D
 #define ROOTANA_CUT2D_POINT_ARGS double x0 = 0, double y0 = 0, double x1 = 0, double y1 = 0, double x2 = 0, double y2 = 0, double x3 = 0, double y3 = 0, double x4 = 0, double y4 = 0, double x5 = 0, double y5 = 0, double x6 = 0, double y6 = 0, double x7 = 0, double y7 = 0, double x8 = 0, double y8 = 0, double x9 = 0, double y9 = 0, double x10 = 0, double y10 = 0, double x11 = 0, double y11 = 0, double x12 = 0, double y12 = 0, double x13 = 0, double y13 = 0
 
+/// Same as ROOTANA_CUT2D_POINT_ARGS, but without default arguments
+#define ROOTANA_CUT2D_POINT_ARGS1 double x0, double y0, double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4, double x5, double y5, double x6, double y6, double x7, double y7, double x8, double y8, double x9, double y9, double x10, double y10, double x11, double y11, double x12, double y12, double x13, double y13
+
 namespace rootana {
 
 /// Abstract class defining a logical condition.
@@ -304,13 +307,13 @@ inline Condition2D<T1, T2>::Condition2D(const T1& xpar, const T2& ypar, TCutG& c
 }
 
 template <class T1, class T2>
-inline Condition2D<T1, T2>::Condition2D(const T1& xpar, const T2& ypar, ROOTANA_CUT2D_POINT_ARGS):
+inline Condition2D<T1, T2>::Condition2D(const T1& xpar, const T2& ypar, ROOTANA_CUT2D_POINT_ARGS1):
 	fXpar(xpar), fYpar(ypar), fXpoints(0), fYpoints(0)
 {
 	/*!
 	 * \param xpar X-axis parameter
 	 * \param xyar Y-axis parameter
-	 * \param ROOTANA_CUT2D_POINT_ARGS (x0, y0, x1, y1</b>, etc.) Series of point pairs defining the \e closed polygon.
+	 * \param ROOTANA_CUT2D_POINT_ARGS1 (x0, y0, x1, y1</b>, etc.) Series of point pairs defining the \e closed polygon.
 	 * Up to 14 points are allowed (CINT limitation prevents more). Once a point pair is set to the
 	 * the default argument, any others coming after it in the parameter list are ignored. Also see
 	 * <a href="http://trshare.triumf.ca/~gchristian/dragon/analyzer/html/_cut_8hxx.html">
