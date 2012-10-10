@@ -201,7 +201,7 @@ void rootana::HistParser::handle_cut()
 
 	if(!read_line()) throw_missing_arg("CUT:", fLineNumber, fFilename);
 	std::stringstream cmd;
-	cmd << fLine << ".get()->clone();";
+	cmd << "( " << fLine << " ).get()->clone();";
 	rootana::Condition* condition = (rootana::Condition*)gROOT->ProcessLineFast(cmd.str().c_str());
 	if(!condition) throw_bad_line(fLine, fLineNumber, fFilename, &cmd);
 
@@ -209,7 +209,7 @@ void rootana::HistParser::handle_cut()
 
 	std::cout << "\t\t";
 	dragon::err::Info("HistParser")
-		<< "Applying cutn: " << fLine << " to histogram " << fLastHist->name();
+		<< "Applying cut: " << fLine << " to histogram " << fLastHist->name();
 }
 
 void rootana::HistParser::add_hist(rootana::HistBase* hst, Int_t type)

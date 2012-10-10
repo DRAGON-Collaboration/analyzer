@@ -40,6 +40,8 @@
 #include "utils/Error.hxx"
 
 
+/// Point-by-point arguments for use with rootana::Condition2D
+#define ROOTANA_CUT2D_POINT_ARGS double x0 = 0, double y0 = 0, double x1 = 0, double y1 = 0, double x2 = 0, double y2 = 0, double x3 = 0, double y3 = 0, double x4 = 0, double y4 = 0, double x5 = 0, double y5 = 0, double x6 = 0, double y6 = 0, double x7 = 0, double y7 = 0, double x8 = 0, double y8 = 0, double x9 = 0, double y9 = 0, double x10 = 0, double y10 = 0, double x11 = 0, double y11 = 0, double x12 = 0, double y12 = 0, double x13 = 0, double y13 = 0
 
 namespace rootana {
 
@@ -96,6 +98,16 @@ public:
 };
 
 /// Two-dimensional "polygon" Condition
+/*!
+ * Allows application of non-rectangular cut conditions.
+ * Stores a reference to two parameters (x-axis and y-axis)
+ * defining a cartesian point and an array of points defining
+ * a closed polygon. The parenthesis operator checks whether or
+ * not the point is inside the polygon.
+ * 
+ * \tparam T1 type of the x-axis parameter
+ * \tparam T2 type of the y-axis parameter
+ */
 template <class T1, class T2>
 class Condition2D: public Condition {
 private:
@@ -104,52 +116,12 @@ private:
 	std::vector<double> fXpoints; ///< X-axis contour points
 	std::vector<double> fYpoints; ///< Y-axis contour points
 public:
-	/// Construct from TCutG
-	Condition2D(const T1& xpar, const T2& ypar, TCutG& cutg):
-		fXpar(xpar), fYpar(ypar), fXpoints(cutg.GetN()), fYpoints(cutg.GetN())
-		{
-			std::copy (cutg.GetX(), cutg.GetX() + fXpoints.size(), fXpoints.begin());
-			std::copy (cutg.GetY(), cutg.GetY() + fYpoints.size(), fYpoints.begin());
-		}
-	/// Construct from manual point pair entries
-	Condition2D(const T1& xpar, const T2& ypar,
-							double x0  = 0, double y0  = 0, double x1  = 0, double y1  = 0,
-							double x2  = 0, double y2  = 0, double x3  = 0, double y3  = 0,
-							double x4  = 0, double y4  = 0, double x5  = 0, double y5  = 0,
-							double x6  = 0, double y6  = 0, double x7  = 0, double y7  = 0,
-							double x8  = 0, double y8  = 0, double x9  = 0, double y9  = 0,
-							double x10 = 0, double y10 = 0, double x11 = 0, double y11 = 0,
-							double x12 = 0, double y12 = 0, double x13 = 0, double y13 = 0):
-		fXpar(xpar), fYpar(ypar), fXpoints(0), fYpoints(0)
-		{
-			double* px[14] = { &x0, &x1, &x2, &x3, &x4, &x5, &x6, &x7, &x8, &x9, &x10, &x11, &x12, &x13 };
-			double* py[14] = { &y0, &y1, &y2, &y3, &y4, &y5, &y6, &y7, &y8, &y9, &y10, &y11, &y12, &y13 };
-			int n = 0;
-			while(1) {
-				if (n > 13) break;
-				if (*(px[n]) == 0 && *(py[n]) == 0) break;
-				++n;
-			}
+	/// Construct from a TCutG
+	Condition2D(const T1& xpar, const T2& ypar, TCutG& cutg);
 
-			for (int i=0; i< n; ++i) {
-				fXpoints.push_back(*(px[i]));
-				fYpoints.push_back(*(py[i]));
-			}
-			if (fXpoints.size() && fYpoints.size()) {
-				if ( (*(fXpoints.end()-1) != *(fXpoints.begin())) ||
-						 (*(fYpoints.end()-1) != *(fYpoints.begin())) ) {
-					dragon::err::Warning("Condition2D") << "Non-closed polygon specification, points:";
-					for (size_t i=0; i< fXpoints.size()-1; ++i) {
-						std::cerr << "(" << fXpoints.at(i) << ", " << fYpoints.at(i) << "), ";
-					}
-					std::cerr << "(" << fXpoints.at(fXpoints.size()-1) << ", " << fYpoints.at(fXpoints.size()-1) << ")\n";
-				}
-			}
-			else {
-				dragon::err::Warning("Condition2D") << "Empty polygon specification";
-			}
-		}
-	
+	/// Construct from manual point pair entries
+	Condition2D(const T1& xpar, const T2& ypar, ROOTANA_CUT2D_POINT_ARGS);
+
 	/// Returns \c new copy of \c this
 	Condition* clone() const
 		{ return new Condition2D(*this); }
@@ -166,7 +138,8 @@ private:
 	template <typename T>
 	bool inside(T xp, T yp, Int_t np, const T* x, const T* y) const
 		{
-			/*! Copied from TMath::IsInside() (which has no version taking const double *x, *y) */
+			/*! \note Copied from TMath::IsInside(), which has no version
+				taking const array arguments - otherwise I'd just use it directly. */
 			Int_t i, j = np-1 ;
 			Bool_t oddNodes = kFALSE;
 
@@ -181,7 +154,6 @@ private:
 
 			return oddNodes;
 		}
-
 };
 
 /// "Cut" class to be used with histograms, etc.
@@ -317,6 +289,57 @@ inline Cut Cut::operator&& (const Cut& other) const
 inline Cut Cut::operator|| (const Cut& other) const
 { Cut c(new LogicalCondition<std::logical_or<Condition> > (*this, other)); return c; }
 
+// Also implement long Condition2D constructors here
+inline rootana::Condition2D::Condition2D(const T1& xpar, const T2& ypar, TCutG& cutg):
+	fXpar(xpar), fYpar(ypar), fXpoints(cutg.GetN()), fYpoints(cutg.GetN())
+{
+	/*!
+	 * \param xpar X-axis parameter
+	 * \param xyar Y-axis parameter
+	 * \param cutg Reference to a TCutG defining the closed polygon condition.
+	 */
+	std::copy (cutg.GetX(), cutg.GetX() + fXpoints.size(), fXpoints.begin());
+	std::copy (cutg.GetY(), cutg.GetY() + fYpoints.size(), fYpoints.begin());
+}
+
+inline rootana::Condition2D::Condition2D(const T1& xpar, const T2& ypar, ROOTANA_CUT2D_POINT_ARGS):
+	fXpar(xpar), fYpar(ypar), fXpoints(0), fYpoints(0)
+{
+	/*!
+	 * \param xpar X-axis parameter
+	 * \param xyar Y-axis parameter
+	 * \param x0 (, <b>y0, x1, y1</b>, etc.) Series of point pairs defining the \e closed polygon.
+	 * Up to 14 points are allowed (CINT limitation prevents more). Once a point pair is set to the
+	 * the default argument, any others coming after it in the parameter list are ignored.
+	 */
+	double* px[14] = { &x0, &x1, &x2, &x3, &x4, &x5, &x6, &x7, &x8, &x9, &x10, &x11, &x12, &x13 };
+	double* py[14] = { &y0, &y1, &y2, &y3, &y4, &y5, &y6, &y7, &y8, &y9, &y10, &y11, &y12, &y13 };
+	int n = 0;
+	while(1) {
+		if (n > 13) break;
+		if (*(px[n]) == 0 && *(py[n]) == 0) break;
+		++n;
+	}
+
+	for (int i=0; i< n; ++i) {
+		fXpoints.push_back(*(px[i]));
+		fYpoints.push_back(*(py[i]));
+	}
+	if (fXpoints.size() && fYpoints.size()) {
+		if ( (*(fXpoints.end()-1) != *(fXpoints.begin())) ||
+				 (*(fYpoints.end()-1) != *(fYpoints.begin())) ) {
+			dragon::err::Warning("Condition2D") << "Non-closed polygon specification, points:";
+			for (size_t i=0; i< fXpoints.size()-1; ++i) {
+				std::cerr << "(" << fXpoints.at(i) << ", " << fYpoints.at(i) << "), ";
+			}
+			std::cerr << "(" << fXpoints.at(fXpoints.size()-1) << ", " << fYpoints.at(fXpoints.size()-1) << ")\n";
+		}
+	}
+	else {
+		dragon::err::Warning("Condition2D") << "Empty polygon specification";
+	}
+}
+
 } // namespace rootana
 
 
@@ -360,14 +383,7 @@ inline rootana::Cut Cut2D(const T1& xpar, const T2& ypar, TCutG& cutg)
 
 /// 2D cut (from manual point pair entries)
 template <class T1, class T2>
-inline rootana::Cut Cut2D(const T1& xpar, const T2& ypar,
-													double x0  = 0, double y0  = 0, double x1  = 0, double y1  = 0,
-													double x2  = 0, double y2  = 0, double x3  = 0, double y3  = 0,
-													double x4  = 0, double y4  = 0, double x5  = 0, double y5  = 0,
-													double x6  = 0, double y6  = 0, double x7  = 0, double y7  = 0,
-													double x8  = 0, double y8  = 0, double x9  = 0, double y9  = 0,
-													double x10 = 0, double y10 = 0, double x11 = 0, double y11 = 0,
-													double x12 = 0, double y12 = 0, double x13 = 0, double y13 = 0)
+inline rootana::Cut Cut2D(const T1& xpar, const T2& ypar, ROOTANA_CUT2D_POINT_ARGS)
 {
 	rootana::Cut c_(new rootana::Condition2D<T1, T2> (xpar, ypar, x0, y0, x1, y1, x2, y2, x3, y3, x4,
 																										y4, x5, y5, x6, y6, x7, y7, x8, y8, x9, y9, x10,
