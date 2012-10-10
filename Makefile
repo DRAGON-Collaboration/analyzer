@@ -264,8 +264,8 @@ doc::
 	doxygen doc/Doxyfile
 
 docclean::
-	rm -fr /Volumes/public/gchristian/public_html/dragon/analyzer/html \
-/Volumes/public/gchristian/public_html/dragon/analyzer/latex
+	rm -fr /triumfcs/trshare/gchristian/public_html/dragon/analyzer/html \
+/triumfcs/trshare/gchristian/public_html/dragon/analyzer/latex
 
 
 #### FOR UNIT TESTING ####
