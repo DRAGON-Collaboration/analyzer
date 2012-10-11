@@ -93,6 +93,21 @@ bool rootana::HistParser::read_line()
 	return is_good();
 }
 
+void rootana::HistParser::handle_command()
+{
+	bool done = false;
+	int err;
+	while(read_line()) {
+		if (contains(fLine, "END:")) {
+			done = true;
+			break;
+		}
+		gROOT->ProcessLine(fLine.c_str(), &err);
+		if (err != 0) throw_bad_line(fLine, fLineNumber, fFilename);
+	}
+	if (!done) throw_missing_arg("CMD:", fLineNumber, fFilename);
+}
+
 void rootana::HistParser::handle_dir()
 {
 	read_line();
@@ -227,6 +242,7 @@ void rootana::HistParser::run()
 	gROOT->ProcessLine("using namespace rootana;");
 	while (read_line()) {
 		if      (contains(fLine, "DIR:"))     handle_dir();
+		else if (contains(fLine, "CMD:"))     handle_command();
 		else if (contains(fLine, "CUT:"))     handle_cut();
 		else if (contains(fLine, "TH1D:"))    handle_hist("TH1D");
 		else if (contains(fLine, "TH2D:"))    handle_hist("TH2D");

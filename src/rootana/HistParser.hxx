@@ -56,6 +56,8 @@ private:
 	void handle_hist(const char* type);
 	/// Handle a cut flag in the file
 	void handle_cut();
+	/// Handles command flag in the file
+	void handle_command();
 	/// Adds a histogram to rootana
 	void add_hist(rootana::HistBase* hst, Int_t type);
 };
