@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <map>
 #include <list>
+#include <string>
 #include "dragon/Coinc.hxx"
 #include "Timestamp.hxx"
 
@@ -33,7 +34,7 @@ public:
 	void Process(const midas::Event& event);
 	/// Tells how to handle an event (coincidence)
 	void Process(const midas::CoincEvent& event);
-	/// Adds a histogram
+	/// Adds a histogram to fHistos
 	void AddHisto(rootana::HistBase* hist, uint16_t eventId, TDirectory* file, const char* dirPath);
 	/// Handles end-of-run
 	void EndRun();

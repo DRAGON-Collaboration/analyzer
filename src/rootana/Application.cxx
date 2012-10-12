@@ -128,10 +128,11 @@ int rootana::App::create_histograms(const char* definition_file, TDirectory* out
 {
 	/*!
 	 * Parses histogram definition file & creates histograms.
-	 * \returns 0 if successful, -1 otherwise
+	 * \returns 0 if successful, 1 if output is NULL (no action), -1 otherwise (error)
 	 * \todo Also add option for separate online-only histos
 	 * \todo Cmd line hist file specification
 	 */
+	if (!output) return 1;
 	try {
 		rootana::HistParser parse (definition_file, output);
 		parse.run();
@@ -163,8 +164,8 @@ int rootana::App::midas_file(const char* fname)
 		return -1;
 	}
 
-	int hists = create_histograms(fHistos.c_str(), fOutputFile);
-	if (hists != 0) return -1;
+	// int hists = create_histograms(fHistos.c_str(), fOutputFile);
+	// if (hists == -1) return -1;
 
   int i=0;
   while (1) {
@@ -245,16 +246,16 @@ int rootana::App::midas_online(const char* host, const char* experiment)
 	}
 
 	/* create histograms */
-	int success = create_histograms(fHistos.c_str(), fOutputFile);
-	BAD_HISTS:
-	if(success != 0) {
-		midas->disconnect();
-		return -1;
-	}
-	if (fHistosOnline != "") {
-		success = create_histograms(fHistosOnline.c_str(), fOnlineHistDir);
-		if (success != 0) goto BAD_HISTS;
-	}
+	// int success = create_histograms(fHistos.c_str(), fOutputFile);
+	// BAD_HISTS:
+	// if(success == -1) {
+	// 	midas->disconnect();
+	// 	return -1;
+	// }
+	// if (fHistosOnline != "") {
+	// 	success = create_histograms(fHistosOnline.c_str(), fOnlineHistDir);
+	// 	if (success == -1) goto BAD_HISTS;
+	// }
 	
 	printf("Startup: run %d\n",fRunNumber);
 	printf("Host: \"%s\", experiment: \"%s\"\n", host, experiment);
@@ -334,6 +335,18 @@ void rootana::App::run_start(int runnum)
 
   NetDirectoryExport(fOutputFile, "outputFile");
 
+	// create histograms
+	int success = create_histograms(fHistos.c_str(), fOutputFile);
+	BAD_HISTS:
+	if(success == -1) {
+		if (fMode == ONLINE) TMidasOnline::instance()->disconnect();
+		exit (1);
+	}
+	if (fHistosOnline != "") {
+		success = create_histograms(fHistosOnline.c_str(), fOnlineHistDir);
+		if (success == -1) goto BAD_HISTS;
+	}
+
 	dragon::err::Info("rootana") << "Start of run " << runnum;
 }
 
@@ -345,7 +358,6 @@ void rootana::App::run_stop(int runnum)
 	 */
   fRunNumber = runnum;
 
-	rootana::EventHandler::Instance()->EndRun();
 	fQueue->Flush(30);
 
   if(fOutputFile) {
@@ -353,6 +365,8 @@ void rootana::App::run_stop(int runnum)
 		fOutputFile->Close();		//close the histogram file
 		fOutputFile = NULL;
 	}
+
+	rootana::EventHandler::Instance()->EndRun();
 
 	dragon::err::Info("rootana") << "End of run " << runnum;
 }
@@ -372,7 +386,5 @@ void rootana::App::help()
   printf("\t-P: Start the TNetDirectory server on specified tcp port (for use with roody -Plocalhost:9091)\n");
   printf("\t-e: Number of events to read from input data files\n");
   printf("\n");
-  printf("Example1: analyze online data: ./analyzer.exe -P9091\n");
-  printf("Example2: analyze existing data: ./analyzer.exe /data/alpha/current/run00500.mid\n");
   exit(1);
 }

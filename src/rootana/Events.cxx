@@ -51,6 +51,7 @@ struct hFill   { void operator() (rootana::HistBase* h) { h->fill();  } };
 struct hWrite  { void operator() (rootana::HistBase* h) { h->write(); } };
 struct hClear  { void operator() (rootana::HistBase* h) { h->clear(); } };
 struct hDelete { void operator() (rootana::HistBase* h) { delete h;   } };
+struct hDestruct { void operator() (rootana::HistBase* h) { h->write(); delete h; } };
 
 struct hListWrite {
 	void operator() (std::pair<const uint16_t, std::list<rootana::HistBase*> >& p)
@@ -60,6 +61,11 @@ struct hListWrite {
 struct hListClear {
 	void operator() (std::pair<const uint16_t, std::list<rootana::HistBase*> >& p)
 		{ std::for_each (p.second.begin(), p.second.end(), hClear()); }
+};
+
+struct hListDestruct {
+	void operator() (std::pair<const uint16_t, std::list<rootana::HistBase*> >& p)
+		{ std::for_each (p.second.begin(), p.second.end(), hDestruct()); }
 };
 
 template <class T, class E>
@@ -108,10 +114,10 @@ void rootana::EventHandler::Process(const midas::CoincEvent& coincEvent)
 
 void rootana::EventHandler::EndRun()
 {
-	;
+	std::for_each (fHistos.begin(), fHistos.end(), hListDestruct());
 }
 
 void rootana::EventHandler::BeginRun()
 {
-	std::for_each (fHistos.begin(), fHistos.end(), hListClear());
+	// std::for_each (fHistos.begin(), fHistos.end(), hListClear());
 }
