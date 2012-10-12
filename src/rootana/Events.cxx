@@ -2,6 +2,7 @@
 /// \author G. Christian
 /// \brief Implements Events.hxx
 #include <memory>
+#include <stdexcept>
 #include <TFile.h>
 #include <TString.h>
 #include <TObjArray.h>
@@ -22,7 +23,8 @@ rootana::EventHandler* rootana::EventHandler::Instance()
 
 void rootana::EventHandler::AddHisto(rootana::HistBase* hist, uint16_t eventId, TDirectory* file, const char* dirPath)
 {
-	assert(file && !file->IsZombie());
+	if (!file) throw (std::invalid_argument("'file' is NULL"));
+	if (file->IsZombie()) throw (std::invalid_argument("'file' is zombie"));
 	file->cd();
 
 	// Create directory in file

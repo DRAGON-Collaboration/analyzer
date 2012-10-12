@@ -48,6 +48,7 @@ rootana::App::App(const char* appClassName, Int_t* argc, char** argv):
 { 
 /*!
  *  Also: process command line arguments, starts histogram server if appropriate.
+ *  \todo Need to properly handle startup if NOT running!!!
  */
 	process_argv (*argc, argv);
 	if (!fQueue) fQueue = new TSQueue(10e6);

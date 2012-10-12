@@ -5,8 +5,9 @@
 
 
 namespace vme {
-class V785;
+class V792;
 class V1190;
+typedef V792 V785;
 }
 
 

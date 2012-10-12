@@ -64,21 +64,13 @@ private:
   /// Unpack a Midas data buffer from a CAEN ADC
 	bool unpack_buffer(const uint32_t* const pbuffer, const char* bankName);
 
-}; // struct V792
+}; // class V792
 
-
-/// Readout structure of CAEN V785 ADC (peak sensing) is identical to V792 QDC (charge sensing).
-/*!
- * \note Using public inheritance instead of a plain typedef to introduce the vme::V785
- * symbol. The reason for doing this is to allow easy forward declarations. As the two classes
- * should behave identically, one should ensire that the constructor of V785 always exactly mirrors
- * that of V792 (ideally via a simple call to it's constructor in the initialization list).
- */
-class V785: public V792 {
-public:
-	/// Calls V792 constructor
-	V785(): V792() { }
-};
+/// Alias V785 to V792
+/*! The readout structure of CAEN v792 and v785 ADCs is identical; thus the
+ *  same unpacker code can be used for each. Provide a typedef of V792->V785
+ *  for naming consistency between hardware and software. */
+typedef V792 V785;
 
 } // namespace vme
 
