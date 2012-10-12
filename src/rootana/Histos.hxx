@@ -27,7 +27,8 @@ namespace rootana {
  */
 class HistBase {
 private:
-	rootana::Cut fCut; ///< Cut (gate) condition
+	/// Cut (gate) condition
+	rootana::Cut fCut; //!
 
 public:
 	/// Sets fCut to NULL, otherwise empty
@@ -60,19 +61,28 @@ public:
  * are allowed, and must be chosen with the right constructor.
  */
 template <class T>
-class Hist: public HistBase, public T {
+class Hist: public T, public HistBase {
 protected:
-	const DataPointer* fParamx; ///< X-axis parameter
-	const DataPointer* fParamy; ///< Y-axis parameter
-	const DataPointer* fParamz; ///< Z-axis parameter
+	const DataPointer* fParamx; //!///< X-axis parameter
+	const DataPointer* fParamy; //!///< Y-axis parameter
+	const DataPointer* fParamz; //!///< Z-axis parameter
 
 public:
+	/// Default constructor for streamer
+	Hist(): T(), HistBase() { }
 	/// 1d (TH1D) constructor
-	Hist(T* hist, const DataPointer* param);
+	Hist(const char* name, const char* title, Int_t nbins, Double_t low, Double_t high, const DataPointer* param);
 	/// 2d (TH2D) constructor
-	Hist(T* hist, const DataPointer* paramx, const DataPointer* paramy);
+	Hist(const char* name, const char* title,
+			 Int_t nbinsx, Double_t lowx, Double_t highx,
+			 Int_t nbinsy, Double_t lowy, Double_t highy,
+			 const DataPointer* paramx, const DataPointer* paramy);
 	/// 3d (TH3D) constructor
-	Hist(T* hist, const DataPointer* paramx, const DataPointer* paramy, const DataPointer* paramz);
+	Hist(const char* name, const char* title,
+			 Int_t nbinsx, Double_t lowx, Double_t highx,
+			 Int_t nbinsy, Double_t lowy, Double_t highy,
+			 Int_t nbinsz, Double_t lowz, Double_t highz,
+			 const DataPointer* paramx, const DataPointer* paramy, const DataPointer* paramz);
 	/// Frees memory allocated to fHist, and fParamx (y, z)
 	virtual ~Hist();
 
@@ -99,7 +109,7 @@ public:
 		{ this->SetDirectory(directory); }
 
 	/// CINT ClassDef
-	ClassDef(rootana::Hist<T>, 0);
+	ClassDef(Hist, 0);
 };
 
 /// Specialized case of TH2D that displays "summary" information
@@ -110,15 +120,17 @@ public:
  */
 class SummaryHist: public Hist<TH2D> {
 public:
+	/// Default constructor for streamer
+	SummaryHist(): Hist<TH2D>() { }
 	/// Sets x-axis binning from \e hist, y-axis from \e paramArray
-	SummaryHist(TH1D* hist, const DataPointer* paramArray);
+	SummaryHist(const char* name, const char* title, Int_t nbins, Double_t low, Double_t high, const DataPointer* paramArray);
 	/// Empty, ~Hist<TH2D> takes care of everything
 	virtual ~SummaryHist() { }
 	/// Override the fill() method to act appropriately for summary histograms
 	virtual Int_t fill();
 
 	/// CINT ClassDef
-	ClassDef(rootana::SummaryHist, 0);
+	ClassDef(SummaryHist, 0);
 };
 
 
@@ -162,57 +174,79 @@ inline rootana::Hist<T>& rootana::Hist<T>::operator= (const Hist& other)
 	return *this;
 }
 
-/// Specialized constructor for TH1D
-template <>
-inline rootana::Hist<TH1D>::Hist(TH1D* hist, const DataPointer* param):
-	TH1D(*hist), fParamx(param), fParamy(DataPointer::New()), fParamz(DataPointer::New())
-{ }
-
-/// Specialized constructor for TH2D
-template <>
-inline rootana::Hist<TH2D>::Hist(TH2D* hist, const DataPointer* paramx, const DataPointer* paramy):
-	TH2D(*hist), fParamx(paramx), fParamy(paramy), fParamz(DataPointer::New())
-{ 
-	this->SetOption("COLZ");
+template <class T>
+inline rootana::Hist<T>::Hist(const char* name, const char* title,
+		 Int_t nbins, Double_t low, Double_t high,
+		 const DataPointer* param):
+	T(), fParamx(param), fParamy(DataPointer::New()), fParamz(DataPointer::New())
+{
+	T::SetName(name);
+	T::SetTitle(title);
+	T::SetBins(nbins, low, high);
 }
 
-/// Specialized constructor for TH3D
-template <>
-inline rootana::Hist<TH3D>::Hist(TH3D* hist, const DataPointer* paramx, const DataPointer* paramy, const DataPointer* paramz):
-	TH3D(*hist), fParamx(paramx), fParamy(paramy), fParamz(paramz)
-{ }
+template <class T>
+inline rootana::Hist<T>::Hist(const char* name, const char* title,
+															Int_t nbinsx, Double_t lowx, Double_t highx,
+															Int_t nbinsy, Double_t lowy, Double_t highy,
+															const DataPointer* paramx, const DataPointer* paramy):
+	fParamx(paramx), fParamy(paramy), fParamz(DataPointer::New())
+{
+	T::SetName(name);
+	T::SetTitle(title);
+	T::SetBins(nbinsx, lowx, highx, nbinsy, lowy, highy);
+}
 
+template <class T>
+inline rootana::Hist<T>::Hist(const char* name, const char* title,
+															Int_t nbinsx, Double_t lowx, Double_t highx,
+															Int_t nbinsy, Double_t lowy, Double_t highy,
+															Int_t nbinsz, Double_t lowz, Double_t highz,
+															const DataPointer* paramx, const DataPointer* paramy, const DataPointer* paramz):
+	fParamx(paramx), fParamy(paramy), fParamz(paramz)
+{
+	T::SetName(name);
+	T::SetTitle(title);
+	T::SetBins(nbinsx, lowx, highx, nbinsy, lowy, highy, nbinsz, lowz, highz);
+}
+
+namespace {
 /// Specialized fill() for TH1D
-template <>
-inline Int_t rootana::Hist<TH1D>::fill()
+inline Int_t do_fill(rootana::Hist<TH1D>* hist,
+										 const rootana::DataPointer* paramx,
+										 const rootana::DataPointer* paramy,
+										 const rootana::DataPointer* paramz)
 {
 	/*! Fills the histogram if x param is valid and fCut is satisfied */
-	if ( is_valid(fParamx->get()) && apply_cut() )
-		return this->Fill (fParamx->get());
+	if ( is_valid(paramx->get()) && hist->apply_cut() )
+		return hist->Fill (paramx->get());
 	else return 0;
 }
 
 /// Specialized fill() for TH2D
-template <>
-inline Int_t rootana::Hist<TH2D>::fill()
+inline Int_t do_fill(rootana::Hist<TH2D>* hist,
+										 const rootana::DataPointer* paramx,
+										 const rootana::DataPointer* paramy,
+										 const rootana::DataPointer* paramz)
 {
 	/*! Fills the histogram if x,y params are valid and fCut is satisfied */
-	if ( is_valid(fParamx->get(), fParamy->get()) && apply_cut() )
-		return this->Fill (fParamx->get(), fParamy->get());
+	if ( is_valid(paramx->get(), paramy->get()) && hist->apply_cut() )
+		return hist->Fill (paramx->get(), paramy->get());
 	else return 0;
 }
 
 /// Specialized fill() for TH3D
-template<>
-inline Int_t rootana::Hist<TH3D>::fill()
+inline Int_t do_fill(rootana::Hist<TH3D>* hist,
+										 const rootana::DataPointer* paramx,
+										 const rootana::DataPointer* paramy,
+										 const rootana::DataPointer* paramz)
 {
 	/*! Fills the histogram if x,y,z params are valid and fCut is satisfied */
-	if (is_valid(fParamx->get(), fParamy->get(), fParamz->get()) && apply_cut() )
-		return this->Fill (fParamx->get(), fParamy->get(), fParamz->get());
+	if (is_valid(paramx->get(), paramy->get(), paramz->get()) && hist->apply_cut() )
+		return hist->Fill (paramx->get(), paramy->get(), paramz->get());
 	else return 0;
 }
 
-namespace {
 inline TH2D* get_summary_2d(TH1D* xaxis, const DataPointer* param)
 {
 	const std::string name  = xaxis->GetName();
@@ -225,10 +259,19 @@ inline TH2D* get_summary_2d(TH1D* xaxis, const DataPointer* param)
 	const double hY = param->length();
 	delete xaxis;
 	return new TH2D(name.c_str(), title.c_str(), nX, lX, hX, nY, lY, hY);
-} }
+}
 
-inline rootana::SummaryHist::SummaryHist(TH1D* hist, const DataPointer* paramArray):
-	Hist<TH2D>(get_summary_2d(hist, paramArray), paramArray, DataPointer::New())
+}
+
+
+template <class T>
+inline Int_t rootana::Hist<T>::fill()
+{
+	return do_fill(this, fParamx, fParamy, fParamz);
+}
+
+inline rootana::SummaryHist::SummaryHist(const char* name, const char* title, Int_t nbins, Double_t low, Double_t high, const DataPointer* paramArray):
+	Hist<TH2D>(name, title, nbins, low, high, paramArray->length(), 0, paramArray->length(), paramArray, DataPointer::New())
 { 
 	/*!
 	 *  Calls Hist<TH2D>::Hist() with appropriate arguments for a summary histogram.
