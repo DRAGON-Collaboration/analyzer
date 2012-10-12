@@ -33,7 +33,7 @@ public:
 	/// Sets fCut to NULL, otherwise empty
 	HistBase():	fCut(0) { }
 	/// Empty
-	virtual ~HistBase() { }
+	virtual ~HistBase() { printf ("bye\n"); }
 	/// Sets the cut (gate) condition
 	void set_cut(const Cut& cut);
   /// Applies the cut condition
