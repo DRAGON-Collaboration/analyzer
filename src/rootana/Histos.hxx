@@ -60,9 +60,8 @@ public:
  * are allowed, and must be chosen with the right constructor.
  */
 template <class T>
-class Hist: public HistBase {
+class Hist: public HistBase, public T {
 protected:
-	T* fHist; ///< Internal ROOT histogram
 	const DataPointer* fParamx; ///< X-axis parameter
 	const DataPointer* fParamy; ///< Y-axis parameter
 	const DataPointer* fParamz; ///< Z-axis parameter
@@ -84,27 +83,23 @@ private:
 	Hist& operator= (const Hist& other);
 
 public:
-	/// Grants access to the internal histogram
-	T* get() { return fHist; }
-	/// Arrow operator, for pointer-like behavior
-	T* operator->() { return fHist; }
-	/// Dereference operator, for pointer-like bahavior
-	T& operator*() { return *fHist; }
-
 	/// Calls TH1::Fill using fParamx, fParamy, fParamz
 	virtual Int_t fill();
 	/// Calls TH1::Write()
 	virtual void write()
-		{ fHist->Write(); }
+		{ this->Write(); }
 	/// Calls TH1::GetName()
 	virtual const char* name() const
-		{ return fHist->GetName(); }
+		{ return this->GetName(); }
 	/// Calls TH1::Clear()
 	virtual void clear()
-		{ fHist->Clear(); }
+		{ this->Clear(); }
 	/// Calls TH1::SetDirectory
 	virtual void set_directory(TDirectory* directory)
-		{ fHist->SetDirectory(directory); }
+		{ this->SetDirectory(directory); }
+
+	/// CINT ClassDef
+	ClassDef(rootana::Hist<T>, 0);
 };
 
 /// Specialized case of TH2D that displays "summary" information
@@ -121,6 +116,9 @@ public:
 	virtual ~SummaryHist() { }
 	/// Override the fill() method to act appropriately for summary histograms
 	virtual Int_t fill();
+
+	/// CINT ClassDef
+	ClassDef(rootana::SummaryHist, 0);
 };
 
 
@@ -140,49 +138,48 @@ inline bool rootana::HistBase::apply_cut()
 template <class T>
 inline rootana::Hist<T>::~Hist()
 {
-	delete fHist;
 	delete fParamx;
 	delete fParamy;
 	delete fParamz;
 }
 
 template <class T>
-inline rootana::Hist<T>::Hist(const Hist& other)
+inline rootana::Hist<T>::Hist(const Hist& other):
+	T(*other)
 {
 	fParamx = new DataPointer(other.fParamx);
 	fParamy = new DataPointer(other.fParamy);
 	fParamz = new DataPointer(other.fParamz);
-	fHist   = new T (*(other.fHist));
 }
 
 template <class T>
 inline rootana::Hist<T>& rootana::Hist<T>::operator= (const Hist& other)
 {
+	T::operator= (other);
 	fParamx = new DataPointer(other.fParamx);
 	fParamy = new DataPointer(other.fParamy);
 	fParamz = new DataPointer(other.fParamz);
-	fHist   = new T (*(other.fHist));
 	return *this;
 }
 
 /// Specialized constructor for TH1D
 template <>
 inline rootana::Hist<TH1D>::Hist(TH1D* hist, const DataPointer* param):
-	fHist(hist), fParamx(param), fParamy(DataPointer::New()), fParamz(DataPointer::New())
+	TH1D(*hist), fParamx(param), fParamy(DataPointer::New()), fParamz(DataPointer::New())
 { }
 
 /// Specialized constructor for TH2D
 template <>
 inline rootana::Hist<TH2D>::Hist(TH2D* hist, const DataPointer* paramx, const DataPointer* paramy):
-	fHist(hist), fParamx(paramx), fParamy(paramy), fParamz(DataPointer::New())
+	TH2D(*hist), fParamx(paramx), fParamy(paramy), fParamz(DataPointer::New())
 { 
-	fHist->SetOption("COLZ");
+	this->SetOption("COLZ");
 }
 
 /// Specialized constructor for TH3D
 template <>
 inline rootana::Hist<TH3D>::Hist(TH3D* hist, const DataPointer* paramx, const DataPointer* paramy, const DataPointer* paramz):
-	fHist(hist), fParamx(paramx), fParamy(paramy), fParamz(paramz)
+	TH3D(*hist), fParamx(paramx), fParamy(paramy), fParamz(paramz)
 { }
 
 /// Specialized fill() for TH1D
@@ -191,7 +188,7 @@ inline Int_t rootana::Hist<TH1D>::fill()
 {
 	/*! Fills the histogram if x param is valid and fCut is satisfied */
 	if ( is_valid(fParamx->get()) && apply_cut() )
-		return fHist->Fill (fParamx->get());
+		return this->Fill (fParamx->get());
 	else return 0;
 }
 
@@ -201,7 +198,7 @@ inline Int_t rootana::Hist<TH2D>::fill()
 {
 	/*! Fills the histogram if x,y params are valid and fCut is satisfied */
 	if ( is_valid(fParamx->get(), fParamy->get()) && apply_cut() )
-		return fHist->Fill (fParamx->get(), fParamy->get());
+		return this->Fill (fParamx->get(), fParamy->get());
 	else return 0;
 }
 
@@ -211,7 +208,7 @@ inline Int_t rootana::Hist<TH3D>::fill()
 {
 	/*! Fills the histogram if x,y,z params are valid and fCut is satisfied */
 	if (is_valid(fParamx->get(), fParamy->get(), fParamz->get()) && apply_cut() )
-		return fHist->Fill (fParamx->get(), fParamy->get(), fParamz->get());
+		return this->Fill (fParamx->get(), fParamy->get(), fParamz->get());
 	else return 0;
 }
 
@@ -246,9 +243,9 @@ inline Int_t rootana::SummaryHist::fill()
 	/*! If fCut is satisfied, fills bin-by-bin whenever the corresponding param is valid */
 	Int_t filled = 0;
 	if (!apply_cut()) return filled;
-	for (Int_t bin = 0; bin < fHist->GetYaxis()->GetNbins(); ++bin) {
+	for (Int_t bin = 0; bin < this->GetYaxis()->GetNbins(); ++bin) {
 		if (is_valid(fParamx->get(bin))) {
-			fHist->Fill (fParamx->get(bin), bin);
+			this->Fill (fParamx->get(bin), bin);
 			filled = 1;
 		}
 	}
