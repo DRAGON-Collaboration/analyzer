@@ -112,12 +112,13 @@ private:
 };
 
 
-/// Queue that is a member of another class which handles poped events
+/// Queue that is a member of another class which handles popped events
 /*!
  * The intended use of this class is for when the queue exists as a data member of
  * some other class (the "owner"). The owning class will perform the work of handling
  * singles or coincidence events popped from the queue (see below).
  * \tparam T The type of class owning the queue; must have the following member functions:
+ * 
  * - <tt> void Process(const midas::Event&); </tt>
  * - <tt> void Process(const midas::Event&, cont midas::Event&); </tt>
  * 
@@ -130,7 +131,7 @@ private:
 	T& fOwner;
 	
 public:
-	/// Calls base constructor with maxDelts argument; sets fOwner
+	/// Calls base constructor with maxDelta argument; sets fOwner
 	OwnedQueue(double maxDelta, T* owner):
 		tstamp::Queue(maxDelta), fOwner(*owner) { }
 	
