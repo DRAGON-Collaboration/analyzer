@@ -20,8 +20,6 @@
 
 #include "utils/TStamp.hxx"
 #include "Timer.hxx"
-// #include "Events.hxx"
-// #include "Timestamp.hxx"
 #include "HistParser.hxx"
 #include "Callbacks.hxx"
 #include "Directory.hxx"

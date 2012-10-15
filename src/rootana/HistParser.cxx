@@ -9,7 +9,6 @@
 #include "utils/definitions.h"
 #include "utils/Error.hxx"
 #include "Histos.hxx"
-#include "Events.hxx"
 #include "Directory.hxx"
 #include "HistParser.hxx"
 

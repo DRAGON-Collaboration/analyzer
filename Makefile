@@ -192,9 +192,7 @@ $(ROOTANA)/libNetDirectory/netDirectoryServer.o
 ROOTANA_OBJS=					\
 $(OBJ)/rootana/Application.o			\
 $(OBJ)/rootana/HistParser.o			\
-$(OBJ)/rootana/Timestamp.o			\
-$(OBJ)/rootana/Directory.o			\
-$(OBJ)/rootana/Events.o
+$(OBJ)/rootana/Directory.o
 
 ROOTANA_HEADERS= $(SRC)/rootana/Globals.h $(SRC)/rootana/*.hxx
 
