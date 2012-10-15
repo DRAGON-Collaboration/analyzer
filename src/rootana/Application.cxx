@@ -18,12 +18,15 @@
 #include "XmlOdb.h"
 #include "libNetDirectory/netDirectoryServer.h"
 
+#include "utils/TStamp.hxx"
 #include "Timer.hxx"
-#include "Events.hxx"
-#include "Timestamp.hxx"
+// #include "Events.hxx"
+// #include "Timestamp.hxx"
 #include "HistParser.hxx"
 #include "Callbacks.hxx"
+#include "Directory.hxx"
 
+#include "Globals.h"
 
 // APPLICATION CLASS //
 
@@ -42,7 +45,8 @@ rootana::App::App(const char* appClassName, Int_t* argc, char** argv):
 	fExpt(""),
 	fHistos( ROOTANA_STRINGIFY_MACRO(ROOTANA_DEFAULT_HISTOS) ),
 	fHistosOnline(""),
-	fOutputFile(0),
+//	fOutputFile(0),
+	fOutputFile("."),
 	fOnlineHistDir(0),
 	fOdb(0)
 { 
@@ -51,7 +55,7 @@ rootana::App::App(const char* appClassName, Int_t* argc, char** argv):
  *  \todo Need to properly handle startup if NOT running!!!
  */
 	process_argv (*argc, argv);
-	if (!fQueue) fQueue = new TSQueue(10e6);
+	if (!fQueue) fQueue = tstamp::NewOwnedQueue (10e6, this);
 	if (fMode == ONLINE) {
 		gROOT->cd();
 		fOnlineHistDir = new TDirectory("rootana", "rootana online plots");
@@ -87,7 +91,7 @@ void rootana::App::process_argv(int argc, char** argv)
 		else if ( iarg->compare(0, 2, "-E") == 0 )
 			fExpt = iarg->substr(2);
 		else if ( iarg->compare(0, 2, "-Q") == 0 )
-			fQueue = new TSQueue ( atof(iarg->substr(2).c_str()) );
+			fQueue = tstamp::NewOwnedQueue( atof(iarg->substr(2).c_str()), this );
 		else if ( iarg->compare("-histos")  == 0 )
 			fHistos = *(++iarg);
 		else if ( iarg->compare("-histos0")  == 0 )
@@ -124,7 +128,61 @@ void rootana::App::handle_event(midas::Event& event)
 	}
 }
 
-int rootana::App::create_histograms(const char* definition_file, TDirectory* output)
+
+namespace {
+template <class T, class E>
+inline void unpack_event(T& data, const E& buf)
+{
+	data.reset();
+	data.unpack(buf);
+	data.calculate();
+} }
+
+void rootana::App::Process(const midas::Event& event)
+{
+	const uint16_t EID = event.GetEventId();
+	switch (EID) {
+
+	case DRAGON_HEAD_EVENT:  /// - DRAGON_HEAD_EVENT: Calculate head params & fill head histos
+		unpack_event(rootana::gHead, event);
+		fOutputFile.CallForAll( &rootana::HistBase::fill, EID );
+		break;
+
+	case DRAGON_TAIL_EVENT:  /// - DRAGON_TAIL_EVENT: Calculate tail params & fill tail histos
+		unpack_event(rootana::gTail, event);
+		fOutputFile.CallForAll( &rootana::HistBase::fill, EID );
+		break;
+
+	case DRAGON_HEAD_SCALER: /// - DRAGON_HEAD_SCALER: \todo implement C. Stanford's scaler codes
+		// <...process...> //
+		break;
+
+	case DRAGON_TAIL_SCALER: /// - DRAGON_TAIL_SCALER: \todo implement C. Stanford's scaler codes
+		// <...process...> //
+		break;
+
+	default: /// - Silently ignore other event types
+		break;
+	}
+
+}
+
+void rootana::App::Process(const midas::Event& event1, const midas::Event& event2)
+{
+	/// \todo Try to avoid extra unpacking step
+	midas::CoincEvent coincEvent(event1, event2);
+
+	if (coincEvent.fHeavyIon == 0 ||	coincEvent.fGamma == 0) {
+		dragon::err::Error("rootana::TSQueue::HandleCoinc")
+			<< "Invalid coincidence event, skipping...\n";
+		return;
+	}
+
+	unpack_event(rootana::gCoinc, coincEvent);
+	fOutputFile.CallForAll( &rootana::HistBase::fill, DRAGON_COINC_EVENT );
+}
+
+int rootana::App::create_histograms(const char* definition_file, rootana::Directory* output)
 {
 	/*!
 	 * Parses histogram definition file & creates histograms.
@@ -321,31 +379,37 @@ void rootana::App::run_start(int runnum)
 	 */
   fRunNumber = runnum;
     
-  if(fOutputFile!=NULL) {
-    fOutputFile->Write();
-    fOutputFile->Close();
-    fOutputFile=NULL;
-  }
-	
-	rootana::EventHandler::Instance()->BeginRun();
+  // if(fOutputFile!=NULL) {
+  //   fOutputFile->Write();
+  //   fOutputFile->Close();
+  //   fOutputFile=NULL;
+  // }
 
-  char filename[1024];
-  sprintf(filename, "output%05d.root", runnum); /// \todo better Output directory
-  fOutputFile = new TFile(filename,"RECREATE");
+//	rootana::EventHandler::Instance()->BeginRun();
 
-  NetDirectoryExport(fOutputFile, "outputFile");
+  // char filename[1024];
+  // sprintf(filename, "output%05d.root", runnum); /// \todo better Output directory
+  // fOutputFile = new TFile(filename,"RECREATE");
+
+  // NetDirectoryExport(fOutputFile, "outputFile");
+
+	bool opened = fOutputFile.Open(runnum);
+	if(!opened) { 
+		TMidasOnline::instance()->disconnect();
+		exit(1);
+	}
 
 	// create histograms
-	int success = create_histograms(fHistos.c_str(), fOutputFile);
-	BAD_HISTS:
-	if(success == -1) {
-		if (fMode == ONLINE) TMidasOnline::instance()->disconnect();
-		exit (1);
-	}
-	if (fHistosOnline != "") {
-		success = create_histograms(fHistosOnline.c_str(), fOnlineHistDir);
-		if (success == -1) goto BAD_HISTS;
-	}
+	// int success = create_histograms(fHistos.c_str(), fOutputFile);
+	// BAD_HISTS:
+	// if(success == -1) {
+	// 	if (fMode == ONLINE) TMidasOnline::instance()->disconnect();
+	// 	exit (1);
+	// }
+	// if (fHistosOnline != "") {
+	// 	success = create_histograms(fHistosOnline.c_str(), fOnlineHistDir);
+	// 	if (success == -1) goto BAD_HISTS;
+	// }
 
 	dragon::err::Info("rootana") << "Start of run " << runnum;
 }
@@ -360,13 +424,15 @@ void rootana::App::run_stop(int runnum)
 
 	fQueue->Flush(30);
 
-  if(fOutputFile) {
-		fOutputFile->Write();
-		fOutputFile->Close();		//close the histogram file
-		fOutputFile = NULL;
-	}
+  // if(fOutputFile) {
+	// 	fOutputFile->Write();
+	// 	fOutputFile->Close();		//close the histogram file
+	// 	fOutputFile = NULL;
+	// }
 
-	rootana::EventHandler::Instance()->EndRun();
+	fOutputFile.Close();
+
+//	rootana::EventHandler::Instance()->EndRun();
 
 	dragon::err::Info("rootana") << "End of run " << runnum;
 }

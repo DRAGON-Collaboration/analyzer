@@ -49,6 +49,8 @@ public:
 	virtual const char* name() const = 0;
 	/// Sets owner TDirectory
 	virtual void set_directory(TDirectory*) = 0;
+	/// For testing
+	void test() { printf ("test\n"); }
 };
 
 /// Rootana histogram class

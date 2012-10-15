@@ -111,6 +111,53 @@ private:
 	virtual void FlushTimeoutMessage(int max_time) const;
 };
 
+
+/// Queue that is a member of another class which handles poped events
+/*!
+ * The intended use of this class is for when the queue exists as a data member of
+ * some other class (the "owner"). The owning class will perform the work of handling
+ * singles or coincidence events popped from the queue (see below).
+ * \tparam T The type of class owning the queue; must have the following member functions:
+ * - <tt> void Process(const midas::Event&); </tt>
+ * - <tt> void Process(const midas::Event&, cont midas::Event&); </tt>
+ * 
+ * to handle singles and coincidence events, respectively.
+ */
+template <class T>
+class OwnedQueue: public Queue {
+private:
+	/// Reference to the class "owning" the queue
+	T& fOwner;
+	
+public:
+	/// Calls base constructor with maxDelts argument; sets fOwner
+	OwnedQueue(double maxDelta, T* owner):
+		tstamp::Queue(maxDelta), fOwner(*owner) { }
+	
+	/// Empty
+	~OwnedQueue() { }
+
+private:
+	/// Calls <tt> fOwner.Process(const midas::Event&); </tt>
+	void HandleSingle(const midas::Event& event) const
+		{ fOwner.Process(event); }
+	
+	/// Calls <tt> fOwner.Process(const midas::Event&, const midas::Event&); </tt>
+	void HandleCoinc(const midas::Event& event1, const midas::Event& event2) const
+		{ fOwner.Process(event1, event2); }
+};
+
+/// "Creation" function for OwnedQueue<T>
+template <class T>
+inline OwnedQueue<T>* NewOwnedQueue(double maxDelta, T* owner)
+{
+	/*!
+	 * Allows one to create a \c new instance of OwnedQueue<T>
+	 * without having to explicitly specify the template parameter.
+	 */
+	return new OwnedQueue<T> (maxDelta, owner);
+}
+
 } // namespace tstamp
 
 #endif

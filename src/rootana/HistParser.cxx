@@ -10,6 +10,7 @@
 #include "utils/Error.hxx"
 #include "Histos.hxx"
 #include "Events.hxx"
+#include "Directory.hxx"
 #include "HistParser.hxx"
 
 
@@ -55,7 +56,7 @@ inline void throw_missing_arg(const char* which, int linenum, const char* fname)
 
 // HIST PARSER //
 
-rootana::HistParser::HistParser(const char* filename, TDirectory* owner):
+rootana::HistParser::HistParser(const char* filename, rootana::Directory* owner):
 	fFilename(filename), fFile(filename),
 	fLine(""), fLineNumber(0), fDir(""),
 	fLastHist(0), fOwner(owner)
@@ -229,7 +230,7 @@ void rootana::HistParser::handle_cut()
 
 void rootana::HistParser::add_hist(rootana::HistBase* hst, Int_t type)
 {
-	rootana::EventHandler::Instance()->AddHisto(hst, type, fOwner, fDir.c_str());
+	fOwner->AddHist(hst, fDir.c_str(), type);
 	fLastHist = hst;
 
 	std::cout << "\t";

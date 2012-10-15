@@ -6,16 +6,15 @@
 #ifndef ROOTANA_DRAGON_HXX
 #define ROOTANA_DRAGON_HXX
 #include <TApplication.h>
+#include "Directory.hxx"
 
 class TFile;
 class TDirectory;
 class VirtualOdb;
-namespace midas { class Event; }
-
+namespace midas  { class Event; }
+namespace tstamp { class Queue; }
 
 namespace rootana {
-
-class TSQueue;
 
 /// Application class for dragon rootana
 class App: public TApplication {
@@ -34,11 +33,12 @@ private:
 	std::string fExpt;          ///< Online experiment name
 	std::string fHistos;        ///< Histogram specification file (online + file)
 	std::string fHistosOnline;  ///< Histogram specification file (online only)
-	TFile* fOutputFile;         ///< Output ROOT file
+//	TFile* fOutputFile;         ///< Output ROOT file
+	rootana::OfflineDirectory fOutputFile;
 	TDirectory* fOnlineHistDir; ///< Online-only histogram directory
 	VirtualOdb* fOdb;           ///< Database class. \todo Switch to midas::Database
-	TSQueue* fQueue;            ///< Timestamping queue
-
+	tstamp::Queue* fQueue;      ///< Timestamping queue
+	
 public:
 	/// Calls TApplication constructor
 	App(const char* appClassName, Int_t* argc, char** argv);
@@ -64,6 +64,12 @@ public:
 	/// Handle a midas event
 	void handle_event(midas::Event& event);
 
+	/// Tells how to handle a singles event from the beginning of fQueue
+	void Process(const midas::Event& event);
+
+	/// Tells how to handle a coincidence event from the beginning of fQueue
+	void Process(const midas::Event& event1, const midas::Event& event2);
+
 	/// Process an offline MIDAS file
 	int midas_file(const char* fname);
 
@@ -75,7 +81,7 @@ public:
 
 private:
 	/// Create histograms from definitions file
-	int create_histograms(const char* definition_file, TDirectory* output);
+	int create_histograms(const char* definition_file, rootana::Directory* output);
 
 	/// Prints 'help' message
 	void help();

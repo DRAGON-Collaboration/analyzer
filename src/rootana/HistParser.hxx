@@ -7,11 +7,10 @@
 #include <string>
 
 
-class TDirectory;
-
 namespace rootana {
 
 class HistBase;
+class Directory;
 
 /// Parses text file to create histograms at program startup.
 /*!
@@ -33,11 +32,11 @@ private:
 	/// Most recently created histogram
 	HistBase* fLastHist;
 	/// Owner ('top-level') directory (or file)
-	TDirectory* fOwner;
+	rootana::Directory* fOwner;
 
 public:
 	/// Sets fFile
-	HistParser(const char* filename, TDirectory* owner);
+	HistParser(const char* filename, rootana::Directory* owner);
 	/// Empty
 	~HistParser() { }
 	/// Checks if fFile is 'good'
