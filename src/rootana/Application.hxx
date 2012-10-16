@@ -33,9 +33,8 @@ private:
 	std::string fExpt;          ///< Online experiment name
 	std::string fHistos;        ///< Histogram specification file (online + file)
 	std::string fHistosOnline;  ///< Histogram specification file (online only)
-//	TFile* fOutputFile;         ///< Output ROOT file
-	rootana::OfflineDirectory fOutputFile;
-	TDirectory* fOnlineHistDir; ///< Online-only histogram directory
+	rootana::OfflineDirectory fOutputFile; ///< Online/offline histograms
+	rootana::OnlineDirectory fOnlineHists; ///< Online-only histograms
 	VirtualOdb* fOdb;           ///< Database class. \todo Switch to midas::Database
 	tstamp::Queue* fQueue;      ///< Timestamping queue
 	
@@ -81,7 +80,7 @@ public:
 
 private:
 	/// Create histograms from definitions file
-	int create_histograms(const char* definition_file, rootana::Directory* output);
+	int create_histograms(const char* definition_file, rootana::Directory& output);
 
 	/// Prints 'help' message
 	void help();

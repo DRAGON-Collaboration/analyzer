@@ -5,39 +5,56 @@
 #include <list>
 #include <string>
 #include <memory>
-#include "Histos.hxx"
-
-class TFile;
-class TDirectory;
+#include <algorithm>
+#include <TDirectory.h>
 
 namespace rootana {
+
+class HistBase;
 
 class Directory {
 private:
 	typedef std::map<uint16_t, std::list<rootana::HistBase*> > Map_t;
 	typedef std::map<rootana::HistBase*, std::string> PathMap_t;
+	std::auto_ptr<TDirectory> fDir;
 	Map_t fHistos;
 	PathMap_t fHistoPaths;
 
+public:
+	Directory(TDirectory* dir = 0): fDir(dir) {}
+	~Directory();
+	bool IsOpen() const	{ return fDir.get() && !fDir->IsZombie(); }
+	void Reset (TDirectory* newDir) { fDir.reset(newDir); }
+	const char* GetName() const
+		{
+			if (IsOpen()) return fDir->GetName();
+			return "< OfflineDirectory:: Unopened file >";
+		}
+	const char* ClassName() const
+		{
+			if (IsOpen()) return fDir->ClassName();
+			return "TDirectory";
+		}
+	void AddHist(rootana::HistBase* hist, const char* path, uint16_t eventId);
+	virtual bool Open(Int_t runnum, const char* defFile) = 0;
+	virtual void Close() = 0;
+
+protected:
+	void CreateHists(const char* definitionFile);
+	void DeleteHists();
+	void NetDirExport(const char* name);
+	void StartNetDirServer(Int_t tcp);
+	Int_t Write (const char* name = 0, Int_t i = 0, Int_t j = 0)
+		{ return fDir->Write(name, i, j); }
+	Int_t Write (const char* name = 0, Int_t i = 0, Int_t j = 0) const
+		{ return fDir->Write(name, i, j); }
+
 private:
+	TDirectory* CreateSubDirectory(const char* path);
 	Directory(const Directory& other) { }
 	Directory& operator= (const Directory& other) { return *this; }
 
 public:
-	Directory() {}
-	~Directory();
-	void AddHist(rootana::HistBase* hist, const char* path, uint16_t eventId);
-	virtual bool Open(Int_t runnum) = 0;
-	virtual void Close() = 0;
-
-protected:
-	void SetHistDirectories(TDirectory* owner);
-
-private:
-	TDirectory* CreateSubDirectory(TDirectory* owner, const std::string& path);
-
-public:
-	static void test();
 	template <class R> void CallForAll( R (HistBase::*f)(), int32_t id = -1 )
 		{
 			Map_t::iterator itFirst, itLast;
@@ -57,15 +74,21 @@ public:
 
 class OfflineDirectory: public Directory {
 private:
-	std::auto_ptr<TFile> fFile;
 	const std::string fOutputPath;
 public:
 	OfflineDirectory(const char* outPath);
 	~OfflineDirectory();
-	bool Open(Int_t runnum);
+	bool Open(Int_t runnum, const char* defFile);
 	void Close();
 };
-	
+
+class OnlineDirectory: public Directory {
+public:
+	OnlineDirectory();
+	~OnlineDirectory();
+	bool Open(Int_t tcp, const char* defFile);
+	void Close();
+};
 
 } // namespace rootana
 

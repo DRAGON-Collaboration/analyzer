@@ -33,7 +33,7 @@ public:
 	/// Sets fCut to NULL, otherwise empty
 	HistBase():	fCut(0) { }
 	/// Empty
-	virtual ~HistBase() { printf ("bye\n"); }
+	virtual ~HistBase() { }
 	/// Sets the cut (gate) condition
 	void set_cut(const Cut& cut);
   /// Applies the cut condition
@@ -68,6 +68,7 @@ protected:
 	const DataPointer* fParamx; ///< X-axis parameter
 	const DataPointer* fParamy; ///< Y-axis parameter
 	const DataPointer* fParamz; ///< Z-axis parameter
+	TDirectory* fHistOwner;     /// Directory owning fHist
 
 public:
 	/// 1d (TH1D) constructor
@@ -106,7 +107,10 @@ public:
 		{ fHist->Clear(); }
 	/// Calls TH1::SetDirectory
 	virtual void set_directory(TDirectory* directory)
-		{ fHist->SetDirectory(directory); }
+		{
+			fHist->SetDirectory(directory);
+			fHistOwner = directory;
+		}
 };
 
 /// Specialized case of TH2D that displays "summary" information
@@ -142,7 +146,13 @@ inline bool rootana::HistBase::apply_cut()
 template <class T>
 inline rootana::Hist<T>::~Hist()
 {
-	delete fHist;
+	/*!
+	 * \note Delete fHist only if it is not owned by a directory; otherwise, the
+	 * owning diretory must be allowed to take care of things.
+	 */
+	if(fHist && !fHistOwner) {
+		delete fHist;
+	}
 	delete fParamx;
 	delete fParamy;
 	delete fParamz;
@@ -155,6 +165,7 @@ inline rootana::Hist<T>::Hist(const Hist& other)
 	fParamy = new DataPointer(other.fParamy);
 	fParamz = new DataPointer(other.fParamz);
 	fHist   = new T (*(other.fHist));
+	fHistOwner = fHist->GetDirectory();
 }
 
 template <class T>
@@ -164,28 +175,34 @@ inline rootana::Hist<T>& rootana::Hist<T>::operator= (const Hist& other)
 	fParamy = new DataPointer(other.fParamy);
 	fParamz = new DataPointer(other.fParamz);
 	fHist   = new T (*(other.fHist));
+	fHistOwner = fHist->GetDirectory();
 	return *this;
 }
 
-/// Specialized constructor for TH1D
+/// Specialized constructor for TH1
 template <>
 inline rootana::Hist<TH1D>::Hist(TH1D* hist, const DataPointer* param):
 	fHist(hist), fParamx(param), fParamy(DataPointer::New()), fParamz(DataPointer::New())
-{ }
+{
+	fHistOwner = hist ? hist->GetDirectory() : 0;
+}
 
 /// Specialized constructor for TH2D
 template <>
 inline rootana::Hist<TH2D>::Hist(TH2D* hist, const DataPointer* paramx, const DataPointer* paramy):
 	fHist(hist), fParamx(paramx), fParamy(paramy), fParamz(DataPointer::New())
 { 
-	fHist->SetOption("COLZ");
+	fHistOwner = hist ? hist->GetDirectory() : 0;
+	if(fHist) fHist->SetOption("COLZ");
 }
 
 /// Specialized constructor for TH3D
 template <>
 inline rootana::Hist<TH3D>::Hist(TH3D* hist, const DataPointer* paramx, const DataPointer* paramy, const DataPointer* paramz):
 	fHist(hist), fParamx(paramx), fParamy(paramy), fParamz(paramz)
-{ }
+{
+ 	fHistOwner = hist ? hist->GetDirectory() : 0;
+}
 
 /// Specialized fill() for TH1D
 template <>

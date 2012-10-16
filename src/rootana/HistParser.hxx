@@ -4,8 +4,10 @@
 #ifndef ROTANA_HIST_PARSER_HXX
 #define ROTANA_HIST_PARSER_HXX
 #include <fstream>
+#include <vector>
 #include <string>
 
+class TCutG;
 
 namespace rootana {
 
@@ -32,13 +34,17 @@ private:
 	/// Most recently created histogram
 	HistBase* fLastHist;
 	/// Owner ('top-level') directory (or file)
-	rootana::Directory* fOwner;
+	rootana::Directory& fOwner;
+	/// Temporary TCutGs created during parsing
+	std::vector<TCutG*> fLocalCuts;
+	/// Any TCutGs existing before parsing
+	std::vector<TCutG*> fExistingCuts;
 
 public:
 	/// Sets fFile
-	HistParser(const char* filename, rootana::Directory* owner);
-	/// Empty
-	~HistParser() { }
+	HistParser(const char* filename, rootana::Directory& owner);
+	/// Deletes local cuts
+	~HistParser();
 	/// Checks if fFile is 'good'
 	bool is_good() { return fFile.good(); }
 	/// Runs through a file and creates histograms

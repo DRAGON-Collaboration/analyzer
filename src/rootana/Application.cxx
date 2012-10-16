@@ -20,6 +20,7 @@
 
 #include "utils/TStamp.hxx"
 #include "Timer.hxx"
+#include "Histos.hxx"
 #include "HistParser.hxx"
 #include "Callbacks.hxx"
 #include "Directory.hxx"
@@ -43,9 +44,8 @@ rootana::App::App(const char* appClassName, Int_t* argc, char** argv):
 	fExpt(""),
 	fHistos( ROOTANA_STRINGIFY_MACRO(ROOTANA_DEFAULT_HISTOS) ),
 	fHistosOnline(""),
-//	fOutputFile(0),
-	fOutputFile("."),
-	fOnlineHistDir(0),
+	fOutputFile(""),
+	fOnlineHists(),
 	fOdb(0)
 { 
 /*!
@@ -56,9 +56,7 @@ rootana::App::App(const char* appClassName, Int_t* argc, char** argv):
 	if (!fQueue) fQueue = tstamp::NewOwnedQueue (10e6, this);
 	if (fMode == ONLINE) {
 		gROOT->cd();
-		fOnlineHistDir = new TDirectory("rootana", "rootana online plots");
-		if (fTcp) StartNetDirectoryServer(fTcp, fOnlineHistDir);
-		else fprintf(stderr, "TCP port == 0, can't start histogram server!\n");
+		fOnlineHists.Open(fTcp, fHistosOnline.c_str());
 	}
 }
 
@@ -180,15 +178,14 @@ void rootana::App::Process(const midas::Event& event1, const midas::Event& event
 	fOutputFile.CallForAll( &rootana::HistBase::fill, DRAGON_COINC_EVENT );
 }
 
-int rootana::App::create_histograms(const char* definition_file, rootana::Directory* output)
+int rootana::App::create_histograms(const char* definition_file, rootana::Directory& output)
 {
 	/*!
 	 * Parses histogram definition file & creates histograms.
-	 * \returns 0 if successful, 1 if output is NULL (no action), -1 otherwise (error)
+	 * \returns 0 if successful, -1 otherwise (error)
 	 * \todo Also add option for separate online-only histos
 	 * \todo Cmd line hist file specification
 	 */
-	if (!output) return 1;
 	try {
 		rootana::HistParser parse (definition_file, output);
 		parse.run();
@@ -309,7 +306,7 @@ int rootana::App::midas_online(const char* host, const char* experiment)
 	// 	return -1;
 	// }
 	// if (fHistosOnline != "") {
-	// 	success = create_histograms(fHistosOnline.c_str(), fOnlineHistDir);
+	// 	success = create_histograms(fHistosOnline.c_str(), fOnlineHists);
 	// 	if (success == -1) goto BAD_HISTS;
 	// }
 	
@@ -360,14 +357,13 @@ void rootana::App::Run(Bool_t)
 
 void rootana::App::Terminate(Int_t status)
 {
-	if (fQueue) { delete fQueue; fQueue = 0; }
-	printf ("Terminating application...\n");
-	TApplication::Terminate();
+	exit(status);
 }
 
 rootana::App::~App()
 {
-	if (fQueue) delete fQueue;
+	printf ("Terminating application...\n");
+	if (fQueue) { delete fQueue; fQueue = 0; }
 }
 
 void rootana::App::run_start(int runnum)
@@ -377,37 +373,11 @@ void rootana::App::run_start(int runnum)
 	 */
   fRunNumber = runnum;
     
-  // if(fOutputFile!=NULL) {
-  //   fOutputFile->Write();
-  //   fOutputFile->Close();
-  //   fOutputFile=NULL;
-  // }
-
-//	rootana::EventHandler::Instance()->BeginRun();
-
-  // char filename[1024];
-  // sprintf(filename, "output%05d.root", runnum); /// \todo better Output directory
-  // fOutputFile = new TFile(filename,"RECREATE");
-
-  // NetDirectoryExport(fOutputFile, "outputFile");
-
-	bool opened = fOutputFile.Open(runnum);
+	bool opened = fOutputFile.Open(runnum, fHistos.c_str());
 	if(!opened) { 
 		TMidasOnline::instance()->disconnect();
 		exit(1);
 	}
-
-	// create histograms
-	// int success = create_histograms(fHistos.c_str(), fOutputFile);
-	// BAD_HISTS:
-	// if(success == -1) {
-	// 	if (fMode == ONLINE) TMidasOnline::instance()->disconnect();
-	// 	exit (1);
-	// }
-	// if (fHistosOnline != "") {
-	// 	success = create_histograms(fHistosOnline.c_str(), fOnlineHistDir);
-	// 	if (success == -1) goto BAD_HISTS;
-	// }
 
 	dragon::err::Info("rootana") << "Start of run " << runnum;
 }
@@ -419,19 +389,8 @@ void rootana::App::run_stop(int runnum)
 	 *  save histograms, closes output root file.
 	 */
   fRunNumber = runnum;
-
 	fQueue->Flush(30);
-
-  // if(fOutputFile) {
-	// 	fOutputFile->Write();
-	// 	fOutputFile->Close();		//close the histogram file
-	// 	fOutputFile = NULL;
-	// }
-
 	fOutputFile.Close();
-
-//	rootana::EventHandler::Instance()->EndRun();
-
 	dragon::err::Info("rootana") << "End of run " << runnum;
 }
 
@@ -439,11 +398,12 @@ void rootana::App::run_stop(int runnum)
 void rootana::App::help()
 {
   printf("\nUsage:\n");
-  printf("\n./anaDragon [-h] [-histos <histogram file>] [-Qtime] [-Hhostname] [-Eexptname] [-eMaxEvents] [-P9091] [file1 file2 ...]\n");
+  printf("\n./anaDragon [-h] [-histos <histogram file>] [-histos0 <histogram file>] [-Qtime] [-Hhostname] [-Eexptname] [-eMaxEvents] [-P9091] [file1 file2 ...]\n");
   printf("\n");
   printf("\t-h: print this help message\n");
   printf("\t-T: test mode - start and serve a test histogram\n");
-	printf("\t-histos: Specify histogram definition file\n");
+	printf("\t-histos: Specify offline/online histogram definition file\n");
+	printf("\t-histos: Specify online *only* histogram definition file\n");
   printf("\t-Hhostname: connect to MIDAS experiment on given host\n");
   printf("\t-Eexptname: connect to this MIDAS experiment\n");
 	printf("\t-Qtime: Set timestamp matching queue time in microseconds (default: 10e6)\n");

@@ -55,7 +55,7 @@ inline void throw_missing_arg(const char* which, int linenum, const char* fname)
 
 // HIST PARSER //
 
-rootana::HistParser::HistParser(const char* filename, rootana::Directory* owner):
+rootana::HistParser::HistParser(const char* filename, rootana::Directory& owner):
 	fFilename(filename), fFile(filename),
 	fLine(""), fLineNumber(0), fDir(""),
 	fLastHist(0), fOwner(owner)
@@ -65,11 +65,22 @@ rootana::HistParser::HistParser(const char* filename, rootana::Directory* owner)
 	 *
 	 *  Prints error message if file name is invalid
 	 */
-	
 	if(!is_good()) {
 		std::stringstream error;
 		error << "Invalid file path: " << filename;
 		throw std::invalid_argument(error.str().c_str());
+	}
+
+	for (int i=0; i< gROOT->GetListOfSpecials()->GetEntries(); ++i) {
+		TCutG* cutg = dynamic_cast<TCutG*>(gROOT->GetListOfSpecials()->At(i));
+		if(cutg) fExistingCuts.push_back(cutg);
+	}
+}
+
+rootana::HistParser::~HistParser()
+{
+	for(std::vector<TCutG*>::iterator it = fLocalCuts.begin(); it != fLocalCuts.end(); ++it) {
+		(*it)->Delete();
 	}
 }
 
@@ -106,6 +117,13 @@ void rootana::HistParser::handle_command()
 		if (err != 0) throw_bad_line(fLine, fLineNumber, fFilename);
 	}
 	if (!done) throw_missing_arg("CMD:", fLineNumber, fFilename);
+
+	for (int i=0; i< gROOT->GetListOfSpecials()->GetEntries(); ++i) {
+		TCutG* cutg = dynamic_cast<TCutG*>(gROOT->GetListOfSpecials()->At(i));
+		if(cutg && std::count(fExistingCuts.begin(), fExistingCuts.end(), cutg) == 0) {
+			fLocalCuts.push_back(cutg);
+		}
+	}
 }
 
 void rootana::HistParser::handle_dir()
@@ -116,6 +134,17 @@ void rootana::HistParser::handle_dir()
 	std::cout << "\n";
 	dragon::err::Info("HistParser")	<< "New directory: " << fDir;
 }
+
+namespace {
+template <class T>
+T* create_hist(const char* type, std::string sHst, unsigned lHst, std::string filename)
+{
+	std::stringstream cmd;
+	cmd << "new " << type << sHst << ";";
+	T* out = (T*)gROOT->ProcessLine(cmd.str().c_str());
+	if(!out) throw_bad_line(sHst, lHst, filename.c_str(), &cmd);
+	return out;
+} }
 
 void rootana::HistParser::handle_hist(const char* type)
 {
@@ -142,11 +171,6 @@ void rootana::HistParser::handle_hist(const char* type)
 		}
 	}
 
-	std::stringstream cmdHst;
-	cmdHst << "new " << type << shst << ";";
-	TH1* hst = (TH1*)gROOT->ProcessLineFast(cmdHst.str().c_str());
-	if(!hst) throw_bad_line(shst, lhst, fFilename);
-
 	std::stringstream cmdParam[3];
 	rootana::DataPointer* data[3];
 	for (int i=0; i< npar; ++i) {
@@ -157,10 +181,21 @@ void rootana::HistParser::handle_hist(const char* type)
 
 	rootana::HistBase* h = 0;
 	switch(npar) {
-	case 1: h = new rootana::Hist<TH1D> ((TH1D*)hst, data[0]); break;
-	case 2: h = new rootana::Hist<TH2D> ((TH2D*)hst, data[0], data[1]); break;
-	case 3: h = new rootana::Hist<TH3D> ((TH3D*)hst, data[1], data[1], data[2]); break;
-	default: assert (0 && "Shouldn't get here!");
+	case 1:
+		h = new rootana::Hist<TH1D> (create_hist<TH1D>(type, shst, lhst, fFilename), data[0]);
+		break;
+	case 2:
+		h = new rootana::Hist<TH2D> (create_hist<TH2D>(type, shst, lhst, fFilename), data[0], data[1]);
+		break;
+	case 3:
+		h = new rootana::Hist<TH3D> (create_hist<TH3D>(type, shst, lhst, fFilename), data[1], data[1], data[2]);
+		break;
+	default:
+		{
+			std::stringstream err;
+			err << "npar != 1, 2, or 3:: " __FILE__ << ", line " << __LINE__;
+			throw std::invalid_argument(err.str().c_str());
+		}
 	}
 
 	Int_t type_code = get_type(spar[0]);
@@ -229,7 +264,7 @@ void rootana::HistParser::handle_cut()
 
 void rootana::HistParser::add_hist(rootana::HistBase* hst, Int_t type)
 {
-	fOwner->AddHist(hst, fDir.c_str(), type);
+	fOwner.AddHist(hst, fDir.c_str(), type);
 	fLastHist = hst;
 
 	std::cout << "\t";
@@ -239,6 +274,9 @@ void rootana::HistParser::add_hist(rootana::HistBase* hst, Int_t type)
 
 void rootana::HistParser::run()
 {
+	dragon::err::Info("HistParser")
+		<< "Creating histograms in " << fOwner.ClassName() << ": " << fOwner.GetName();
+
 	gROOT->ProcessLine("using namespace rootana;");
 	while (read_line()) {
 		if      (contains(fLine, "DIR:"))     handle_dir();
@@ -251,6 +289,7 @@ void rootana::HistParser::run()
 		else continue;
 	}
 	std::cout << "\n";
+
 	dragon::err::Info("rootana::HistParser")
 		<< "Done creating histograms from file " << fFilename << std::endl;
 }

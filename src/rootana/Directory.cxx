@@ -9,6 +9,8 @@
 #include <TDirectory.h>
 #include "Directory.hxx"
 #include "DataPointer.hxx"
+#include "HistParser.hxx"
+#include "Histos.hxx"
 #include "Globals.h"
 
 #ifdef MIDASSYS
@@ -20,15 +22,35 @@ inline void StartNetDirectoryServer(int, TDirectory*) { }
 }
 #endif
 
-
 namespace {
 inline void deleteHist(rootana::HistBase* h) { delete h; }
 }
 
-rootana::Directory::~Directory()
+void rootana::Directory::DeleteHists()
 {
 	for (Map_t::iterator it = fHistos.begin(); it != fHistos.end(); ++it) {
 		std::for_each(it->second.begin(), it->second.end(), deleteHist);
+		it->second.clear();
+	}
+	fHistos.clear();
+}	
+
+rootana::Directory::~Directory()
+{
+	DeleteHists();
+}
+
+void rootana::Directory::StartNetDirServer(Int_t tcp)
+{
+	if(IsOpen() && tcp) {
+		StartNetDirectoryServer(tcp, fDir.get());
+	}
+}
+
+void rootana::Directory::NetDirExport(const char* name)
+{
+	if(IsOpen()) {
+		NetDirectoryExport(fDir.get(), name);
 	}
 }
 
@@ -36,11 +58,33 @@ void rootana::Directory::AddHist(rootana::HistBase* hist, const char* path, uint
 {
 	fHistos[eventId].push_back(hist);
 	fHistoPaths[hist] = path;
+	TDirectory* dir = CreateSubDirectory(path);
+	assert(dir);
+	hist->set_directory(dir);
 }
 
-TDirectory* rootana::Directory::CreateSubDirectory(TDirectory* owner, const std::string& path)
+void rootana::Directory::CreateHists(const char* definitionFile)
 {
-	owner->cd();
+	/*!
+	 * Parses histogram definition file & creates histograms.
+	 * \todo Maybe make error in definition file not fatal.
+	 */
+	try {
+		rootana::HistParser parse (definitionFile, *this);
+		parse.run();
+	}
+	catch (std::exception& e) {
+		std::cerr << "\n*******\n";
+		dragon::err::Error("HistParser") << e.what();
+		std::cerr << "*******\n\n";
+		exit(1);
+	}
+}
+
+TDirectory* rootana::Directory::CreateSubDirectory(const char* path)
+{
+	TDirectory* current = gDirectory;
+	fDir->cd();
 	TString sdp(path);
 	std::auto_ptr<TObjArray> dirs (sdp.Tokenize("/"));
 	for (int i=0; i< dirs->GetEntries(); ++i) {
@@ -53,61 +97,68 @@ TDirectory* rootana::Directory::CreateSubDirectory(TDirectory* owner, const std:
 		}
 	}
 	TDirectory* newDir = gDirectory;
-	owner->cd();
+	if(current) current->cd();
+	else fDir->cd();
 	return newDir;
 }
 
-void rootana::Directory::SetHistDirectories(TDirectory* owner)
-{
-	for(PathMap_t::iterator it = fHistoPaths.begin(); it!= fHistoPaths.end(); ++it) {
-		TDirectory* dir = CreateSubDirectory(owner, it->second);
-		it->first->set_directory(dir);
-	}
-}
-
-
-void rootana::Directory::test()
-{
-
-}
-
 rootana::OfflineDirectory::OfflineDirectory(const char* outPath):
-	fFile(0), fOutputPath(outPath)
+	fOutputPath(outPath)
 { }
 
 rootana::OfflineDirectory::~OfflineDirectory()
 {
-	if(fFile.get()) {
-		fFile->Write();
-	}
+	if(IsOpen()) Write();
 }
 
-bool rootana::OfflineDirectory::Open(Int_t runnum)
+bool rootana::OfflineDirectory::Open(Int_t runnum, const char* defFile)
 {
 	Close();
 	std::stringstream fullPath;
-	fullPath << fOutputPath << "/output" << runnum << ".root";
-	fFile.reset(new TFile(fullPath.str().c_str(), "RECREATE"));
-	if (fFile->IsZombie()) return false;
-	SetHistDirectories(fFile.get());
-  NetDirectoryExport(fFile.get(), "outputFile");
+	if(!fOutputPath.empty()) fullPath << fOutputPath << "/";
+	fullPath << "output" << runnum << ".root";
+	Reset(new TFile(fullPath.str().c_str(), "RECREATE"));
+	if (!IsOpen()) return false;
+	if(!(std::string(defFile)).empty()) CreateHists(defFile);
+	NetDirExport("outputFile");
   return true ;
 }
 
 void rootana::OfflineDirectory::Close()
 {
-	if(fFile.get()) {
-		fFile->Write();
-		fFile.reset(0); // calls fFile->Close()
+	if(IsOpen()) {
+		Write();
+		Reset(0); // calls TFile::Close()
+		DeleteHists();
 	}
 }
 
-// void rootana::Directory::Open(int tcp)
-// {
-// 	Close();
-// 	gROOT->cd();
-// 	fDirectory.reset(new TDirectory("rootana", "rootana online plots"));
-// 	if (tcp) StartNetDirectoryServer(tcp, fDirectory.get());
-// 	else fprintf(stderr, "TCP port == 0, can't start histogram server!\n");
-// }
+rootana::OnlineDirectory::OnlineDirectory()
+{ }
 
+rootana::OnlineDirectory::~OnlineDirectory()
+{ 
+	if(IsOpen()) Reset(0);
+}
+
+void rootana::OnlineDirectory::Close()
+{
+	if(IsOpen()) {
+		Reset(0);
+		DeleteHists();
+	}
+}
+
+bool rootana::OnlineDirectory::Open(Int_t tcp, const char* defFile)
+{
+	if(!IsOpen()) {
+		Close();
+		gROOT->cd();
+		Reset(new TDirectory("rootana", "rootana online plots"));
+	}
+	if(!IsOpen()) return false;
+	if(!(std::string(defFile)).empty()) CreateHists(defFile);
+	StartNetDirServer(tcp);
+	if(!tcp) fprintf(stderr, "TCP port == 0, can't start histogram server!\n");
+	return true;
+}

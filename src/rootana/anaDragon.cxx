@@ -5,6 +5,7 @@
  * \brief Defines main() program for dragon rootana analyzer.
  */
 #include <signal.h>
+#include <memory>
 #include "Callbacks.hxx"
 
 int main(int argc, char *argv[])
@@ -16,10 +17,8 @@ int main(int argc, char *argv[])
 	signal(SIGBUS,  SIG_DFL);
 	signal(SIGSEGV, SIG_DFL);
 
-	rootana::App* app = new rootana::App("rootana", &argc, argv);
+	std::auto_ptr<rootana::App> app (new rootana::App("rootana", &argc, argv));
 	app->Run();
 	int ret = app->ReturnVal();
-	app->Terminate(0);
-	delete app;
 	return ret;
 }
