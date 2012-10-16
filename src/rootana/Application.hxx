@@ -79,9 +79,6 @@ public:
 	virtual ~App();
 
 private:
-	/// Create histograms from definitions file
-	int create_histograms(const char* definition_file, rootana::Directory& output);
-
 	/// Prints 'help' message
 	void help();
 

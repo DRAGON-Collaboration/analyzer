@@ -12,16 +12,39 @@ namespace rootana {
 
 class HistBase;
 
+/// Abstract rootana directory class.
+/*!
+ * Implementations serve the function of a standard ROOT TDirectory by wrapping
+ * an instance of TDirectory* and directing it's actions. In addition, this class
+ * also manages rootana histograms; in particular, it creates all desired histograms
+ * from the user's definition file and provides public methods to call rootana::HistBase
+ * functions for all histograms (or all histograms of a given "event" type). This class
+ * also internally handles the work of "net" exporting the internal directories, allowing
+ * histograms to be viewed in roody.
+ */
 class Directory {
-private:
+public:
+	/// Container sorting lists of HistBase pointers, each keyed by the event ID.
 	typedef std::map<uint16_t, std::list<rootana::HistBase*> > Map_t;
-	typedef std::map<rootana::HistBase*, std::string> PathMap_t;
-	std::auto_ptr<TDirectory> fDir;
+
+private:
+	/// Container for all rootana histograms.
+	/*! See Map_t typedef */
 	Map_t fHistos;
-	PathMap_t fHistoPaths;
+
+	/// Internal ROOT directory
+	/*!
+	 * \note Derived classes may set this to a specific type using the Reset() method.
+	 * \warning The default ROOT behavior for histograms owned by a TDirectory is for
+	 * the TDirectory to take care of their destruction, i.e. 
+	 */
+	std::auto_ptr<TDirectory> fDir;
 
 public:
-	Directory(TDirectory* dir = 0): fDir(dir) {}
+	/// Initializes fDir
+	Directory(TDirectory* dir = 0):	fDir(dir) { }
+
+	/// Removes
 	~Directory();
 	bool IsOpen() const	{ return fDir.get() && !fDir->IsZombie(); }
 	void Reset (TDirectory* newDir) { fDir.reset(newDir); }

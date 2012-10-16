@@ -150,9 +150,7 @@ inline rootana::Hist<T>::~Hist()
 	 * \note Delete fHist only if it is not owned by a directory; otherwise, the
 	 * owning diretory must be allowed to take care of things.
 	 */
-	if(fHist && !fHistOwner) {
-		delete fHist;
-	}
+	delete fHist;
 	delete fParamx;
 	delete fParamy;
 	delete fParamz;

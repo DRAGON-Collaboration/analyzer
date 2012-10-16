@@ -57,7 +57,6 @@ void rootana::Directory::NetDirExport(const char* name)
 void rootana::Directory::AddHist(rootana::HistBase* hist, const char* path, uint16_t eventId)
 {
 	fHistos[eventId].push_back(hist);
-	fHistoPaths[hist] = path;
 	TDirectory* dir = CreateSubDirectory(path);
 	assert(dir);
 	hist->set_directory(dir);
@@ -128,8 +127,8 @@ void rootana::OfflineDirectory::Close()
 {
 	if(IsOpen()) {
 		Write();
-		Reset(0); // calls TFile::Close()
 		DeleteHists();
+		Reset(0); // calls TFile::Close()
 	}
 }
 

@@ -178,27 +178,6 @@ void rootana::App::Process(const midas::Event& event1, const midas::Event& event
 	fOutputFile.CallForAll( &rootana::HistBase::fill, DRAGON_COINC_EVENT );
 }
 
-int rootana::App::create_histograms(const char* definition_file, rootana::Directory& output)
-{
-	/*!
-	 * Parses histogram definition file & creates histograms.
-	 * \returns 0 if successful, -1 otherwise (error)
-	 * \todo Also add option for separate online-only histos
-	 * \todo Cmd line hist file specification
-	 */
-	try {
-		rootana::HistParser parse (definition_file, output);
-		parse.run();
-	}
-	catch (std::exception& e) {
-		std::cerr << "\n*******\n";
-		dragon::err::Error("HistParser") << e.what();
-		std::cerr << "*******\n\n";
-		return -1;
-	}
-	return 0;
-}
-
 int rootana::App::midas_file(const char* fname)
 {
 	/*!
@@ -216,9 +195,6 @@ int rootana::App::midas_file(const char* fname)
 		printf("Cannot open input file \"%s\"\n",fname);
 		return -1;
 	}
-
-	// int hists = create_histograms(fHistos.c_str(), fOutputFile);
-	// if (hists == -1) return -1;
 
   int i=0;
   while (1) {
@@ -297,18 +273,6 @@ int rootana::App::midas_online(const char* host, const char* experiment)
 		printf ("State is running... executing run start transition handler.\n");
 		rootana_run_start(0, fRunNumber, 0);
 	}
-
-	/* create histograms */
-	// int success = create_histograms(fHistos.c_str(), fOutputFile);
-	// BAD_HISTS:
-	// if(success == -1) {
-	// 	midas->disconnect();
-	// 	return -1;
-	// }
-	// if (fHistosOnline != "") {
-	// 	success = create_histograms(fHistosOnline.c_str(), fOnlineHists);
-	// 	if (success == -1) goto BAD_HISTS;
-	// }
 	
 	printf("Startup: run %d\n",fRunNumber);
 	printf("Host: \"%s\", experiment: \"%s\"\n", host, experiment);
