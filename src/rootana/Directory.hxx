@@ -92,7 +92,7 @@ private:
 	Directory& operator= (const Directory& other) { return *this; }
 
 public:
-	/// Calls a specific member function for all histograms (all all w/ a given ID)
+	/// Calls a specific member function for all histograms (or all w/ a given ID)
 	template <class R>
 	void CallForAll( R (HistBase::*f)(), int32_t id = -1 )
 		{
