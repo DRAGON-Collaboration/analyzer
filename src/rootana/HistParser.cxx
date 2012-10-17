@@ -281,21 +281,27 @@ void rootana::HistParser::add_hist(rootana::HistBase* hst, Int_t type)
 
 	std::cout << "\t";
 	dragon::err::Info("HistParser")
-		<< "Adding histogram " << hst->name() << " to directory " << fDir;
+		<< "Adding histogram " << histInfo.fName << " to directory " << fDir;
 }
 
 void rootana::HistParser::run()
 {
 	gROOT->ProcessLine("using namespace rootana;");
 	while (read_line()) {
-		if      (contains(fLine, "DIR:"))     handle_dir();
-		else if (contains(fLine, "CMD:"))     handle_command();
-		else if (contains(fLine, "CUT:"))     handle_cut();
-		else if (contains(fLine, "TH1D:"))    handle_hist("TH1D");
-		else if (contains(fLine, "TH2D:"))    handle_hist("TH2D");
-		else if (contains(fLine, "TH3D:"))    handle_hist("TH3D");
-		else if (contains(fLine, "SUMMARY:")) handle_summary();
-		else continue;
+		try {
+			if      (contains(fLine, "DIR:"))     handle_dir();
+			else if (contains(fLine, "CMD:"))     handle_command();
+			else if (contains(fLine, "CUT:"))     handle_cut();
+			else if (contains(fLine, "TH1D:"))    handle_hist("TH1D");
+			else if (contains(fLine, "TH2D:"))    handle_hist("TH2D");
+			else if (contains(fLine, "TH3D:"))    handle_hist("TH3D");
+			else if (contains(fLine, "SUMMARY:")) handle_summary();
+			else continue;
+		} catch (std::exception& e) {
+			std::cerr << "\n*******\n";
+			dragon::err::Error("HistParser")
+				<< e.what() << "\nAttempting to continue...\n*******\n\n";
+		}
 	}
 	std::cout << "\n";
 

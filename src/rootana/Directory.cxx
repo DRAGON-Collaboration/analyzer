@@ -1,3 +1,8 @@
+/*!
+ * \file Directory.cxx
+ * \author G. Christian
+ * \brief Implements Directory.hxx
+ */
 #include <stdio.h>
 #include <sstream>
 #include <algorithm>
@@ -7,11 +12,10 @@
 #include <TObjArray.h>
 #include <TObjString.h>
 #include <TDirectory.h>
-#include "Directory.hxx"
-#include "DataPointer.hxx"
+#include "utils/Error.hxx"
 #include "HistParser.hxx"
 #include "Histos.hxx"
-#include "Globals.h"
+#include "Directory.hxx"
 
 #ifdef MIDASSYS
 #include "libNetDirectory/netDirectoryServer.h"
@@ -54,6 +58,21 @@ void rootana::Directory::NetDirExport(const char* name)
 	}
 }
 
+bool rootana::Directory::IsOpen() const
+{
+	return fDir.get() && !fDir->IsZombie();
+}
+
+Int_t rootana::Directory::Write(const char* name, Int_t i, Int_t j)
+{
+	return fDir->Write(name, i, j);
+}
+
+Int_t rootana::Directory::Write(const char* name, Int_t i, Int_t j) const
+{
+	return fDir->Write(name, i, j);
+}
+
 void rootana::Directory::AddHist(rootana::HistBase* hist, const char* path, uint16_t eventId)
 {
 	/*!
@@ -78,23 +97,26 @@ void rootana::Directory::CreateHists(const char* definitionFile)
 {
 	/*!
 	 * Parses histogram definition file & creates histograms.
-	 * \todo Maybe make error in definition file not fatal.
 	 */
-	try {
-		rootana::HistParser parse (definitionFile); //, *this);
-		parse.run();
-		parse.transfer(this);
-	}
-	catch (std::exception& e) {
-		std::cerr << "\n*******\n";
-		dragon::err::Error("HistParser") << e.what();
-		std::cerr << "*******\n\n";
-		exit(1);
-	}
+	assert(IsOpen());
+	dragon::err::Info("rootana::Directory")
+		<< "Creating histograms for " << fDir->ClassName() << ": " << fDir->GetName();
+
+	rootana::HistParser parse (definitionFile);
+	parse.run();
+	parse.transfer(this);
 }
 
 TDirectory* rootana::Directory::CreateSubDirectory(const char* path)
 {
+	/*!
+	 * Parses \e path and creates the entire directory structure specified by it, within fDir.
+	 * For example, a path of \c "/top/sub/bottom" first creates the directory \c "top" then
+	 * \c "sub" as a subdirectory of \c "top" then \c "bottom" as a subdirectory of \c "sub".
+	 * If any of the portions of the directory are already existing, they will not be re-created,
+	 * but rather descended into.
+	 * \returns A pointer to the bottom level of the specified directory path.
+	 */
 	TDirectory* current = gDirectory;
 	fDir->cd();
 	TString sdp(path);
@@ -116,7 +138,14 @@ TDirectory* rootana::Directory::CreateSubDirectory(const char* path)
 
 rootana::OfflineDirectory::OfflineDirectory(const char* outPath):
 	fOutputPath(outPath)
-{ }
+{
+	/*!
+	 * \param outPath String specifying the location where the output
+	 * TFile will reside. Note that this is only the path of the TFile's
+	 * \e directory, not the full path (e.g. "/path/to/somewhere", not
+	 * "/path/to/somewhere/and_some_file.root").
+	 */
+}
 
 rootana::OfflineDirectory::~OfflineDirectory()
 {
@@ -129,6 +158,12 @@ rootana::OfflineDirectory::~OfflineDirectory()
 
 bool rootana::OfflineDirectory::Open(Int_t runnum, const char* defFile)
 {
+	/*!
+	 * \param runnum Integer specifying the current run. The output file name is
+	 * created from this: "output12345.root" for run number 12345.
+	 * \param defFile Full path of the histogram definition file
+	 * \attention No checks are made to see if you are overwriting an existing file.
+	 */
 	Close();
 	std::stringstream fullPath;
 	if(!fOutputPath.empty()) fullPath << fOutputPath << "/";
@@ -143,7 +178,7 @@ bool rootana::OfflineDirectory::Open(Int_t runnum, const char* defFile)
 void rootana::OfflineDirectory::Close()
 {
 /*!
- * \note DeleteHists() must be called before Reset(0); see warning in fDir for why.
+ * \attention DeleteHists() must be called before Reset(0); see warning in fDir for why.
  */
 	if(IsOpen()) {
 		Write();
