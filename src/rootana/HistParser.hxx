@@ -5,13 +5,14 @@
 #define ROTANA_HIST_PARSER_HXX
 #include <fstream>
 #include <vector>
+#include <list>
 #include <string>
+#include "Histos.hxx"
 
 class TCutG;
 
 namespace rootana {
 
-class HistBase;
 class Directory;
 
 /// Parses text file to create histograms at program startup.
@@ -31,24 +32,47 @@ private:
 	unsigned fLineNumber;
 	/// Current directory argument
 	std::string fDir;
-	/// Most recently created histogram
-	HistBase* fLastHist;
-	/// Owner ('top-level') directory (or file)
-	rootana::Directory& fOwner;
 	/// Temporary TCutGs created during parsing
 	std::vector<TCutG*> fLocalCuts;
 	/// Any TCutGs existing before parsing
 	std::vector<TCutG*> fExistingCuts;
+	/// Wrapper for histogram pointer plus related info
+	struct HistInfo {
+		rootana::HistBase* fHist; ///< Histogram pointer
+		std::string fName;        ///< Actual name of the histogram
+		std::string fPath;        ///< Subdirectory path for fHist
+		UShort_t fEventId;        ///< Event id of fHist
+		bool fExternalOwner;      ///< True if we don't take responsibility to delete fHist
+	};
+	/// List of all histograms created by the parser (plus related info)
+	std::list<HistInfo> fCreatedHistograms;
 
 public:
 	/// Sets fFile
-	HistParser(const char* filename, rootana::Directory& owner);
-	/// Deletes local cuts
+	HistParser(const char* filename);
+	/// Deletes local cuts and histograms (if still owning)
 	~HistParser();
 	/// Checks if fFile is 'good'
 	bool is_good() { return fFile.good(); }
 	/// Runs through a file and creates histograms
 	void run();
+	/// Transfers ownership of created histograms from \c this to a new class
+	template <class T> void transfer(T* newOwner)
+		{
+			/*!
+			 * \param newOwner Pointer to the class instance taking ownership
+			 * \tparam T Class taking ownership of the histograms; must contain the method:
+			 * \code
+			 * AddHist(rootana::HistBase*, const char*, uint16_t);
+			 * \endcode
+			 */
+			std::list<HistInfo>::iterator it = fCreatedHistograms.begin();
+			for(; it != fCreatedHistograms.end(); ++it) {
+				it->fHist->set_name(it->fName.c_str());
+				newOwner->AddHist(it->fHist, it->fPath.c_str(), it->fEventId);
+				it->fExternalOwner = true;
+			}
+		}
 
 private:
 	/// Reads & formats a single line

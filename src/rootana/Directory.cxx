@@ -56,6 +56,18 @@ void rootana::Directory::NetDirExport(const char* name)
 
 void rootana::Directory::AddHist(rootana::HistBase* hist, const char* path, uint16_t eventId)
 {
+	/*!
+	 * \param hist Pointer to the rootana::HistBase object to add; the directory takes over ownership
+	 * (cleanup responsibility) for the object once it's added.
+	 * \param path String specifying the directory path where the histogram should reside, \e within
+	 * \c this directory
+	 * \param eventId MIDAS event id with which the histogram should be associated.
+	 *
+	 * Example:
+	 * \code
+	 * 
+	 * \endcode
+	 */
 	fHistos[eventId].push_back(hist);
 	TDirectory* dir = CreateSubDirectory(path);
 	assert(dir);
@@ -69,8 +81,9 @@ void rootana::Directory::CreateHists(const char* definitionFile)
 	 * \todo Maybe make error in definition file not fatal.
 	 */
 	try {
-		rootana::HistParser parse (definitionFile, *this);
+		rootana::HistParser parse (definitionFile); //, *this);
 		parse.run();
+		parse.transfer(this);
 	}
 	catch (std::exception& e) {
 		std::cerr << "\n*******\n";
@@ -107,7 +120,11 @@ rootana::OfflineDirectory::OfflineDirectory(const char* outPath):
 
 rootana::OfflineDirectory::~OfflineDirectory()
 {
-	if(IsOpen()) Write();
+	if(IsOpen()) {
+		Write();
+		DeleteHists();
+		Reset(0); // calls TFile::Close()
+	}
 }
 
 bool rootana::OfflineDirectory::Open(Int_t runnum, const char* defFile)
@@ -125,6 +142,9 @@ bool rootana::OfflineDirectory::Open(Int_t runnum, const char* defFile)
 
 void rootana::OfflineDirectory::Close()
 {
+/*!
+ * \note DeleteHists() must be called before Reset(0); see warning in fDir for why.
+ */
 	if(IsOpen()) {
 		Write();
 		DeleteHists();
@@ -132,19 +152,25 @@ void rootana::OfflineDirectory::Close()
 	}
 }
 
-rootana::OnlineDirectory::OnlineDirectory()
+rootana::OnlineDirectory::OnlineDirectory() 
 { }
 
 rootana::OnlineDirectory::~OnlineDirectory()
-{ 
-	if(IsOpen()) Reset(0);
+{ 	
+/*!
+ * \note DeleteHists() must be called before Reset(0); see warning in fDir for why.
+ */
+if(IsOpen()) {
+		DeleteHists();
+		Reset(0);
+	}
 }
 
 void rootana::OnlineDirectory::Close()
 {
 	if(IsOpen()) {
-		Reset(0);
 		DeleteHists();
+		Reset(0);
 	}
 }
 

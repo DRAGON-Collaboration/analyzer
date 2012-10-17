@@ -55,10 +55,9 @@ inline void throw_missing_arg(const char* which, int linenum, const char* fname)
 
 // HIST PARSER //
 
-rootana::HistParser::HistParser(const char* filename, rootana::Directory& owner):
+rootana::HistParser::HistParser(const char* filename):
 	fFilename(filename), fFile(filename),
-	fLine(""), fLineNumber(0), fDir(""),
-	fLastHist(0), fOwner(owner)
+	fLine(""), fLineNumber(0), fDir("")
 {
 	/*!
 	 *  \param filename Path to the histogram definition file
@@ -81,6 +80,10 @@ rootana::HistParser::~HistParser()
 {
 	for(std::vector<TCutG*>::iterator it = fLocalCuts.begin(); it != fLocalCuts.end(); ++it) {
 		(*it)->Delete();
+	}
+	std::list<HistInfo>::iterator itHist = fCreatedHistograms.begin();
+	for(; itHist != fCreatedHistograms.end(); ++itHist) {
+		if (!itHist->fExternalOwner) delete itHist->fHist;
 	}
 }
 
@@ -243,7 +246,7 @@ void rootana::HistParser::handle_summary()
 
 void rootana::HistParser::handle_cut()
 {
-	if (!fLastHist) {
+	if (fCreatedHistograms.empty()) {
 		std::stringstream err;
 		err << "CUT: line without a prior histogram, in file " << fFilename << " at line " << fLineNumber;
 		throw(std::invalid_argument(err.str().c_str()));
@@ -255,17 +258,26 @@ void rootana::HistParser::handle_cut()
 	rootana::Condition* condition = (rootana::Condition*)gROOT->ProcessLineFast(cmd.str().c_str());
 	if(!condition) throw_bad_line(fLine, fLineNumber, fFilename, &cmd);
 
-	fLastHist->set_cut( rootana::Cut(condition) );
+	std::list<HistInfo>::iterator itEnd = fCreatedHistograms.end();
+	--itEnd;
+	HistInfo* pInfo = &(*(itEnd));
+
+	pInfo->fHist->set_cut( rootana::Cut(condition) );
 
 	std::cout << "\t\t";
 	dragon::err::Info("HistParser")
-		<< "Applying cut: " << fLine << " to histogram " << fLastHist->name();
+		<< "Applying cut: " << fLine << " to histogram " << pInfo->fName;
 }
 
 void rootana::HistParser::add_hist(rootana::HistBase* hst, Int_t type)
 {
-	fOwner.AddHist(hst, fDir.c_str(), type);
-	fLastHist = hst;
+
+	HistInfo histInfo = { hst, hst->name(), fDir, type, false };
+	fCreatedHistograms.push_back(histInfo);
+
+	std::stringstream tempName;
+	tempName << "rootana__HistParser__temp___" << fCreatedHistograms.size();
+	hst->set_name(tempName.str().c_str());
 
 	std::cout << "\t";
 	dragon::err::Info("HistParser")
@@ -274,9 +286,6 @@ void rootana::HistParser::add_hist(rootana::HistBase* hst, Int_t type)
 
 void rootana::HistParser::run()
 {
-	dragon::err::Info("HistParser")
-		<< "Creating histograms in " << fOwner.ClassName() << ": " << fOwner.GetName();
-
 	gROOT->ProcessLine("using namespace rootana;");
 	while (read_line()) {
 		if      (contains(fLine, "DIR:"))     handle_dir();

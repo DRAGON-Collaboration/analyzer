@@ -45,6 +45,8 @@ public:
 	virtual void write() = 0;
 	/// Clears the histogram
 	virtual void clear() = 0;
+	/// Sets histogram name
+	virtual void set_name(const char* name) = 0;
 	/// Returns histogram name
 	virtual const char* name() const = 0;
 	/// Sets owner TDirectory
@@ -99,6 +101,9 @@ public:
 	/// Calls TH1::Write()
 	virtual void write()
 		{ fHist->Write(); }
+	/// Calls TH1::SetName()
+	virtual void set_name(const char* name)
+		{ fHist->SetName(name); }
 	/// Calls TH1::GetName()
 	virtual const char* name() const
 		{ return fHist->GetName(); }
