@@ -52,11 +52,11 @@ public:
 	/// Deletes local cuts and histograms (if still owning)
 	~HistParser();
 	/// Checks if fFile is 'good'
-	bool is_good() { return fFile.good(); }
+	bool IsGood() { return fFile.good(); }
 	/// Runs through a file and creates histograms
-	void run();
+	void Run();
 	/// Transfers ownership of created histograms from \c this to a new class
-	template <class T> void transfer(T* newOwner)
+	template <class T> void Transfer(T* newOwner)
 		{
 			/*!
 			 * \param newOwner Pointer to the class instance taking ownership

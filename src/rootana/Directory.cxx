@@ -103,8 +103,8 @@ void rootana::Directory::CreateHists(const char* definitionFile)
 		<< "Creating histograms for " << fDir->ClassName() << ": " << fDir->GetName();
 
 	rootana::HistParser parse (definitionFile);
-	parse.run();
-	parse.transfer(this);
+	parse.Run();
+	parse.Transfer(this);
 }
 
 TDirectory* rootana::Directory::CreateSubDirectory(const char* path)

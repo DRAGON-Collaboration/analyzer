@@ -64,7 +64,7 @@ rootana::HistParser::HistParser(const char* filename):
 	 *
 	 *  Prints error message if file name is invalid
 	 */
-	if(!is_good()) {
+	if(!IsGood()) {
 		std::stringstream error;
 		error << "Invalid file path: " << filename;
 		throw std::invalid_argument(error.str().c_str());
@@ -104,7 +104,7 @@ bool rootana::HistParser::read_line()
 	std::for_each(fLine.begin(), fLine.end(), replace_tab());
 
 	/// \returns false if at eof, true otherwise
-	return is_good();
+	return IsGood();
 }
 
 void rootana::HistParser::handle_command()
@@ -132,7 +132,7 @@ void rootana::HistParser::handle_command()
 void rootana::HistParser::handle_dir()
 {
 	read_line();
-	if(!is_good()) throw_missing_arg("DIR:", fLineNumber, fFilename);
+	if(!IsGood()) throw_missing_arg("DIR:", fLineNumber, fFilename);
 	fDir = fLine;
 	std::cout << "\n";
 	dragon::err::Info("HistParser")	<< "New directory: " << fDir;
@@ -160,13 +160,13 @@ void rootana::HistParser::handle_hist(const char* type)
 		std::string* lread[2] = { &shst, spar };
 
 		read_line();
-		if(!is_good()) throw_missing_arg("HIST:", fLineNumber, fFilename);
+		if(!IsGood()) throw_missing_arg("HIST:", fLineNumber, fFilename);
 		*(lll[0])   = fLineNumber;
 		*(lread[0]) = fLine;
 
 		for (int i=0; i< npar; ++i) {
 			read_line();
-			if(!is_good()) throw_missing_arg("HIST:", fLineNumber, fFilename);
+			if(!IsGood()) throw_missing_arg("HIST:", fLineNumber, fFilename);
 			unsigned* lll1 = lll[1];
 			lll1[i] = fLineNumber;
 			std::string* lread1 = lread[1];
@@ -221,7 +221,7 @@ void rootana::HistParser::handle_summary()
 		std::string* lread[3] = { &shst, &spar, &snum };
 		for (int i=0; i< 3; ++i) {
 			read_line();
-			if(!is_good()) throw_missing_arg("SUMMARY:", fLineNumber, fFilename);
+			if(!IsGood()) throw_missing_arg("SUMMARY:", fLineNumber, fFilename);
 			*(lll[i])   = fLineNumber;
 			*(lread[i]) = fLine;
 		}
@@ -284,7 +284,7 @@ void rootana::HistParser::add_hist(rootana::HistBase* hst, Int_t type)
 		<< "Adding histogram " << histInfo.fName << " to directory " << fDir;
 }
 
-void rootana::HistParser::run()
+void rootana::HistParser::Run()
 {
 	gROOT->ProcessLine("using namespace rootana;");
 	while (read_line()) {
