@@ -42,7 +42,6 @@ private:
 		std::string fName;        ///< Actual name of the histogram
 		std::string fPath;        ///< Subdirectory path for fHist
 		UShort_t fEventId;        ///< Event id of fHist
-		bool fExternalOwner;      ///< True if we don't take responsibility to delete fHist
 	};
 	/// List of all histograms created by the parser (plus related info)
 	std::list<HistInfo> fCreatedHistograms;
@@ -70,8 +69,9 @@ public:
 			for(; it != fCreatedHistograms.end(); ++it) {
 				it->fHist->set_name(it->fName.c_str());
 				newOwner->AddHist(it->fHist, it->fPath.c_str(), it->fEventId);
-				it->fExternalOwner = true;
+				it->fHist = 0;
 			}
+			fCreatedHistograms.clear();
 		}
 
 private:

@@ -83,7 +83,7 @@ rootana::HistParser::~HistParser()
 	}
 	std::list<HistInfo>::iterator itHist = fCreatedHistograms.begin();
 	for(; itHist != fCreatedHistograms.end(); ++itHist) {
-		if (!itHist->fExternalOwner) delete itHist->fHist;
+		if(itHist->fHist) delete itHist->fHist;
 	}
 }
 
@@ -272,7 +272,7 @@ void rootana::HistParser::handle_cut()
 void rootana::HistParser::add_hist(rootana::HistBase* hst, Int_t type)
 {
 
-	HistInfo histInfo = { hst, hst->name(), fDir, type, false };
+	HistInfo histInfo = { hst, hst->name(), fDir, type };
 	fCreatedHistograms.push_back(histInfo);
 
 	std::stringstream tempName;
