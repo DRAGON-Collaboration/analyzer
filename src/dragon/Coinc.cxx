@@ -109,5 +109,10 @@ void dragon::Coinc::calculate()
 
 	\section intro Introduction
 
+	\section using For Users
+	\section test Test
+
+	\section developers For Developers
+
 
  */
