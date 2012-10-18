@@ -5,13 +5,14 @@
  */
 #ifndef ROOTANA_DRAGON_HXX
 #define ROOTANA_DRAGON_HXX
+#include <memory>
 #include <TApplication.h>
 #include "Directory.hxx"
 
+
 class TFile;
 class TDirectory;
-class VirtualOdb;
-namespace midas  { class Event; }
+namespace midas  { class Event; class Database; }
 namespace tstamp { class Queue; }
 
 namespace rootana {
@@ -35,8 +36,8 @@ private:
 	std::string fHistosOnline;  ///< Histogram specification file (online only)
 	rootana::OfflineDirectory fOutputFile; ///< Online/offline histograms
 	rootana::OnlineDirectory fOnlineHists; ///< Online-only histograms
-	VirtualOdb* fOdb;           ///< Database class. \todo Switch to midas::Database
-	tstamp::Queue* fQueue;      ///< Timestamping queue
+	std::auto_ptr<midas::Database> fOdb;   ///< Online/offline database
+	tstamp::Queue* fQueue;                 ///< Timestamping queue
 	
 public:
 	/// Calls TApplication constructor

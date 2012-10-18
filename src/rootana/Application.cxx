@@ -15,9 +15,9 @@
 #include "midas.h"
 #include "IncludeMidasOnline.h"
 #endif
-#include "XmlOdb.h"
 #include "libNetDirectory/netDirectoryServer.h"
 
+#include "midas/Database.hxx"
 #include "utils/TStamp.hxx"
 #include "Timer.hxx"
 #include "Histos.hxx"
@@ -208,9 +208,7 @@ int rootana::App::midas_file(const char* fname)
 
 			printf("---- BEGIN RUN ---- \n");
 
-			if (fOdb)
-				delete fOdb;
-			fOdb = new XmlOdb(event.GetData(),event.GetDataSize());
+			fOdb.reset(new midas::Database(fname));
 
 			rootana_run_start(0, event.GetSerialNumber(), 0);
 		}
@@ -242,11 +240,14 @@ int rootana::App::midas_file(const char* fname)
 int rootana::App::midas_online(const char* host, const char* experiment)
 {
 	/*!
-	 *  \todo Write detailed documentation
+	 *  \param host Name of the host computer + tcp port (e.g. <tt>"ladd06.triumf.ca:7071"</tt>)
+	 *  \param experiment Name of the experiment on host to which you want to connect (e.g. <tt>"dragon"</tt>)
+	 *
+	 *  The list of actions performed this function is as follows:
 	 */
 
+	/*! - Connect to the specified experiment on the specified host */
 	TMidasOnline *midas = TMidasOnline::instance();
-
 	int err = midas->connect(host, experiment, "anaDragon");
 	printf("Connecting to experiment \"%s\" on host \"%s\"!\n", host, experiment);
 
@@ -255,21 +256,31 @@ int rootana::App::midas_online(const char* host, const char* experiment)
 		return -1;
 	}
 
-	fOdb = midas;
+	fOdb.reset(new midas::Database("online"));
 
+	/*! - Set transition handlers */
 	midas->setTransitionHandlers(rootana_run_start, rootana_run_stop, rootana_run_resume, rootana_run_pause);
 	midas->registerTransitions();
 
-	/* reqister event requests */
-
+	/*! -Register event requests */
 	midas->setEventHandler(rootana_handle_event);
 	midas->eventRequest("SYNC",-1,-1,(1<<1));
 
-	/* fill present run parameters */
 
-	fRunNumber = fOdb->odbReadInt("/runinfo/Run number");
+	/*! - Fill "present run" parameters */
+	std::string whichParam = "/runinfo/Run number";
+	bool success = fOdb->ReadValue(whichParam.c_str(), fRunNumber);
+	BAD_ODB:
+	if(!success) {
+		fprintf(stderr, "Error reading parameter: \"%s\" from ODB.\n", whichParam.c_str());
+		return -1;
+	}
+	int runState;
+	whichParam = "/runinfo/State";
+	success = fOdb->ReadValue(whichParam.c_str(), runState);
+	if(!success) goto BAD_ODB;
 
-	if ((fOdb->odbReadInt("/runinfo/State") == 3)) {
+	if (runState == 3) {
 		printf ("State is running... executing run start transition handler.\n");
 		rootana_run_start(0, fRunNumber, 0);
 	}
@@ -278,15 +289,12 @@ int rootana::App::midas_online(const char* host, const char* experiment)
 	printf("Host: \"%s\", experiment: \"%s\"\n", host, experiment);
 	printf("Enter \"!\" to exit.\n");
 
+
+	/*! - Enter event loop and run until told to exit */
 	rootana::Timer tm(100);
-
-
-	/*---- start main loop ----*/
-
-	//loop_online();
 	TApplication::Run(kTRUE);
 
-	/* disconnect from experiment */
+	/*! - (Upon exit:) disconnect from experiment */
 	midas->disconnect();
 
 	return 0;
