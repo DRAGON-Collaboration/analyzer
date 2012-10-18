@@ -27,6 +27,34 @@
 
 #include "Globals.h"
 
+
+
+// RAII wrapper for TMidasOnline //
+namespace rootana {
+
+class MidasOnline {
+public:
+	MidasOnline(const char* host, const char* expt, const char* client):
+		fMidasOnline(TMidasOnline::instance()), fExpt(expt), fHost(host), fClient(client)
+		{ fConnected = (fMidasOnline->connect(host, expt, client) == 0); }
+	~MidasOnline()
+		{	if (Connected()) fMidasOnline->disconnect(); }
+	TMidasOnline* operator->() const
+		{ return fMidasOnline; }
+	TMidasOnline& operator*() const
+		{ return *fMidasOnline; }
+	bool Connected() const
+		{ return fConnected; }
+private:
+	TMidasOnline* fMidasOnline;
+	bool fConnected;
+	const char* fExpt;
+	const char* fHost;
+	const char* fClient;
+};
+
+}
+
 // APPLICATION CLASS //
 
 #define ROOTANA_STRINGIFY_MACRO(S) ROOTANA_STRINGIFY (S)
@@ -46,14 +74,15 @@ rootana::App::App(const char* appClassName, Int_t* argc, char** argv):
 	fHistosOnline(""),
 	fOutputFile(""),
 	fOnlineHists(),
-	fOdb(0)
+	fOdb(0),
+	fMidasOnline(0)
 { 
 /*!
  *  Also: process command line arguments, starts histogram server if appropriate.
  *  \todo Need to properly handle startup if NOT running!!!
  */
 	process_argv (*argc, argv);
-	if (!fQueue) fQueue = tstamp::NewOwnedQueue (10e6, this);
+	if (!fQueue.get()) fQueue.reset(tstamp::NewOwnedQueue(10e6, this));
 	if (fMode == ONLINE) {
 		gROOT->cd();
 		fOnlineHists.Open(fTcp, fHistosOnline.c_str());
@@ -87,7 +116,7 @@ void rootana::App::process_argv(int argc, char** argv)
 		else if ( iarg->compare(0, 2, "-E") == 0 )
 			fExpt = iarg->substr(2);
 		else if ( iarg->compare(0, 2, "-Q") == 0 )
-			fQueue = tstamp::NewOwnedQueue( atof(iarg->substr(2).c_str()), this );
+			fQueue.reset(tstamp::NewOwnedQueue( atof(iarg->substr(2).c_str()), this ));
 		else if ( iarg->compare("-histos")  == 0 )
 			fHistos = *(++iarg);
 		else if ( iarg->compare("-histos0")  == 0 )
@@ -247,24 +276,21 @@ int rootana::App::midas_online(const char* host, const char* experiment)
 	 */
 
 	/*! - Connect to the specified experiment on the specified host */
-	TMidasOnline *midas = TMidasOnline::instance();
-	int err = midas->connect(host, experiment, "anaDragon");
-	printf("Connecting to experiment \"%s\" on host \"%s\"!\n", host, experiment);
+	fMidasOnline.reset(new MidasOnline(host, experiment, "anaDragon"));
 
-	if (err != 0) {
-		fprintf(stderr,"Cannot connect to MIDAS, error %d\n", err);
+	if(!fMidasOnline->Connected()) {
+		fprintf(stderr,"Cannot connect to MIDAS!\n");
 		return -1;
 	}
-
 	fOdb.reset(new midas::Database("online"));
 
 	/*! - Set transition handlers */
-	midas->setTransitionHandlers(rootana_run_start, rootana_run_stop, rootana_run_resume, rootana_run_pause);
-	midas->registerTransitions();
+	(*fMidasOnline)->setTransitionHandlers(rootana_run_start, rootana_run_stop, rootana_run_resume, rootana_run_pause);
+	(*fMidasOnline)->registerTransitions();
 
 	/*! -Register event requests */
-	midas->setEventHandler(rootana_handle_event);
-	midas->eventRequest("SYNC",-1,-1,(1<<1));
+	(*fMidasOnline)->setEventHandler(rootana_handle_event);
+	(*fMidasOnline)->eventRequest("SYNC",-1,-1,(1<<1));
 
 
 	/*! - Fill "present run" parameters */
@@ -294,8 +320,8 @@ int rootana::App::midas_online(const char* host, const char* experiment)
 	rootana::Timer tm(100);
 	TApplication::Run(kTRUE);
 
-	/*! - (Upon exit:) disconnect from experiment */
-	midas->disconnect();
+	// /*! - (Upon exit:) disconnect from experiment */
+	// midas->disconnect();
 
 	return 0;
 }
@@ -329,13 +355,18 @@ void rootana::App::Run(Bool_t)
 
 void rootana::App::Terminate(Int_t status)
 {
-	exit(status);
+	do_exit();
+	TApplication::Terminate(status);
 }
 
 rootana::App::~App()
 {
+	do_exit();
+}
+
+void rootana::App::do_exit()
+{
 	printf ("Terminating application...\n");
-	if (fQueue) { delete fQueue; fQueue = 0; }
 }
 
 void rootana::App::run_start(int runnum)
@@ -346,10 +377,7 @@ void rootana::App::run_start(int runnum)
   fRunNumber = runnum;
     
 	bool opened = fOutputFile.Open(runnum, fHistos.c_str());
-	if(!opened) { 
-		TMidasOnline::instance()->disconnect();
-		exit(1);
-	}
+	if(!opened) Terminate(1);
 
 	dragon::err::Info("rootana") << "Start of run " << runnum;
 }
