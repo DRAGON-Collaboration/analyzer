@@ -12,13 +12,14 @@
 #pragma link C++ class rootana::Condition+;
 
 
-
+#pragma link C++ function True();
+#pragma link C++ function False();
 
 /*
 for i in Less Equal Greater NotEqual LessEqual GreaterEqual;
 do for j in Char_t Short_t Int_t Long_t Long64_t UChar_t UShort_t UInt_t ULong_t ULong64_t Float_t Double_t;
 do for k in Char_t Short_t Int_t Long_t Long64_t UChar_t UShort_t UInt_t ULong_t ULong64_t Float_t Double_t;
-do echo "#pragma link C++ function ${i}(${j}&, ${k}&);"
+do echo "#pragma link C++ function rootana::${i}(${j}&, ${k}&);"
 done
 done
 done > CutLinkDef.h

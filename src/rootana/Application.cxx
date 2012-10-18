@@ -3,6 +3,7 @@
  * \author G. Christian
  * \brief Implements Application.hxx
  */
+#include <algorithm>
 #include <cassert>
 #include <vector>
 #include <string>
@@ -79,7 +80,6 @@ rootana::App::App(const char* appClassName, Int_t* argc, char** argv):
 { 
 /*!
  *  Also: process command line arguments, starts histogram server if appropriate.
- *  \todo Need to properly handle startup if NOT running!!!
  */
 	process_argv (*argc, argv);
 	if (!fQueue.get()) fQueue.reset(tstamp::NewOwnedQueue(10e6, this));
@@ -133,7 +133,7 @@ void rootana::App::process_argv(int argc, char** argv)
 void rootana::App::handle_event(midas::Event& event)
 {
 	/*!
-	 * \todo Write detailed documentation
+	 * Handles various types of events in the following ways:
 	 */
 	switch (event.GetEventId()) {
 	case DRAGON_HEAD_EVENT:  /// - DRAGON_HEAD_EVENT: Insert into timestamp matching queue
@@ -155,6 +155,13 @@ void rootana::App::handle_event(midas::Event& event)
 
 
 namespace {
+template <class IT>
+IT FindSerial(IT begin_, IT end_, uint32_t value)
+{
+	for(; begin_!=end_; ++begin_) if (value == begin_->header.fSerialNumber) break;
+	return begin_;
+}
+
 template <class T, class E>
 inline void unpack_event(T& data, const E& buf)
 {
@@ -165,31 +172,59 @@ inline void unpack_event(T& data, const E& buf)
 
 void rootana::App::Process(const midas::Event& event)
 {
+	bool doFill = true;
 	const uint16_t EID = event.GetEventId();
 	switch (EID) {
 
 	case DRAGON_HEAD_EVENT:  /// - DRAGON_HEAD_EVENT: Calculate head params & fill head histos
-		unpack_event(rootana::gHead, event);
-		fOutputFile.CallForAll( &rootana::HistBase::fill, EID );
-		break;
+		{
+			std::list<dragon::Head>::iterator it =
+				FindSerial(fHeadProcessed.begin(), fHeadProcessed.end(), event.GetSerialNumber());
 
+			if (it != fHeadProcessed.end()) {
+				rootana::gHead = *it;
+				fHeadProcessed.erase(it);
+			}
+			else {
+				unpack_event(rootana::gHead, event);
+			}
+
+			break;
+		}
 	case DRAGON_TAIL_EVENT:  /// - DRAGON_TAIL_EVENT: Calculate tail params & fill tail histos
-		unpack_event(rootana::gTail, event);
-		fOutputFile.CallForAll( &rootana::HistBase::fill, EID );
-		break;
+		{
+			std::list<dragon::Tail>::iterator it =
+				FindSerial(fTailProcessed.begin(), fTailProcessed.end(), event.GetSerialNumber());
 
+			if (it != fTailProcessed.end()) {
+				rootana::gTail = *it;
+				fTailProcessed.erase(it);
+			}
+			else {
+				unpack_event(rootana::gTail, event);
+			}
+
+			break;
+		}
 	case DRAGON_HEAD_SCALER: /// - DRAGON_HEAD_SCALER: \todo implement C. Stanford's scaler codes
 		// <...process...> //
+		doFill = false;
 		break;
 
 	case DRAGON_TAIL_SCALER: /// - DRAGON_TAIL_SCALER: \todo implement C. Stanford's scaler codes
 		// <...process...> //
+		doFill = false;
 		break;
 
 	default: /// - Silently ignore other event types
+		doFill = false;
 		break;
 	}
 
+	if (doFill) {
+		fOutputFile.CallForAll( &rootana::HistBase::fill, EID );
+		fOnlineHists.CallForAll( &rootana::HistBase::fill, EID );
+	}
 }
 
 void rootana::App::Process(const midas::Event& event1, const midas::Event& event2)
@@ -205,6 +240,9 @@ void rootana::App::Process(const midas::Event& event1, const midas::Event& event
 
 	unpack_event(rootana::gCoinc, coincEvent);
 	fOutputFile.CallForAll( &rootana::HistBase::fill, DRAGON_COINC_EVENT );
+
+	fHeadProcessed.push_back(rootana::gCoinc.head);
+	fTailProcessed.push_back(rootana::gCoinc.tail);
 }
 
 int rootana::App::midas_file(const char* fname)

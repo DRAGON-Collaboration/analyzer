@@ -108,14 +108,14 @@ public:
 			 * directory->CallForAll (&rootana::HistBase::clear); // Clears every histogram in the directory
 			 * \endcode
 			 */
-			Map_t::iterator itFirst = fHistos.begin(), itLast = fHistos.end();
-			if (id >= 0) 	itFirst = itLast = fHistos.find(static_cast<uint16_t>(id));
+			Map_t::iterator itFirst = id < 0 ? fHistos.begin() : fHistos.find(static_cast<uint16_t>(id));
+			Map_t::iterator itLast  = id < 0 ? fHistos.end()   : itFirst;
+			if (itLast != fHistos.end()) ++itLast;
 
 			for (Map_t::iterator it = itFirst; it != itLast; ++it) {
 				std::for_each(it->second.begin(), it->second.end(), std::mem_fun(f));
 			}
 		}
-
 };
 
 /// Concrete derived class of Directory for offline data

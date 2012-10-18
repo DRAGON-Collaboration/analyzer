@@ -279,6 +279,36 @@ public:
 		{ return L() (*fCut1, *fCut2); }
 };
 
+/// Implementation of an always TRUE condition
+class TrueCondition: public Condition {
+public:
+	/// Empty
+	TrueCondition() { }
+	
+	/// Returns \c new instance of \c this
+	Condition* clone() const
+		{ return new TrueCondition(*this); }
+
+	/// Returns \c true
+	bool operator() () const
+		{ return true; }
+};
+
+/// Implementation of an always FALSE condition
+class FalseCondition: public Condition {
+public:
+	/// Empty
+	FalseCondition() { }
+	
+	/// Returns \c new instance of \c this
+	Condition* clone() const
+		{ return new FalseCondition(*this); }
+
+	/// Returns \c false
+	bool operator() () const
+		{ return false; }
+};
+
 
 /* Some overloaded operators of rootana::Cut rely on classes defined later,
  so impement here */
@@ -350,7 +380,6 @@ inline Condition2D<T1, T2>::Condition2D(const T1& xpar, const T2& ypar, ROOTANA_
 } // namespace rootana
 
 
-
 /* Free functions */
 
 /// "Less-than" (<) [ uses std::less<double> ]
@@ -409,6 +438,14 @@ inline rootana::Cut And(const rootana::Cut& t1, const rootana::Cut& t2)
 /// Logical OR (||)
 inline rootana::Cut Or(const rootana::Cut& t1, const rootana::Cut& t2)
 { return t1.operator||(t2); }
+
+/// Always true
+inline rootana::Cut True()
+{ rootana::Cut c_(new rootana::TrueCondition()); return c_; }
+
+/// Always false
+inline rootana::Cut False()
+{ rootana::Cut c_(new rootana::FalseCondition()); return c_; }
 
 
 

@@ -20,7 +20,7 @@ TH1D:
 	("bgo_q0", "Bgo energy, ch 0 [singles]", 256, 0, 4096)
 	rootana::gHead.bgo.q[0]
 CUT:
-	Less(gHead.bgo.q[0], 2000) && Cut2D(gHead.bgo.q[0], gHead.bgo.q[1], -2,-2,0,0,0,2,-2,-2)
+        True() || (Less(gHead.bgo.q[0], 2000) && Cut2D(gHead.bgo.q[0], gHead.bgo.q[1], -2,-2,0,0,0,2,-2,-2))
 
 SUMMARY:
         ("bgo_q", "Bgo energies [singles]", 256, 0, 4096)

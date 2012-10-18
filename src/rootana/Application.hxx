@@ -5,8 +5,10 @@
  */
 #ifndef ROOTANA_DRAGON_HXX
 #define ROOTANA_DRAGON_HXX
+#include <list>
 #include <memory>
 #include <TApplication.h>
+#include "dragon/Coinc.hxx"
 #include "Directory.hxx"
 
 
@@ -41,6 +43,8 @@ private:
 	std::auto_ptr<midas::Database> fOdb;        ///< Online/offline database
 	std::auto_ptr<tstamp::Queue> fQueue;        ///< Timestamping queue
 	std::auto_ptr<MidasOnline> fMidasOnline;    ///< "Online midas" instance
+	std::list<dragon::Head> fHeadProcessed;     ///< Head events already unpacked
+	std::list<dragon::Tail> fTailProcessed;     ///< Tail events already unpacked
 
 public:
 	/// Calls TApplication constructor
