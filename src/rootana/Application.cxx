@@ -229,7 +229,6 @@ void rootana::App::Process(const midas::Event& event)
 
 void rootana::App::Process(const midas::Event& event1, const midas::Event& event2)
 {
-	/// \todo Try to avoid extra unpacking step
 	midas::CoincEvent coincEvent(event1, event2);
 
 	if (coincEvent.fHeavyIon == 0 ||	coincEvent.fGamma == 0) {
