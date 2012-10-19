@@ -3,6 +3,7 @@
 /// \brief Defines a class for the a complete DRAGON coincidence event.
 #ifndef DRAGON_COINC_HXX
 #define DRAGON_COINC_HXX
+#include <vector>
 #include "Tail.hxx"
 #include "Head.hxx"
 
@@ -15,10 +16,12 @@ namespace dragon {
 
 /// A complete Dragon (coincidence) event
 class Coinc {
+
 PRIVATE:
 	/// Separator time-of-flight (x-over tof).
 	double xtof;
 
+public:
 	/// Head (gamma-ray) part of the event
 	Head head;
 
