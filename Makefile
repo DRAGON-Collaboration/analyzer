@@ -1,11 +1,40 @@
+#################################
+### USER CUSTOMIZABLE SECTION ###
+#################################
+
 ### SET OPTIONAL #defines HERE ###
-DEFINITIONS=-DDISPLAY_MODULES
+# Don't remove the line below
+DEFINITIONS=
+
+## Uncomment (Comment) to (not) export "raw" modules for viewing in ROOT treew
+DEFINITIONS+=-DDISPLAY_MODULES
+
+## (Un)comment to (not) ignore corresponding heavy-ion detectors
+#DEFINITIONS+=DRAGON_OMIT_DSSSD
+#DEFINITIONS+=DRAGON_OMIT_IC
+#DEFINITIONS+=DRAGON_OMIT_NAI
+#DEFINITIONS+=DRAGON_OMIT_GE
+
+
+### Choose your option for public or private dragon::* class data members ###
+# (choose only one). Here's a decision guide:
+
+# if (<interactive analysis in an interpreter>) choose public;
+# else if (<doing code development>) choose private; // to enforce good design
+# else if (<don't know what the hell I'm talking about>) {
+#    if (<doing code development>) you should;
+#    else choose public;
+# }
+
+### Uncomment for 'public' option
 #DEFINITIONS+=-DPRIVATE=public  -DPROTECTED=public
+
+### Uncomment for 'private' option
 DEFINITIONS+=-DPRIVATE=private -DPROTECTED=protected
 
 ### Set to YES (NO) to turn on (off) root [or rootbeer, or rootana] usage ###
 USE_ROOT=YES
-USE_ROOTANA=YES
+USE_ROOTANA=NO
 USE_ROOTBEER=NO
 
 ### Set ROOTBEER home directory (ignore if USE_ROOTBEER=NO) ###
@@ -20,6 +49,10 @@ CC=gcc -Wall
 #CC=clang -I/opt/local/include/ -I/opt/local/include/root
 
 
+
+#####################################
+### END USER CUSTOMIZABLE SECTION ###
+#####################################
 
 
 ### Variable definitions
