@@ -1,9 +1,11 @@
 ### SET OPTIONAL #defines HERE ###
 DEFINITIONS=-DDISPLAY_MODULES
+#DEFINITIONS+=-DPRIVATE=public  -DPROTECTED=public
+DEFINITIONS+=-DPRIVATE=private -DPROTECTED=protected
 
 ### Set to YES (NO) to turn on (off) root [or rootbeer, or rootana] usage ###
 USE_ROOT=YES
-USE_ROOTANA=YES
+USE_ROOTANA=NO
 USE_ROOTBEER=NO
 
 ### Set ROOTBEER home directory (ignore if USE_ROOTBEER=NO) ###

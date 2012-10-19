@@ -22,7 +22,8 @@ public:
 
 public:
 	/// Ion chamber variables
-	struct Variables {
+	class Variables {
+ PRIVATE:
 		/// Maps anode channel number to adc module number
 		int anode_module[MAX_CHANNELS];
 
@@ -32,6 +33,7 @@ public:
 		/// Maps tof to TDC channel number
 		int tof_ch;
 
+ public:
 		/// Constructor, sets data to generic values
 		Variables();
 
@@ -39,12 +41,15 @@ public:
 		/// \param [in] odb_file Path of the odb file from which you are extracting variable values
 		/// \todo Needs to be implemented once ODB is set up
 		void set(const char* odb_file);
+		
+		/// Allow IonChamber class access to internals
+		friend class dragon::IonChamber;
 	};
 
-public:
 	/// Variables instance
 	Variables variables; //!
 	 
+PRIVATE:
 	/// Raw anode signals
 	int16_t anode[MAX_CHANNELS]; //#
 

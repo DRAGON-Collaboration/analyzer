@@ -15,16 +15,16 @@ namespace dragon {
 /// The BGO array
 class Bgo {
 public:
-
 	/// Number of channels in the BGO array
 	static const int MAX_CHANNELS = 30; //!
 
 	/// Number of energy-sorted channels
 	static const int MAX_SORTED = 5; //!
 
+public:
 	/// Bgo variables
 	class Variables {
- public:
+ PRIVATE:
 		/// \brief Maps ADC channel to BGO detector
 		/// \details Example: setting ch[0] = 12, means that the 0th detector
 		/// in the BGO array reads its charge data from channel 12 of the qdc.
@@ -46,6 +46,7 @@ public:
 		/// \details \c zpos[n] refers to the \e z position (in cm) of the <I>n<SUP>th</SUP></I> detector
 		double zpos[MAX_CHANNELS];
 
+ public:
 		/// Constructor, sets *_ch[i] to i
 		Variables();
 
@@ -53,11 +54,15 @@ public:
 		/// \param [in] odb_file Path of the odb file from which you are extracting variable values
 		/// \todo Needs to be implemented once ODB is set up
 		void set(const char* odb_file);
+
+		/// Allow Bgo class access to internals
+		friend class dragon::Bgo;
 	};
 
 	/// Instance of Bgo::Variables for mapping digitizer ch -> bgo detector
 	Variables variables;    //!
 	 
+PRIVATE:
 	/// Raw charge signals, per detector
 	int16_t q[MAX_CHANNELS];    //#
 
@@ -79,6 +84,7 @@ public:
 	/// \brief \e z position of the qsort[0] hit
 	double z0; //#
 
+public:
 	/// Constructor, initializes data values
 	Bgo();
 

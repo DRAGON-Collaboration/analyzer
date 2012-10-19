@@ -13,9 +13,11 @@ namespace dragon {
 
 /// Collection of all head detectors and VME modules
 class Head {
-
 public:
+	/// Midas event header
+	midas::Event::Header header; //#
 
+PRIVATE:
 #ifdef DISPLAY_MODULES
 	/// IO32 FPGA
 	vme::IO32 io32; //#
@@ -35,9 +37,6 @@ public:
 	/// CAEN V1190 TDC
 	vme::V1190 v1190; //!
 #endif
-
-	/// Midas event header
-	midas::Event::Header header; //#
 
 	/// Bgo array
 	dragon::Bgo bgo;

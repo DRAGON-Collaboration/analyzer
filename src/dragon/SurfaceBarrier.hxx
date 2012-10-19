@@ -15,20 +15,22 @@ typedef V792 V785;
 namespace dragon {
 
 /// Surface barrier detectors
-struct SurfaceBarrier {
-// ==== Const Data ==== //
+class SurfaceBarrier {
+public:
 	/// Number of detectors
 	static const int MAX_CHANNELS = 2; //!
 
-// ==== Classes ==== //
+public:
 	/// Surface Barrier Variables
-	struct Variables {
+	class Variables {
+ PRIVATE:
 		/// Maps detector to adc module number
 		int module[MAX_CHANNELS];
 
 		/// Maps detector adc channel number
 		int ch[MAX_CHANNELS];
 
+ public:
 		/// Constructor, sets data to generic values
 		Variables();
 
@@ -36,16 +38,19 @@ struct SurfaceBarrier {
 		/// \param [in] odb_file Path of the odb file from which you are extracting variable values
 		/// \todo Needs to be implemented once ODB is set up
 		void set(const char* odb_file);
+
+		/// Allow SurfaceBarrier class access to internals
+		friend class dragon::SurfaceBarrier;
 	};
 
-// ==== Data ==== //
 	/// Variables instance
 	SurfaceBarrier::Variables variables; //!
 	 
+PRIVATE:
 	/// Charge (energy) signals
 	int16_t q[MAX_CHANNELS]; //#
 
-// ==== Methods ==== //
+public:
 	/// Constructor, initialize data
 	SurfaceBarrier();
 

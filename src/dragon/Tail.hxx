@@ -39,7 +39,13 @@ public:
 		void set(const char* odb_file);
 	};
 
-public:
+	/// Tail::Variables instance
+	Variables variables; //!
+
+	/// Midas event header
+	midas::Event::Header header; //#
+
+PRIVATE:
 	/// Electronics modules
 #ifdef DISPLAY_MODULES
 	/// IO32 FPGA
@@ -60,12 +66,6 @@ public:
 	/// CAEN v1190 TDC
 	vme::V1190 v1190; //!
 #endif
-
-	/// Midas event header
-	midas::Event::Header header; //#
-
-	/// Tail::Variables instance
-	Variables variables; //!
 
 #ifndef DRAGON_OMIT_DSSSD
 	/// DSSSD detector

@@ -23,7 +23,8 @@ public:
 
 public:
 	/// NaI variables
-	struct Variables {
+	class Variables {
+ PRIVATE:
 		/// Maps detector to adc module number
 		int module[MAX_CHANNELS];
 			
@@ -36,6 +37,7 @@ public:
 		/// Calibration offset
 		double offset[MAX_CHANNELS];
 
+ public:
 		/// Constructor, sets data to generic values
 		Variables();
 
@@ -43,12 +45,15 @@ public:
 		/// \param [in] odb_file Path of the odb file from which you are extracting variable values
 		/// \todo Needs to be implemented once ODB is set up
 		void set(const char* odb_file);
+
+		/// Allow NaI class access to internals
+		friend class dragon::NaI;
 	};
 
-public:
 	/// Variables instance
 	Variables variables; //!
 
+PRIVATE:
 	/// Raw energy signals
 	int16_t qraw[MAX_CHANNELS]; //#
 
@@ -79,7 +84,8 @@ public:
 
 public:
 	/// Ge variables
-	struct Variables {
+	class Variables {
+ PRIVATE:
 		/// Maps detector to adc module number
 		int module[MAX_CHANNELS];
 			
@@ -92,6 +98,7 @@ public:
 		/// Calibration offset
 		double offset[MAX_CHANNELS];
 
+ public:
 		/// Constructor, sets data to generic values
 		Variables();
 
@@ -99,19 +106,22 @@ public:
 		/// \param [in] odb_file Path of the odb file from which you are extracting variable values
 		/// \todo Needs to be implemented once ODB is set up
 		void set(const char* odb_file);
+		
+		/// Allow Ge class access to internals
+		friend class dragon::Ge;
 	};
 
-public:
 	/// Variables instance
 	Variables variables; //!
 
+PRIVATE:
 	/// Raw energy signals
 	int16_t qraw[MAX_CHANNELS]; //#
 
 	/// Calibrated energy signals
 	double  qcal[MAX_CHANNELS]; //#
 
-// ==== Methods ==== //
+public:
 	/// Constructor, initialize data
 	Ge();
 

@@ -15,12 +15,10 @@ namespace dragon {
 
 /// A complete Dragon (coincidence) event
 class Coinc {
-
-public:
+PRIVATE:
 	/// Separator time-of-flight (x-over tof).
 	double xtof;
 
-public:
 	/// Head (gamma-ray) part of the event
 	Head head;
 

@@ -23,7 +23,8 @@ public:
 
 public:
 	/// MCP Variables
-	struct Variables {
+	class Variables {
+ PRIVATE:
 		/// Maps anode channel to adc module number
 		int anode_module[MAX_CHANNELS];
 
@@ -36,6 +37,7 @@ public:
 		/// Maps TAC to adc channel number
 		int tac_ch;
 
+ public:
 		/// Constructor, sets data to generic values
 		Variables();
 
@@ -43,12 +45,15 @@ public:
 		/// \param [in] odb_file Path of the odb file from which you are extracting variable values
 		/// \todo Needs to be implemented once ODB is set up
 		void set(const char* odb_file);
+
+		/// Allow Mcp class access to internals
+		friend class dragon::MCP;
 	};
 
-// ==== Data ==== //
 	/// Variables instance
 	Variables variables; //!
 	 
+PRIVATE:
 	/// Anode signals
 	int16_t anode[MAX_CHANNELS]; //#
 	 
@@ -61,6 +66,7 @@ public:
 	/// y-position
 	double y; //#
 
+public:
 	/// Constructor, initialize data
 	MCP();
 
