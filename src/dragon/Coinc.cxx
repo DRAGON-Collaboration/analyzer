@@ -135,7 +135,6 @@ void dragon::Coinc::calculate()
 	in python independent of ROOT/PyRoot. Stay tuned....
 
 
-
 	\section installation Installation
 	
 	\subsection dependencies Dependencies
@@ -144,6 +143,35 @@ void dragon::Coinc::calculate()
 	(and, of course, the packages themselves). To look at online data, you will need MIDAS installed, and, if
 	using the rootana system, <a href=https://daq-plone.triumf.ca/SR/ROODY>roody</a> is required for online
 	histogram viewing.
+
+	\subsection download Download and Compile
+	The latest version of the code can be obtained using git:
+	\code
+	git clone [...]
+	\endcode
+	
+	or you can download it as a <a href=none>tarball</a>.
+	\todo Update once a public repository and download location are a reality.
+
+	Before compiling, you may need to cousomize the Makefile to work on your system. If you open the file,
+	you will see a section at the top where you can customize things. There are comments explaining what each of
+	the optional features are and how you can change them.
+
+	One you have set up the makefile as appropriate for your system, compiling should be as simple as typing
+	\code
+	make
+	\endcode
+	at the command line.  This will install the generated binaries in your local directory (shared libraries in
+	$PWD/lib, binaries in $PWD). There is no "install" option, so you should either copy/link the binaries and
+	libraries into a system-wide directory or update the necessary environment variables to allow your shell
+	to find what it needs.
+
+	If you run into any problems compiling this package, do not hesitate to contact the package maintainer
+	for help. If do you find a solution to your problems on your own, \e please alert the package maintainer
+	and describe 1) your problem; 2) what you did to fix it. The intent is for installion/compilation to be
+	a very quick and painless process for everyone using this package, so any problems and solutions that you
+	discover should be reflected in the standard version of the codes.
+
 
 	\section using For Users
 
