@@ -32,6 +32,12 @@ public:
 		/// Maps tof to tdc channel number
 		int tof_ch;
 
+		/// Calibration slope
+		double slope[MAX_CHANNELS];
+
+		/// Calibration offset
+		double offset[MAX_CHANNELS];
+
  public:
 		/// Constructor, sets data to generic values (TBD)
 		Variables();

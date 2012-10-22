@@ -48,11 +48,14 @@ void dragon::DSSSD::calculate()
 
 dragon::DSSSD::Variables::Variables()
 {
+	std::fill_n(qdc_module, MAX_CHANNELS, 1);
 	for(int i=0; i< MAX_CHANNELS; ++i) {
-		qdc_module[i] = 1;
 		qdc_ch[i] = i;
 	}
 	tof_ch = 1; /// \todo Update once plugged in
+
+	std::fill_n(slope, MAX_CHANNELS, 1);
+	std::fill_n(offset, MAX_CHANNELS, 0);
 }
 
 void dragon::DSSSD::Variables::set(const char* odb)
@@ -66,4 +69,6 @@ void dragon::DSSSD::Variables::set(const char* odb)
 	database.ReadArray(pathAdcModule, qdc_module, MAX_CHANNELS);
 	database.ReadArray(pathAdcCh, qdc_ch, MAX_CHANNELS);
 	database.ReadValue(pathTdcCh, tof_ch);
+	database.ReadArray(pathAdcSlope, slope, MAX_CHANNELS);
+	database.ReadArray(pathAdcSlope, offset, MAX_CHANNELS);
 }
