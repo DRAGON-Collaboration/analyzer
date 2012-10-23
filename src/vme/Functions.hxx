@@ -19,7 +19,7 @@ namespace vme {
  * Example:
  * \code
  * vme::V792 adc;
- * adc.unpack(someEvent, \"ADC0"); // adc.data = { 21, 24, 26, ... }
+ * adc.unpack(someEvent, "ADC0"); // adc.data = { 21, 24, 26, ... }
  *
  * int channels = { 2, 0, 1, ... };
  * double output[32];
@@ -47,8 +47,8 @@ inline void channel_map(T* output, int numch, const int* channels, const M& modu
  * Example:
  * \code
  * vme::V792[2] adc;
- * adc[0].unpack(someEvent, \"ADC0"); // adc[0].data = { 21, 24, 26, ... }
- * adc[1].unpack(someEvent, \"ADC1"); // adc[1].data = { 27, 22, 19, ... }
+ * adc[0].unpack(someEvent, "ADC0"); // adc[0].data = { 21, 24, 26, ... }
+ * adc[1].unpack(someEvent, "ADC1"); // adc[1].data = { 27, 22, 19, ... }
  *
  * int channels = { 2, 0, 1, ... };
  * int modules = { 0, 1, 0, ... };
@@ -90,7 +90,7 @@ inline void channel_map(T* output, int numch, const int* channels, const int* mo
  * };
  *
  * vme::V792 adc;
- * adc.unpack(someEvent, \"ADC0"); // adc.data = { 21, 24, 26, ... }
+ * adc.unpack(someEvent, "ADC0"); // adc.data = { 21, 24, 26, ... }
  *
  * int channels = { 2, 0, 1, ... };
  * double output[32];
@@ -133,8 +133,8 @@ inline void channel_map(T* output, int numch, const int* channels, const M& modu
  * };
  *
  * vme::V792[2] adc;
- * adc[0].unpack(someEvent, \"ADC0"); // adc[0].data = { 21, 24, 26, ... }
- * adc[1].unpack(someEvent, \"ADC1"); // adc[1].data = { 27, 22, 19, ... }
+ * adc[0].unpack(someEvent, "ADC0"); // adc[0].data = { 21, 24, 26, ... }
+ * adc[1].unpack(someEvent, "ADC1"); // adc[1].data = { 27, 22, 19, ... }
  *
  * int channels = { 2, 0, 1, ... };
  * int modules = { 0, 1, 0, ... }; 
