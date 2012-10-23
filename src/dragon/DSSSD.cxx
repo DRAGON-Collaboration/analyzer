@@ -4,6 +4,7 @@
 #include <cassert>
 #include <iostream>
 #include "midas/Database.hxx"
+#include "utils/Valid.hxx"
 #include "vme/V1190.hxx"
 #include "vme/V792.hxx"
 #include "Tail.hxx"
@@ -20,19 +21,17 @@ dragon::DSSSD::DSSSD() :
 
 void dragon::DSSSD::reset()
 {
-	for(int i=0; i< MAX_CHANNELS; ++i) {
-		qraw[i] = dragon::NO_DATA;
-	}
-	tof = dragon::NO_DATA;
+	reset_array(e, MAX_CHANNELS);
+	reset_data(tof);
 }
 
 void dragon::DSSSD::read_data(const vme::V785 adcs[], const vme::V1190& v1190)
 {
 	for(int i=0; i< MAX_CHANNELS; ++i) {
 		const int whichAdc = variables.qdc_module[i];
-		assert (whichAdc< Tail::NUM_ADC); ///\todo Don't use an assert here
-		const int whichAdcChannel = variables.qdc_ch[i];
+		assert (whichAdc< Tail::NUM_ADC);
 
+		const int whichAdcChannel = variables.adc_ch[i];
 		qraw[i] = adcs[whichAdc].get_data(whichAdcChannel);
 	}
 	tof = dragon::NO_DATA; /// \todo Calculate DSSSD tof

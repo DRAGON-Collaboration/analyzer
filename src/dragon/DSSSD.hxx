@@ -23,20 +23,20 @@ public:
 	/// DSSSD Variables
 	class Variables {
  PRIVATE:
-		/// Maps qraw[i] to adc module number
-		int qdc_module[MAX_CHANNELS];
+		/// Maps DSSSD::e[i] to adc module number
+		int adc_module[MAX_CHANNELS];
 
-		/// Maps qraw[i] to adc channel number
-		int qdc_ch[MAX_CHANNELS];
+		/// Maps DSSSD::e[i] to adc channel number
+		int adc_ch[MAX_CHANNELS];
+
+		/// Adc calibration slope
+		double adc_slope[MAX_CHANNELS];
+
+		/// Adc calibration offset
+		double adc_offset[MAX_CHANNELS];
 
 		/// Maps tof to tdc channel number
-		int tof_ch;
-
-		/// Calibration slope
-		double slope[MAX_CHANNELS];
-
-		/// Calibration offset
-		double offset[MAX_CHANNELS];
+		int tdc_ch;
 
  public:
 		/// Constructor, sets data to generic values (TBD)
@@ -55,8 +55,8 @@ public:
 	DSSSD::Variables variables; //!
 
 PRIVATE:
-	/// Raw energy signals
-	int16_t qraw[MAX_CHANNELS]; //#
+	/// Calibrated energy signals
+	int16_t e[MAX_CHANNELS]; //#
 
 	/// Raw time signal (just one??)
 	int16_t tof; //#
