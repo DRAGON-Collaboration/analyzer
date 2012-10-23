@@ -65,7 +65,7 @@ public:
 		{
 			/*!
 			 * \param ch Channel number to get data from
-			 * Returns the leading edge time value of the first hit on
+			 * \returns the leading edge time value of the first hit on
 			 * channel \e ch. If \e ch is out of bounds, prints a warning
 			 * message and returns dragon::NO_DATA.
 			 */
