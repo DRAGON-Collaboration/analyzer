@@ -27,9 +27,9 @@ public:
 	class Variables {
 		// Class data //
  private:
-		/*!\cond*/
+		/** @cond */
  PRIVATE:
-		/*!\endcond*/
+		/** @endcond */
 		/// Channel of the V1190b TDC trigger
 		int v1190_trigger_ch;
 
@@ -53,9 +53,9 @@ public:
 
 	// Class data //
 private:
-	/*!\cond*/
+	/** @cond */
 PRIVATE:
-	/*!\endcond*/
+	/** @endcond */
 	/// Electronics modules
 #ifdef DISPLAY_MODULES
 	/// IO32 FPGA

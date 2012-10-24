@@ -23,9 +23,9 @@ public:
 	/// DSSSD Variables Class
 	class Variables {
  private:
-		/*!\cond*/
+		/** @cond */
  PRIVATE:
-  	/*!\endcond*/
+  	/** @endcond */
 		/// Maps DSSSD::e[i] to adc module number
 		int adc_module[MAX_CHANNELS];
 
@@ -65,9 +65,9 @@ public:
 	DSSSD::Variables variables; //!
 
 private:
-	/*!\cond*/
+	/** @cond */
 PRIVATE:
-	/*!\endcond*/
+	/** @endcond */
 	/// Calibrated energy signals
 	double ecal[MAX_CHANNELS]; //#
 

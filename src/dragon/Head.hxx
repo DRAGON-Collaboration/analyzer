@@ -20,9 +20,9 @@ public:
 
 // Class Data //
 private:
-  /*!\cond*/
+  /** @cond */
 PRIVATE:
-	/*!\endcond*/
+	/** @endcond */
 #ifdef DISPLAY_MODULES
 	/// IO32 FPGA
 	vme::IO32 io32;   //#
