@@ -207,7 +207,7 @@ public:
 			 * the responsibility of the user to ensure that operator() is not called
 			 * with a \e channel argument greater than the length of the internal arrays.
 			 */
-			if (value <= fPedestals[channel])
+			if (value < fPedestals[channel])
 				value = dragon::NO_DATA;
 		}
 };		

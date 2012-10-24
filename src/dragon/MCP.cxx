@@ -5,7 +5,7 @@
 #include <iostream>
 #include <algorithm>
 #include "midas/Database.hxx"
-#include "vme/Functions.hxx"
+#include "utils/Functions.hxx"
 #include "vme/V1190.hxx"
 #include "vme/V792.hxx"
 #include "Tail.hxx"
@@ -30,13 +30,13 @@ void dragon::MCP::read_data(const vme::V785 adcs[], const vme::V1190& tdc)
 	/*!
 	 * Copies ADC and TDC data into anode, tcal, and tac parameters.
 	 *
-	 * Delegates work to vme::channel_map()
+	 * Delegates work to utils::channel_map()
 	 * \param [in] adcs Array of vme::V785 adc modules from which data can be taken
 	 * \param [in] tdc vme::V1190 tdc module from which data can be read
 	 */
-	vme::channel_map(anode, MAX_CHANNELS, variables.adc.channel, variables.adc.module, adcs);
-	vme::channel_map(tcal, NUM_DETECTORS, variables.tdc.channel, tdc);
-	vme::channel_map(tac, variables.tac_adc.channel, variables.tac_adc.module, adcs);
+	utils::channel_map(anode, MAX_CHANNELS, variables.adc.channel, variables.adc.module, adcs);
+	utils::channel_map(tcal, NUM_DETECTORS, variables.tdc.channel, tdc);
+	utils::channel_map(tac, variables.tac_adc.channel, variables.tac_adc.module, adcs);
 }
 
 void dragon::MCP::calculate()
@@ -50,13 +50,13 @@ void dragon::MCP::calculate()
 	 * <a href="http://dragon.triumf.ca/docs/Lamey_thesis.pdf">
 	 * dragon.triumf.ca/docs/Lamey_thesis.pdf</a>
 	 */
-	vme::transform(anode, MAX_CHANNELS, vme::PedestalSubtract(variables.adc.pedestal));
-	vme::transform(anode, MAX_CHANNELS, vme::LinearCalibrate(variables.adc.offset, variables.adc.slope));
+	utils::pedestal_subtract(anode, MAX_CHANNELS, variables.adc);
+	utils::linear_calibrate(anode, MAX_CHANNELS, variables.adc);
 
-	vme::transform(tcal, NUM_DETECTORS, vme::LinearCalibrate(variables.tdc.offset, variables.tdc.slope));
-	
-	vme::transform(tac, vme::PedestalSubtract(variables.tac_adc.pedestal));
-	vme::transform(tac, vme::LinearCalibrate(variables.tac_adc.offset, variables.tac_adc.slope));
+	utils::linear_calibrate(tcal, NUM_DETECTORS, variables.tdc);
+
+	utils::pedestal_subtract(tac, variables.tac_adc);
+	utils::linear_calibrate(tac, variables.tac_adc);
 
 	// Position calculation if we have all valid anode signals
 	if(is_valid(anode, MAX_CHANNELS)) {
@@ -81,7 +81,7 @@ dragon::MCP::Variables::Variables()
 void dragon::MCP::Variables::reset()
 {
 	std::fill_n(adc.module, MAX_CHANNELS, 0);
-	vme::index_fill_n(adc.channel, MAX_CHANNELS);
+	utils::index_fill_n(adc.channel, MAX_CHANNELS);
 	std::fill_n(adc.pedestal, MAX_CHANNELS, 0);
 	std::fill_n(adc.offset, MAX_CHANNELS, 0.);
 	std::fill_n(adc.slope, MAX_CHANNELS, 1.);
@@ -93,7 +93,7 @@ void dragon::MCP::Variables::reset()
 	tac_adc.slope    = 1.;
 
 	std::fill_n(tdc.module, NUM_DETECTORS, 0);
-	vme::index_fill_n(tdc.channel, NUM_DETECTORS);
+	utils::index_fill_n(tdc.channel, NUM_DETECTORS);
 	std::fill_n(tdc.offset, NUM_DETECTORS, 0.);
 	std::fill_n(tdc.slope, NUM_DETECTORS, 1.);
 }
