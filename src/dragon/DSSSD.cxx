@@ -1,4 +1,5 @@
 /// \file DSSSD.cxx
+/// \author G. Christian
 /// \brief Implements DSSSD.hxx
 #include <string>
 #include <cassert>
@@ -28,10 +29,10 @@ void dragon::DSSSD::reset()
 void dragon::DSSSD::read_data(const vme::V785 adcs[], const vme::V1190& tdc)
 {
 	/*!
-	 *  Copies adc data into \c this->ecal[] with channel and module mapping taken
-	 *  from variables.adc_channel and variables.adc_modules
+	 * Copies adc data into \c this->ecal[] with channel and module mapping taken
+	 * from variables.adc_channel and variables.adc_modules
 	 *  
-	 *  Delegates work to vme::channel_map()
+	 * Delegates work to vme::channel_map()
 	 * \param [in] adcs Array of vme::V785 adc modules from which data can be taken
 	 * \param [in] tdc vme::V1190 tdc module from which data can be read
 	 */

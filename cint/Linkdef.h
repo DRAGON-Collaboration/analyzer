@@ -56,3 +56,75 @@
 
 #pragma link C++ class midas::Xml+;
 #pragma link C++ class midas::Odb+;
+
+/*
+	for j in Adc Tdc
+	do for i in {1..32}
+	do echo "#pragma link C++ class dragon::${j}Variables<${i}>+;"
+	done
+	done
+*/
+#pragma link C++ class dragon::AdcVariables<1>+;
+#pragma link C++ class dragon::AdcVariables<2>+;
+#pragma link C++ class dragon::AdcVariables<3>+;
+#pragma link C++ class dragon::AdcVariables<4>+;
+#pragma link C++ class dragon::AdcVariables<5>+;
+#pragma link C++ class dragon::AdcVariables<6>+;
+#pragma link C++ class dragon::AdcVariables<7>+;
+#pragma link C++ class dragon::AdcVariables<8>+;
+#pragma link C++ class dragon::AdcVariables<9>+;
+#pragma link C++ class dragon::AdcVariables<10>+;
+#pragma link C++ class dragon::AdcVariables<11>+;
+#pragma link C++ class dragon::AdcVariables<12>+;
+#pragma link C++ class dragon::AdcVariables<13>+;
+#pragma link C++ class dragon::AdcVariables<14>+;
+#pragma link C++ class dragon::AdcVariables<15>+;
+#pragma link C++ class dragon::AdcVariables<16>+;
+#pragma link C++ class dragon::AdcVariables<17>+;
+#pragma link C++ class dragon::AdcVariables<18>+;
+#pragma link C++ class dragon::AdcVariables<19>+;
+#pragma link C++ class dragon::AdcVariables<20>+;
+#pragma link C++ class dragon::AdcVariables<21>+;
+#pragma link C++ class dragon::AdcVariables<22>+;
+#pragma link C++ class dragon::AdcVariables<23>+;
+#pragma link C++ class dragon::AdcVariables<24>+;
+#pragma link C++ class dragon::AdcVariables<25>+;
+#pragma link C++ class dragon::AdcVariables<26>+;
+#pragma link C++ class dragon::AdcVariables<27>+;
+#pragma link C++ class dragon::AdcVariables<28>+;
+#pragma link C++ class dragon::AdcVariables<29>+;
+#pragma link C++ class dragon::AdcVariables<30>+;
+#pragma link C++ class dragon::AdcVariables<31>+;
+#pragma link C++ class dragon::AdcVariables<32>+;
+#pragma link C++ class dragon::TdcVariables<1>+;
+#pragma link C++ class dragon::TdcVariables<2>+;
+#pragma link C++ class dragon::TdcVariables<3>+;
+#pragma link C++ class dragon::TdcVariables<4>+;
+#pragma link C++ class dragon::TdcVariables<5>+;
+#pragma link C++ class dragon::TdcVariables<6>+;
+#pragma link C++ class dragon::TdcVariables<7>+;
+#pragma link C++ class dragon::TdcVariables<8>+;
+#pragma link C++ class dragon::TdcVariables<9>+;
+#pragma link C++ class dragon::TdcVariables<10>+;
+#pragma link C++ class dragon::TdcVariables<11>+;
+#pragma link C++ class dragon::TdcVariables<12>+;
+#pragma link C++ class dragon::TdcVariables<13>+;
+#pragma link C++ class dragon::TdcVariables<14>+;
+#pragma link C++ class dragon::TdcVariables<15>+;
+#pragma link C++ class dragon::TdcVariables<16>+;
+#pragma link C++ class dragon::TdcVariables<17>+;
+#pragma link C++ class dragon::TdcVariables<18>+;
+#pragma link C++ class dragon::TdcVariables<19>+;
+#pragma link C++ class dragon::TdcVariables<20>+;
+#pragma link C++ class dragon::TdcVariables<21>+;
+#pragma link C++ class dragon::TdcVariables<22>+;
+#pragma link C++ class dragon::TdcVariables<23>+;
+#pragma link C++ class dragon::TdcVariables<24>+;
+#pragma link C++ class dragon::TdcVariables<25>+;
+#pragma link C++ class dragon::TdcVariables<26>+;
+#pragma link C++ class dragon::TdcVariables<27>+;
+#pragma link C++ class dragon::TdcVariables<28>+;
+#pragma link C++ class dragon::TdcVariables<29>+;
+#pragma link C++ class dragon::TdcVariables<30>+;
+#pragma link C++ class dragon::TdcVariables<31>+;
+#pragma link C++ class dragon::TdcVariables<32>+;

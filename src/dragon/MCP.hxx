@@ -4,6 +4,8 @@
 #ifndef DRAGON_MCP_HXX
 #define DRAGON_MCP_HXX
 #include <stdint.h>
+#include "VariableStructs.hxx"
+
 
 namespace vme {
 class V792;
@@ -19,8 +21,11 @@ class MCP {
 
 // Class global constants //
 public:
-	/// Number of anodes
-	static const int MAX_CHANNELS = 4; //!
+	/// Number of anodes on MCP0
+	static const int MAX_CHANNELS = 4;  //!
+
+	/// Number of separate mcp detctors
+	static const int NUM_DETECTORS = 2; //!
 
 // Subclasses //
 public:
@@ -31,22 +36,23 @@ public:
 		/** @cond */
  PRIVATE:
 		/** @endcond */
-		/// Maps anode channel to adc module number
-		int anode_module[MAX_CHANNELS];
 
-		/// Maps anode channel to adc channel number
-		int anode_ch[MAX_CHANNELS];
+		/// Adc variables for the anode signals
+		AdcVariables<MAX_CHANNELS> adc;
 
-		/// Maps TAC to adc module number
-		int tac_module;
+		/// Adc variables for the TAC signal
+		AdcVariables<1> tac_adc;
 
-		/// Maps TAC to adc channel number
-		int tac_ch;
+		/// Tdc variables
+		TdcVariables<NUM_DETECTORS> tdc;
 
 		// Methods //
  public:
 		/// Constructor, sets data to generic values
 		Variables();
+
+		/// Restet variables to default values
+		void reset();
 
 		/// Set variable values from an ODB file
 		void set(const char* odb_file);
@@ -63,10 +69,13 @@ private:
 PRIVATE:
 	/** @endcond */
 	/// Anode signals
-	int16_t anode[MAX_CHANNELS]; //#
+	double anode[MAX_CHANNELS]; //#
 	 
+	/// TDC signals
+	double tcal[NUM_DETECTORS]; //#
+
 	/// TAC signal (MCP_TOF).
-	int16_t tac; //#
+	double tac; //#
 
 	/// x-position
 	double x; //#

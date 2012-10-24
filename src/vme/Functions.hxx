@@ -5,27 +5,30 @@
 #define DRAGON_VME_FUNCTIONS_HXX
 #include <cmath>
 #include <vector>
+#include "utils/Valid.hxx"
 
 namespace vme {
 
 /// Fills an array with it's index values
 template <class T>
-inline void index_fill_n(T begin, int n)
+inline void index_fill_n(T begin, int n, int offset = 0)
 {
 	/*!
 	 * Example:
 	 * \code
 	 * double arr[4];
-	 * vme::index_fill_n(arr,4);
+	 * vme::index_fill_n(arr, 4);
 	 * // arr = { 0., 1., 2., 3. }
+	 * vme::index_fill_n(arr, 4, 5);
+	 * // arr = { 5., 6., 7., 8. }
 	 * \endcode
 	 * \param begin Beginning of the array (vector, etc.)
 	 * \param n Number of indices past begin to fill
+	 * \param offset Optional offset for the filled values
 	 */
 	for(int i=0; i< n; ++i, ++begin)
-		*begin = i;
+		*begin = i + offset;
 }
-
 
 /// Maps raw vme data into another array
 /*!
@@ -153,6 +156,62 @@ inline void transform(T& output, TR transform)
 	transform(output, 0);
 }
 
+
+/// Class to perform pedestal subtraction on a parameter
+/*!
+ * Values below the pedestal are set to vme::NONE
+ * Usage example:
+ * \code
+ * int pedestals = { 32, 17, 21, 46 };
+ * double values = { 13., 16., 21., 444. };
+ * PedestalSubtract pedSub(pedestals);
+ * for(int i=0; i< 3; ++i) {
+ *   pedSub(values[i], i);
+ * }
+ * // values = { -1., -1., 21., 444. }
+ * // n.b. dragon::NO_DATA == -1.
+ * \endcode
+ *
+ * \note Can be used as the \e transform argument to transform().
+ */
+class PedestalSubtract {
+private:
+	const int* const fPedestals; ///< Array of pedestal values
+public:
+	/// Sets internal array values
+	PedestalSubtract(const int* const pedestals):
+		fPedestals(pedestals) { }
+
+	/// Sets internal array values
+	PedestalSubtract(const int& pedestal):
+		fPedestals(&pedestal)
+		{
+			/*!
+			 * This version of the constructor is intended for transforming single
+			 * values instead of arrays.
+			 */ 
+		}
+
+	/// Performs the pedestal "subtraction"
+	void operator() (double& value, int channel)
+		{
+			/*!
+			 * \code
+			 * if (value <= fPedestals[channel])
+			 *   value = dragon::NO_DATA;
+			 * \endcode
+			 *
+			 * \param value Initial value to pedestal check
+			 * \param channel Indexes the value from fPedestals to use for the subtraction
+			 * \warning No bounds checking is done on the internal arrays; it is
+			 * the responsibility of the user to ensure that operator() is not called
+			 * with a \e channel argument greater than the length of the internal arrays.
+			 */
+			if (value <= fPedestals[channel])
+				value = dragon::NO_DATA;
+		}
+};		
+
 /// Class to perform a linear calibration of a parameter
 /*!
  * Usage example:
@@ -168,6 +227,7 @@ inline void transform(T& output, TR transform)
  * \endcode
  *
  * \note Can be used as the \e transform argument to transform().
+ * \attention Input values that initially set equal to dragon::NO_DATA are left alone.
  */
 class LinearCalibrate {
 private:
@@ -193,7 +253,8 @@ public:
 		{
 			/*!
 			 * \code
-			 * value = value*fSlopes[channel] + fOffsets[channel];
+			 * if (is_valid(value))
+			 *   value = value*fSlopes[channel] + fOffsets[channel];
 			 * \endcode
 			 *
 			 * \param value Initial value to calibrate, final linearly calibrated value on output
@@ -202,7 +263,8 @@ public:
 			 * the responsibility of the user to ensure that operator() is not called
 			 * with a \e channel argument greater than the length of the internal arrays.
 			 */
-			value = value*fSlopes[channel] + fOffsets[channel];
+			if (is_valid(value))
+				value = value*fSlopes[channel] + fOffsets[channel];
 		}
 };
 
@@ -237,7 +299,8 @@ public:
 		{
 			/*!
 			 * \code
-			 * value = value*value*fSlopes2[channel] + value*fSlopes[channel] + fOffsets[channel];
+			 * if (is_valid(value))
+			 *   value = value*value*fSlopes2[channel] + value*fSlopes[channel] + fOffsets[channel];
 			 * \endcode
 			 */
 			value = value*value*fSlopes2[channel] + value*fSlopes1[channel] + fOffsets[channel];
@@ -278,12 +341,14 @@ public:
 		{
 			/*!
 			 * \code
+			 * if(!is_valid(value)) return;
 			 * double value0 = value;
 			 * value = 0;
 			 * for (size_t i=0; i< fFactors.size(); ++i)
 			 *	 value += value0 * pow(fFactors[i][channel], i);
 			 * \endcode
 			 */
+			if (!is_valid(value)) return;
 			double value0 = value;
 			value = 0;
 			for (size_t i=0; i< fFactors.size(); ++i)
