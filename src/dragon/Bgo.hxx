@@ -25,9 +25,9 @@ public:
 	/// Bgo variables
 	class Variables {
  private:
-		///\cond
+		/*!\cond*/
  PRIVATE:
-		///\endcond
+		/*!\endcond*/
 		/// Maps ADC channel to BGO detector
 		/*!
 		 * Example: setting ch[0] = 12, means that the 0th detector
@@ -68,9 +68,9 @@ public:
 	Variables variables;        //!
 	 
 private:
-	///\cond
+	/*!\cond*/
 PRIVATE:
-	///\endcond
+	/*!\endcond*/
 	/// Raw charge signals, per detector
 	int16_t q[MAX_CHANNELS];    //#
 

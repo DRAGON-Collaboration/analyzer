@@ -28,9 +28,9 @@ public:
 	class Variables {
 		// Class data //
  private:
-		///\cond
+		/*!\cond*/
  PRIVATE:
-		///\endcond
+		/*!\endcond*/
 		/// Maps anode channel to adc module number
 		int anode_module[MAX_CHANNELS];
 
@@ -59,9 +59,9 @@ public:
 	Variables variables; //!
 	 
 private:
-	///\cond
+	/*!\cond*/
 PRIVATE:
-	///\endcond
+	/*!\endcond*/
 	/// Anode signals
 	int16_t anode[MAX_CHANNELS]; //#
 	 

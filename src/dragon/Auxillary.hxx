@@ -25,9 +25,9 @@ public:
 	/// NaI variables
 	class Variables {
  private:
-		///\cond
+		/*!\cond*/
  PRIVATE:
-		///\endcond
+		/*!\endcond*/
 		/// Maps detector to adc module number
 		int module[MAX_CHANNELS];
 			
@@ -57,9 +57,9 @@ public:
 	Variables variables; //!
 
 private:
-///\cond
+/*!\cond*/
 PRIVATE:
-///\endcond
+/*!\endcond*/
 	/// Raw energy signals
 	int16_t qraw[MAX_CHANNELS]; //#
 
@@ -92,9 +92,9 @@ public:
 	/// Ge variables
 	class Variables {
  private:
-		///\cond
+		/*!\cond*/
  PRIVATE:
-		///\endcond
+		/*!\endcond*/
 		/// Maps detector to adc module number
 		int module[MAX_CHANNELS];
 			
@@ -124,9 +124,9 @@ public:
 	Variables variables; //!
 
 private:
-	///\cond
+	/*!\cond*/
 PRIVATE:
-	///\endcond
+	/*!\endcond*/
 	/// Raw energy signals
 	int16_t qraw[MAX_CHANNELS]; //#
 

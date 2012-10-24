@@ -19,9 +19,9 @@ class Coinc {
 
 // Class data //
 private:
-	///\cond
+	/*!\cond*/
 PRIVATE:
-	///\endcond
+	/*!\endcond*/
 	/// Separator time-of-flight (x-over tof).
 	double xtof;
 

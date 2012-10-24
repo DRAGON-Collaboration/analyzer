@@ -27,9 +27,9 @@ public:
 	class Variables {
 		// Class data //
  private:
-		///\cond
+		/*!\cond*/
  PRIVATE:
-		///\endcond
+		/*!\endcond*/
 		/// Maps detector to adc module number
 		int module[MAX_CHANNELS];
 
@@ -53,9 +53,9 @@ public:
 	 
 	// Class data //
 private:
-	///\cond
+	/*!\cond*/
 PRIVATE:
-	///\endcond
+	/*!\endcond*/
 	/// Charge (energy) signals
 	int16_t q[MAX_CHANNELS]; //#
 
