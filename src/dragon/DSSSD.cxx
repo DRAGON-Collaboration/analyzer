@@ -5,6 +5,7 @@
 #include <iostream>
 #include "midas/Database.hxx"
 #include "utils/Valid.hxx"
+#include "vme/Functions.hxx"
 #include "vme/V1190.hxx"
 #include "vme/V792.hxx"
 #include "Tail.hxx"
@@ -21,25 +22,33 @@ dragon::DSSSD::DSSSD() :
 
 void dragon::DSSSD::reset()
 {
-	reset_array(e, MAX_CHANNELS);
-	reset_data(tof);
+	reset_array(MAX_CHANNELS, ecal);
 }
 
-void dragon::DSSSD::read_data(const vme::V785 adcs[], const vme::V1190& v1190)
+void dragon::DSSSD::read_data(const vme::V785 adcs[], const vme::V1190& tdc)
 {
-	for(int i=0; i< MAX_CHANNELS; ++i) {
-		const int whichAdc = variables.qdc_module[i];
-		assert (whichAdc< Tail::NUM_ADC);
-
-		const int whichAdcChannel = variables.adc_ch[i];
-		qraw[i] = adcs[whichAdc].get_data(whichAdcChannel);
-	}
-	tof = dragon::NO_DATA; /// \todo Calculate DSSSD tof
+	/*!
+	 *  Copies adc data into \c this->ecal[] with channel and module mapping taken
+	 *  from variables.adc_channel and variables.adc_modules
+	 *  
+	 *  Delegates work to vme::channel_map()
+	 * \param [in] adcs Array of vme::V785 adc modules from which data can be taken
+	 * \param [in] tdc vme::V1190 tdc module from which data can be read
+	 */
+	vme::channel_map(ecal, MAX_CHANNELS, variables.adc_channel, variables.adc_module, adcs);
+	vme::channel_map(tcal, variables.tdc_channel, tdc);
 }
 
 void dragon::DSSSD::calculate()
 {
-	/// \todo Implement DSSSD::calculate()
+	/*!
+	 * Does a linear transformation on each element in \c this->ecal[] using the slopes and offsets
+	 * from variables.adc_slope and variables.adc_offset, respectively.
+	 *
+	 * Delegates the work to vme::transform()
+	 */
+	vme::transform(ecal, MAX_CHANNELS, vme::LinearCalibrate(variables.adc_offset, variables.adc_slope));
+	vme::transform(tcal, vme::LinearCalibrate(variables.tdc_offset, variables.tdc_slope));
 }
 
 
@@ -47,27 +56,47 @@ void dragon::DSSSD::calculate()
 
 dragon::DSSSD::Variables::Variables()
 {
-	std::fill_n(qdc_module, MAX_CHANNELS, 1);
-	for(int i=0; i< MAX_CHANNELS; ++i) {
-		qdc_ch[i] = i;
-	}
-	tof_ch = 1; /// \todo Update once plugged in
+	/*! Calls reset() */
+	reset();
+}
 
-	std::fill_n(slope, MAX_CHANNELS, 1);
-	std::fill_n(offset, MAX_CHANNELS, 0);
+void dragon::DSSSD::Variables::reset()
+{
+	std::fill_n(adc_module, MAX_CHANNELS, 1);
+	vme::index_fill_n(adc_channel, MAX_CHANNELS);
+
+
+	std::fill_n(adc_slope,  MAX_CHANNELS, 1.);
+	std::fill_n(adc_offset, MAX_CHANNELS, 0.);
+
+	tdc_channel = 1; /// \todo Update once plugged in
+	tdc_slope   = 1.;
+	tdc_offset  = 0.;
 }
 
 void dragon::DSSSD::Variables::set(const char* odb)
 {
-	/// \todo Set actual ODB paths, TEST!!
-	const char* const pathAdcModule = "Equipment/DSSSD/Variables/ADCModule";
-	const char* const pathAdcCh     = "Equipment/DSSSD/Variables/ADCChannel";
-	const char* const pathTdcCh     = "Equipment/DSSSD/Variables/TDCChannel";
-	
+	/*!
+	 * \param [in] odb_file Path of the odb file from which you are extracting variable values
+	 * \todo Needs testing
+	 */
+	const char* const pathAdcModule = "/dragon/dsssd/variables/adc/module";
+	const char* const pathAdcCh     = "/dragon/dsssd/variables/adc/channel";
+	const char* const pathAdcSlope  = "/dragon/dsssd/variables/adc/slope";
+	const char* const pathAdcOffset = "/dragon/dsssd/variables/adc/offset";
+
+	const char* const pathTdcCh     = "/dragon/dsssd/variables/tdc/channel";
+	const char* const pathTdcSlope  = "/dragon/dsssd/variables/tdc/slope";
+	const char* const pathTdcOffset = "/dragon/dsssd/variables/tdc/offset";
+
 	midas::Database database(odb);
-	database.ReadArray(pathAdcModule, qdc_module, MAX_CHANNELS);
-	database.ReadArray(pathAdcCh, qdc_ch, MAX_CHANNELS);
-	database.ReadValue(pathTdcCh, tof_ch);
-	database.ReadArray(pathAdcSlope, slope, MAX_CHANNELS);
-	database.ReadArray(pathAdcSlope, offset, MAX_CHANNELS);
+
+	database.ReadArray(pathAdcModule, adc_module,  MAX_CHANNELS);
+	database.ReadArray(pathAdcCh,     adc_channel, MAX_CHANNELS);
+	database.ReadArray(pathAdcSlope,  adc_slope,   MAX_CHANNELS);
+	database.ReadArray(pathAdcOffset, adc_offset,  MAX_CHANNELS);
+
+	database.ReadValue(pathTdcCh, tdc_channel);
+	database.ReadValue(pathTdcSlope, tdc_slope);
+	database.ReadValue(pathTdcOffset, tdc_offset);
 }

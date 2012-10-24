@@ -27,27 +27,34 @@ public:
 		int adc_module[MAX_CHANNELS];
 
 		/// Maps DSSSD::e[i] to adc channel number
-		int adc_ch[MAX_CHANNELS];
+		int adc_channel[MAX_CHANNELS];
 
-		/// Adc calibration slope
+		/// Adc calibration slopes
 		double adc_slope[MAX_CHANNELS];
 
-		/// Adc calibration offset
+		/// Adc calibration offsets
 		double adc_offset[MAX_CHANNELS];
 
 		/// Maps tof to tdc channel number
-		int tdc_ch;
+		int tdc_channel;
+
+		/// TDC calibration slope
+		double tdc_slope;
+
+		/// TDC calibration offset
+		double tdc_offset;
 
  public:
-		/// Constructor, sets data to generic values (TBD)
+		/// Constructor, sets data to generic values
 		Variables();
 
-		/// \brief Set variable values from an ODB file
-		/// \param [in] odb_file Path of the odb file from which you are extracting variable values
-		/// \todo Needs to be implemented once ODB is set up
+		/// Set variable values from an ODB file
 		void set(const char* odb_file);
 
-		/// Allos DSSSD class access to internals
+		/// Reset all variable values to defaults
+		void reset();
+
+		/// Allows DSSSD class access to internals
 		friend class dragon::DSSSD;
 	};
 
@@ -56,10 +63,10 @@ public:
 
 PRIVATE:
 	/// Calibrated energy signals
-	int16_t e[MAX_CHANNELS]; //#
+	double ecal[MAX_CHANNELS]; //#
 
-	/// Raw time signal (just one??)
-	int16_t tof; //#
+	/// Calibrated time signal
+	double tcal; //#
 
 public:
 	/// Constructor, initialize data
@@ -68,12 +75,10 @@ public:
 	/// Reset all data to VME::none
 	void reset();
 
-	/// \brief Read midas event data
-	/// \param [in] modules Heavy-ion module structure
-	/// \param [in] v1190_trigger_ch Channel number of the v1190b trigger
-	void read_data(const vme::V785 adcs[], const vme::V1190& v1190);
+	/// Read data from vme modules
+	void read_data(const vme::V785 adcs[], const vme::V1190& tdc);
 
-	/// Calculate (tof??)
+	/// Performs energy calibration
 	void calculate();
 };
 
