@@ -24,26 +24,31 @@ public:
 public:
 	/// Bgo variables
 	class Variables {
+ private:
+		///\cond
  PRIVATE:
-		/// \brief Maps ADC channel to BGO detector
-		/// \details Example: setting ch[0] = 12, means that the 0th detector
-		/// in the BGO array reads its charge data from channel 12 of the qdc.
+		///\endcond
+		/// Maps ADC channel to BGO detector
+		/*!
+		 * Example: setting ch[0] = 12, means that the 0th detector
+		 * in the BGO array reads its charge data from channel 12 of the qdc.
+		 */
 		int qdc_ch[MAX_CHANNELS];
 
-		/// \brief Maps TDC channel to BGO detector
-		/// \details Similar to qdc_ch
+		/// Maps TDC channel to BGO detector
+		/*! Similar to qdc_ch */
 		int tdc_ch[MAX_CHANNELS];
 
-		/// \brief \e x position
-		/// \details \c xpos[n] refers to the \e x position (in cm) of the <I>n<SUP>th</SUP></I> detector
+		/// \e x position
+		/*! \c xpos[n] refers to the \e x position (in cm) of the <I>n<SUP>th</SUP></I> detector */
 		double xpos[MAX_CHANNELS];
 
-		/// \brief \e y position
-		/// \details \c ypos[n] refers to the \e y position (in cm) of the <I>n<SUP>th</SUP></I> detector
+		/// \e y position
+		/*! \c ypos[n] refers to the \e y position (in cm) of the <I>n<SUP>th</SUP></I> detector */
 		double ypos[MAX_CHANNELS];
 
-		/// \brief \e z position
-		/// \details \c zpos[n] refers to the \e z position (in cm) of the <I>n<SUP>th</SUP></I> detector
+		/// \e z position
+		/*! \c zpos[n] refers to the \e z position (in cm) of the <I>n<SUP>th</SUP></I> detector */
 		double zpos[MAX_CHANNELS];
 
  public:
@@ -60,9 +65,12 @@ public:
 	};
 
 	/// Instance of Bgo::Variables for mapping digitizer ch -> bgo detector
-	Variables variables;    //!
+	Variables variables;        //!
 	 
+private:
+	///\cond
 PRIVATE:
+	///\endcond
 	/// Raw charge signals, per detector
 	int16_t q[MAX_CHANNELS];    //#
 
@@ -70,7 +78,7 @@ PRIVATE:
 	int32_t t[MAX_CHANNELS];    //#
 
 	/// Sorted (high->low) charge signals
-	int16_t qsort[MAX_SORTED]; //#
+	int16_t qsort[MAX_SORTED];  //#
 
 	/// Sum of all \e valid charge signals
 	double qsum; //#

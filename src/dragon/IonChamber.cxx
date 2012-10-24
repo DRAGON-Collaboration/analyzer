@@ -27,6 +27,10 @@ void dragon::IonChamber::reset()
 
 void dragon::IonChamber::read_data(const vme::V785 adcs[], const vme::V1190& tdc)
 {
+	/*!
+	 * \param modules Heavy-ion module structure
+	 * \param [in] v1190_trigger_ch Channel number of the v1190b trigger
+	 */
 	for(int i=0; i< MAX_CHANNELS; ++i) {
 		const int whichAdc = variables.anode_module[i];
 		assert (whichAdc< Tail::NUM_ADC); ///\todo Don't use an assert here

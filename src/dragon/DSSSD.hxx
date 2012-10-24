@@ -20,9 +20,12 @@ public:
 	static const int MAX_CHANNELS = 32; //!
 
 public:
-	/// DSSSD Variables
+	/// DSSSD Variables Class
 	class Variables {
+ private:
+		/*!\cond*/
  PRIVATE:
+  	/*!\endcond*/
 		/// Maps DSSSD::e[i] to adc module number
 		int adc_module[MAX_CHANNELS];
 
@@ -61,7 +64,10 @@ public:
 	/// Instance of DSSSD::Variables
 	DSSSD::Variables variables; //!
 
+private:
+	/*!\cond*/
 PRIVATE:
+	/*!\endcond*/
 	/// Calibrated energy signals
 	double ecal[MAX_CHANNELS]; //#
 

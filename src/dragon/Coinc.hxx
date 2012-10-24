@@ -17,10 +17,15 @@ namespace dragon {
 /// A complete Dragon (coincidence) event
 class Coinc {
 
+// Class data //
+private:
+	///\cond
 PRIVATE:
+	///\endcond
 	/// Separator time-of-flight (x-over tof).
 	double xtof;
 
+// Subclass data //
 public:
 	/// Head (gamma-ray) part of the event
 	Head head;
@@ -28,6 +33,7 @@ public:
 	/// Tail (heavy-ion) part of the event
 	Tail tail;
 
+// Methods //
 public:
 	/// Empty
 	Coinc();

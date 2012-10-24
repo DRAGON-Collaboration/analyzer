@@ -16,27 +16,32 @@ namespace dragon {
 
 /// Surface barrier detectors
 class SurfaceBarrier {
+	// Class global constants //
 public:
 	/// Number of detectors
 	static const int MAX_CHANNELS = 2; //!
 
+	// Subclases //
 public:
 	/// Surface Barrier Variables
 	class Variables {
+		// Class data //
+ private:
+		///\cond
  PRIVATE:
+		///\endcond
 		/// Maps detector to adc module number
 		int module[MAX_CHANNELS];
 
 		/// Maps detector adc channel number
 		int ch[MAX_CHANNELS];
 
+		// Methods //
  public:
 		/// Constructor, sets data to generic values
 		Variables();
 
-		/// \brief Set variable values from an ODB file
-		/// \param [in] odb_file Path of the odb file from which you are extracting variable values
-		/// \todo Needs to be implemented once ODB is set up
+		/// Set variable values from an ODB file
 		void set(const char* odb_file);
 
 		/// Allow SurfaceBarrier class access to internals
@@ -46,10 +51,15 @@ public:
 	/// Variables instance
 	SurfaceBarrier::Variables variables; //!
 	 
+	// Class data //
+private:
+	///\cond
 PRIVATE:
+	///\endcond
 	/// Charge (energy) signals
 	int16_t q[MAX_CHANNELS]; //#
 
+	// Methods //
 public:
 	/// Constructor, initialize data
 	SurfaceBarrier();

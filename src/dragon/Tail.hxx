@@ -16,26 +16,32 @@ namespace dragon {
 
 /// Collection of all tail detectors and VME modules
 class Tail {
-
+	// Class global constants //
 public:
 	/// Number of ADC (caen v785) modules
 	static const int NUM_ADC = 2;
 
+	// Subclasses //
 public:
 	/// Heavy ion variables
-	struct Variables {
+	class Variables {
+		// Class data //
+ private:
+		///\cond
+ PRIVATE:
+		///\endcond
 		/// Channel of the V1190b TDC trigger
 		int v1190_trigger_ch;
-			
+
+		// Methods //
+ public:
 		/// Constructor, set data to generic values
 		Variables();
 
 		/// Destructor, nothing to do
 		~Variables() { }
 
-		/// \brief Set variable values from an ODB file
-		/// \param [in] odb_file Path of the odb file from which you are extracting variable values
-		/// \todo Needs to be implemented once ODB is set up
+		/// Set variable values from an ODB file
 		void set(const char* odb_file);
 	};
 
@@ -45,54 +51,59 @@ public:
 	/// Midas event header
 	midas::Event::Header header; //#
 
+	// Class data //
+private:
+	///\cond
 PRIVATE:
+	///\endcond
 	/// Electronics modules
 #ifdef DISPLAY_MODULES
 	/// IO32 FPGA
-	vme::IO32 io32; //#
+	vme::IO32 io32;          //#
 
 	/// CAEN v785 ADC (x2)
 	vme::V785 v785[NUM_ADC]; //#
 
 	/// CAEN v1190 TDC
-	vme::V1190 v1190; //#
+	vme::V1190 v1190;        //#
 #else
 	/// IO32 FPGA
-	vme::IO32 io32; //!
+	vme::IO32 io32;          //!
 
 	/// CAEN v785 ADC (x2)
 	vme::V785 v785[NUM_ADC]; //!
 
 	/// CAEN v1190 TDC
-	vme::V1190 v1190; //!
+	vme::V1190 v1190;        //!
 #endif
 
 #ifndef DRAGON_OMIT_DSSSD
 	/// DSSSD detector
-	DSSSD dsssd; //#
+	DSSSD dsssd;             //#
 #endif
 
 #ifndef DRAGON_OMIT_IC
 	/// Ionization chamber
-	IonChamber ic; //#
+	IonChamber ic;           //#
 #endif
 
 	/// MCPs
-	MCP mcp; //#
+	MCP mcp;                 //#
 
 	/// Surface barrier detectors
-	SurfaceBarrier sb; //#
+	SurfaceBarrier sb;       //#
 
 #ifndef DRAGON_OMIT_NAI
 	/// NaI detetors
-	NaI nai; //#
+	NaI nai;                 //#
 #endif
 
 #ifndef DRAGON_OMIT_GE
 	/// Germanium detector
-	Ge ge; //#
+	Ge ge;                   //#
 #endif
 
+	// Methods //
 public:
 	/// Initializes data values
 	Tail();

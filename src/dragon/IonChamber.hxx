@@ -15,15 +15,20 @@ namespace dragon {
 
 /// Ionization chamber
 class IonChamber {
-
+// Class global constants //
 public:
 	/// Number of anodes
 	static const int MAX_CHANNELS = 4; //!
 
+// Subclasses //
 public:
 	/// Ion chamber variables
 	class Variables {
+		// Data //
+ private:
+		///\cond
  PRIVATE:
+		///\endcond
 		/// Maps anode channel number to adc module number
 		int anode_module[MAX_CHANNELS];
 
@@ -33,6 +38,7 @@ public:
 		/// Maps tof to TDC channel number
 		int tof_ch;
 
+		// Methods //
  public:
 		/// Constructor, sets data to generic values
 		Variables();
@@ -49,7 +55,11 @@ public:
 	/// Variables instance
 	Variables variables; //!
 	 
+	// Class data //
+private:
+  ///\cond
 PRIVATE:
+	///\endcond
 	/// Raw anode signals
 	int16_t anode[MAX_CHANNELS]; //#
 
@@ -59,6 +69,7 @@ PRIVATE:
 	/// Sum of anode signals
 	double sum;
 
+	// Methods //
 public:
 	/// Constructor, initialize data
 	IonChamber();
@@ -66,12 +77,10 @@ public:
 	/// Reset all data to VME::none
 	void reset();
 
-	/// \brief Read midas event data
-	/// \param modules Heavy-ion module structure
-	/// \param [in] v1190_trigger_ch Channel number of the v1190b trigger
+	/// Read midas event data
 	void read_data(const vme::V785 adcs[], const vme::V1190& tdc);
 
-	/// \brief Calculate higher-level parameters
+	/// Calculate higher-level parameters
 	void calculate();
 };
 

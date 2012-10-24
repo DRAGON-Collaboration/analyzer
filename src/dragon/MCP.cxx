@@ -27,6 +27,9 @@ void dragon::MCP::reset()
 
 void dragon::MCP::read_data(const vme::V785 adcs[], const vme::V1190& tdc)
 {
+	/*!
+	 * \param modules Heavy-ion module structure
+	 */
 	for(int i=0; i< MAX_CHANNELS; ++i) {
 		const int whichAdc = variables.anode_module[i];
 		assert (whichAdc< Tail::NUM_ADC); ///\todo Don't use an assert here
@@ -45,6 +48,13 @@ void dragon::MCP::read_data(const vme::V785 adcs[], const vme::V1190& tdc)
 
 void dragon::MCP::calculate()
 {
+  /*!
+	 * Uses relative anode signal strengths to calculate spatial position
+	 * of hits on the MCP. Position calculation algorithm taken from the MSc thesis of
+	 * Michael Lamey, Simon Fraser University, 2001, p. 25, available online at
+	 * <a href="http://dragon.triumf.ca/docs/Lamey_thesis.pdf">
+	 * dragon.triumf.ca/docs/Lamey_thesis.pdf</a>
+	 */
 	if(!is_valid<int16_t>(anode, MAX_CHANNELS)) return;
 	const double Lhalf = 25.;  // half the length of a single side of the MCP (50/2 [mm])
 	int32_t sum = 0;
@@ -69,6 +79,10 @@ dragon::MCP::Variables::Variables()
 
 void dragon::MCP::Variables::set(const char* odb)
 {
+	/*!
+	 * \param [in] odb_file Path of the odb file from which you are extracting variable values
+	 * \todo Needs to be implemented once ODB is set up
+	 */
 	/// \todo Set actual ODB paths, TEST!!
 	const char* const pathAnodeModule = "Equipment/MCP/Variables/AnodeModule";
 	const char* const pathAnodeCh     = "Equipment/MCP/Variables/AnodeChannel";

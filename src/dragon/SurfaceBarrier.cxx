@@ -47,6 +47,10 @@ dragon::SurfaceBarrier::Variables::Variables()
 
 void dragon::SurfaceBarrier::Variables::set(const char* odb)
 {
+	/*!
+	 * \param [in] odb_file Path of the odb file from which you are extracting variable values
+	 * \todo Needs to be implemented once ODB is set up
+	 */
 	/// \todo Set actual ODB paths, TEST!!
 	const char* const pathModule = "Equipment/SurfaceBarrier/Variables/AnodeModule";
 	const char* const pathCh     = "Equipment/SurfaceBarrier/Variables/AnodeChannel";
