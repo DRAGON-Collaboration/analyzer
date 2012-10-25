@@ -92,7 +92,7 @@ public:
 	/// Read midas event data
 	void read_data(const vme::V785 adcs[], const vme::V1190& tdc);
 
-	/// Calculate x and y positions
+	/// Calibrate ADC/TDC signals, calculate x and y positions
 	void calculate();
 };
 

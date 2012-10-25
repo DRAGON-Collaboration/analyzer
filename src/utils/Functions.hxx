@@ -8,6 +8,29 @@
 /// Encloses various 'utility' functions
 namespace utils {
 
+/// Sums all values in an array, <e>ignoring "null" values</e>
+template <class T>
+inline double calculate_sum(T begin, T end)
+{
+	/*!
+	 * Example:
+	 * \code
+	 * double anodes = { 300., 200., 100., 1., 0., -1. }; // dragon::NO_DATA == -1
+	 * double sum = utils::sum(anodes, anodes + 6);
+	 * // sum = 601.
+	 * \endcode
+	 * \param begin First element to sum
+	 * \param end One past the last element to sum
+	 * \tparam T Type contained in the array
+	 */
+	double sum = 0.;
+	for(; begin != end; ++begin) {
+		if(is_valid(*begin))
+			sum += *begin;
+	}
+	return sum;
+}
+
 /// Fills an array with it's index values
 template <class T>
 inline void index_fill(T begin, T end, int offset = 0)
@@ -21,6 +44,7 @@ inline void index_fill(T begin, T end, int offset = 0)
 	 * vme::index_fill(arr, arr + 4, 5);
 	 * // arr = { 5., 6., 7., 8. }
 	 * \endcode
+	 * \tparam Type contained in the array
 	 * \param begin Beginning of the array (vector, etc.)
 	 * \param end End of the array (vector, etc.)
 	 * \param offset Optional offset for the filled values

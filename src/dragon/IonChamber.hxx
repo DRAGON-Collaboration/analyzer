@@ -29,23 +29,22 @@ public:
 		/** @cond */
  PRIVATE:
 		/** @endcond */
-		/// Maps anode channel number to adc module number
-		int anode_module[MAX_CHANNELS];
 
-		/// Maps anode channel number to adc channel number
-		int anode_ch[MAX_CHANNELS];
+		/// Anode variables
+		AdcVariables<MAX_CHANNELS> adc;
 
-		/// Maps tof to TDC channel number
-		int tof_ch;
+		/// Tdc variables
+		TdcVariables<1> tdc;
 
 		// Methods //
  public:
 		/// Constructor, sets data to generic values
 		Variables();
 
-		/// \brief Set variable values from an ODB file
-		/// \param [in] odb_file Path of the odb file from which you are extracting variable values
-		/// \todo Needs to be implemented once ODB is set up
+		/// Reset data to default values
+		void reset();
+
+		/// Set variable values from an ODB file
 		void set(const char* odb_file);
 		
 		/// Allow IonChamber class access to internals
@@ -60,14 +59,14 @@ private:
   /** @cond */
 PRIVATE:
 	/** @endcond */
-	/// Raw anode signals
-	int16_t anode[MAX_CHANNELS]; //#
+	/// Calibrated anode signals
+	double anode[MAX_CHANNELS]; //#
 
-	/// Raw time signal (channels???)
-	int16_t tof; //#
+	/// Time signal
+	double tcal; //#
 
 	/// Sum of anode signals
-	double sum;
+	double sum;  //#
 
 	// Methods //
 public:

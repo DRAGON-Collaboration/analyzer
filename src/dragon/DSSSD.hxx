@@ -70,7 +70,7 @@ public:
 	/// Read data from vme modules
 	void read_data(const vme::V785 adcs[], const vme::V1190& tdc);
 
-	/// Performs energy calibration
+	/// Performs energy and time calibrations
 	void calculate();
 };
 

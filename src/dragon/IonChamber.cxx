@@ -3,8 +3,10 @@
 #include <string>
 #include <iostream>
 #include "midas/Database.hxx"
+#include "utils/Functions.hxx"
 #include "vme/V1190.hxx"
 #include "vme/V792.hxx"
+#include "Channels.h"
 #include "Tail.hxx"
 #include "IonChamber.hxx"
 
@@ -18,11 +20,8 @@ dragon::IonChamber::IonChamber()
 
 void dragon::IonChamber::reset()
 {
-	for(int i=0; i< MAX_CHANNELS; ++i) {
-		anode[i] = dragon::NO_DATA;
-	}
-	tof = dragon::NO_DATA;
-	sum = dragon::NO_DATA;
+	utils::reset_array(MAX_CHANNELS, anode);
+	utils::reset_data(tcal, sum);
 }
 
 void dragon::IonChamber::read_data(const vme::V785 adcs[], const vme::V1190& tdc)
@@ -31,23 +30,22 @@ void dragon::IonChamber::read_data(const vme::V785 adcs[], const vme::V1190& tdc
 	 * \param modules Heavy-ion module structure
 	 * \param [in] v1190_trigger_ch Channel number of the v1190b trigger
 	 */
-	for(int i=0; i< MAX_CHANNELS; ++i) {
-		const int whichAdc = variables.anode_module[i];
-		assert (whichAdc< Tail::NUM_ADC); ///\todo Don't use an assert here
-		const int whichAdcChannel = variables.anode_ch[i];
-
-		anode[i] = adcs[whichAdc].get_data(whichAdcChannel);
-	}
+	utils::channel_map(anode, MAX_CHANNELS, variables.adc.channel, variables.adc.module, adcs);
+	utils::channel_map(tcal, variables.tdc.channel, tdc);
 }
 
 void dragon::IonChamber::calculate()
 {
-	if(!utils::is_valid<int16_t>(anode, MAX_CHANNELS)) return;
-	sum = 0;
-	for(int i=0; i< MAX_CHANNELS; ++i) {
-		sum += (double)anode[i];
-	}
-	/// \todo calculate tof
+	/*!
+	 * Calibrates anode and time signals, calculates anode sum
+	 */
+	utils::pedestal_subtract(anode, MAX_CHANNELS, variables.adc);
+	utils::linear_calibrate(anode, MAX_CHANNELS, variables.adc);
+
+	utils::linear_calibrate(tcal, variables.tdc);
+
+	sum = utils::calculate_sum(anode, anode + MAX_CHANNELS);
+	if(sum == 0.) utils::reset_data(sum);
 }
 
 
@@ -55,22 +53,38 @@ void dragon::IonChamber::calculate()
 
 dragon::IonChamber::Variables::Variables()
 {
-	for(int i=0; i< MAX_CHANNELS; ++i) {
-		anode_module[i] = 0;
-		anode_ch[i] = i;
-	}
-	tof_ch = 1; /// \todo Update once plugged in
+	/*! Calls reset() */
+	reset();
+}
+
+void dragon::IonChamber::Variables::reset()
+{
+	std::fill(adc.module, adc.module + MAX_CHANNELS, DEFAULT_HI_MODULE);
+	utils::index_fill(adc.channel, adc.channel + MAX_CHANNELS, IC_ADC0);
+
+	std::fill(adc.pedestal, adc.pedestal + MAX_CHANNELS, 0);
+	std::fill(adc.slope, adc.slope + MAX_CHANNELS, 1.);
+	std::fill(adc.offset, adc.offset + MAX_CHANNELS, 0.);
+
+	tdc.module = 0; // unused
+	tdc.channel = IC_TDC0;
+
+	tdc.offset = 0.;
+	tdc.slope = 1.;
 }
 
 void dragon::IonChamber::Variables::set(const char* odb)
 {
+	/// \param [in] odb_file Path of the odb file from which you are extracting variable values
+	/// \todo Needs to be implemented once ODB is set up
 	/// \todo Set actual ODB paths, TEST!!
-	const char* const pathAnodeModule = "Equipment/IonChamber/Variables/AnodeModule";
-	const char* const pathAnodeCh     = "Equipment/IonChamber/Variables/AnodeChannel";
-	const char* const pathTdcCh       = "Equipment/IonChamber/Variables/TDCChannel";
+	/// \tod WRITE!!
+	// const char* const pathAnodeModule = "Equipment/IonChamber/Variables/AnodeModule";
+	// const char* const pathAnodeCh     = "Equipment/IonChamber/Variables/AnodeChannel";
+	// const char* const pathTdcCh       = "Equipment/IonChamber/Variables/TDCChannel";
 	
-	midas::Database database(odb);
-	database.ReadArray(pathAnodeModule, anode_module, MAX_CHANNELS);
-	database.ReadArray(pathAnodeCh, anode_ch, MAX_CHANNELS);
-	database.ReadValue(pathTdcCh, tof_ch);
+	// midas::Database database(odb);
+	// database.ReadArray(pathAnodeModule, anode_module, MAX_CHANNELS);
+	// database.ReadArray(pathAnodeCh, anode_ch, MAX_CHANNELS);
+	// database.ReadValue(pathTdcCh, tof_ch);
 }

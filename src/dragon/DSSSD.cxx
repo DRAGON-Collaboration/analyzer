@@ -8,6 +8,7 @@
 #include "utils/Functions.hxx"
 #include "vme/V1190.hxx"
 #include "vme/V792.hxx"
+#include "Channels.h"
 #include "Tail.hxx"
 #include "DSSSD.hxx"
 
@@ -65,14 +66,15 @@ dragon::DSSSD::Variables::Variables()
 
 void dragon::DSSSD::Variables::reset()
 {
-	std::fill(adc.module, adc.module + MAX_CHANNELS, 1);
-	utils::index_fill(adc.channel, adc.channel + MAX_CHANNELS);
+	std::fill(adc.module, adc.module + MAX_CHANNELS, DSSSD_MODULE);
+	utils::index_fill(adc.channel, adc.channel + MAX_CHANNELS, DSSSD_ADC0);
 
 	std::fill(adc.pedestal, adc.pedestal + MAX_CHANNELS, 0);
 	std::fill(adc.slope,  adc.slope + MAX_CHANNELS, 1.);
 	std::fill(adc.offset, adc.offset + MAX_CHANNELS, 0.);
 
-	tdc.channel = 1; /// \todo Update once plugged in
+	tdc.module  = 0; // unused
+	tdc.channel = DSSSD_TDC0;
 	tdc.slope   = 1.;
 	tdc.offset  = 0.;
 }

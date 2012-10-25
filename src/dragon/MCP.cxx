@@ -8,6 +8,7 @@
 #include "utils/Functions.hxx"
 #include "vme/V1190.hxx"
 #include "vme/V792.hxx"
+#include "Channels.h"
 #include "Tail.hxx"
 #include "MCP.hxx"
 
@@ -81,20 +82,23 @@ dragon::MCP::Variables::Variables()
 
 void dragon::MCP::Variables::reset()
 {
-	std::fill(adc.module, adc.module + MAX_CHANNELS, 0);
-	utils::index_fill(adc.channel, adc.channel + MAX_CHANNELS);
+	std::fill(adc.module, adc.module + MAX_CHANNELS, DEFAULT_HI_MODULE);
+	utils::index_fill(adc.channel, adc.channel + MAX_CHANNELS, MCP_ADC0);
+
 	std::fill(adc.pedestal, adc.pedestal + MAX_CHANNELS, 0);
 	std::fill(adc.offset, adc.offset + MAX_CHANNELS, 0.);
 	std::fill(adc.slope, adc.slope + MAX_CHANNELS, 1.);
 
-	tac_adc.module   = 0;
-	tac_adc.channel  = MAX_CHANNELS;
+	tac_adc.module   = DEFAULT_HI_MODULE;
+	tac_adc.channel  = MCP_TAC_ADC0;
+
 	tac_adc.pedestal = 0;
 	tac_adc.offset   = 0.;
 	tac_adc.slope    = 1.;
 
-	std::fill(tdc.module, tdc.module + NUM_DETECTORS, 0);
-	utils::index_fill(tdc.channel, tdc.channel + NUM_DETECTORS);
+	std::fill(tdc.module, tdc.module + NUM_DETECTORS, 0); // unused
+	utils::index_fill(tdc.channel, tdc.channel + NUM_DETECTORS, MCP_TDC0);
+
 	std::fill(tdc.offset, tdc.offset + NUM_DETECTORS, 0.);
 	std::fill(tdc.slope, tdc.slope + NUM_DETECTORS, 1.);
 }
