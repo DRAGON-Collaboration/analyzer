@@ -61,7 +61,7 @@ void dragon::DSSSD::calculate()
 
 	const double* const pmax_back  = std::max_element(ecal+16, ecal+32);
 	eback  = *pmax_back;
-	hit_back = pmax_back - (ecal+16);
+	hit_back = pmax_back - ecal;
 }
 
 
