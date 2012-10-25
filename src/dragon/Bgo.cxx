@@ -6,9 +6,11 @@
 #include <algorithm>
 #include <functional>
 #include "midas/Database.hxx"
+#include "utils/Functions.hxx"
 #include "utils/Error.hxx"
 #include "vme/V1190.hxx"
 #include "vme/V792.hxx"
+#include "Channels.h"
 #include "Bgo.hxx"
 
 // ========== Class dragon::Bgo ========== //
@@ -27,18 +29,16 @@ dragon::Bgo::Bgo():
 
 void dragon::Bgo::reset()
 {
-	utils::reset_array(MAX_CHANNELS, q);
-	utils::reset_array(MAX_CHANNELS, t);
-	utils::reset_array(MAX_SORTED, qsort);
-	utils::reset_data(qsum, x0, y0, z0);
+	utils::reset_array(MAX_CHANNELS, ecal);
+	utils::reset_array(MAX_CHANNELS, tcal);
+	utils::reset_array(MAX_SORTED, esort);
+	utils::reset_data(sum, x0, y0, z0);
 }
 
 void dragon::Bgo::read_data(const vme::V792& adc, const vme::V1190& tdc)
 {
-	for(int i=0; i< Bgo::MAX_CHANNELS; ++i) {
-		q[i] = adc.get_data( variables.qdc_ch[i] );
-		t[i] = tdc.get_data( variables.tdc_ch[i] );
-	}
+	utils::channel_map(ecal, MAX_CHANNELS, variables.adc.channel, adc);
+	utils::channel_map(tcal, MAX_CHANNELS, variables.tdc.channel, tdc);
 }
 
 
@@ -49,32 +49,41 @@ bool is_invalid (T t) { return !utils::is_valid(t); }
 
 void dragon::Bgo::calculate()
 {
-	int16_t temp[MAX_CHANNELS]; // temp array of sorted energies
-	std::copy(this->q, this->q + MAX_CHANNELS, temp); // temp == q
+	/*!
+	 * \todo WRITE DESCRIPOTION!!
+	 */
+	utils::pedestal_subtract(ecal, MAX_CHANNELS, variables.adc);
+	utils::linear_calibrate(ecal, MAX_CHANNELS, variables.adc);
+
+	utils::linear_calibrate(tcal, MAX_CHANNELS, variables.tdc);
+
+
+	double temp[MAX_CHANNELS]; // temp array of sorted energies
+	std::copy(ecal, ecal + MAX_CHANNELS, temp); // temp == ecal
 
 	// remove invalid entries
-	int16_t *tempBegin = temp, *tempEnd = temp + MAX_CHANNELS;
-	std::remove_if(tempBegin, tempEnd, is_invalid<int16_t>);
+	double *tempBegin = temp, *tempEnd = temp + MAX_CHANNELS;
+	std::remove_if(tempBegin, tempEnd, is_invalid<double>);
 
 	// put { tempBegin...tempEnd } in descending order
-	std::sort(tempBegin, tempEnd, std::greater<int16_t>());
+	std::sort(tempBegin, tempEnd, std::greater<double>());
 
-	// copy first MAX_SORTED elements to this->qsort
+	// copy first MAX_SORTED elements to this->esort
 	const ptrdiff_t ncopy = std::max(static_cast<ptrdiff_t> (MAX_SORTED), tempEnd - tempBegin);
-	std::copy(tempBegin, tempBegin + ncopy, this->qsort);
+	std::copy(tempBegin, tempBegin + ncopy, esort);
 	if (ncopy < MAX_SORTED)
-		std::fill(this->qsort + ncopy, this->qsort + MAX_SORTED, dragon::NO_DATA);
+		std::fill(esort + ncopy, esort + MAX_SORTED, dragon::NO_DATA);
 
-	// calculate qsum
-	qsum = std::accumulate(tempBegin, tempEnd, 0);
-	if(qsum == 0) qsum = dragon::NO_DATA;
+	// calculate sum
+	sum = std::accumulate(tempBegin, tempEnd, 0);
+	if(sum == 0) utils::reset_data(sum);
 
 	// calculate x0, y0, z0
-	if(utils::is_valid(qsum)) {
-		int which = std::max_element(q, q + MAX_CHANNELS) - q; // which detector was max hit?
-		x0 = variables.xpos[which];
-		y0 = variables.ypos[which];
-		z0 = variables.zpos[which];
+	if(utils::is_valid(sum)) {
+		int which = std::max_element(ecal, ecal + MAX_CHANNELS) - ecal; // which detector was max hit?
+		x0 = variables.pos.x[which];
+		y0 = variables.pos.y[which];
+		z0 = variables.pos.z[which];
 	}
 }
 
@@ -83,28 +92,45 @@ void dragon::Bgo::calculate()
 
 dragon::Bgo::Variables::Variables()
 {
-	for(int i=0; i< Bgo::MAX_CHANNELS; ++i) {
-		qdc_ch[i] = i;
-		tdc_ch[i] = i;
-		xpos[i]   = 0.;
-		ypos[i]   = 0.;
-		zpos[i]   = 0.;
-	}
+	/*! Calls reset() */
+	reset();
+}
+
+void dragon::Bgo::Variables::reset()
+{
+	utils::index_fill(adc.channel, adc.channel + MAX_CHANNELS, BGO_ADC0);
+	std::fill(adc.pedestal, adc.pedestal + MAX_CHANNELS, 0);
+	std::fill(adc.offset, adc.offset + MAX_CHANNELS, 0.);
+	std::fill(adc.slope, adc.slope + MAX_CHANNELS, 1.);
+
+	utils::index_fill(tdc.channel, tdc.channel + MAX_CHANNELS, BGO_TDC0);
+	std::fill(tdc.offset, tdc.offset + MAX_CHANNELS, 0.);
+	std::fill(tdc.slope, tdc.slope + MAX_CHANNELS, 1.);
+
+	std::fill(pos.x, pos.x + MAX_CHANNELS, 1.);
+	std::fill(pos.y, pos.y + MAX_CHANNELS, 1.);
+	std::fill(pos.z, pos.z + MAX_CHANNELS, 1.);
 }
 
 void dragon::Bgo::Variables::set(const char* odb)
 {
-  /// \todo Set actual ODB paths, TEST!!
-	const char* const pathAdc  = "/Dragon/Bgo/Variables/Adc_channel";
-	const char* const pathTdc  = "/Dragon/Bgo/Variables/Tdc_channel";
-	const char* const pathXpos = "/Dragon/Bgo/Variables/Xpos";
-	const char* const pathYpos = "/Dragon/Bgo/Variables/Ypos";
-	const char* const pathZpos = "/Dragon/Bgo/Variables/Zpos";
-
+	/*!
+	 * \param [in] odb_file Path of the odb file from which you are extracting variable values
+	 * \todo Needs testing
+	 */
 	midas::Database database(odb);
-	database.ReadArray(pathAdc,  qdc_ch, MAX_CHANNELS);
-	database.ReadArray(pathTdc,  tdc_ch, MAX_CHANNELS);
-	database.ReadArray(pathXpos, xpos,   MAX_CHANNELS);
-	database.ReadArray(pathYpos, ypos,   MAX_CHANNELS);
-	database.ReadArray(pathZpos, zpos,   MAX_CHANNELS);
+
+	database.ReadArray("/dragon/bgo/variables/adc/module",   adc.module,   MAX_CHANNELS);
+	database.ReadArray("/dragon/bgo/variables/adc/channel",  adc.channel,  MAX_CHANNELS);
+	database.ReadArray("/dragon/bgo/variables/adc/pedestal", adc.pedestal, MAX_CHANNELS);
+	database.ReadArray("/dragon/bgo/variables/adc/slope",    adc.slope,    MAX_CHANNELS);
+	database.ReadArray("/dragon/bgo/variables/adc/offset",   adc.offset,   MAX_CHANNELS);
+
+	database.ReadArray("/dragon/bgo/variables/tdc/channel", tdc.channel, MAX_CHANNELS);
+	database.ReadArray("/dragon/bgo/variables/tdc/slope",   tdc.slope,   MAX_CHANNELS);
+	database.ReadArray("/dragon/bgo/variables/tdc/offset",  tdc.offset,  MAX_CHANNELS);
+
+	database.ReadArray("/dragon/bgo/variables/position/x",  pos.x, MAX_CHANNELS);
+	database.ReadArray("/dragon/bgo/variables/position/y",  pos.y, MAX_CHANNELS);
+	database.ReadArray("/dragon/bgo/variables/position/z",  pos.z, MAX_CHANNELS);
 }

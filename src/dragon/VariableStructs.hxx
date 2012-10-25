@@ -7,6 +7,39 @@
 
 namespace dragon {
 
+
+/// Defines position in a cartesian system
+/*! \tparam N Number of channels */
+template <int N>
+struct PositionVariables {
+
+	/// X-axis position
+	double x[N];
+
+	/// Y-axis position
+	double y[N];
+
+	/// Z-axis position
+	double z[N];
+
+};
+
+/// Template specialization of Position<N> for one channel
+template <>
+struct PositionVariables<1> {
+
+	/// X-axis position
+	double x;
+
+	/// Y-axis position
+	double y;
+
+	/// Z-axis position
+	double z;
+
+};
+
+
 //\\\\\\\\\\\\\//
 // FIRST ORDER //
 //\\\\\\\\\\\\\//

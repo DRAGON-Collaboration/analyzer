@@ -33,6 +33,7 @@
 #ifndef DRAGON_CHANNELS_H
 #define DRAGON_CHANNELS_H
 
+#define BGO_ADC0         0  /**< Bgo q: Ch 0..30 */
 #define MCP_ADC0         0  /**< Mcp anode: Ch 0..3 */
 #define MCP_TAC_ADC0     4  /**< Mcp TAC: Ch 4 */
 #define SB_ADC0          5  /**< Surface barriers: Ch 5..6 */
@@ -44,6 +45,7 @@
 #define DEFAULT_HI_MODULE  0  /**< Default ADC for heavy-ion detectors */
 #define DSSSD_MODULE       1  /**< DSSSD gets it's own ADC */
 
+#define BGO_TDC0         0  /**< Bgo times: Ch 0..30 */
 #define MCP_TDC0         0  /**< Mcp times: Ch 0..1 */
 #define DSSSD_TDC0       2  /**< DSSSD time: Ch 2 */
 #define IC_TDC0          3  /**< Ion-chamber time: Ch 3 */

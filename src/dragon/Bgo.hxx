@@ -4,6 +4,7 @@
 #ifndef DRAGON_BGO_HXX
 #define DRAGON_BGO_HXX
 #include <stdint.h>
+#include "VariableStructs.hxx"
 
 namespace vme {
 class V792;
@@ -28,36 +29,24 @@ public:
 		/** @cond */
  PRIVATE:
 		/** @endcond */
-		/// Maps ADC channel to BGO detector
-		/*!
-		 * Example: setting ch[0] = 12, means that the 0th detector
-		 * in the BGO array reads its charge data from channel 12 of the qdc.
-		 */
-		int qdc_ch[MAX_CHANNELS];
 
-		/// Maps TDC channel to BGO detector
-		/*! Similar to qdc_ch */
-		int tdc_ch[MAX_CHANNELS];
+		/// Adc variables
+		AdcVariables<MAX_CHANNELS> adc;
 
-		/// \e x position
-		/*! \c xpos[n] refers to the \e x position (in cm) of the <I>n<SUP>th</SUP></I> detector */
-		double xpos[MAX_CHANNELS];
+		/// Tdc variables
+		TdcVariables<MAX_CHANNELS> tdc;
 
-		/// \e y position
-		/*! \c ypos[n] refers to the \e y position (in cm) of the <I>n<SUP>th</SUP></I> detector */
-		double ypos[MAX_CHANNELS];
-
-		/// \e z position
-		/*! \c zpos[n] refers to the \e z position (in cm) of the <I>n<SUP>th</SUP></I> detector */
-		double zpos[MAX_CHANNELS];
+		/// Detector positions in space
+		PositionVariables<MAX_CHANNELS> pos;
 
  public:
 		/// Constructor, sets *_ch[i] to i
 		Variables();
 
-		/// \brief Set variable values from an ODB file
-		/// \param [in] odb_file Path of the odb file from which you are extracting variable values
-		/// \todo Needs to be implemented once ODB is set up
+		/// Set values to defaults
+		void reset();
+
+		/// Set variable values from an ODB file
 		void set(const char* odb_file);
 
 		/// Allow Bgo class access to internals
@@ -71,25 +60,25 @@ private:
 	/** @cond */
 PRIVATE:
 	/** @endcond */
-	/// Raw charge signals, per detector
-	int16_t q[MAX_CHANNELS];    //#
+	/// Calibrated energies
+	double ecal[MAX_CHANNELS];    //#
 
-	/// Raw timing signals, per detector
-	int32_t t[MAX_CHANNELS];    //#
+	/// Calibrates times
+	double tcal[MAX_CHANNELS];    //#
 
-	/// Sorted (high->low) charge signals
-	int16_t qsort[MAX_SORTED];  //#
+	/// Sorted (high->low) energies
+	double esort[MAX_SORTED];  //#
 
-	/// Sum of all \e valid charge signals
-	double qsum; //#
+	/// Sum of all \e valid energies
+	double sum; //#
 
-	/// \brief \e x position of the qsort[0] hit
+	/// x position of the highest energy hit
 	double x0; //#
 
-	/// \brief \e y position of the qsort[0] hit
+	/// y position of the highest energy hit
 	double y0; //#
 
-	/// \brief \e z position of the qsort[0] hit
+	/// z position of the highest energy hit
 	double z0; //#
 
 public:
@@ -109,4 +98,10 @@ public:
 } // namespace dragon
 
 
+#ifdef __MAKECINT__
+#pragma link C++ class dragon::AdcVariables<dragon::Bgo::MAX_CHANNELS>+;
+#pragma link C++ class dragon::TdcVariables<dragon::Bgo::MAX_CHANNELS>+;
 #endif
+
+
+#endif // include guard
