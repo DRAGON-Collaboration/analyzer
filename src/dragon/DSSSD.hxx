@@ -76,4 +76,10 @@ public:
 
 } // namespace dragon
 
+
+#ifdef __MAKECINT__
+#pragma link C++ class dragon::AdcVariables<dragon::DSSSD::MAX_CHANNELS>+;
+#pragma link C++ class dragon::TdcVariables<1>+;
+#endif
+
 #endif
