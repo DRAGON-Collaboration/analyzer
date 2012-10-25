@@ -9,6 +9,27 @@ namespace utils {
 
 /// Fills an array with it's index values
 template <class T>
+inline void index_fill(T begin, T end, int offset = 0)
+{
+	/*!
+	 * Example:
+	 * \code
+	 * double arr[4];
+	 * vme::index_fill(arr, arr + 4);
+	 * // arr = { 0., 1., 2., 3. }
+	 * vme::index_fill(arr, arr + 4, 5);
+	 * // arr = { 5., 6., 7., 8. }
+	 * \endcode
+	 * \param begin Beginning of the array (vector, etc.)
+	 * \param end End of the array (vector, etc.)
+	 * \param offset Optional offset for the filled values
+	 */
+	for(int i=0; begin != end; ++i, ++begin)
+		*begin = i + offset;
+}
+
+/// Fills an array with it's index values
+template <class T>
 inline void index_fill_n(T begin, int n, int offset = 0)
 {
 	/*!

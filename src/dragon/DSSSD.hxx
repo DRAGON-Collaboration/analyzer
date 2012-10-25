@@ -2,7 +2,7 @@
 /// \brief Defines the DRAGON Double Sided Silicon Strip Detector (DSSSD) class.
 #ifndef DRAGON_DSSSD_HXX
 #define DRAGON_DSSSD_HXX
-
+#include "VariableStructs.hxx"
 
 namespace vme {
 class V792;
@@ -26,26 +26,12 @@ public:
 		/** @cond */
  PRIVATE:
   	/** @endcond */
-		/// Maps DSSSD::e[i] to adc module number
-		int adc_module[MAX_CHANNELS];
 
-		/// Maps DSSSD::e[i] to adc channel number
-		int adc_channel[MAX_CHANNELS];
+		/// Adc variables for the energy signals
+		AdcVariables<32> adc;
 
-		/// Adc calibration slopes
-		double adc_slope[MAX_CHANNELS];
-
-		/// Adc calibration offsets
-		double adc_offset[MAX_CHANNELS];
-
-		/// Maps tof to tdc channel number
-		int tdc_channel;
-
-		/// TDC calibration slope
-		double tdc_slope;
-
-		/// TDC calibration offset
-		double tdc_offset;
+		/// Tdc variables
+		TdcVariables<1> tdc;
 
  public:
 		/// Constructor, sets data to generic values

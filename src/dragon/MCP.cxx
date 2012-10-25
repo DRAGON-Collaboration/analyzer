@@ -70,6 +70,7 @@ void dragon::MCP::calculate()
 	}
 }
 
+
 // ====== class dragon::MCP::Variables ====== //
 
 dragon::MCP::Variables::Variables()
@@ -80,11 +81,11 @@ dragon::MCP::Variables::Variables()
 
 void dragon::MCP::Variables::reset()
 {
-	std::fill_n(adc.module, MAX_CHANNELS, 0);
-	utils::index_fill_n(adc.channel, MAX_CHANNELS);
-	std::fill_n(adc.pedestal, MAX_CHANNELS, 0);
-	std::fill_n(adc.offset, MAX_CHANNELS, 0.);
-	std::fill_n(adc.slope, MAX_CHANNELS, 1.);
+	std::fill(adc.module, adc.module + MAX_CHANNELS, 0);
+	utils::index_fill(adc.channel, adc.channel + MAX_CHANNELS);
+	std::fill(adc.pedestal, adc.pedestal + MAX_CHANNELS, 0);
+	std::fill(adc.offset, adc.offset + MAX_CHANNELS, 0.);
+	std::fill(adc.slope, adc.slope + MAX_CHANNELS, 1.);
 
 	tac_adc.module   = 0;
 	tac_adc.channel  = MAX_CHANNELS;
@@ -92,28 +93,34 @@ void dragon::MCP::Variables::reset()
 	tac_adc.offset   = 0.;
 	tac_adc.slope    = 1.;
 
-	std::fill_n(tdc.module, NUM_DETECTORS, 0);
-	utils::index_fill_n(tdc.channel, NUM_DETECTORS);
-	std::fill_n(tdc.offset, NUM_DETECTORS, 0.);
-	std::fill_n(tdc.slope, NUM_DETECTORS, 1.);
+	std::fill(tdc.module, tdc.module + NUM_DETECTORS, 0);
+	utils::index_fill(tdc.channel, tdc.channel + NUM_DETECTORS);
+	std::fill(tdc.offset, tdc.offset + NUM_DETECTORS, 0.);
+	std::fill(tdc.slope, tdc.slope + NUM_DETECTORS, 1.);
 }
 
 void dragon::MCP::Variables::set(const char* odb)
 {
 	/*!
 	 * \param [in] odb_file Path of the odb file from which you are extracting variable values
-	 * \todo Needs to be implemented once ODB is set up
+	 * \todo Test
 	 */
-	/// \todo Set actual ODB paths, TEST!!
-	const char* const pathAnodeModule = "Equipment/MCP/Variables/AnodeModule";
-	const char* const pathAnodeCh     = "Equipment/MCP/Variables/AnodeChannel";
-	const char* const pathTacCh       = "Equipment/MCP/Variables/TACChannel";
-	const char* const pathTacModule   = "Equipment/MCP/Variables/TACModule";
+	midas::Database database(odb);
 
-	// midas::Database database(odb);
-	// database.ReadArray(pathAnodeModule, anode_module, MAX_CHANNELS);
-	// database.ReadArray(pathAnodeCh, anode_ch, MAX_CHANNELS);
-	// database.ReadValue(pathTacModule, tac_module);
-	// database.ReadValue(pathTacCh, tac_ch);
+	database.ReadArray("/dragon/mcp/variables/adc/channel",  adc.channel,  MAX_CHANNELS);
+	database.ReadArray("/dragon/mcp/variables/adc/module",   adc.module,   MAX_CHANNELS);
+	database.ReadArray("/dragon/mcp/variables/adc/pedestal", adc.pedestal, MAX_CHANNELS);
+	database.ReadArray("/dragon/mcp/variables/adc/slope",    adc.slope,    MAX_CHANNELS);
+	database.ReadArray("/dragon/mcp/variables/adc/offset",   adc.offset,   MAX_CHANNELS);
+
+	database.ReadValue("/dragon/mcp/variables/tac_adc/channel",  tac_adc.channel);
+	database.ReadValue("/dragon/mcp/variables/tac_adc/module",   tac_adc.module);
+	database.ReadValue("/dragon/mcp/variables/tac_adc/pedestal", tac_adc.pedestal);
+	database.ReadValue("/dragon/mcp/variables/tac_adc/slope",    tac_adc.slope);
+	database.ReadValue("/dragon/mcp/variables/tac_adc/offset",   tac_adc.offset);
+	
+	database.ReadArray("/dragon/mcp/variables/tdc/channel", tdc.channel, NUM_DETECTORS);
+	database.ReadArray("/dragon/mcp/variables/tdc/slope",   tdc.slope,   NUM_DETECTORS);
+	database.ReadArray("/dragon/mcp/variables/tdc/offset",  tdc.offset,  NUM_DETECTORS);
 }
 

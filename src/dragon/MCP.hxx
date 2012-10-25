@@ -3,7 +3,6 @@
 /// \brief Defines a class for DRAGON Micro Channel Plate (MCP) detectors
 #ifndef DRAGON_MCP_HXX
 #define DRAGON_MCP_HXX
-#include <stdint.h>
 #include "VariableStructs.hxx"
 
 
