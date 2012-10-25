@@ -27,10 +27,10 @@ dragon::Bgo::Bgo():
 
 void dragon::Bgo::reset()
 {
-	reset_array(MAX_CHANNELS, q);
-	reset_array(MAX_CHANNELS, t);
-	reset_array(MAX_SORTED, qsort);
-	reset_data(qsum, x0, y0, z0);
+	utils::reset_array(MAX_CHANNELS, q);
+	utils::reset_array(MAX_CHANNELS, t);
+	utils::reset_array(MAX_SORTED, qsort);
+	utils::reset_data(qsum, x0, y0, z0);
 }
 
 void dragon::Bgo::read_data(const vme::V792& adc, const vme::V1190& tdc)
@@ -44,7 +44,7 @@ void dragon::Bgo::read_data(const vme::V792& adc, const vme::V1190& tdc)
 
 namespace {
 template<typename T>
-bool is_invalid (T t) { return !is_valid(t); } 
+bool is_invalid (T t) { return !utils::is_valid(t); } 
 }
 
 void dragon::Bgo::calculate()
@@ -70,7 +70,7 @@ void dragon::Bgo::calculate()
 	if(qsum == 0) qsum = dragon::NO_DATA;
 
 	// calculate x0, y0, z0
-	if(is_valid(qsum)) {
+	if(utils::is_valid(qsum)) {
 		int which = std::max_element(q, q + MAX_CHANNELS) - q; // which detector was max hit?
 		x0 = variables.xpos[which];
 		y0 = variables.ypos[which];

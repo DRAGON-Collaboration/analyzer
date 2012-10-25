@@ -12,13 +12,13 @@ void vme::V1190::reset()
 {
 	const int total_len = MAX_CHANNELS * MAX_HITS;
 
-	reset_array (total_len, leading_edge[0]);
-	reset_array (total_len, trailing_edge[0]);
+	utils::reset_array (total_len, leading_edge[0]);
+	utils::reset_array (total_len, trailing_edge[0]);
 
 	std::fill_n (nleading, MAX_CHANNELS, 0);
 	std::fill_n (ntrailing, MAX_CHANNELS, 0);
 
-	reset_data (type, extended_trigger, n_ch, count,
+	utils::reset_data (type, extended_trigger, n_ch, count,
 						  word_count, trailer_word_count,
 						  event_id, bunch_id, status);
 }

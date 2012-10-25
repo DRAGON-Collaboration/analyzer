@@ -42,7 +42,7 @@ void dragon::IonChamber::read_data(const vme::V785 adcs[], const vme::V1190& tdc
 
 void dragon::IonChamber::calculate()
 {
-	if(!is_valid<int16_t>(anode, MAX_CHANNELS)) return;
+	if(!utils::is_valid<int16_t>(anode, MAX_CHANNELS)) return;
 	sum = 0;
 	for(int i=0; i< MAX_CHANNELS; ++i) {
 		sum += (double)anode[i];

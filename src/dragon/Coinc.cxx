@@ -23,7 +23,7 @@ void dragon::Coinc::reset()
 {
 	head.reset();
 	tail.reset();
-	reset_data(xtof);
+	utils::reset_data(xtof);
 }
 
 void dragon::Coinc::set_variables(const char* odb)

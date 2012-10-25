@@ -38,7 +38,7 @@ void dragon::NaI::read_data(const vme::V785 adcs[], const vme::V1190& tdc)
 void dragon::NaI::calculate()
 {
 	for(int i=0; i< MAX_CHANNELS; ++i) {
-		if(!is_valid(qraw[i])) continue;
+		if(!utils::is_valid(qraw[i])) continue;
 		qcal[i] = variables.slope[i] * qraw[i] + variables.offset[i];
 	}		
 }
@@ -99,7 +99,7 @@ void dragon::Ge::read_data(const vme::V785 adcs[], const vme::V1190& tdc)
 void dragon::Ge::calculate()
 {
 	for(int i=0; i< MAX_CHANNELS; ++i) {
-		if(!is_valid(qraw[i])) continue;
+		if(!utils::is_valid(qraw[i])) continue;
 		qcal[i] = variables.slope[i] * qraw[i] + variables.offset[i];
 	}		
 }

@@ -21,8 +21,8 @@ dragon::MCP::MCP()
 
 void dragon::MCP::reset()
 {
-	reset_data(tac, x, y);
-	reset_array(MAX_CHANNELS, anode);
+	utils::reset_data(tac, x, y);
+	utils::reset_array(MAX_CHANNELS, anode);
 }
 
 void dragon::MCP::read_data(const vme::V785 adcs[], const vme::V1190& tdc)
@@ -59,7 +59,7 @@ void dragon::MCP::calculate()
 	utils::linear_calibrate(tac, variables.tac_adc);
 
 	// Position calculation if we have all valid anode signals
-	if(is_valid(anode, MAX_CHANNELS)) {
+	if(utils::is_valid(anode, MAX_CHANNELS)) {
 		const double Lhalf = 25.;  // half the length of a single side of the MCP (50/2 [mm])
 		double sum = 0;
 		for(int i=0; i< MAX_CHANNELS; ++i) sum += anode[i];

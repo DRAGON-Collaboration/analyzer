@@ -54,5 +54,5 @@ bool vme::IO32::unpack(const midas::Event& event, const char* bankName, bool rep
 
 void vme::IO32::reset()
 {
-	reset_data(header, trig_count, tstamp, start, end, latency, read_time, busy_time, trigger_latch);
+	utils::reset_data(header, trig_count, tstamp, start, end, latency, read_time, busy_time, trigger_latch);
 }

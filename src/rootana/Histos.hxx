@@ -212,7 +212,7 @@ template <>
 inline Int_t rootana::Hist<TH1D>::fill()
 {
 	/*! Fills the histogram if x param is valid and fCut is satisfied */
-	if ( is_valid(fParamx->get()) && apply_cut() )
+	if ( utils::is_valid(fParamx->get()) && apply_cut() )
 		return fHist->Fill (fParamx->get());
 	else return 0;
 }
@@ -222,7 +222,7 @@ template <>
 inline Int_t rootana::Hist<TH2D>::fill()
 {
 	/*! Fills the histogram if x,y params are valid and fCut is satisfied */
-	if ( is_valid(fParamx->get(), fParamy->get()) && apply_cut() )
+	if ( utils::is_valid(fParamx->get(), fParamy->get()) && apply_cut() )
 		return fHist->Fill (fParamx->get(), fParamy->get());
 	else return 0;
 }
@@ -232,7 +232,7 @@ template<>
 inline Int_t rootana::Hist<TH3D>::fill()
 {
 	/*! Fills the histogram if x,y,z params are valid and fCut is satisfied */
-	if (is_valid(fParamx->get(), fParamy->get(), fParamz->get()) && apply_cut() )
+	if (utils::is_valid(fParamx->get(), fParamy->get(), fParamz->get()) && apply_cut() )
 		return fHist->Fill (fParamx->get(), fParamy->get(), fParamz->get());
 	else return 0;
 }
@@ -269,7 +269,7 @@ inline Int_t rootana::SummaryHist::fill()
 	Int_t filled = 0;
 	if (!apply_cut()) return filled;
 	for (Int_t bin = 0; bin < fHist->GetYaxis()->GetNbins(); ++bin) {
-		if (is_valid(fParamx->get(bin))) {
+		if (utils::is_valid(fParamx->get(bin))) {
 			fHist->Fill (fParamx->get(bin), bin);
 			filled = 1;
 		}

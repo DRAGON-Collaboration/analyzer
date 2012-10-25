@@ -22,7 +22,7 @@ dragon::DSSSD::DSSSD() :
 
 void dragon::DSSSD::reset()
 {
-	reset_array(MAX_CHANNELS, ecal);
+	utils::reset_array(MAX_CHANNELS, ecal);
 }
 
 void dragon::DSSSD::read_data(const vme::V785 adcs[], const vme::V1190& tdc)

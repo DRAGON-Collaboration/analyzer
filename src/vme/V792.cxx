@@ -13,7 +13,7 @@ void vme::V792::reset()
 	count = 0;
 	overflow = false;
 	underflow = false;
-	reset_array(MAX_CHANNELS, data);
+	utils::reset_array(MAX_CHANNELS, data);
 }
 
 bool vme::V792::unpack_data_buffer(const uint32_t* const pbuffer)
