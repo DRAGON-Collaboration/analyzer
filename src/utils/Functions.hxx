@@ -5,6 +5,7 @@
 #define DRAGON_UTILS_FUNCTIONS_HXX
 #include "Valid.hxx"
 
+/// Encloses various 'utility' functions
 namespace utils {
 
 /// Fills an array with it's index values
