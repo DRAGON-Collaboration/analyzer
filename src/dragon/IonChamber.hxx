@@ -3,7 +3,7 @@
 #ifndef DRAGON_ION_CHAMBER_HXX
 #define DRAGON_ION_CHAMBER_HXX
 #include <stdint.h>
-
+#include "VariableStructs.hxx"
 
 namespace vme {
 class V792;
@@ -86,4 +86,4 @@ public:
 } // namespace dragon
 
 
-#endif
+#endif // include guard

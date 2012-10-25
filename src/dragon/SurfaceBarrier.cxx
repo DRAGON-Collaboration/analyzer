@@ -4,9 +4,10 @@
 #include <string>
 #include <iostream>
 #include "midas/Database.hxx"
+#include "utils/Functions.hxx"
 #include "vme/V1190.hxx"
 #include "vme/V792.hxx"
-#include "Tail.hxx"
+#include "Channels.h"
 #include "SurfaceBarrier.hxx"
 
 
@@ -19,43 +20,62 @@ dragon::SurfaceBarrier::SurfaceBarrier()
 
 void dragon::SurfaceBarrier::reset()
 {
-	for(int i=0; i< MAX_CHANNELS; ++i) {
-		q[i] = dragon::NO_DATA;
-	}
+	utils::reset_array(MAX_CHANNELS, ecal);
 }
 
-void dragon::SurfaceBarrier::read_data(const vme::V785 adcs[], const vme::V1190& tdc)
+void dragon::SurfaceBarrier::read_data(const vme::V785 adcs[], const vme::V1190&)
 {
-	for(int i=0; i< MAX_CHANNELS; ++i) {
-		const int whichAdc = variables.module[i];
-		assert (whichAdc< Tail::NUM_ADC); ///\todo Don't use an assert here
-		const int whichAdcChannel = variables.ch[i];
-
-		q[i] = adcs[whichAdc].get_data(whichAdcChannel);
-	}
+	/*!
+	 * Copies adc data into \c this->ecal[] with channel and module mapping taken
+	 * from variables.adc.channel and variables.adc.modules
+	 *  
+	 * Delegates work to utils::channel_map()
+	 * \param [in] adcs Array of vme::V785 adc modules from which data can be taken
+	 */
+	utils::channel_map(ecal, MAX_CHANNELS, variables.adc.channel, variables.adc.module, adcs);
 }
 
-// ====== struct dragon::SurfaceBarrier::Variables ====== //
+void dragon::SurfaceBarrier::calculate()
+{
+  /*!
+	 * Performs pedestal subtraction & calibration of energies.
+	 *
+	 * Delegates work to utils::pedestal_aubtract() and utils::linear_calibrate()
+	 */
+	utils::pedestal_subtract(ecal, MAX_CHANNELS, variables.adc);
+	utils::linear_calibrate(ecal, MAX_CHANNELS, variables.adc);
+}
+
+
+// ====== class dragon::SurfaceBarrier::Variables ====== //
 
 dragon::SurfaceBarrier::Variables::Variables()
 {
-	for(int i=0; i< MAX_CHANNELS; ++i) {
-		module[i] = 1;
-		ch[i] = i;
-	}
+	/*! Calls reset() */
+	reset();
+}
+
+void dragon::SurfaceBarrier::Variables::reset()
+{
+	std::fill(adc.module, adc.module + MAX_CHANNELS, DEFAULT_HI_MODULE);
+	utils::index_fill(adc.channel, adc.channel + MAX_CHANNELS, SB_ADC0);
+	
+	std::fill(adc.pedestal, adc.pedestal + MAX_CHANNELS, 0);
+	std::fill(adc.offset, adc.offset + MAX_CHANNELS, 0.);
+	std::fill(adc.slope, adc.slope + MAX_CHANNELS, 1.);
 }
 
 void dragon::SurfaceBarrier::Variables::set(const char* odb)
 {
 	/*!
 	 * \param [in] odb_file Path of the odb file from which you are extracting variable values
-	 * \todo Needs to be implemented once ODB is set up
+	 * \todo Needs testing
 	 */
-	/// \todo Set actual ODB paths, TEST!!
-	const char* const pathModule = "Equipment/SurfaceBarrier/Variables/AnodeModule";
-	const char* const pathCh     = "Equipment/SurfaceBarrier/Variables/AnodeChannel";
-
 	midas::Database database(odb);
-	database.ReadArray(pathModule, module, MAX_CHANNELS);
-	database.ReadArray(pathCh, module, MAX_CHANNELS);
+
+	database.ReadArray("/dragon/sb/variables/adc/module",   adc.module,   MAX_CHANNELS);
+	database.ReadArray("/dragon/sb/variables/adc/channel",  adc.channel,  MAX_CHANNELS);
+	database.ReadArray("/dragon/sb/variables/adc/pedestal", adc.pedestal, MAX_CHANNELS);
+	database.ReadArray("/dragon/sb/variables/adc/slope",    adc.slope,    MAX_CHANNELS);
+	database.ReadArray("/dragon/sb/variables/adc/offset",   adc.offset,   MAX_CHANNELS);
 }

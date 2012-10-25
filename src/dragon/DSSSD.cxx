@@ -15,7 +15,7 @@
 
 // ====== class dragon::DSSSD ====== //
 
-dragon::DSSSD::DSSSD() :
+dragon::DSSSD::DSSSD():
 	variables()
 {
 	reset();
@@ -23,6 +23,7 @@ dragon::DSSSD::DSSSD() :
 
 void dragon::DSSSD::reset()
 {
+	utils::reset_data(efront, eback, hit_front, hit_back);
 	utils::reset_array(MAX_CHANNELS, ecal);
 }
 
@@ -45,7 +46,7 @@ void dragon::DSSSD::calculate()
 	/*!
 	 * Does a linear transformation on each element in \c this->ecal[] using the slopes and offsets
 	 * from variables.adc_slope and variables.adc_offset, respectively. Also calibrates the TDC
-	 * signal.
+	 * signal; calculates efront, hit_front, eback, and hit_back.
 	 *
 	 * Delegates the work to utils::pedestal_subtract and utils::linear_calibrate
 	 */
@@ -53,6 +54,14 @@ void dragon::DSSSD::calculate()
 	utils::linear_calibrate(ecal, MAX_CHANNELS, variables.adc);
 
 	utils::linear_calibrate(tcal, variables.tdc);
+
+	const double* const pmax_front = std::max_element(ecal, ecal+16);
+	efront = *pmax_front;
+	hit_front = pmax_front - ecal;
+
+	const double* const pmax_back  = std::max_element(ecal+16, ecal+32);
+	eback  = *pmax_back;
+	hit_back = pmax_back - (ecal+16);
 }
 
 
@@ -87,10 +96,11 @@ void dragon::DSSSD::Variables::set(const char* odb)
 	 */
 	midas::Database database(odb);
 
-	database.ReadArray("/dragon/dsssd/variables/adc/module",  adc.module,  MAX_CHANNELS);
-	database.ReadArray("/dragon/dsssd/variables/adc/channel", adc.channel, MAX_CHANNELS);
-	database.ReadArray("/dragon/dsssd/variables/adc/slope",   adc.slope,   MAX_CHANNELS);
-	database.ReadArray("/dragon/dsssd/variables/adc/offset",  adc.offset,  MAX_CHANNELS);
+	database.ReadArray("/dragon/dsssd/variables/adc/module",   adc.module,   MAX_CHANNELS);
+	database.ReadArray("/dragon/dsssd/variables/adc/channel",  adc.channel,  MAX_CHANNELS);
+	database.ReadArray("/dragon/dsssd/variables/adc/pedestal", adc.pedestal, MAX_CHANNELS);
+	database.ReadArray("/dragon/dsssd/variables/adc/slope",    adc.slope,    MAX_CHANNELS);
+	database.ReadArray("/dragon/dsssd/variables/adc/offset",   adc.offset,   MAX_CHANNELS);
 
 	database.ReadValue("/dragon/dsssd/variables/tdc/channel", tdc.channel);
 	database.ReadValue("/dragon/dsssd/variables/tdc/slope",   tdc.slope);

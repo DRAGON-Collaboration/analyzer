@@ -1,4 +1,5 @@
 /// \file IonChamber.cxx
+/// \author G. Christian
 /// \brief Implements IonChamber.hxx
 #include <string>
 #include <iostream>
@@ -44,8 +45,9 @@ void dragon::IonChamber::calculate()
 
 	utils::linear_calibrate(tcal, variables.tdc);
 
-	sum = utils::calculate_sum(anode, anode + MAX_CHANNELS);
-	if(sum == 0.) utils::reset_data(sum);
+	if(utils::is_valid(anode, MAX_CHANNELS)) {
+		sum = utils::calculate_sum(anode, anode + MAX_CHANNELS);
+	}
 }
 
 
@@ -75,16 +77,19 @@ void dragon::IonChamber::Variables::reset()
 
 void dragon::IonChamber::Variables::set(const char* odb)
 {
-	/// \param [in] odb_file Path of the odb file from which you are extracting variable values
-	/// \todo Needs to be implemented once ODB is set up
-	/// \todo Set actual ODB paths, TEST!!
-	/// \tod WRITE!!
-	// const char* const pathAnodeModule = "Equipment/IonChamber/Variables/AnodeModule";
-	// const char* const pathAnodeCh     = "Equipment/IonChamber/Variables/AnodeChannel";
-	// const char* const pathTdcCh       = "Equipment/IonChamber/Variables/TDCChannel";
-	
-	// midas::Database database(odb);
-	// database.ReadArray(pathAnodeModule, anode_module, MAX_CHANNELS);
-	// database.ReadArray(pathAnodeCh, anode_ch, MAX_CHANNELS);
-	// database.ReadValue(pathTdcCh, tof_ch);
+	/*!
+	 * \param [in] odb_file Path of the odb file from which you are extracting variable values
+	 * \todo Needs testing
+	 */
+	midas::Database database(odb);
+
+	database.ReadArray("/dragon/ic/variables/adc/module",   adc.module,   MAX_CHANNELS);
+	database.ReadArray("/dragon/ic/variables/adc/channel",  adc.channel,  MAX_CHANNELS);
+	database.ReadArray("/dragon/ic/variables/adc/pedestal", adc.pedestal, MAX_CHANNELS);
+	database.ReadArray("/dragon/ic/variables/adc/slope",    adc.slope,    MAX_CHANNELS);
+	database.ReadArray("/dragon/ic/variables/adc/offset",   adc.offset,   MAX_CHANNELS);
+
+	database.ReadValue("/dragon/ic/variables/tdc/channel",  tdc.channel);
+	database.ReadValue("/dragon/ic/variables/tdc/slope",    tdc.slope);
+	database.ReadValue("/dragon/ic/variables/tdc/offset",   tdc.offset);
 }

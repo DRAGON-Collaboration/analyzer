@@ -4,6 +4,7 @@
 #ifndef DRAGON_HION_AUXILLARY_HXX
 #define DRAGON_HION_AUXILLARY_HXX
 #include <stdint.h>
+#include "VariableStructs.hxx"
 
 namespace vme {
 class V792;
@@ -28,25 +29,18 @@ public:
 		/** @cond */
  PRIVATE:
 		/** @endcond */
-		/// Maps detector to adc module number
-		int module[MAX_CHANNELS];
-			
-		/// Maps detector to adc channel number
-		int ch[MAX_CHANNELS];
 
-		/// Calibration slope
-		double slope[MAX_CHANNELS];
-
-		/// Calibration offset
-		double offset[MAX_CHANNELS];
+		/// Adc variables
+		AdcVariables<MAX_CHANNELS> adc;
 
  public:
 		/// Constructor, sets data to generic values
 		Variables();
 
-		/// \brief Set variable values from an ODB file
-		/// \param [in] odb_file Path of the odb file from which you are extracting variable values
-		/// \todo Needs to be implemented once ODB is set up
+		/// Set variable values to defaults
+		void reset();
+
+		/// Set variable values from an ODB file
 		void set(const char* odb_file);
 
 		/// Allow NaI class access to internals
@@ -60,11 +54,9 @@ private:
 /** @cond */
 PRIVATE:
 /** @endcond */
-	/// Raw energy signals
-	int16_t qraw[MAX_CHANNELS]; //#
 
 	/// Calibrated energy signals
-	double  qcal[MAX_CHANNELS]; //#
+	double ecal[MAX_CHANNELS]; //#
 
 public:
 	/// Constructor, initialize data
@@ -73,47 +65,38 @@ public:
 	/// Reset all data to vme::NONE
 	void reset();
 
-	/// \brief Read event data from \e modules structure
-	/// \param [in] modules Heavy-ion modules structure
-	void read_data(const vme::V785 adcs[], const vme::V1190& tdc);
+	/// Read event data from vme modules
+	void read_data(const vme::V785 adcs[], const vme::V1190&);
 
-	/// \brief Do energy calibrations
+	/// Do energy calibrations
 	void calculate();
 };
+
 
 /// Germanium (Ge) detector
 class Ge {
 
-public:
-	/// Number of detectors
-	static const int MAX_CHANNELS = 1; //!
-
+// Subclasses //
 public:
 	/// Ge variables
 	class Variables {
+
+		// Class data //
  private:
 		/** @cond */
  PRIVATE:
-		/** @endcond */
-		/// Maps detector to adc module number
-		int module[MAX_CHANNELS];
-			
-		/// Maps detector to adc channel number
-		int ch[MAX_CHANNELS];
 
-		/// Calibration slope
-		double slope[MAX_CHANNELS];
-
-		/// Calibration offset
-		double offset[MAX_CHANNELS];
+		/// ADC variables
+		AdcVariables<1> adc;
 
  public:
 		/// Constructor, sets data to generic values
 		Variables();
 
-		/// \brief Set variable values from an ODB file
-		/// \param [in] odb_file Path of the odb file from which you are extracting variable values
-		/// \todo Needs to be implemented once ODB is set up
+		/// Reset variables to default values
+		void reset();
+
+		/// Set variable values from an ODB file
 		void set(const char* odb_file);
 		
 		/// Allow Ge class access to internals
@@ -127,11 +110,9 @@ private:
 	/** @cond */
 PRIVATE:
 	/** @endcond */
-	/// Raw energy signals
-	int16_t qraw[MAX_CHANNELS]; //#
 
-	/// Calibrated energy signals
-	double  qcal[MAX_CHANNELS]; //#
+	/// Calibrated energy signal
+	double  ecal; //#
 
 public:
 	/// Constructor, initialize data
@@ -140,14 +121,19 @@ public:
 	/// Reset all data to vme::NONE
 	void reset();
 
-	/// \brief Read event data from \e modules structure
-	/// \param [in] modules Heavy-ion modules structure
-	void read_data(const vme::V785 adcs[], const vme::V1190& tdc);
+	/// Read event data from the ADC
+	void read_data(const vme::V785 adcs[], const vme::V1190&);
 
-	/// \brief Do energy calibrations
+	/// Do energy calibrations, pedestal subtractions
 	void calculate();
 };
 
 } // namespace dragon
-	 
+
+
+#ifdef __MAKECINT__
+#pragma link C++ class dragon::AdcVariables<dragon::NaI::MAX_CHANNELS>+;
+#pragma link C++ class dragon::AdcVariables<1>+;
 #endif
+
+#endif // include guard

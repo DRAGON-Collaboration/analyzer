@@ -5,9 +5,10 @@
 #include <iostream>
 #include <algorithm>
 #include "midas/Database.hxx"
+#include "utils/Functions.hxx"
 #include "vme/V1190.hxx"
 #include "vme/V792.hxx"
-#include "Tail.hxx"
+#include "Channels.h"
 #include "Auxillary.hxx"
 
 
@@ -20,27 +21,25 @@ dragon::NaI::NaI()
 
 void dragon::NaI::reset()
 {
-	std::fill_n(qraw, MAX_CHANNELS, dragon::NO_DATA);
-	std::fill_n(qcal, MAX_CHANNELS, dragon::NO_DATA);
+	utils::reset_array(MAX_CHANNELS, ecal);
 }
 
-void dragon::NaI::read_data(const vme::V785 adcs[], const vme::V1190& tdc)
+void dragon::NaI::read_data(const vme::V785 adcs[], const vme::V1190&)
 {
-	for(int i=0; i< MAX_CHANNELS; ++i) {
-		const int whichAdc = variables.module[i];
-		assert (whichAdc< Tail::NUM_ADC); ///\todo Don't use an assert here
-		const int whichAdcChannel = variables.ch[i];
-
-		qraw[i] = adcs[whichAdc].get_data(whichAdcChannel);
-	}
+	/*!
+	 * Copies adc data into \c this->ecal[] with channel and module mapping taken
+	 * from variables.adc.channel and variables.adc.modules
+	 *
+	 * Delegates work to utils::channel_map()
+	 * \param [in] adcs Array of vme::V785 adc modules from which data can be taken
+	 */
+	utils::channel_map(ecal, MAX_CHANNELS, variables.adc.channel, variables.adc.module, adcs);
 }
 
 void dragon::NaI::calculate()
 {
-	for(int i=0; i< MAX_CHANNELS; ++i) {
-		if(!utils::is_valid(qraw[i])) continue;
-		qcal[i] = variables.slope[i] * qraw[i] + variables.offset[i];
-	}		
+	utils::pedestal_subtract(ecal, MAX_CHANNELS, variables.adc);
+	utils::linear_calibrate(ecal, MAX_CHANNELS, variables.adc);
 }
 
 
@@ -48,27 +47,32 @@ void dragon::NaI::calculate()
 
 dragon::NaI::Variables::Variables()
 {
-	for(int i=0; i< MAX_CHANNELS; ++i) {
-		module[i] = 1;
-		ch[i] = i;
-		slope[i]  = 1.;
-		offset[i] = 0.;
-	}
+	/*! Calls reset() */
+	reset();
+}
+
+void dragon::NaI::Variables::reset()
+{
+	std::fill(adc.module, adc.module + MAX_CHANNELS, DEFAULT_HI_MODULE);
+	utils::index_fill(adc.channel, adc.channel + MAX_CHANNELS, NAI_ADC0);
+	std::fill(adc.pedestal, adc.pedestal + MAX_CHANNELS, 0);
+	std::fill(adc.offset, adc.offset + MAX_CHANNELS, 0.);
+	std::fill(adc.slope, adc.slope + MAX_CHANNELS, 1.);
 }
 
 void dragon::NaI::Variables::set(const char* odb)
 {
-	/// \todo Set actual ODB paths, TEST!!
-	const char* const pathModule = "Equipment/NaI/Variables/Module";
-	const char* const pathCh     = "Equipment/NaI/Variables/Channel";
-	const char* const pathSlope  = "Equipment/NaI/Variables/Slope";
-	const char* const pathOffset = "Equipment/NaI/Variables/Offset";
-
+	/*!
+	 * \param [in] odb_file Path of the odb file from which you are extracting variable values
+	 * \todo Needs testing
+	 */
 	midas::Database database(odb);
-	database.ReadArray(pathCh, ch, MAX_CHANNELS);
-	database.ReadArray(pathModule, module, MAX_CHANNELS);
-	database.ReadArray(pathSlope, slope, MAX_CHANNELS);
-	database.ReadArray(pathOffset, offset, MAX_CHANNELS);
+
+	database.ReadArray("/dragon/nai/variables/adc/module",   adc.module,   MAX_CHANNELS);
+	database.ReadArray("/dragon/nai/variables/adc/channel",  adc.channel,  MAX_CHANNELS);
+	database.ReadArray("/dragon/nai/variables/adc/pedestal", adc.pedestal, MAX_CHANNELS);
+	database.ReadArray("/dragon/nai/variables/adc/slope",    adc.slope,    MAX_CHANNELS);
+	database.ReadArray("/dragon/nai/variables/adc/offset",   adc.offset,   MAX_CHANNELS);
 }
 
 
@@ -81,27 +85,28 @@ dragon::Ge::Ge()
 
 void dragon::Ge::reset()
 {
-	std::fill_n(qraw, MAX_CHANNELS, dragon::NO_DATA);
-	std::fill_n(qcal, MAX_CHANNELS, dragon::NO_DATA);
+	utils::reset_data(ecal);
 }
 
-void dragon::Ge::read_data(const vme::V785 adcs[], const vme::V1190& tdc)
+void dragon::Ge::read_data(const vme::V785 adcs[], const vme::V1190&)
 {
-	for(int i=0; i< MAX_CHANNELS; ++i) {
-		const int whichAdc = variables.module[i];
-		assert (whichAdc< Tail::NUM_ADC); ///\todo Don't use an assert here
-		const int whichAdcChannel = variables.ch[i];
-
-		qraw[i] = adcs[whichAdc].get_data(whichAdcChannel);
-	}
+	/*!
+	 * Copies adc data into \c this->ecal[] with channel and module mapping taken
+	 * from variables.adc.channel and variables.adc.module
+	 *
+	 * Delegates work to utils::channel_map()
+	 * \param [in] adcs Array of vme::V785 adc modules from which data can be taken
+	 */
+	utils::channel_map(ecal, variables.adc.channel, variables.adc.module, adcs);
 }
 
 void dragon::Ge::calculate()
 {
-	for(int i=0; i< MAX_CHANNELS; ++i) {
-		if(!utils::is_valid(qraw[i])) continue;
-		qcal[i] = variables.slope[i] * qraw[i] + variables.offset[i];
-	}		
+	/*!
+	 * Delegates work to functions in utils namespace.
+	 */
+	utils::pedestal_subtract(ecal, variables.adc);
+	utils::linear_calibrate(ecal, variables.adc);
 }
 
 
@@ -109,25 +114,30 @@ void dragon::Ge::calculate()
 
 dragon::Ge::Variables::Variables()
 {
-	for(int i=0; i< MAX_CHANNELS; ++i) {
-		module[i] = 1;
-		ch[i] = i;
-		slope[i]  = 1.;
-		offset[i] = 0.;
-	}
+	/*! Calls reset() */
+	reset();
+}
+
+void dragon::Ge::Variables::reset()
+{
+	adc.module = DEFAULT_HI_MODULE;
+	adc.channel = GE_ADC0;
+	adc.pedestal = 0;
+	adc.offset = 0.;
+	adc.slope = 1.;
 }
 
 void dragon::Ge::Variables::set(const char* odb)
 {
-	/// \todo Set actual ODB paths, TEST!!
-	const char* const pathModule = "Equipment/Ge/Variables/Module";
-	const char* const pathCh     = "Equipment/Ge/Variables/Channel";
-	const char* const pathSlope  = "Equipment/Ge/Variables/Slope";
-	const char* const pathOffset = "Equipment/Ge/Variables/Offset";
-
+	/*!
+	 * \param [in] odb_file Path of the odb file from which you are extracting variable values
+	 * \todo Needs testing
+	 */
 	midas::Database database(odb);
-	database.ReadArray(pathCh, ch, MAX_CHANNELS);
-	database.ReadArray(pathModule, module, MAX_CHANNELS);
-	database.ReadArray(pathOffset, offset, MAX_CHANNELS);
-	database.ReadArray(pathSlope, slope, MAX_CHANNELS);
+
+	database.ReadValue("/dragon/ge/variables/adc/module",   adc.module);
+	database.ReadValue("/dragon/ge/variables/adc/channel",  adc.channel);
+	database.ReadValue("/dragon/ge/variables/adc/pedestal", adc.pedestal);
+	database.ReadValue("/dragon/ge/variables/adc/slope",    adc.slope);
+	database.ReadValue("/dragon/ge/variables/adc/offset",   adc.offset);
 }
