@@ -4,7 +4,7 @@
 #ifndef DRAGON_ION_CHAMBER_HXX
 #define DRAGON_ION_CHAMBER_HXX
 #include <stdint.h>
-#include "VariableStructs.hxx"
+#include "utils/VariableStructs.hxx"
 
 namespace vme {
 class V792;
@@ -85,6 +85,11 @@ public:
 };
 
 } // namespace dragon
+
+#ifdef __MAKECINT__
+#pragma link C++ class dragon::AdcVariables<dragon::IonChamber::MAX_CHANNELS>+;
+#pragma link C++ class dragon::TdcVariables<1>+;
+#endif
 
 
 #endif // include guard

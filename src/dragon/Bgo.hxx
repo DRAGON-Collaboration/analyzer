@@ -4,7 +4,7 @@
 #ifndef DRAGON_BGO_HXX
 #define DRAGON_BGO_HXX
 #include <stdint.h>
-#include "VariableStructs.hxx"
+#include "utils/VariableStructs.hxx"
 
 namespace vme {
 class V792;

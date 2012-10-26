@@ -4,7 +4,7 @@
 #ifndef DRAGON_HION_AUXILLARY_HXX
 #define DRAGON_HION_AUXILLARY_HXX
 #include <stdint.h>
-#include "VariableStructs.hxx"
+#include "utils/VariableStructs.hxx"
 
 namespace vme {
 class V792;

@@ -4,7 +4,7 @@
 #ifndef DRAGON_SURFACE_BARRIER_HXX
 #define DRAGON_SURFACE_BARRIER_HXX
 #include <stdint.h>
-#include "VariableStructs.hxx"
+#include "utils/VariableStructs.hxx"
 
 namespace vme {
 class V792;

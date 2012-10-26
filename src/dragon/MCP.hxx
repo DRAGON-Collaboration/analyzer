@@ -3,7 +3,7 @@
 /// \brief Defines a class for DRAGON Micro Channel Plate (MCP) detectors
 #ifndef DRAGON_MCP_HXX
 #define DRAGON_MCP_HXX
-#include "VariableStructs.hxx"
+#include "utils/VariableStructs.hxx"
 
 
 namespace vme {

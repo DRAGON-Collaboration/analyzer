@@ -2,7 +2,7 @@
 /// \brief Defines the DRAGON Double Sided Silicon Strip Detector (DSSSD) class.
 #ifndef DRAGON_DSSSD_HXX
 #define DRAGON_DSSSD_HXX
-#include "VariableStructs.hxx"
+#include "utils/VariableStructs.hxx"
 
 namespace vme {
 class V792;

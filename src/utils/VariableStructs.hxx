@@ -5,8 +5,7 @@
 #define DRAGON_VARIABLE_STRUCTS_HXX
 
 
-namespace dragon {
-
+namespace utils {
 
 /// Defines position in a cartesian system
 /*! \tparam N Number of channels */
