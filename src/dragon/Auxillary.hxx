@@ -13,11 +13,12 @@ typedef V792 V785;
 }
 
 
+/// Encloses all DRAGON classes
 namespace dragon {
 
 /// Sodium Iodide (NaI) detectors
 class NaI {
-
+// Class global constants //
 public:
 	/// Number of detectors
 	static const int MAX_CHANNELS = 2; //!

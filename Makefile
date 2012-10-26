@@ -34,7 +34,7 @@ DEFINITIONS+=-DPRIVATE=public  -DPROTECTED=public
 
 ### Set to YES (NO) to turn on (off) root [or rootbeer, or rootana] usage ###
 USE_ROOT=YES
-USE_ROOTANA=YES
+USE_ROOTANA=NO
 USE_ROOTBEER=NO
 
 ### Set ROOTBEER home directory (ignore if USE_ROOTBEER=NO) ###
@@ -158,18 +158,7 @@ $(SRC)/utils/*.hxx        		\
 $(SRC)/utils/*.h          		\
 $(SRC)/vme/*.hxx          		\
 $(SRC)/dragon/*.hxx
-# 					\
-# $(SRC)/dragon/Bgo.hxx                 	\
-# $(SRC)/dragon/MCP.hxx                 	\
-# $(SRC)/dragon/DSSSD.hxx               	\
-# $(SRC)/dragon/Auxillary.hxx           	\
-# $(SRC)/dragon/IonChamber.hxx          	\
-# $(SRC)/dragon/SurfaceBarrier.hxx      	\
-# 					\
-# $(SRC)/dragon/Head.hxx                	\
-# $(SRC)/dragon/Tail.hxx                	\
-# 					\
-# $(SRC)/dragon/Coinc.hxx
+
 
 ### DRAGON LIBRARY ###
 MAKE__ALL=$(DRLIB)/libDragon.so
