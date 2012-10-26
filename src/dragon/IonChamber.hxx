@@ -1,4 +1,5 @@
 /// \file IonChamber.hxx
+/// \author G. Christian
 /// \brief Defines a class for the DRAGON Ionizatin Chamber detector
 #ifndef DRAGON_ION_CHAMBER_HXX
 #define DRAGON_ION_CHAMBER_HXX

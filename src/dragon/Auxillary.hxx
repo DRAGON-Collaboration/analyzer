@@ -13,7 +13,6 @@ typedef V792 V785;
 }
 
 
-/// Encloses all DRAGON classes
 namespace dragon {
 
 /// Sodium Iodide (NaI) detectors
@@ -76,7 +75,6 @@ public:
 
 /// Germanium (Ge) detector
 class Ge {
-
 // Subclasses //
 public:
 	/// Ge variables
@@ -86,6 +84,7 @@ public:
  private:
 		/** @cond */
  PRIVATE:
+		/** @endcond */
 
 		/// ADC variables
 		AdcVariables<1> adc;
