@@ -37,13 +37,13 @@ public:
 		/** @endcond */
 
 		/// Adc variables for the anode signals
-		AdcVariables<MAX_CHANNELS> adc;
+		utils::AdcVariables<MAX_CHANNELS> adc;
 
 		/// Adc variables for the TAC signal
-		AdcVariables<1> tac_adc;
+		utils::AdcVariables<1> tac_adc;
 
 		/// Tdc variables
-		TdcVariables<NUM_DETECTORS> tdc;
+		utils::TdcVariables<NUM_DETECTORS> tdc;
 
 		// Methods //
  public:
@@ -100,8 +100,8 @@ public:
 
 
 #ifdef __MAKECINT__
-#pragma link C++ class dragon::AdcVariables<dragon::MCP::MAX_CHANNELS>;
-#pragma link C++ class dragon::TdcVariables<dragon::MCP::NUM_DETECTORS>;
+#pragma link C++ class utils::AdcVariables<dragon::MCP::MAX_CHANNELS>;
+#pragma link C++ class utils::TdcVariables<dragon::MCP::NUM_DETECTORS>;
 #endif
 
 #endif // include guard

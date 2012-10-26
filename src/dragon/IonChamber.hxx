@@ -32,10 +32,10 @@ public:
 		/** @endcond */
 
 		/// Anode variables
-		AdcVariables<MAX_CHANNELS> adc;
+		utils::AdcVariables<MAX_CHANNELS> adc;
 
 		/// Tdc variables
-		TdcVariables<1> tdc;
+		utils::TdcVariables<1> tdc;
 
 		// Methods //
  public:
@@ -87,8 +87,8 @@ public:
 } // namespace dragon
 
 #ifdef __MAKECINT__
-#pragma link C++ class dragon::AdcVariables<dragon::IonChamber::MAX_CHANNELS>+;
-#pragma link C++ class dragon::TdcVariables<1>+;
+#pragma link C++ class utils::AdcVariables<dragon::IonChamber::MAX_CHANNELS>+;
+#pragma link C++ class utils::TdcVariables<1>+;
 #endif
 
 

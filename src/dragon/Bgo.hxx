@@ -28,13 +28,13 @@ public:
 		/** @endcond */
 
 		/// Adc variables
-		AdcVariables<MAX_CHANNELS> adc;
+		utils::AdcVariables<MAX_CHANNELS> adc;
 
 		/// Tdc variables
-		TdcVariables<MAX_CHANNELS> tdc;
+		utils::TdcVariables<MAX_CHANNELS> tdc;
 
 		/// Detector positions in space
-		PositionVariables<MAX_CHANNELS> pos;
+		utils::PositionVariables<MAX_CHANNELS> pos;
 
  public:
 		/// Sets data to defaults
@@ -99,9 +99,9 @@ public:
 
 
 #ifdef __MAKECINT__
-#pragma link C++ class dragon::AdcVariables<dragon::Bgo::MAX_CHANNELS>;
-#pragma link C++ class dragon::TdcVariables<dragon::Bgo::MAX_CHANNELS>;
-#pragma link C++ class dragon::PositionVariables<dragon::Bgo::MAX_CHANNELS>;
+#pragma link C++ class utils::AdcVariables<dragon::Bgo::MAX_CHANNELS>;
+#pragma link C++ class utils::TdcVariables<dragon::Bgo::MAX_CHANNELS>;
+#pragma link C++ class utils::PositionVariables<dragon::Bgo::MAX_CHANNELS>;
 #endif
 
 

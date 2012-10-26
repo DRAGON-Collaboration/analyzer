@@ -28,10 +28,10 @@ public:
   	/** @endcond */
 
 		/// Adc variables for the energy signals
-		AdcVariables<32> adc;
+		utils::AdcVariables<32> adc;
 
 		/// Tdc variables
-		TdcVariables<1> tdc;
+		utils::TdcVariables<1> tdc;
 
  public:
 		/// Constructor, sets data to generic values
@@ -90,8 +90,8 @@ public:
 
 
 #ifdef __MAKECINT__
-#pragma link C++ class dragon::AdcVariables<dragon::DSSSD::MAX_CHANNELS>+;
-#pragma link C++ class dragon::TdcVariables<1>+;
+#pragma link C++ class utils::AdcVariables<dragon::DSSSD::MAX_CHANNELS>+;
+#pragma link C++ class utils::TdcVariables<1>+;
 #endif
 
 #endif

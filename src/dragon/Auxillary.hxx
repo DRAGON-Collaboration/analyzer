@@ -31,7 +31,7 @@ public:
 		/** @endcond */
 
 		/// Adc variables
-		AdcVariables<MAX_CHANNELS> adc;
+		utils::AdcVariables<MAX_CHANNELS> adc;
 
  public:
 		/// Constructor, sets data to generic values
@@ -87,7 +87,7 @@ public:
 		/** @endcond */
 
 		/// ADC variables
-		AdcVariables<1> adc;
+		utils::AdcVariables<1> adc;
 
  public:
 		/// Constructor, sets data to generic values
@@ -132,8 +132,8 @@ public:
 
 
 #ifdef __MAKECINT__
-#pragma link C++ class dragon::AdcVariables<dragon::NaI::MAX_CHANNELS>+;
-#pragma link C++ class dragon::AdcVariables<1>+;
+#pragma link C++ class utils::AdcVariables<dragon::NaI::MAX_CHANNELS>+;
+#pragma link C++ class utils::AdcVariables<1>+;
 #endif
 
 #endif // include guard

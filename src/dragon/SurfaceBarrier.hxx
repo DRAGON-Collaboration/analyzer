@@ -33,7 +33,7 @@ public:
 		/** @endcond */
 		
 		/// Adc variables
-		AdcVariables<MAX_CHANNELS> adc;
+		utils::AdcVariables<MAX_CHANNELS> adc;
 
 		// Methods //
  public:
@@ -80,7 +80,7 @@ public:
 
 
 #ifdef __MAKECINT__
-#pragma link C++ class dragon::AdcVariables<dragon::SurfaceBarrier::MAX_CHANNELS>+;
+#pragma link C++ class utils::AdcVariables<dragon::SurfaceBarrier::MAX_CHANNELS>+;
 #endif
 
 
