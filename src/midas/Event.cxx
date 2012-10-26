@@ -101,7 +101,7 @@ void midas::Event::Init(const char* tsbank, const void* header, const void* addr
 	// Check version
 	if (version == 0x1120809 || version == 0x1120810 || version == 0x1120910);
 	else {
-		dragon::err::Warning("midas::Event::Init") <<
+		utils::err::Warning("midas::Event::Init") <<
 			"Unknown TSC version 0x" << std::hex << version << std::dec << " (id, serial #: " << GetEventId() <<
 			", " << GetSerialNumber() << ")" << DRAGON_ERR_FILE_LINE;
 	}
@@ -110,7 +110,7 @@ void midas::Event::Init(const char* tsbank, const void* header, const void* addr
 	uint32_t ctrl = *ptsc++, nch = ctrl & READ15;
 	bool overflow = (ctrl>>15) & READ1;
 	if (overflow) {
-		dragon::err::Warning("midas::Event::Init") <<
+		utils::err::Warning("midas::Event::Init") <<
 			"IO32 TSC in overflow condition. Event Serial #, Id: " << GetSerialNumber() << ", " << GetEventId() << "\n";
 	}
 
@@ -124,7 +124,7 @@ void midas::Event::Init(const char* tsbank, const void* header, const void* addr
 
 		case 1: // Trigger timestamp
 			if (fClock != std::numeric_limits<uint64_t>::max()) {
-				dragon::err::Warning("midas::Event::Init") <<
+				utils::err::Warning("midas::Event::Init") <<
 					"duplicate trigger TS in fifo (okay if equivalent). Serial #: " << GetSerialNumber() <<
 					", tsc[1][0] = " << fClock << ", tsc[1][1] = " << read_timestamp(lower, upper) << "\n";
 				if (fClock != read_timestamp(lower, upper)) {
@@ -136,7 +136,7 @@ void midas::Event::Init(const char* tsbank, const void* header, const void* addr
 			fFreq  = *pfreq;
 			if (fFreq > 0.) fTriggerTime = fClock / fFreq;
 			else {
-				dragon::err::Error("midas::Event::Init") << "Found a frequency <= 0: " << fFreq << DRAGON_ERR_FILE_LINE;
+				utils::err::Error("midas::Event::Init") << "Found a frequency <= 0: " << fFreq << DRAGON_ERR_FILE_LINE;
 				throw (std::invalid_argument("Read invalid frequency."));
 			}
 			break;
@@ -163,7 +163,7 @@ midas::CoincEvent::CoincEvent(const Event& event1, const Event& event2):
 		fHeavyIon = &event1;
 	}
 	else {
-		dragon::err::Warning("CoincMidasEvent::CoincMidasEvent")
+		utils::err::Warning("CoincMidasEvent::CoincMidasEvent")
 			<< DRAGON_ERR_FILE_LINE << "Don't know how to handle the passed events: "
 			<< "Id1 = " << event1.GetEventId() << ", Id2 = " <<event2.GetEventId()
 			<< ". Setting fGamma and fHeavyIon to NULL...\n";

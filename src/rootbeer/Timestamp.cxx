@@ -28,7 +28,7 @@ void rootbeer::TSQueue::HandleSingle(const midas::Event& event) const
 		break;
 
 	default:
-		dragon::err::Error("rootbeer::TSQueue::HandleSingle")
+		utils::err::Error("rootbeer::TSQueue::HandleSingle")
 			<< "Unknown event id: " << event.GetEventId() << ", skipping...\n";
 		break;
 	}
@@ -42,7 +42,7 @@ void rootbeer::TSQueue::HandleCoinc(const midas::Event& event1, const midas::Eve
 	midas::CoincEvent coincEvent(event1, event2);
 
 	if (coincEvent.fHeavyIon == 0 ||	coincEvent.fGamma == 0) {
-		dragon::err::Error("rootbeer::TSQueue::HandleCoinc")
+		utils::err::Error("rootbeer::TSQueue::HandleCoinc")
 			<< "Invalid coincidence event, skipping...\n";
 		return;
 	}

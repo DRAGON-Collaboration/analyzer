@@ -232,7 +232,7 @@ void rootana::App::Process(const midas::Event& event1, const midas::Event& event
 	midas::CoincEvent coincEvent(event1, event2);
 
 	if (coincEvent.fHeavyIon == 0 ||	coincEvent.fGamma == 0) {
-		dragon::err::Error("rootana::TSQueue::HandleCoinc")
+		utils::err::Error("rootana::TSQueue::HandleCoinc")
 			<< "Invalid coincidence event, skipping...\n";
 		return;
 	}
@@ -416,7 +416,7 @@ void rootana::App::run_start(int runnum)
 	bool opened = fOutputFile.Open(runnum, fHistos.c_str());
 	if(!opened) Terminate(1);
 
-	dragon::err::Info("rootana") << "Start of run " << runnum;
+	utils::err::Info("rootana") << "Start of run " << runnum;
 }
 
 void rootana::App::run_stop(int runnum)
@@ -428,7 +428,7 @@ void rootana::App::run_stop(int runnum)
   fRunNumber = runnum;
 	fQueue->Flush(30);
 	fOutputFile.Close();
-	dragon::err::Info("rootana") << "End of run " << runnum;
+	utils::err::Info("rootana") << "End of run " << runnum;
 }
 
 

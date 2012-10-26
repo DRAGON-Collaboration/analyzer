@@ -73,7 +73,7 @@ public:
 				return leading_edge[0][ch];
 			}
 			else {
-				dragon::err::Warning("V1190::get_data")
+				utils::err::Warning("V1190::get_data")
 					<< "Channel number " << ch << " out of bounds (valid range: [0, "
 					<< MAX_CHANNELS -1 << "]\n";
 				return dragon::NO_DATA;

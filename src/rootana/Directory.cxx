@@ -99,7 +99,7 @@ void rootana::Directory::CreateHists(const char* definitionFile)
 	 * Parses histogram definition file & creates histograms.
 	 */
 	assert(IsOpen());
-	dragon::err::Info("rootana::Directory")
+	utils::err::Info("rootana::Directory")
 		<< "Creating histograms for " << fDir->ClassName() << ": " << fDir->GetName();
 
 	rootana::HistParser parse (definitionFile);

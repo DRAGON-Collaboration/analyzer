@@ -9,7 +9,7 @@
 #include <stdexcept>
 
 
-namespace dragon {
+namespace utils {
 
 /// Encloses message reporting classes.
 namespace err {

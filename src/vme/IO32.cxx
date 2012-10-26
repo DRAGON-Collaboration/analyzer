@@ -35,7 +35,7 @@ bool vme::IO32::unpack(const midas::Event& event, const char* bankName, bool rep
 	if (!pdata32) return false;
 
 	if (bank_len != expected_bank_len) {
-		dragon::err::Error("vme::IO32::unpack") <<
+		utils::err::Error("vme::IO32::unpack") <<
 			"Bank length: " << bank_len << " != 8, skipping..." << DRAGON_ERR_FILE_LINE;
 		return false;
 	}

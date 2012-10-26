@@ -50,7 +50,7 @@ void tstamp::Queue::Push(const midas::Event& event)
 		fEvents.insert(event);
 	}
 	catch (std::exception& e) { // try to handle exception gracefully
-		dragon::err::Error("tstamp::Queue::Push")
+		utils::err::Error("tstamp::Queue::Push")
 			<< "Caught an exception from std::multiset::insert: " << e.what()
 			<< " (note: size = " << Size() << ", max size = " << fEvents.max_size()
 			<< "). Clearing the Queue and trying again... WARNING: that this could cause "
@@ -63,7 +63,7 @@ void tstamp::Queue::Push(const midas::Event& event)
 			fEvents.insert(event);
 		}
 		catch (std::exception& e) { // give up
-			dragon::err::Error("tstamp::Queue::Push")
+			utils::err::Error("tstamp::Queue::Push")
 				<< "Caught a second exception from std::multiset::insert: " << e.what()
 				<< ". Not sure what to do: rethrowing (likely fatal!)" << DRAGON_ERR_FILE_LINE;
 			throw (e);
@@ -123,7 +123,7 @@ void tstamp::Queue::FlushTimeoutMessage(int max_time) const
 	 *
 	 * \param max_time Length of max Flush() timeout in seconds
 	 */
-	dragon::err::Info("tstamp::Queue::Flush()")
+	utils::err::Info("tstamp::Queue::Flush()")
 		<< "Maximum timeout of " << max_time << " seconds reached. Clearing event queue (skipping "
 		<< fEvents.size() << " events...).";
 }

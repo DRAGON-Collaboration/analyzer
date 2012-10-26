@@ -35,7 +35,7 @@ Bool_t rootbeer::MidasBuffer::ReadBufferOffline()
 		int size_to_read = temp.GetDataSize();
 
 		if (size_to_read + header_size > buffer_size) {
-			dragon::err::Warning("rootbeer::MidasBuffer::ReadBufferOffline") << "Received a truncated event";
+			utils::err::Warning("rootbeer::MidasBuffer::ReadBufferOffline") << "Received a truncated event";
 			size_to_read = buffer_size - header_size;
 			fIsTruncated = true;
 		}
@@ -96,18 +96,18 @@ Bool_t rootbeer::MidasBuffer::ConnectOnline(const char* host, const char* experi
 	/// - Connect to MIDAS experiment
 	status = cm_connect_experiment (host, experiment, "rootbeer", NULL);
 	if (status != CM_SUCCESS) {
-		dragon::err::Error("rootbeer::MidasBuffer::ConnectOnline")
+		utils::err::Error("rootbeer::MidasBuffer::ConnectOnline")
 			<< "Couldn't connect to experiment \"" << experiment << "\" on host \""
 			<<  host << "\", status = " << status << DRAGON_ERR_FILE_LINE;
 		return false;
 	}
-	dragon::err::Info("rootbeer::MidasBuffer::ConnectOnline")
+	utils::err::Info("rootbeer::MidasBuffer::ConnectOnline")
 		<< "Connected to experiment \"" << experiment << "\" on host \"" << host;
 
 	/// - Connect to "SYNC" shared memory buffer
   status = bm_open_buffer(syncbuf, 2*MAX_EVENT_SIZE, &fBufferHandle);
 	if (status != CM_SUCCESS) {
-		dragon::err::Error("rootbeer::MidasBuffer::ConnectOnline")
+		utils::err::Error("rootbeer::MidasBuffer::ConnectOnline")
 			<< "Error opening \"" << syncbuf << "\" shared memory buffer, status = "
 			<< status << DRAGON_ERR_FILE_LINE;
 		M__ONLINE_BAIL_OUT;
@@ -116,7 +116,7 @@ Bool_t rootbeer::MidasBuffer::ConnectOnline(const char* host, const char* experi
 	/// - Request (nonblocking) all types of events from the "SYNC" buffer
 	status = bm_request_event(fBufferHandle, -1, -1, GET_NONBLOCKING, &fRequestId, NULL);
 	if (status != CM_SUCCESS) {
-		dragon::err::Error("rootbeer::MidasBuffer::ConnectOnline")
+		utils::err::Error("rootbeer::MidasBuffer::ConnectOnline")
 			<< "Error requesting events from \"" << syncbuf << "\", status = "
 			<< status << DRAGON_ERR_FILE_LINE;
 		M__ONLINE_BAIL_OUT;
@@ -138,7 +138,7 @@ void rootbeer::MidasBuffer::DisconnectOnline()
 	/*! Calls cm_disconnect_experiment() and flushes queue */
 	cm_disconnect_experiment();
 	gQueue.Flush(FLUSH_TIME);
-	dragon::err::Info("rootbeer::MidasBuffer::DisconnectOnline")
+	utils::err::Info("rootbeer::MidasBuffer::DisconnectOnline")
 		<< "Disconnecting from experiment";
 }
 
@@ -180,17 +180,17 @@ Bool_t rootbeer::MidasBuffer::ReadBufferOnline()
 
 	/// - Print a warning message if the event was truncated
 	if (status == BM_TRUNCATED) {
-		dragon::err::Warning("rootbeer::MidasBuffer::ReadBufferOnline") << "Received a truncated event";
+		utils::err::Warning("rootbeer::MidasBuffer::ReadBufferOnline") << "Received a truncated event";
 		fIsTruncated = true;
 	}
 
 	/// - Print an error message if the buffer handle was invalid
 	if (status == BM_INVALID_HANDLE) {
-		dragon::err::Error("rootbeer::MidasBuffer::ReadBufferOnline") << "Invalid buffer handle: " << fBufferHandle;
+		utils::err::Error("rootbeer::MidasBuffer::ReadBufferOnline") << "Invalid buffer handle: " << fBufferHandle;
 	}
 
 	if(!have_event && rb::Thread::IsRunning(rb::attach::ONLINE_THREAD_NAME)) {
-		dragon::err::Info("rootbeer::MidasBuffer::ReadBufferOnline")
+		utils::err::Info("rootbeer::MidasBuffer::ReadBufferOnline")
 			<< "Received external command to shut down: status = " << status;
 	}
 	
@@ -203,7 +203,7 @@ Bool_t rootbeer::MidasBuffer::ReadBufferOnline()
 #else
 
 #define M__NO_MIDASSYS (FUNC) do {																			\
-		dragon::err::Error(FUNC) <<																					\
+		utils::err::Error(FUNC) <<																					\
 			"Online functionality requires MIDAS installed on your system"		\
 														 << DRAGON_ERR_FILE_LINE; }									\
 	while (0)
@@ -231,24 +231,24 @@ Bool_t rootbeer::MidasBuffer::ReadBufferOnline()
 INT rootbeer_run_stop(INT runnum, char* err)
 {
 	gQueue.Flush(FLUSH_TIME);
-	dragon::err::Info("rb::Midas") << "Stopping run number " << runnum;
+	utils::err::Info("rb::Midas") << "Stopping run number " << runnum;
 	return CM_SUCCESS;
 }
 
 INT rootbeer_run_start(INT runnum, char* err)
 {
-	dragon::err::Info("rb::Midas") << "Starting run number " << runnum;
+	utils::err::Info("rb::Midas") << "Starting run number " << runnum;
 	return CM_SUCCESS;
 }
 
 INT rootbeer_run_pause(INT runnum, char* err)
 {
-	dragon::err::Info("rb::Midas") << "Pausing run number " << runnum;
+	utils::err::Info("rb::Midas") << "Pausing run number " << runnum;
 	return CM_SUCCESS;
 }
 
 INT rootbeer_run_resume(INT runnum, char* err)
 {
-	dragon::err::Info("rb::Midas") << "Resuming run number " << runnum;
+	utils::err::Info("rb::Midas") << "Resuming run number " << runnum;
 	return CM_SUCCESS;
 }
