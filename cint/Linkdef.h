@@ -22,40 +22,45 @@
 //! // -- ETC -- //
 //! \endcode
 //! (note that the '+' at the end is required except in special cases).
+#ifdef __MAKECINT__
+#pragma link off all globals;
+#pragma link off all classes;
+#pragma link off all functions;
+#pragma link C++ nestedclasses;
 
-#pragma link C++ class dragon;
-#pragma link C++ class vme;
+#pragma link C++ class dragon+;
+#pragma link C++ class vme+;
 
-#pragma link C++ class dragon::Coinc;
-#pragma link C++ class dragon::Tail;
-#pragma link C++ class dragon::MCP;
-#pragma link C++ class dragon::MCP::Variables;
-#pragma link C++ class dragon::DSSSD;
-#pragma link C++ class dragon::DSSSD::Variables;
-#pragma link C++ class dragon::IonChamber;
-#pragma link C++ class dragon::IonChamber::Variables;
-#pragma link C++ class dragon::SurfaceBarrier;
-#pragma link C++ class dragon::SurfaceBarrier::Variables;
-#pragma link C++ class dragon::NaI;
-#pragma link C++ class dragon::NaI::Variables;
-#pragma link C++ class dragon::Ge;
-#pragma link C++ class dragon::Ge::Variables;
+#pragma link C++ class dragon::Coinc+;
+#pragma link C++ class dragon::Tail+;
+#pragma link C++ class dragon::MCP+;
+#pragma link C++ class dragon::MCP::Variables+;
+#pragma link C++ class dragon::DSSSD+;
+#pragma link C++ class dragon::DSSSD::Variables+;
+#pragma link C++ class dragon::IonChamber+;
+#pragma link C++ class dragon::IonChamber::Variables+;
+#pragma link C++ class dragon::SurfaceBarrier+;
+#pragma link C++ class dragon::SurfaceBarrier::Variables+;
+#pragma link C++ class dragon::NaI+;
+#pragma link C++ class dragon::NaI::Variables+;
+#pragma link C++ class dragon::Ge+;
+#pragma link C++ class dragon::Ge::Variables+;
 
-#pragma link C++ class dragon::Tail::Variables;
+#pragma link C++ class dragon::Tail::Variables+;
 
-#pragma link C++ class dragon::Head;
-#pragma link C++ class dragon::Bgo;
-#pragma link C++ class dragon::Bgo::Variables;
+#pragma link C++ class dragon::Head+;
+#pragma link C++ class dragon::Bgo+;
+#pragma link C++ class dragon::Bgo::Variables+;
 
-#pragma link C++ class vme::V792;
-#pragma link C++ class vme::V785;
-#pragma link C++ class vme::V1190;
-#pragma link C++ class vme::IO32;
+#pragma link C++ class vme::V792+;
+#pragma link C++ class vme::V785+;
+#pragma link C++ class vme::V1190+;
+#pragma link C++ class vme::IO32+;
 
-#pragma link C++ class midas::Event::Header;
+#pragma link C++ class midas::Event::Header+;
 
-#pragma link C++ class midas::Xml;
-#pragma link C++ class midas::Odb;
+#pragma link C++ class midas::Xml+;
+#pragma link C++ class midas::Odb+;
 
 
 
@@ -69,3 +74,6 @@
 	done
 	done
 */
+
+
+#endif
