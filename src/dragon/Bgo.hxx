@@ -31,13 +31,13 @@ public:
 		/** @endcond */
 
 		/// Adc variables
-		AdcVariables<MAX_CHANNELS> adc;
+		AdcVariables<MAX_CHANNELS> adc; //!
 
 		/// Tdc variables
-		TdcVariables<MAX_CHANNELS> tdc;
+		TdcVariables<MAX_CHANNELS> tdc; //!
 
 		/// Detector positions in space
-		PositionVariables<MAX_CHANNELS> pos;
+		PositionVariables<MAX_CHANNELS> pos; //!
 
  public:
 		/// Constructor, sets *_ch[i] to i
@@ -54,7 +54,7 @@ public:
 	};
 
 	/// Instance of Bgo::Variables for mapping digitizer ch -> bgo detector
-	Variables variables;        //!
+	Variables variables;          //!
 	 
 private:
 	/** @cond */
@@ -67,7 +67,7 @@ PRIVATE:
 	double tcal[MAX_CHANNELS];    //#
 
 	/// Sorted (high->low) energies
-	double esort[MAX_SORTED];  //#
+	double esort[MAX_SORTED];     //#
 
 	/// Sum of all \e valid energies
 	double sum; //#
@@ -99,8 +99,9 @@ public:
 
 
 #ifdef __MAKECINT__
-#pragma link C++ class dragon::AdcVariables<dragon::Bgo::MAX_CHANNELS>+;
-#pragma link C++ class dragon::TdcVariables<dragon::Bgo::MAX_CHANNELS>+;
+#pragma link C++ class dragon::AdcVariables<dragon::Bgo::MAX_CHANNELS>;
+#pragma link C++ class dragon::TdcVariables<dragon::Bgo::MAX_CHANNELS>;
+#pragma link C++ class dragon::PositionVariables<dragon::Bgo::MAX_CHANNELS>;
 #endif
 
 

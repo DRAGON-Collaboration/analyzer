@@ -27,10 +27,10 @@ DEFINITIONS+=-DDISPLAY_MODULES
 # }
 
 ### Uncomment for 'public' option
-#DEFINITIONS+=-DPRIVATE=public  -DPROTECTED=public
+DEFINITIONS+=-DPRIVATE=public  -DPROTECTED=public
 
 ### Uncomment for 'private' option
-DEFINITIONS+=-DPRIVATE=private -DPROTECTED=protected
+#DEFINITIONS+=-DPRIVATE=private -DPROTECTED=protected
 
 ### Set to YES (NO) to turn on (off) root [or rootbeer, or rootana] usage ###
 USE_ROOT=YES
@@ -151,13 +151,25 @@ $(OBJ)/dragon/Coinc.o
 ## END OBJECTS ##
 
 
-HEADERS=                  \
-$(SRC)/midas/*.hxx        \
-$(SRC)/midas/internal/*.h \
-$(SRC)/utils/*.hxx        \
-$(SRC)/utils/*.h          \
-$(SRC)/vme/*.hxx          \
-$(SRC)/dragon/*.hxx       \
+HEADERS=	                	\
+$(SRC)/midas/*.hxx	        	\
+$(SRC)/midas/internal/*.h       	\
+$(SRC)/utils/*.hxx        		\
+$(SRC)/utils/*.h          		\
+$(SRC)/vme/*.hxx          		\
+$(SRC)/dragon/*.hxx
+# 					\
+# $(SRC)/dragon/Bgo.hxx                 	\
+# $(SRC)/dragon/MCP.hxx                 	\
+# $(SRC)/dragon/DSSSD.hxx               	\
+# $(SRC)/dragon/Auxillary.hxx           	\
+# $(SRC)/dragon/IonChamber.hxx          	\
+# $(SRC)/dragon/SurfaceBarrier.hxx      	\
+# 					\
+# $(SRC)/dragon/Head.hxx                	\
+# $(SRC)/dragon/Tail.hxx                	\
+# 					\
+# $(SRC)/dragon/Coinc.hxx
 
 ### DRAGON LIBRARY ###
 MAKE__ALL=$(DRLIB)/libDragon.so

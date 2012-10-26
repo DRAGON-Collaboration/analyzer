@@ -74,6 +74,120 @@ inline void index_fill_n(T begin, int n, int offset = 0)
 		*begin = i + offset;
 }
 
+// Internal classes
+namespace {
+// Compares index values & sortes relative to another array
+template <class T, class Order>
+class Isort {
+	T values;
+	Order compare;
+public:
+	Isort(T begin, Order compare_):
+		values(begin), compare(compare_) { }
+	bool operator() (int index1, int index2) {
+		return compare(*(values + index1), *(values + index2));
+	}
+};
+// "Default" Isort version for less-than
+template <class T>
+class IsortLess {
+	T values;
+public:
+	IsortLess(T begin):
+		values(begin) { }
+	bool operator() (int index1, int index2) {
+		return *(values + index1) < *(values + index2);
+	}
+};
+} // namespace
+
+/// Functor for sorting in descending order, taking into account validity
+/*!
+ * Overloads operator() such that invalid values are always considered "smaller"
+ * than any others.
+ *
+ * Example:
+ * \code
+ * double data[5] = { -1., 12., 11., -13., -1. }
+ * std::sort(data, data+5, utils::greater_and_valid<double>());
+ * // data = { 12., 11., -13., -1., -1. }
+ * \endcode
+ */
+template <class T>
+struct greater_and_valid {
+	bool operator() (const T& lhs, const T& rhs)
+		{
+			if(!is_valid(lhs)) return false;
+			if(!is_valid(rhs)) return true;
+			return std::greater<T>()(lhs, rhs);
+		}
+};
+
+/// Functor for sorting in ascending order, taking into account validity
+/*!
+ * Overloads operator() such that invalid values are always considered "smaller"
+ * than any others.
+ *
+ * Example:
+ * \code
+ * double data[5] = { -1., 12., 11., -13., -1. }
+ * std::sort(data, data+5, utils::less_and_valid<double>());
+ * // data = { -1., -1., -13., 11., 12. }
+ * \endcode
+ */
+template <class T>
+struct less_and_valid {
+	bool operator() (const T& lhs, const T& rhs)
+		{
+			if(!is_valid(lhs)) return true;
+			if(!is_valid(rhs)) return false;
+			return std::less<T>()(lhs, rhs);
+		}
+};
+
+/// Sort function which returns sorted indices instead of modifying the array
+/*!
+ * \tparam T type in the array
+ * \tparam Order Functor defining the strict weak ordering of the array to sort
+ *
+ * \param [in] begin Beginning of the array whose sorted values you desire
+ * \param [in] end End of the array whose sorted values you desire
+ * \param [out] indices Pointer to the beginning of an array in which you will
+ * store the sorted indices. <b>This array must contain space for every index.</b>
+ * \param [in] order instance of Order class for sorting.
+ *
+ * Example:
+ * \code
+ * double data[5] = { 1., 5., -12., 21., -31. };
+ * int sortedData[5];
+ * utils::index_sort(data, data+5, sortedData, std::greater<double>());
+ * for(int i=0; i< 5; ++i) cout << data[ sortedData[i] ] << " ";
+ * cout << "\n";
+ * // Output:
+ * // 21 5 1 -12 -31
+ * \endcode
+ */
+template <class T, class Order>
+inline void index_sort(T begin, T end, int* indices, Order order)
+{
+	ptrdiff_t size = end - begin;
+	index_fill(indices, indices + size);
+	std::sort(indices, indices + size, 	Isort<T, Order>(begin, order));
+}
+
+/// Sort function which returns sorted indices instead of modifying the array
+/*!
+ * Same as index_sort(), except defaulting to std::less<> for the comparison, i.e.
+ * the returned indices sort in ascending order.
+ */
+template <class T>
+inline void index_sort(T begin, T end, int* indices)
+{
+	ptrdiff_t size = end - begin;
+	index_fill(indices, indices + size);
+	std::sort(indices, indices + size, 	IsortLess<T> (begin));
+}
+
 /// Maps raw vme data into another array
 /*!
  * \tparam T Basic type of the output array

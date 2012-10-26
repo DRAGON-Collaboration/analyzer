@@ -50,13 +50,12 @@ bool is_invalid (T t) { return !utils::is_valid(t); }
 void dragon::Bgo::calculate()
 {
 	/*!
-	 * \todo WRITE DESCRIPOTION!!
+	 * \todo WRITE DESCRIPTION!!
 	 */
 	utils::pedestal_subtract(ecal, MAX_CHANNELS, variables.adc);
 	utils::linear_calibrate(ecal, MAX_CHANNELS, variables.adc);
 
 	utils::linear_calibrate(tcal, MAX_CHANNELS, variables.tdc);
-
 
 	double temp[MAX_CHANNELS]; // temp array of sorted energies
 	std::copy(ecal, ecal + MAX_CHANNELS, temp); // temp == ecal
