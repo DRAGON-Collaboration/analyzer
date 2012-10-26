@@ -28,16 +28,16 @@ public:
 		/** @endcond */
 
 		/// Adc variables
-		AdcVariables<MAX_CHANNELS> adc; //!
+		AdcVariables<MAX_CHANNELS> adc;
 
 		/// Tdc variables
-		TdcVariables<MAX_CHANNELS> tdc; //!
+		TdcVariables<MAX_CHANNELS> tdc;
 
 		/// Detector positions in space
-		PositionVariables<MAX_CHANNELS> pos; //!
+		PositionVariables<MAX_CHANNELS> pos;
 
  public:
-		/// Constructor, sets *_ch[i] to i
+		/// Sets data to defaults
 		Variables();
 
 		/// Set values to defaults

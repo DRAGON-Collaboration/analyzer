@@ -1,10 +1,6 @@
 /// \file Bgo.cxx
 /// \author G. Christian
 /// \brief Implements Bgo.hxx
-#include <cassert>
-#include <numeric>
-#include <algorithm>
-#include <functional>
 #include "midas/Database.hxx"
 #include "utils/Functions.hxx"
 #include "utils/Error.hxx"
@@ -12,6 +8,7 @@
 #include "vme/V792.hxx"
 #include "Channels.h"
 #include "Bgo.hxx"
+
 
 // ========== Class dragon::Bgo ========== //
 
@@ -31,6 +28,11 @@ void dragon::Bgo::reset()
 
 void dragon::Bgo::read_data(const vme::V792& adc, const vme::V1190& tdc)
 {
+	/*!
+	 * Does channel mapping from ADC and TDC modules
+	 * \param [in] adc Adc module
+	 * \param [in] tdc Tdc module
+	 */
 	utils::channel_map(ecal, MAX_CHANNELS, variables.adc.channel, adc);
 	utils::channel_map(tcal, MAX_CHANNELS, variables.tdc.channel, tdc);
 }
@@ -83,7 +85,7 @@ void dragon::Bgo::Variables::reset()
 	std::fill(tdc.offset, tdc.offset + MAX_CHANNELS, 0.);
 	std::fill(tdc.slope, tdc.slope + MAX_CHANNELS, 1.);
 
-	// Coordinates copies from dragon_event.c [old analyzer]
+	// Coordinates copied from dragon_event.c [old analyzer]
 	const double bgoCoords[MAX_CHANNELS][3] =  {
 		{ 4, -2.6,  9.2}, { 0, -4.8,-15.3}, { 0,-10.1,-12.2}, { 0,  5.0,-12.2}, { 0,  9.9, -9.2},
 		{ 0,  8.0, -3.1}, { 0,  8.0,  3.1}, { 0,  9.9,  9.2}, { 0,-10.1, 12.2}, { 0,  5.0, 12.2},
