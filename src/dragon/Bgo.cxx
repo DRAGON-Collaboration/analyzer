@@ -83,9 +83,21 @@ void dragon::Bgo::Variables::reset()
 	std::fill(tdc.offset, tdc.offset + MAX_CHANNELS, 0.);
 	std::fill(tdc.slope, tdc.slope + MAX_CHANNELS, 1.);
 
-	std::fill(pos.x, pos.x + MAX_CHANNELS, 1.);
-	std::fill(pos.y, pos.y + MAX_CHANNELS, 1.);
-	std::fill(pos.z, pos.z + MAX_CHANNELS, 1.);
+	// Coordinates copies from dragon_event.c [old analyzer]
+	const double bgoCoords[MAX_CHANNELS][3] =  {
+		{ 4, -2.6,  9.2}, { 0, -4.8,-15.3}, { 0,-10.1,-12.2}, { 0,  5.0,-12.2}, { 0,  9.9, -9.2},
+		{ 0,  8.0, -3.1}, { 0,  8.0,  3.1}, { 0,  9.9,  9.2}, { 0,-10.1, 12.2}, { 0,  5.0, 12.2},
+		{ 0, -4.8, 15.3}, {-4, -2.6, -9.2}, { 4, -2.6, -9.2}, {-4, -7.9, -6.1}, { 4, -7.9, -6.1},
+		{-4,  2.7, -6.1}, { 4,  2.7, -6.1}, {-4, -2.6, -3.1}, { 4, -2.6, -3.1}, {-4, -7.9,    0},
+		{ 4, -7.9,    0}, {-4,  2.7,    0}, { 4,  2.7,    0}, {-4, -2.6,  3.1}, { 4, -2.6,  3.1},
+		{-4, -7.9,  6.1}, { 4, -7.9,  6.1}, {-4,  2.7,  6.1}, { 4,  2.7,  6.1}, {-4, -2.6,  9.2}
+	};
+
+	for(int i=0; i< MAX_CHANNELS; ++i) {
+		pos.x[i] = bgoCoords[i][0];
+		pos.y[i] = bgoCoords[i][1];
+		pos.z[i] = bgoCoords[i][2];
+	}
 }
 
 void dragon::Bgo::Variables::set(const char* odb)
