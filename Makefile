@@ -34,7 +34,7 @@ DEFINITIONS+=-DPRIVATE=public  -DPROTECTED=public
 
 ### Set to YES (NO) to turn on (off) root [or rootbeer, or rootana] usage ###
 USE_ROOT=YES
-USE_ROOTANA=NO
+USE_ROOTANA=YES
 USE_ROOTBEER=NO
 
 ### Set ROOTBEER home directory (ignore if USE_ROOTBEER=NO) ###

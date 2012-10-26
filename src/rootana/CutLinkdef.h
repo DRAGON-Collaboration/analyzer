@@ -8,8 +8,8 @@
 #pragma link C++ nestedclasses;
 
 
-#pragma link C++ class rootana::Cut+;
-#pragma link C++ class rootana::Condition+;
+#pragma link C++ class rootana::Cut;
+#pragma link C++ class rootana::Condition;
 
 
 #pragma link C++ function True();
