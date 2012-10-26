@@ -266,6 +266,31 @@ inline void channel_map(T& output, int channel, int module, const M* moduleArr)
 	output = moduleArr[module].get_data(channel);
 }
 
+
+/// Channel mapping from a plain array, not a module
+template <class T>
+inline void channel_map_from_array(T* output, int numch, const int* const indices, const T* const input)
+{
+	/*!
+	 * \param [out] output Output array
+	 * \param [in] numch Length of the input array
+	 * \param [in] indices Array containing mapping values
+	 * \param [in] input Array of input data
+	 *
+	 * Example:
+	 * \code
+	 * double input[5] = { 1., 2., 3., 4., 5. };
+	 * double output[5];
+	 * int indices[5] = { 3, 2, 1, 4, 0 };
+	 * utils::channel_map_from_array(output, 5, indices, input);
+	 * // output = { 4., 3., 2., 5., 1. }
+	 * \endcode
+	 */
+	for (int i=0; i< numch; ++i)
+		output[i] = input[ indices[i] ];
+}
+
+
 /// Transforms data within an array
 /*!
  * \tparam T Basic type of the output array

@@ -19,9 +19,6 @@ public:
 	/// Number of channels in the BGO array
 	static const int MAX_CHANNELS = 30; //!
 
-	/// Number of energy-sorted channels
-	static const int MAX_SORTED = 5; //!
-
 public:
 	/// Bgo variables
 	class Variables {
@@ -67,7 +64,7 @@ PRIVATE:
 	double tcal[MAX_CHANNELS];    //#
 
 	/// Sorted (high->low) energies
-	double esort[MAX_SORTED];     //#
+	double esort[MAX_CHANNELS];   //#
 
 	/// Sum of all \e valid energies
 	double sum; //#
@@ -80,6 +77,9 @@ PRIVATE:
 
 	/// z position of the highest energy hit
 	double z0; //#
+
+	/// time of the highest energy hit
+	double t0; //#
 
 public:
 	/// Constructor, initializes data values

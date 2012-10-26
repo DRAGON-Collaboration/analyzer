@@ -18,12 +18,6 @@
 dragon::Bgo::Bgo():
 	variables()
 {
-	if (MAX_CHANNELS < MAX_SORTED) {
-		dragon::err::Error("dragon::Bgo::Bgo") 
-			<< "(Fatal): Bgo::MAX_CHANNELS (==" << MAX_CHANNELS << ") < Bgo::MAX_SORTED (=="
-			<< MAX_SORTED << ")" << DRAGON_ERR_FILE_LINE;
-		assert(0);
-	}
 	reset();
 }	
 
@@ -31,8 +25,8 @@ void dragon::Bgo::reset()
 {
 	utils::reset_array(MAX_CHANNELS, ecal);
 	utils::reset_array(MAX_CHANNELS, tcal);
-	utils::reset_array(MAX_SORTED, esort);
-	utils::reset_data(sum, x0, y0, z0);
+	utils::reset_array(MAX_CHANNELS, esort);
+	utils::reset_data(sum, x0, y0, z0, t0);
 }
 
 void dragon::Bgo::read_data(const vme::V792& adc, const vme::V1190& tdc)
@@ -42,47 +36,30 @@ void dragon::Bgo::read_data(const vme::V792& adc, const vme::V1190& tdc)
 }
 
 
-namespace {
-template<typename T>
-bool is_invalid (T t) { return !utils::is_valid(t); } 
-}
-
 void dragon::Bgo::calculate()
 {
 	/*!
-	 * \todo WRITE DESCRIPTION!!
+	 * Does the following:
 	 */
+	/// - Pedestal subtract and calibrate energy values
 	utils::pedestal_subtract(ecal, MAX_CHANNELS, variables.adc);
 	utils::linear_calibrate(ecal, MAX_CHANNELS, variables.adc);
 
+	/// - Calibrate time values
 	utils::linear_calibrate(tcal, MAX_CHANNELS, variables.tdc);
 
-	double temp[MAX_CHANNELS]; // temp array of sorted energies
-	std::copy(ecal, ecal + MAX_CHANNELS, temp); // temp == ecal
+	/// - Calculate descending-order energy indices and map into \c esort[]
+	int isort[MAX_CHANNELS];
+	utils::index_sort(ecal, ecal+MAX_CHANNELS, isort, utils::greater_and_valid<double>());
+	utils::channel_map_from_array(ecal, MAX_CHANNELS, isort, esort);
 
-	// remove invalid entries
-	double *tempBegin = temp, *tempEnd = temp + MAX_CHANNELS;
-	std::remove_if(tempBegin, tempEnd, is_invalid<double>);
-
-	// put { tempBegin...tempEnd } in descending order
-	std::sort(tempBegin, tempEnd, std::greater<double>());
-
-	// copy first MAX_SORTED elements to this->esort
-	const ptrdiff_t ncopy = std::max(static_cast<ptrdiff_t> (MAX_SORTED), tempEnd - tempBegin);
-	std::copy(tempBegin, tempBegin + ncopy, esort);
-	if (ncopy < MAX_SORTED)
-		std::fill(esort + ncopy, esort + MAX_SORTED, dragon::NO_DATA);
-
-	// calculate sum
-	sum = std::accumulate(tempBegin, tempEnd, 0);
-	if(sum == 0) utils::reset_data(sum);
-
-	// calculate x0, y0, z0
-	if(utils::is_valid(sum)) {
-		int which = std::max_element(ecal, ecal + MAX_CHANNELS) - ecal; // which detector was max hit?
-		x0 = variables.pos.x[which];
-		y0 = variables.pos.y[which];
-		z0 = variables.pos.z[which];
+	/// - If we have at least one good hit, calculate sum, x0, y0, z0, and t0
+	if(utils::is_valid(esort[0])) {
+		sum = utils::calculate_sum(ecal, ecal + MAX_CHANNELS);
+		x0 = variables.pos.x[ isort[0] ];
+		y0 = variables.pos.y[ isort[0] ];
+		z0 = variables.pos.z[ isort[0] ];
+		t0 = tcal[ isort[0] ];
 	}
 }
 
