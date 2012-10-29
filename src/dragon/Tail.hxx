@@ -46,7 +46,7 @@ public:
 	};
 
 	/// Tail::Variables instance
-	Variables variables; //!
+	Variables variables;     //!
 
 	/// Midas event header
 	midas::Event::Header header; //#
@@ -79,28 +79,28 @@ PRIVATE:
 
 #ifndef DRAGON_OMIT_DSSSD
 	/// DSSSD detector
-	DSSSD dsssd;             //#
+	DSSSD dsssd;             //
 #endif
 
 #ifndef DRAGON_OMIT_IC
 	/// Ionization chamber
-	IonChamber ic;           //#
+	IonChamber ic;           //
 #endif
 
 	/// MCPs
-	MCP mcp;                 //#
+	MCP mcp;                 //
 
 	/// Surface barrier detectors
-	SurfaceBarrier sb;       //#
+	SurfaceBarrier sb;       //
 
 #ifndef DRAGON_OMIT_NAI
 	/// NaI detetors
-	NaI nai;                 //#
+	NaI nai;                 //
 #endif
 
 #ifndef DRAGON_OMIT_GE
 	/// Germanium detector
-	Ge ge;                   //#
+	Ge ge;                   //
 #endif
 
 	// Methods //

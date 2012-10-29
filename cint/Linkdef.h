@@ -31,8 +31,11 @@
 #pragma link C++ class dragon+;
 #pragma link C++ class vme+;
 
+#pragma link C++ defined_in ../src/utils/VariableStructs.hxx;
+
 #pragma link C++ class dragon::Coinc+;
 #pragma link C++ class dragon::Tail+;
+
 #pragma link C++ class dragon::MCP+;
 #pragma link C++ class dragon::MCP::Variables+;
 #pragma link C++ class dragon::DSSSD+;
@@ -61,10 +64,6 @@
 
 #pragma link C++ class midas::Xml+;
 #pragma link C++ class midas::Odb+;
-
-
-
-/* //#pragma link C++ function utils::index_sort(double*, double*, int*, int); */
 
 
 /*

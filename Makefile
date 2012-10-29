@@ -35,7 +35,7 @@ DEFINITIONS+=-DPRIVATE=public  -DPROTECTED=public
 ### Set to YES (NO) to turn on (off) root [or rootbeer, or rootana] usage ###
 USE_ROOT=YES
 USE_ROOTANA=NO
-USE_ROOTBEER=NO
+USE_ROOTBEER=YES
 
 ### Set ROOTBEER home directory (ignore if USE_ROOTBEER=NO) ###
 RB_HOME=/Users/gchristian/soft/develop/rootbeer

@@ -77,10 +77,10 @@ PRIVATE:
 	double tac; //#
 
 	/// x-position
-	double x; //#
+	double x;  //#
 
 	/// y-position
-	double y; //#
+	double y;  //#
 
 public:
 	/// Constructor, initialize data

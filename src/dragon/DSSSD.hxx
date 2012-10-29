@@ -58,19 +58,19 @@ PRIVATE:
 	double ecal[MAX_CHANNELS]; //#
 
 	/// Highest energy signal in the front strips (0 - 15)
-	double efront;
+	double efront;      //#
 
 	/// Highest energy signal in the back strips (16 - 31)
-	double eback;
+	double eback;       //#
 
 	/// Which strip was hit in the front strips
-	uint32_t hit_front;
+	uint32_t hit_front; //#
 
 	/// Which strip was hit in the back strips
-	uint32_t hit_back;
+	uint32_t hit_back;  //#
 
 	/// Calibrated time signal
-	double tcal; //#
+	double tcal;        //#
 
 public:
 	/// Constructor, initialize data
