@@ -13,43 +13,43 @@
 
 
 
-// ====== Class dragon::Xtof ====== //
+// ====== Class dragon::Xtdc ====== //
 
-dragon::Xtof::Xtof(const char* odbBase):
+dragon::Xtdc::Xtdc(const char* odbBase):
 	variables(odbBase)
 {
 	/*! Calls reset() */
 	reset();
 }
 
-void dragon::Xtof::reset()
+void dragon::Xtdc::reset()
 {
 	utils::reset_data(tcal);
 }
 
-void dragon::Xtof::read_data(const vme::V1190& tdc)
+void dragon::Xtdc::read_data(const vme::V1190& tdc)
 {
 	utils::channel_map(tcal, variables.tdc.channel, tdc);
 }
 
-void dragon::Xtof::calculate()
+void dragon::Xtdc::calculate()
 {
 	utils::linear_calibrate(tcal, variables.tdc);
 }
 
 
-// ====== Class dragon::Xtof::Variables ====== //
+// ====== Class dragon::Xtdc::Variables ====== //
 
-dragon::Xtof::Variables::Variables(const char* odbBase):
+dragon::Xtdc::Variables::Variables(const char* odbBase):
 	fOdbBase(odbBase)
 {
 	/*! Calls reset() */
 	reset();
 }
 
-void dragon::Xtof::Variables::reset()
+void dragon::Xtdc::Variables::reset()
 {
-	if(fOdbBase == "/dragon/tof/tail")
+	if(fOdbBase == "/dragon/head")
 		tdc.channel = TAIL_CROSS_TDC;
 	else
 		tdc.channel = HEAD_CROSS_TDC;
@@ -57,7 +57,7 @@ void dragon::Xtof::Variables::reset()
 	tdc.offset  = 0.;
 }
 
-void dragon::Xtof::Variables::set(const char* odb)
+void dragon::Xtdc::Variables::set(const char* odb)
 {
 	/*!
 	 * \param [in] odb_file Path of the odb file from which you are extracting variable values
@@ -65,9 +65,9 @@ void dragon::Xtof::Variables::set(const char* odb)
 	 */
 	midas::Database database(odb);
 
-	database.ReadValue((fOdbBase + "/variables/tdc/channel").c_str(), tdc.channel);
-	database.ReadValue((fOdbBase + "/variables/tdc/slope").c_str(), tdc.slope);
-	database.ReadValue((fOdbBase + "/variables/tdc/offset").c_str(), tdc.offset);
+	database.ReadValue((fOdbBase + "/variables/xtdc/channel").c_str(), tdc.channel);
+	database.ReadValue((fOdbBase + "/variables/xtdc/slope").c_str(), tdc.slope);
+	database.ReadValue((fOdbBase + "/variables/xtdc/offset").c_str(), tdc.offset);
 }
 	
 
@@ -92,7 +92,7 @@ void dragon::TofTail::reset()
 #endif
 }
 
-void dragon::TofTail::calculate(const dragon::MCP& mcp_, const dragon::DSSSD& dsssd_, const dragon::IonChamber& ic_, const dragon::Xtof& xover)
+void dragon::TofTail::calculate(const dragon::MCP& mcp_, const dragon::DSSSD& dsssd_, const dragon::IonChamber& ic_, const dragon::Xtdc& xover)
 {
 	mcp = utils::Tof::calculate(mcp_, 0, mcp_, 1);
 	gamma_mcp = utils::Tof::calculate(xover, mcp_, 0);
@@ -122,7 +122,7 @@ void dragon::TofHead::reset()
 	utils::reset_data(gamma_tail);
 }
 
-void dragon::TofHead::calculate(const dragon::Bgo& bgo, const dragon::Xtof& xover)
+void dragon::TofHead::calculate(const dragon::Bgo& bgo, const dragon::Xtdc& xover)
 {
 	gamma_tail = utils::Tof::calculate_bgo(bgo, xover);
 }

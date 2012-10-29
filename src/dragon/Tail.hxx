@@ -7,6 +7,7 @@
 #include "vme/IO32.hxx"
 #include "vme/V792.hxx"
 #include "vme/V1190.hxx"
+#include "Tof.hxx"
 #include "MCP.hxx"
 #include "DSSSD.hxx"
 #include "Auxillary.hxx"
@@ -21,33 +22,6 @@ class Tail {
 public:
 	/// Number of ADC (caen v785) modules
 	static const int NUM_ADC = 2;
-
-	// Subclasses //
-public:
-	/// Heavy ion variables
-	class Variables {
-		// Class data //
- private:
-		/** @cond */
- PRIVATE:
-		/** @endcond */
-		/// Channel of the V1190b TDC trigger
-		int v1190_trigger_ch;
-
-		// Methods //
- public:
-		/// Constructor, set data to generic values
-		Variables();
-
-		/// Destructor, nothing to do
-		~Variables() { }
-
-		/// Set variable values from an ODB file
-		void set(const char* odb_file);
-	};
-
-	/// Tail::Variables instance
-	Variables variables;     //!
 
 	/// Midas event header
 	midas::Event::Header header; //#
@@ -103,6 +77,12 @@ PRIVATE:
 	/// Germanium detector
 	Ge ge;                   //
 #endif
+
+	/// Crossover TDC channel
+	dragon::Xtdc xtdc;       //
+	
+	/// Tail TOF
+	dragon::TofTail tof;     //
 
 	// Methods //
 public:

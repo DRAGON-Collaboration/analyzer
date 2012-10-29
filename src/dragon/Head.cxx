@@ -7,7 +7,7 @@
 // ========== Class dragon::Head ========== //
 
 dragon::Head::Head() :
-	io32(), v792(), v1190(), header(), bgo(), xtdc("/dragon/xtof/tail"), tof()
+	header(), io32(), v792(), v1190(), bgo(), xtdc("/dragon/head"), tof()
 {
 	reset();
 }
@@ -18,6 +18,8 @@ void dragon::Head::reset()
 	v792.reset();
 	v1190.reset();
 	bgo.reset();
+	xtdc.reset();
+	tof.reset();
 	const midas::Event::Header temp = { 0, 0, 0, 0, 0 };
 	header = temp;
 }
@@ -29,6 +31,7 @@ void dragon::Head::set_variables(const char* odb)
 	 * \note Passing \c "online" looks at the online ODB.
 	 */
 	bgo.variables.set(odb);
+	xtdc.variables.set(odb);
 }
 
 void dragon::Head::unpack(const midas::Event& event)
@@ -67,5 +70,8 @@ void dragon::Head::calculate()
 	 * In the specific implementation, we delegate to functions in the dragon::Bgo class.
 	 */
 	bgo.read_data(v792, v1190);
+	xtdc.read_data(v1190);
 	bgo.calculate();
+	xtdc.calculate();
+	tof.calculate(bgo, xtdc);
 }

@@ -49,11 +49,13 @@
 #pragma link C++ class dragon::Ge+;
 #pragma link C++ class dragon::Ge::Variables+;
 
-#pragma link C++ class dragon::Tail::Variables+;
-
 #pragma link C++ class dragon::Head+;
 #pragma link C++ class dragon::Bgo+;
 #pragma link C++ class dragon::Bgo::Variables+;
+
+#pragma link C++ class dragon::Xtdc+;
+#pragma link C++ class dragon::TofTail+;
+#pragma link C++ class dragon::TofHead+;
 
 #pragma link C++ class vme::V792+;
 #pragma link C++ class vme::V785+;
@@ -64,7 +66,6 @@
 
 #pragma link C++ class midas::Xml+;
 #pragma link C++ class midas::Odb+;
-
 
 /*
 	for j in Adc Tdc

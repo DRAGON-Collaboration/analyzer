@@ -19,13 +19,15 @@ dragon::Tail::Tail() :
 	ic(),
 #endif
 	mcp(),
-	sb()
+	sb(),
 #ifndef DRAGON_OMIT_NAI
-	, nai()
+	nai(),
 #endif
 #ifndef DRAGON_OMIT_GE
-	, ge()
+	ge(),
 #endif
+	xtdc("/dragon/tail"),
+	tof()
 {
 	reset();
 }
@@ -51,6 +53,8 @@ void dragon::Tail::reset()
 #ifndef DRAGON_OMIT_GE
 	ge.reset();
 #endif
+	xtdc.reset();
+	tof.reset();
 }
 
 void dragon::Tail::unpack(const midas::Event& event)
@@ -85,59 +89,42 @@ void dragon::Tail::unpack(const midas::Event& event)
 	event.CopyHeader(header);
 }
 
-// void dragon::Tail::read_data()
-// {
-// 	++evt_count;
-// #ifndef DRAGON_OMIT_DSSSD
-// 	dsssd.read_data(modules, variables.v1190_trigger_ch);
-// #endif
-// #ifndef DRAGON_OMIT_IC
-// 	ic.read_data(modules, variables.v1190_trigger_ch);
-// #endif
-// 	mcp.read_data(modules);
-// 	sb.read_data(modules);
-// #ifndef DRAGON_OMIT_NAI
-// 	nai.read_data(modules);
-// #endif
-// #ifndef DRAGON_OMIT_GE
-// 	ge.read_data(modules);
-// #endif
-// }
-
 void dragon::Tail::calculate()
 {
-// 	mcp.read_data(
-// 	mcp.calculate();
 
-// #ifndef DRAGON_OMIT_NAI
-// 	nai.calculate();
-// #endif
-
-// #ifndef DRAGON_OMIT_GE
-// 	ge.calculate();
-// #endif
-
-}
-
-// ====== struct dragon::Tail::Variables ====== //
-
-dragon::Tail::Variables::Variables() :
-	v1190_trigger_ch(0)
-{
-	// nothing else to do
-}
-
-void dragon::Tail::Variables::set(const char* odb)
-{
-	/*!
-	 * \param [in] odb_file Path of the odb file from which you are extracting variable values
-	 * \todo Needs to be implemented once ODB is set up
-	 */
-	/// \todo Set actual ODB paths, TEST!!
-	const char* const path = "Equipment/V1190/HeavyIon/TriggerCh";
-
-	midas::Database database(odb);
-	database.ReadValue(path, v1190_trigger_ch);
+	/// - Read data from VME modules into data structures
+#ifndef DRAGON_OMIT_DSSSD
+	dsssd.read_data(v785, v1190);
+#endif
+#ifndef DRAGON_OMIT_IC
+	ic.read_data(v785, v1190);
+#endif
+	mcp.read_data(v785, v1190);
+	sb.read_data(v785, v1190);
+#ifndef DRAGON_OMIT_NAI
+	nai.read_data(v785, v1190);
+#endif
+#ifndef DRAGON_OMIT_GE
+	ge.read_data(v785, v1190);
+#endif
+	xtdc.read_data(v1190);
+	
+	/// - Perform calibrations, higher-order calculations, etc
+#ifndef DRAGON_OMIT_DSSSD
+	dsssd.calculate();
+#endif
+#ifndef DRAGON_OMIT_IC
+	ic.calculate();
+#endif
+	mcp.calculate();
+	sb.calculate();
+#ifndef DRAGON_OMIT_NAI
+	nai.calculate();
+#endif
+#ifndef DRAGON_OMIT_GE
+	ge.calculate();
+#endif
+	tof.calculate(mcp, dsssd, ic, xtdc);
 }
 
 void dragon::Tail::set_variables(const char* odb)
@@ -154,11 +141,11 @@ void dragon::Tail::set_variables(const char* odb)
 #endif
 	mcp.variables.set(odb);
 	sb.variables.set(odb);
-	variables.set(odb);
 #ifndef DRAGON_OMIT_NAI
 	nai.variables.set(odb);
 #endif
 #ifndef DRAGON_OMIT_GE
 	ge.variables.set(odb);
 #endif
+	xtdc.variables.set(odb);
 }

@@ -20,7 +20,7 @@ class Bgo;
 /*!
  * Holds the tcal information from the other system's trigger signal.
  */
-class Xtof {
+class Xtdc {
 	// Subclasses //
 public:
 	class Variables {
@@ -47,8 +47,8 @@ private:
 		/// Set from ODB
 		void set(const char* odb);
 
-		/// Allow Xtof class access to internals
-		friend class dragon::Xtof;
+		/// Allow Xtdc class access to internals
+		friend class dragon::Xtdc;
 	};
 
 	/// Variables instance
@@ -65,7 +65,7 @@ PRIVATE:
 	// Class methods //
 public:
 	/// Initializes data, sets base ODB path
-	Xtof(const char* odbBase);
+	Xtdc(const char* odbBase);
 	
 	/// Resets data to dragon::NO_DATA
 	void reset();
@@ -127,7 +127,7 @@ public:
 	void reset();
 
 	/// Calculate all of the TOF data
-	void calculate(const dragon::MCP& mcp_, const dragon::DSSSD& dsssd_, const dragon::IonChamber& ic_, const dragon::Xtof& xover);
+	void calculate(const dragon::MCP& mcp_, const dragon::DSSSD& dsssd_, const dragon::IonChamber& ic_, const dragon::Xtdc& xover);
 };
 
 
@@ -155,7 +155,7 @@ public:
 	void reset();
 
 	/// Calculate all the TOF data
-	void calculate(const dragon::Bgo& bgo, const dragon::Xtof& xover);
+	void calculate(const dragon::Bgo& bgo, const dragon::Xtdc& xover);
 };
 
 } // namespace dragon

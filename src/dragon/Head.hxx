@@ -48,7 +48,7 @@ PRIVATE:
 	dragon::Bgo bgo;
 
 	/// Crossover TDC
-	dragon::Xtof xtdc;
+	dragon::Xtdc xtdc;
 
 	/// Flight times
 	dragon::TofHead tof;
