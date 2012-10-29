@@ -27,10 +27,10 @@ DEFINITIONS+=-DDISPLAY_MODULES
 # }
 
 ### Uncomment for 'public' option
-DEFINITIONS+=-DPRIVATE=public  -DPROTECTED=public
+#DEFINITIONS+=-DPRIVATE=public  -DPROTECTED=public
 
 ### Uncomment for 'private' option
-#DEFINITIONS+=-DPRIVATE=private -DPROTECTED=protected
+DEFINITIONS+=-DPRIVATE=private -DPROTECTED=protected
 
 ### Set to YES (NO) to turn on (off) root [or rootbeer, or rootana] usage ###
 USE_ROOT=YES
@@ -144,6 +144,7 @@ $(OBJ)/dragon/Auxillary.o           	\
 $(OBJ)/dragon/IonChamber.o          	\
 $(OBJ)/dragon/SurfaceBarrier.o      	\
 					\
+$(OBJ)/dragon/Tof.o                	\
 $(OBJ)/dragon/Head.o                	\
 $(OBJ)/dragon/Tail.o                	\
 					\

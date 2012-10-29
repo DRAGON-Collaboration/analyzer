@@ -6,12 +6,13 @@
 #include "utils/VariableStructs.hxx"
 
 
+namespace utils { class Tof; }
+
 namespace vme {
 class V792;
 class V1190;
 typedef V792 V785;
 }
-
 
 namespace dragon {
 
@@ -94,6 +95,9 @@ public:
 
 	/// Calibrate ADC/TDC signals, calculate x and y positions
 	void calculate();
+
+	/// Allow tof calculation access to internals
+	friend class utils::Tof;
 };
 
 } // namespace dragon

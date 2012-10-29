@@ -4,6 +4,9 @@
 #define DRAGON_DSSSD_HXX
 #include "utils/VariableStructs.hxx"
 
+
+namespace utils { class Tof; }
+
 namespace vme {
 class V792;
 class V1190;
@@ -84,6 +87,9 @@ public:
 
 	/// Performs energy and time calibrations
 	void calculate();
+
+	/// Allow ToF calculation access to internals
+	friend class utils::Tof;
 };
 
 } // namespace dragon

@@ -6,6 +6,9 @@
 #include <stdint.h>
 #include "utils/VariableStructs.hxx"
 
+
+namespace utils { class Tof; }
+
 namespace vme {
 class V792;
 class V1190;
@@ -85,7 +88,7 @@ public:
 	/// Constructor, initializes data values
 	Bgo();
 
-	/// Sets all data values to vme::NONE
+	/// Sets all data values to dragon::NO_DATA
 	void reset();
 
 	/// Read adc & tdc data
@@ -93,6 +96,9 @@ public:
 
 	/// Do higher-level parameter calculations
 	void calculate();
+
+	/// Allow Tof calculation access to internals
+	friend class utils::Tof;
 };
 
 } // namespace dragon

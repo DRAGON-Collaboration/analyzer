@@ -7,7 +7,7 @@
 // ========== Class dragon::Head ========== //
 
 dragon::Head::Head() :
-	io32(), v792(), v1190(), header(), bgo()
+	io32(), v792(), v1190(), header(), bgo(), xtdc("/dragon/xtof/tail"), tof()
 {
 	reset();
 }

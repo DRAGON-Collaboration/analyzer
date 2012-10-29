@@ -3,10 +3,109 @@
 /// \brief Defines some functions commonly used in processing data
 #ifndef DRAGON_UTILS_FUNCTIONS_HXX
 #define DRAGON_UTILS_FUNCTIONS_HXX
+#include <functional>
 #include "Valid.hxx"
+
 
 /// Encloses various 'utility' functions
 namespace utils {
+
+/// "Static" class for performing ToF calculations
+/*!
+ * This class should be friended with any class that has a '.tcal' field, in order to allow
+ * it to be used for TOF calcualtion.
+ * 
+ * Contains a variety of static template member functions, to handle various combinations
+ * of the '.tcal' field being either an array or a direct parameter.
+ */
+struct Tof {
+
+  /// Calclates ToF for two parameter arguments
+	template <class T1, class T2>
+	static double calculate(const T1& t1, const T2& t2)
+		{
+			/*!
+ 			 * /code
+			 * if (is_valid(t1.tcal) && is_valid(t2.tcal))
+			 *   return t1.tcal - t2.tcal;
+			 * else
+			 *   return dragon::NO_DATA;
+			 * /endcode
+			 */
+			if (is_valid(t1.tcal) && is_valid(t2.tcal))
+				return t1.tcal - t2.tcal;
+			else
+				return dragon::NO_DATA;
+		}
+
+	/// Calculates Tof for a LHS array & RHS parameter
+	template <class T1, class T2>
+	static double calculate(const T1& t1, int ch1, const T2& t2)
+		{
+			/*!
+ 			 * /code
+			 * if (is_valid(t1.tcal[ch1]) && is_valid(t2.tcal))
+			 *   return t1.tcal[ch1] - t2.tcal;
+			 * else
+			 *   return dragon::NO_DATA;
+			 * /endcode
+			 */
+			if (is_valid(t1.tcal[ch1]) && is_valid(t2.tcal))
+				return t1.tcal[ch1] - t2.tcal;
+			else
+				return dragon::NO_DATA;
+		}
+
+	/// Calculates Tof for a LHS parameter & RHS array
+	template <class T1, class T2>
+	static double calculate(const T1& t1, const T2& t2, int ch2)
+		{
+			/*!
+ 			 * /code
+			 * if (is_valid(t1.tcal) && is_valid(t2.tcal[ch2]))
+			 *   return t1.tcal - t2.tcal[ch2];
+			 * else
+			 *   return dragon::NO_DATA;
+			 * /endcode
+			 */
+			if (is_valid(t1.tcal) && is_valid(t2.tcal[ch2]))
+				return t1.tcal - t2.tcal[ch2];
+			else
+				return dragon::NO_DATA;
+		}
+
+	/// Calculates Tof for two arrays
+	template <class T1, class T2>
+	static double calculate(const T1& t1, int ch1, const T2& t2, int ch2)
+		{
+			/*!
+ 			 * /code
+			 * if (is_valid(t1.tcal[ch1]) && is_valid(t2.tcal[ch2]))
+			 *   return t1.tcal[ch1] - t2.tcal[ch2];
+			 * else
+			 *   return dragon::NO_DATA;
+			 * /endcode
+			 */
+			if (is_valid(t1.tcal[ch1]) && is_valid(t2.tcal[ch2]))
+				return t1.tcal[ch1] - t2.tcal[ch2];
+			else
+				return dragon::NO_DATA;
+		}
+
+  /// Template specialization for Tof::calculate and the BGO array
+	template <class T1, class T2>
+	static double calculate_bgo(const T1& bgo, const T2& t2)
+		{
+			/*!
+			 * With the BGO array, we want to use 't0' for TOF calculation, not tcal
+			 */
+			if (is_valid(bgo.t0) && is_valid(t2.tcal))
+				return bgo.t0 - t2.tcal;
+			else
+				return dragon::NO_DATA;
+		}
+};
+
 
 /// Sums all values in an array, <e>ignoring "null" values</e>
 template <class T>

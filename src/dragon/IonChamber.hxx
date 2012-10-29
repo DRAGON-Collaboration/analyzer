@@ -6,6 +6,9 @@
 #include <stdint.h>
 #include "utils/VariableStructs.hxx"
 
+
+namespace utils { class Tof; }
+
 namespace vme {
 class V792;
 class V1190;
@@ -82,6 +85,9 @@ public:
 
 	/// Calculate higher-level parameters
 	void calculate();
+
+	/// Allow Tof calculation access to internals
+	friend class utils::Tof;
 };
 
 } // namespace dragon

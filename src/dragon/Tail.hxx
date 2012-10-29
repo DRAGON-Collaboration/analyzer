@@ -1,4 +1,5 @@
 /// \file Tail.hxx
+/// \author G. Christian
 /// \brief Defines the DRAGON tail (heavy ion) detector classes
 #ifndef DRAGON_TAIL_HXX
 #define DRAGON_TAIL_HXX

@@ -7,6 +7,7 @@
 #include "vme/V1190.hxx"
 #include "vme/V792.hxx"
 #include "vme/IO32.hxx"
+#include "Tof.hxx"
 #include "Bgo.hxx"
 
 namespace dragon {
@@ -45,6 +46,12 @@ PRIVATE:
 
 	/// Bgo array
 	dragon::Bgo bgo;
+
+	/// Crossover TDC
+	dragon::Xtof xtdc;
+
+	/// Flight times
+	dragon::TofHead tof;
 
 // Methods //
 public:

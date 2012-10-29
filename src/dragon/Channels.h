@@ -24,9 +24,15 @@
  0..1 = MCP
  2 = DSSSD
  3 = IC
+ 4 = CROSS TRIGGER
 
  ** GAMMA **
- <...>
+ADC
+0..30 = bgo[]
+
+TDC
+0..30 = bgo[]
+31 = CROSS_TRIGGER
 
  \endcode
 */
@@ -49,6 +55,9 @@
 #define MCP_TDC0         0  /**< Mcp times: Ch 0..1 */
 #define DSSSD_TDC0       2  /**< DSSSD time: Ch 2 */
 #define IC_TDC0          3  /**< Ion-chamber time: Ch 3 */
+
+#define HEAD_CROSS_TDC    31
+#define TAIL_CROSS_TDC    4
 
 
 #endif
