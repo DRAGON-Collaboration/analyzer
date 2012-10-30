@@ -42,7 +42,7 @@ public:
 			/// Sets data from ODB
 			void set(const char* odb);
 
-			/// Give Tof class internal access
+			/// Give parent Tof class internal access
 			friend class dragon::Head::Tof;
 		};
 		/// Variables instance
