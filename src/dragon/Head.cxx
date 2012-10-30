@@ -106,7 +106,7 @@ void dragon::Head::Tof::calculate()
 	 * <downstream tdc> - <upstream tdc>
 	 */
 	utils::linear_calibrate(tcalx, variables.xtdc); 
-	gamma_tail = utils::calculate_tof=(tcalx, fParent->bgo.t0);
+	gamma_tail = utils::calculate_tof(tcalx, fParent->bgo.t0);
 }
 
 
