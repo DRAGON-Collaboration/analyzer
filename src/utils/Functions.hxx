@@ -17,7 +17,7 @@ inline double calculate_tof(const T1& t1, const T2& t2)
 	/*!
 	 * \param t1 Later time
 	 * \param t2 Earlier time
-	 * \returns <c>t1 -t2</c> if both parameters are valid; otherwise: \c dragon::NO_DATA
+	 * \returns <c>t1 - t2</c> if both parameters are valid; otherwise: \c dragon::NO_DATA
 	 */
 	if (utils::is_valid(t1) && utils::is_valid(t2))
 		return t1 - t2;

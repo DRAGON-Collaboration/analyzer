@@ -103,7 +103,7 @@ void dragon::Head::Tof::calculate()
 {
 	/*!
 	 * Calibrates xtof (linear), calculates all the times-of-flight by subtracting
-	 * <downstream tdc> - <upstream tdc>
+	 * < downstream tdc > - < upstream tdc >
 	 */
 	utils::linear_calibrate(tcalx, variables.xtdc); 
 	gamma_tail = utils::calculate_tof(tcalx, fParent->bgo.t0);
