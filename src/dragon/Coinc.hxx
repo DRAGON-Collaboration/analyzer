@@ -3,7 +3,6 @@
 /// \brief Defines a class for the a complete DRAGON coincidence event.
 #ifndef DRAGON_COINC_HXX
 #define DRAGON_COINC_HXX
-#include <vector>
 #include "Tail.hxx"
 #include "Head.hxx"
 
@@ -21,12 +20,6 @@ class Coinc {
 private:
 	/** @cond */
 PRIVATE:
-	/** @endcond */
-	/// Separator time-of-flight (x-over tof).
-	double xtof;
-
-// Subclass data //
-public:
 	/// Head (gamma-ray) part of the event
 	Head head;
 
@@ -52,9 +45,6 @@ public:
 
 	/// Unpack raw data from a midas::CoincEvent
 	void unpack(const midas::CoincEvent& coincEvent);
-
-	/// Calculates coincidence parameters \e only
-	void calculate_coinc();
 
 	/// Calculates both singles and coincidence parameters
 	void calculate();

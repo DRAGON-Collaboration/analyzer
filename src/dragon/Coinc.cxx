@@ -8,13 +8,12 @@
 // ========== Class dragon::Coinc ========== //
 
 dragon::Coinc::Coinc():
-	xtof(dragon::NO_DATA), head(), tail()
+	head(), tail()
 {
 	reset();
 }
 
-dragon::Coinc::Coinc(const dragon::Head& head, const dragon::Tail& tail):
-	xtof(dragon::NO_DATA)
+dragon::Coinc::Coinc(const dragon::Head& head, const dragon::Tail& tail)
 {
 	read_event(head, tail);
 }
@@ -23,7 +22,6 @@ void dragon::Coinc::reset()
 {
 	head.reset();
 	tail.reset();
-	utils::reset_data(xtof);
 }
 
 void dragon::Coinc::set_variables(const char* odb)
@@ -48,25 +46,21 @@ void dragon::Coinc::read_event(const dragon::Head& head_, const dragon::Tail& ta
 
 void dragon::Coinc::unpack(const midas::CoincEvent& coincEvent)
 {
+	/*!
+	 * Calls the respective unpack() functions on the head and tail part
+	 * of the coincidence events.
+	 */
 	head.unpack( *(coincEvent.fGamma) );
 	tail.unpack( *(coincEvent.fHeavyIon) );
 }
 
-void dragon::Coinc::calculate_coinc()
-{
-	/// \todo Implement dragon::Coinc::calculate() properly
-	xtof = dragon::NO_DATA ; // head - tail //
-}	
-
 void dragon::Coinc::calculate()
 {
 	/*!
-	 * Does calculation for internal head and tail fields first,
-	 * then calculates coincidence parameters.
+	 * Does head and tail calculations.
 	 */
 	head.calculate();
 	tail.calculate();
-	calculate_coinc();
 }
 
 
