@@ -176,15 +176,6 @@ void dragon::Tail::Tof::read_data(const vme::V785[], const vme::V1190& v1190)
 	utils::channel_map(tcalx, variables.xtdc.channel, v1190);
 }
 
-namespace {
-inline double tofCalc(double d1, double d2)
-{
-	if (utils::is_valid(d1) && utils::is_valid(d2))
-		return d1 - d2;
-	else
-		return dragon::NO_DATA;
-} }
-
 void dragon::Tail::Tof::calculate()
 {
 	/*!
@@ -192,17 +183,17 @@ void dragon::Tail::Tof::calculate()
 	 * <downstream tdc> - <upstream tdc>
 	 */
 	utils::linear_calibrate(tcalx, variables.xtdc); 
-	mcp = tofCalc(fParent->mcp.tcal[1], fParent->mcp.tcal[0]);
-	gamma_mcp = tofCalc(fParent->mcp.tcal[0], tcalx);
+	mcp = utils::calculate_tof(fParent->mcp.tcal[1], fParent->mcp.tcal[0]);
+	gamma_mcp = utils::calculate_tof(fParent->mcp.tcal[0], tcalx);
 	
 #ifndef DRAGON_OMIT_DSSSD
-	mcp_dsssd   = tofCalc(fParent->dsssd.tcal, fParent->mcp.tcal[0]);
-	gamma_dsssd = tofCalc(fParent->dsssd.tcal, tcalx);
+	mcp_dsssd   = utils::calculate_tof(fParent->dsssd.tcal, fParent->mcp.tcal[0]);
+	gamma_dsssd = utils::calculate_tof(fParent->dsssd.tcal, tcalx);
 #endif
 
 #ifndef DRAGON_OMIT_IC
-	mcp_ic   = tofCalc(fParent->ic.tcal, fParent->mcp.tcal[0]);
-	gamma_ic = tofCalc(fParent->ic.tcal, tcalx);
+	mcp_ic   = utils::calculate_tof(fParent->ic.tcal, fParent->mcp.tcal[0]);
+	gamma_ic = utils::calculate_tof(fParent->ic.tcal, tcalx);
 #endif
 }
 

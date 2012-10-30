@@ -99,15 +99,6 @@ void dragon::Head::Tof::read_data(const vme::V785&, const vme::V1190& v1190)
 	utils::channel_map(tcalx, variables.xtdc.channel, v1190);
 }
 
-namespace {
-inline double tofCalc(double d1, double d2)
-{
-	if (utils::is_valid(d1) && utils::is_valid(d2))
-		return d1 - d2;
-	else
-		return dragon::NO_DATA;
-} }
-
 void dragon::Head::Tof::calculate()
 {
 	/*!
@@ -115,7 +106,7 @@ void dragon::Head::Tof::calculate()
 	 * <downstream tdc> - <upstream tdc>
 	 */
 	utils::linear_calibrate(tcalx, variables.xtdc); 
-	gamma_tail = tcalx - fParent->bgo.t0;
+	gamma_tail = utils::calculate_tof=(tcalx, fParent->bgo.t0);
 }
 
 
