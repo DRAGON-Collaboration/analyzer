@@ -41,7 +41,7 @@ public:
 	void set_variables(const char* odb_file);
 
 	/// Copy data from head and tail coincidence events
-	void read_event(const Head& head_, const Tail& tail_);
+	void compose_event(const Head& head_, const Tail& tail_);
 
 	/// Unpack raw data from a midas::CoincEvent
 	void unpack(const midas::CoincEvent& coincEvent);

@@ -15,7 +15,7 @@ dragon::Coinc::Coinc():
 
 dragon::Coinc::Coinc(const dragon::Head& head, const dragon::Tail& tail)
 {
-	read_event(head, tail);
+	compose_event(head, tail);
 }
 
 void dragon::Coinc::reset()
@@ -34,7 +34,7 @@ void dragon::Coinc::set_variables(const char* odb)
 	tail.set_variables(odb);
 }
 
-void dragon::Coinc::read_event(const dragon::Head& head_, const dragon::Tail& tail_)
+void dragon::Coinc::compose_event(const dragon::Head& head_, const dragon::Tail& tail_)
 {
 	/*!
 	 * \param [in] head_ Head (gamma-ray) event
