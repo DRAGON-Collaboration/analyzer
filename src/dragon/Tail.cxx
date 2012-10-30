@@ -1,15 +1,16 @@
 /// \file Tail.cxx
 /// \author G. Christian
 /// \brief Implements Tail.hxx
-#include <string>
 #include <cstdio>
 #include <cassert>
 #include <iostream>
+#include "utils/Functions.hxx"
 #include "midas/Database.hxx"
+#include "Channels.h"
 #include "Tail.hxx"
 
 
-// ====== struct dragon::hion::Tail ====== //
+// ====== Class dragon::Tail ====== //
 
 dragon::Tail::Tail() :
 #ifndef DRAGON_OMIT_DSSSD
@@ -26,8 +27,7 @@ dragon::Tail::Tail() :
 #ifndef DRAGON_OMIT_GE
 	ge(),
 #endif
-	xtdc("/dragon/tail"),
-	tof()
+	tof(this)
 {
 	reset();
 }
@@ -53,7 +53,6 @@ void dragon::Tail::reset()
 #ifndef DRAGON_OMIT_GE
 	ge.reset();
 #endif
-	xtdc.reset();
 	tof.reset();
 }
 
@@ -107,7 +106,6 @@ void dragon::Tail::calculate()
 #ifndef DRAGON_OMIT_GE
 	ge.read_data(v785, v1190);
 #endif
-	xtdc.read_data(v1190);
 	
 	/// - Perform calibrations, higher-order calculations, etc
 #ifndef DRAGON_OMIT_DSSSD
@@ -124,7 +122,7 @@ void dragon::Tail::calculate()
 #ifndef DRAGON_OMIT_GE
 	ge.calculate();
 #endif
-	tof.calculate(mcp, dsssd, ic, xtdc);
+	tof.calculate();
 }
 
 void dragon::Tail::set_variables(const char* odb)
@@ -147,5 +145,87 @@ void dragon::Tail::set_variables(const char* odb)
 #ifndef DRAGON_OMIT_GE
 	ge.variables.set(odb);
 #endif
-	xtdc.variables.set(odb);
+	tof.variables.set(odb);
+}
+
+
+// ====== Class dragon::Tail::Tof ====== //
+
+dragon::Tail::Tof::Tof(const dragon::Tail* parent):
+	variables(), fParent(parent)
+{
+	reset();
+}
+
+void dragon::Tail::Tof::reset()
+{
+	utils::reset_data(tcalx, gamma_mcp, mcp);
+#ifndef DRAGON_OMIT_DSSSD
+	utils::reset_data(gamma_dsssd, mcp_dsssd);
+#endif
+#ifndef DRAGON_OMIT_IC
+	utils::reset_data(gamma_ic, mcp_ic);
+#endif
+}
+
+void dragon::Tail::Tof::read_data(const vme::V785[], const vme::V1190& v1190)
+{
+	/*!
+	 * Sets xtdc from v1190 data using utils::channel_map()
+	 */
+	utils::channel_map(tcalx, variables.xtdc.channel, v1190);
+}
+
+namespace {
+inline double tofCalc(double d1, double d2)
+{
+	if (utils::is_valid(d1) && utils::is_valid(d2))
+		return d1 - d2;
+	else
+		return dragon::NO_DATA;
+} }
+
+void dragon::Tail::Tof::calculate()
+{
+	/*!
+	 * Calibrates xtof (linear), calculates all the times-of-flight by subtracting
+	 * <downstream tdc> - <upstream tdc>
+	 */
+	utils::linear_calibrate(tcalx, variables.xtdc); 
+	mcp = tofCalc(fParent->mcp.tcal[1], fParent->mcp.tcal[0]);
+	gamma_mcp = tofCalc(fParent->mcp.tcal[0], tcalx);
+	
+#ifndef DRAGON_OMIT_DSSSD
+	mcp_dsssd   = tofCalc(fParent->dsssd.tcal, fParent->mcp.tcal[0]);
+	gamma_dsssd = tofCalc(fParent->dsssd.tcal, tcalx);
+#endif
+
+#ifndef DRAGON_OMIT_IC
+	mcp_ic   = tofCalc(fParent->ic.tcal, fParent->mcp.tcal[0]);
+	gamma_ic = tofCalc(fParent->ic.tcal, tcalx);
+#endif
+}
+
+
+// ====== Class dragon::Tail::Tof::Variables ====== //
+
+dragon::Tail::Tof::Variables::Variables()
+{
+	reset();
+}
+
+void dragon::Tail::Tof::Variables::reset()
+{
+	xtdc.channel = TAIL_CROSS_TDC;
+	xtdc.slope = 1.;
+	xtdc.offset = 0.;
+}
+
+void dragon::Tail::Tof::Variables::set(const char* odb)
+{
+	midas::Database database(odb);
+	
+	database.ReadValue("/dragon/tail/variables/xtdc/channel", xtdc.channel);
+	database.ReadValue("/dragon/tail/variables/xtdc/slope",   xtdc.slope);
+	database.ReadValue("/dragon/tail/variables/xtdc/offset",  xtdc.offset);
 }

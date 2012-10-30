@@ -7,14 +7,14 @@
 #include "utils/VariableStructs.hxx"
 
 
-namespace utils { class Tof; }
-
 namespace vme {
 class V792;
 class V1190;
 }
 
 namespace dragon {
+
+class Head;
 
 /// The BGO array
 class Bgo {
@@ -97,8 +97,8 @@ public:
 	/// Do higher-level parameter calculations
 	void calculate();
 
-	/// Allow Tof calculation access to internals
-	friend class utils::Tof;
+	/// Allow parent class access to internals
+	friend class dragon::Head;
 };
 
 } // namespace dragon

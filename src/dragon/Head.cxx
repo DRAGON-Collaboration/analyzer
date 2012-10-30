@@ -1,13 +1,16 @@
 /// \file Head.cxx
 /// \author G. Christian
 /// \brief Implements Head.hxx
+#include "midas/Database.hxx"
+#include "utils/Functions.hxx"
+#include "Channels.h"
 #include "Head.hxx"
 
 
 // ========== Class dragon::Head ========== //
 
 dragon::Head::Head() :
-	header(), io32(), v792(), v1190(), bgo(), xtdc("/dragon/head"), tof()
+	header(), io32(), v792(), v1190(), bgo(), tof(this)
 {
 	reset();
 }
@@ -18,7 +21,6 @@ void dragon::Head::reset()
 	v792.reset();
 	v1190.reset();
 	bgo.reset();
-	xtdc.reset();
 	tof.reset();
 	const midas::Event::Header temp = { 0, 0, 0, 0, 0 };
 	header = temp;
@@ -31,7 +33,7 @@ void dragon::Head::set_variables(const char* odb)
 	 * \note Passing \c "online" looks at the online ODB.
 	 */
 	bgo.variables.set(odb);
-	xtdc.variables.set(odb);
+	tof.variables.set(odb);
 }
 
 void dragon::Head::unpack(const midas::Event& event)
@@ -70,8 +72,72 @@ void dragon::Head::calculate()
 	 * In the specific implementation, we delegate to functions in the dragon::Bgo class.
 	 */
 	bgo.read_data(v792, v1190);
-	xtdc.read_data(v1190);
+	tof.read_data(v792, v1190);
 	bgo.calculate();
-	xtdc.calculate();
-	tof.calculate(bgo, xtdc);
+	tof.calculate();
+}
+
+
+// ====== Class dragon::Head::Tof ====== //
+
+dragon::Head::Tof::Tof(const dragon::Head* parent):
+	variables(), fParent(parent)
+{
+	reset();
+}
+
+void dragon::Head::Tof::reset()
+{
+	utils::reset_data(tcalx, gamma_tail);
+}
+
+void dragon::Head::Tof::read_data(const vme::V785&, const vme::V1190& v1190)
+{
+	/*!
+	 * Sets xtdc from v1190 data using utils::channel_map()
+	 */
+	utils::channel_map(tcalx, variables.xtdc.channel, v1190);
+}
+
+namespace {
+inline double tofCalc(double d1, double d2)
+{
+	if (utils::is_valid(d1) && utils::is_valid(d2))
+		return d1 - d2;
+	else
+		return dragon::NO_DATA;
+} }
+
+void dragon::Head::Tof::calculate()
+{
+	/*!
+	 * Calibrates xtof (linear), calculates all the times-of-flight by subtracting
+	 * <downstream tdc> - <upstream tdc>
+	 */
+	utils::linear_calibrate(tcalx, variables.xtdc); 
+	gamma_tail = tcalx - fParent->bgo.t0;
+}
+
+
+// ====== Class dragon::Head::Tof::Variables ====== //
+
+dragon::Head::Tof::Variables::Variables()
+{
+	reset();
+}
+
+void dragon::Head::Tof::Variables::reset()
+{
+	xtdc.channel = HEAD_CROSS_TDC;
+	xtdc.slope = 1.;
+	xtdc.offset = 0.;
+}
+
+void dragon::Head::Tof::Variables::set(const char* odb)
+{
+	midas::Database database(odb);
+	
+	database.ReadValue("/dragon/head/variables/xtdc/channel", xtdc.channel);
+	database.ReadValue("/dragon/head/variables/xtdc/slope",   xtdc.slope);
+	database.ReadValue("/dragon/head/variables/xtdc/offset",  xtdc.offset);
 }

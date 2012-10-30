@@ -144,7 +144,6 @@ $(OBJ)/dragon/Auxillary.o           	\
 $(OBJ)/dragon/IonChamber.o          	\
 $(OBJ)/dragon/SurfaceBarrier.o      	\
 					\
-$(OBJ)/dragon/Tof.o                	\
 $(OBJ)/dragon/Head.o                	\
 $(OBJ)/dragon/Tail.o                	\
 					\

@@ -3,11 +3,11 @@
 /// \brief Defines the DRAGON tail (heavy ion) detector classes
 #ifndef DRAGON_TAIL_HXX
 #define DRAGON_TAIL_HXX
+#include "utils/VariableStructs.hxx"
 #include "midas/Event.hxx"
 #include "vme/IO32.hxx"
 #include "vme/V792.hxx"
 #include "vme/V1190.hxx"
-#include "Tof.hxx"
 #include "MCP.hxx"
 #include "DSSSD.hxx"
 #include "Auxillary.hxx"
@@ -25,6 +25,74 @@ public:
 
 	/// Midas event header
 	midas::Event::Header header; //#
+
+	// Subclasses //
+public:
+	/// Times-of-flight measured by the tail adc
+	class Tof {
+ public:
+		// Subclasses //
+		class Variables {
+	 private:
+			/** @cond */
+	 PRIVATE:
+			/** @endcond */
+			/// Crossover TDC channel variables
+			utils::TdcVariables<1> xtdc;
+
+			// Methods //
+	 public:
+			/// Sets data to defaults
+			Variables();
+			/// Sets data to defaults
+			void reset();
+			/// Sets data from ODB
+			void set(const char* odb);
+
+			/// Give Tof class internal access
+			friend class dragon::Tail::Tof;
+		};
+		/// Variables instance
+		Variables variables; //!
+
+		// Class data //
+ private:
+		/// "Parent" instance of dragon::Tail
+		const dragon::Tail* fParent; //!
+
+		/** @cond */
+ PRIVATE:
+		/** @endcond */
+		/// Crossover tcal value [head trigger]
+		double tcalx;
+		/// Gamma -> MCP0
+		double gamma_mcp;
+		/// MCP0 -> MCP1
+		double mcp;
+#ifndef DRAGON_OMIT_DSSSD
+		/// Gamma -> DSSSD
+		double gamma_dsssd;
+		/// MCP0 -> DSSSD
+		double mcp_dsssd;
+#endif
+#ifndef DRAGON_OMIT_IC
+		/// Gamma -> Ion-chamber
+		double gamma_ic;
+		/// MCP0 -> Ion-chamber
+		double mcp_ic;
+#endif
+
+		// Class methods //
+ public:
+		/// Sets data to defaults
+		Tof(const dragon::Tail* parent);
+		/// Sets data to dragon::NO_DATA
+		void reset();
+		/// Reads data from raw VME modules
+		void read_data(const vme::V785[], const vme::V1190& v1190);
+		/// Performs calibration of xover tdc and TOF calculations
+		void calculate();
+	};
 
 	// Class data //
 private:
@@ -78,11 +146,8 @@ PRIVATE:
 	Ge ge;                   //
 #endif
 
-	/// Crossover TDC channel
-	dragon::Xtdc xtdc;       //
-	
 	/// Tail TOF
-	dragon::TofTail tof;     //
+	Tail::Tof tof;              //
 
 	// Methods //
 public:
@@ -100,6 +165,9 @@ public:
 
 	/// Calculate higher-level data for each detector, or across detectors
 	void calculate();
+
+	/// Allow 'Tof' class access to internal data
+	friend class dragon::Tail::Tof;
 };
 
 } // namespace dragon
