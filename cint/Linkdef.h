@@ -53,9 +53,10 @@
 #pragma link C++ class dragon::Bgo+;
 #pragma link C++ class dragon::Bgo::Variables+;
 
-#pragma link C++ class dragon::Xtdc+;
-#pragma link C++ class dragon::TofTail+;
-#pragma link C++ class dragon::TofHead+;
+#pragma link C++ class dragon::Tail::Tof+;
+#pragma link C++ class dragon::Tail::Tof::Variables+;
+#pragma link C++ class dragon::Head::Tof+;
+#pragma link C++ class dragon::Head::Tof::Variables+;
 
 #pragma link C++ class vme::V792+;
 #pragma link C++ class vme::V785+;

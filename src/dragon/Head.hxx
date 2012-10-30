@@ -8,7 +8,6 @@
 #include "vme/V1190.hxx"
 #include "vme/V792.hxx"
 #include "vme/IO32.hxx"
-#include "Tof.hxx"
 #include "Bgo.hxx"
 
 namespace dragon {
