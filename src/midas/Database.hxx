@@ -1,6 +1,8 @@
 /// \file Database.hxx
 /// \author G. Christian
 /// \brief Defines a generic (online or from XML file) database reader
+#ifndef DRAGON_MIDAS_DATABASE_HXX
+#define DRAGON_MIDAS_DATABASE_HXX
 #include <memory>
 #include "Odb.hxx"
 #include "Xml.hxx"
@@ -79,3 +81,6 @@ public:
 };
 
 }
+
+
+#endif

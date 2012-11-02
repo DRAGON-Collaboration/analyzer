@@ -32,6 +32,7 @@
 #pragma link C++ class vme+;
 
 #pragma link C++ defined_in ../src/utils/VariableStructs.hxx;
+#pragma link C++ defined_in ../src/vme/V1190.hxx;
 
 #pragma link C++ class dragon::Coinc+;
 #pragma link C++ class dragon::Tail+;

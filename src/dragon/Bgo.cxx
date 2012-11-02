@@ -16,14 +16,14 @@ dragon::Bgo::Bgo():
 	variables()
 {
 	reset();
-}	
+}
 
 void dragon::Bgo::reset()
 {
 	utils::reset_array(MAX_CHANNELS, ecal);
 	utils::reset_array(MAX_CHANNELS, tcal);
 	utils::reset_array(MAX_CHANNELS, esort);
-	utils::reset_data(sum, x0, y0, z0, t0);
+	utils::reset_data(sum, x0, y0, z0, t0, hit0);
 }
 
 void dragon::Bgo::read_data(const vme::V792& adc, const vme::V1190& tdc)
@@ -53,10 +53,11 @@ void dragon::Bgo::calculate()
 	/// - Calculate descending-order energy indices and map into \c esort[]
 	int isort[MAX_CHANNELS];
 	utils::index_sort(ecal, ecal+MAX_CHANNELS, isort, utils::greater_and_valid<double>());
-	utils::channel_map_from_array(ecal, MAX_CHANNELS, isort, esort);
+	utils::channel_map_from_array(esort, MAX_CHANNELS, isort, ecal);
 
 	/// - If we have at least one good hit, calculate sum, x0, y0, z0, and t0
 	if(utils::is_valid(esort[0])) {
+		hit0 = isort[0];
 		sum = utils::calculate_sum(ecal, ecal + MAX_CHANNELS);
 		x0 = variables.pos.x[ isort[0] ];
 		y0 = variables.pos.y[ isort[0] ];

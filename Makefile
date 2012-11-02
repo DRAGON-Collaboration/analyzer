@@ -27,10 +27,10 @@ DEFINITIONS+=-DDISPLAY_MODULES
 # }
 
 ### Uncomment for 'public' option
-#DEFINITIONS+=-DPRIVATE=public  -DPROTECTED=public
+DEFINITIONS+=-DPRIVATE=public  -DPROTECTED=public
 
 ### Uncomment for 'private' option
-DEFINITIONS+=-DPRIVATE=private -DPROTECTED=protected
+#DEFINITIONS+=-DPRIVATE=private -DPROTECTED=protected
 
 ### Set to YES (NO) to turn on (off) root [or rootbeer, or rootana] usage ###
 USE_ROOT=YES
@@ -42,11 +42,11 @@ RB_HOME=/Users/gchristian/soft/develop/rootbeer
 
 
 ### CHOOSE YOUR COMPILER IF YOU WANT ###
-CXX=g++ -Wall
-#CXX=clang++ -I/opt/local/include/ -I/opt/local/include/root
+#CXX=g++ -Wall
+CXX=clang++ -I/opt/local/include/ -I/opt/local/include/root
 
-CC=gcc -Wall
-#CC=clang -I/opt/local/include/ -I/opt/local/include/root
+#CC=gcc -Wall
+CC=clang -I/opt/local/include/ -I/opt/local/include/root
 
 
 
@@ -65,7 +65,7 @@ DYLIB=-shared
 FPIC=-fPIC
 INCFLAGS=-I$(SRC) -I$(CINT)
 DEBUG=-ggdb -O3 -DDEBUG
-CXXFLAGS=$(DEBUG) $(INCFLAGS) -L$(PWD)/lib $(DEFINITIONS)
+CXXFLAGS=$(DEBUG) $(INCFLAGS) $(DEFINITIONS)
 
 
 ROOTLIBS=
@@ -109,14 +109,14 @@ CXX+=$(CXXFLAGS)
 
 CC+=$(CXXFLAGS)
 
-LINK=$(CXX) $(RPATH) $(ROOTLIBS)
+LINK=$(CXX) $(RPATH) $(ROOTLIBS) -L$(PWD)/lib
 
 MAKE_DRAGON_DICT=
 DR_DICT=
 DR_DICT_DEP=
 ifeq ($(USE_ROOT),YES)
 MAKE_DRAGON_DICT+=rootcint -f $@ -c $(CXXFLAGS) -p $(HEADERS) $(CINT)/Linkdef.h
-DR_DICT=-p $(CINT)/DragonDictionary.cxx 
+DR_DICT=$(CINT)/DragonDictionary.cxx 
 DR_DICT_DEP=$(CINT)/DragonDictionary.cxx 
 endif
 
@@ -184,27 +184,27 @@ $(OBJECTS) $(DR_DICT) \
 
 $(OBJ)/dragon/%.o: $(SRC)/dragon/%.cxx $(DR_DICT_DEP)
 	$(CXX) $(FPIC) -c \
--o $@ -p $< \
+-o $@ $< \
 
 $(OBJ)/utils/%.o: $(SRC)/utils/%.cxx $(DR_DICT_DEP)
 	$(CXX) $(FPIC) -c \
--o $@ -p $< \
+-o $@ $< \
 
 $(OBJ)/vme/%.o: $(SRC)/vme/%.cxx $(DR_DICT_DEP)
 	$(CXX) $(FPIC) -c \
--o $@ -p $< \
+-o $@ $< \
 
 $(OBJ)/midas/internal/%.o: $(SRC)/midas/internal/%.c $(DR_DICT_DEP)
 	$(CC) $(FPIC) -c \
--o $@ -p $< \
+-o $@ $< \
 
 $(OBJ)/midas/internal/%.o: $(SRC)/midas/internal/%.cxx $(DR_DICT_DEP)
 	$(CXX) $(FPIC) -c \
--o $@ -p $< \
+-o $@ $< \
 
 $(OBJ)/midas/%.o: $(SRC)/midas/%.cxx $(DR_DICT_DEP)
 	$(CXX) $(FPIC) -c \
--o $@ -p $< \
+-o $@ $< \
 
 ### CINT DICTIONARY ###
 dict: $(CINT)/DragonDictionary.cxx
@@ -242,19 +242,19 @@ $(CINT)/rootana/CutDict.cxx: $(SRC)/rootana/Cut.hxx $(SRC)/rootana/CutLinkdef.h
 
 $(DRLIB)/libRootanaCut.so: $(CINT)/rootana/CutDict.cxx
 	$(LINK) $(DYLIB) $(FPIC) $(RBINC) $(ROOTANA_FLAGS) $(ROOTANA_DEFS)  \
--o $@ -p $< \
+-o $@ $< \
 
 $(OBJ)/rootana/%.o: $(SRC)/rootana/%.cxx $(CINT)/rootana/Dict.cxx
 	$(CXX) $(ROOTANA_FLAGS) $(ROOTANA_DEFS) -c $(FPIC) \
--o $@ -p $< $(ROOTLIBS) \
+-o $@ $< $(ROOTLIBS) \
 
 libRootanaDragon.so: $(DRLIB)/libDragon.so $(CINT)/rootana/Dict.cxx $(DRLIB)/libRootanaCut.so $(ROOTANA_OBJS)
 	$(LINK) $(DYLIB) $(FPIC) $(RBINC) $(ROOTANA_FLAGS) $(ROOTANA_DEFS)  \
--o $@ -p $< $(CINT)/rootana/Dict.cxx $(ROOTANA_OBJS) -lDragon -lRootanaCut -L$(DRLIB) $(MIDASLIBS) \
+-o $@ $< $(CINT)/rootana/Dict.cxx $(ROOTANA_OBJS) -lDragon -lRootanaCut -L$(DRLIB) $(MIDASLIBS) \
 
 anaDragon: $(SRC)/rootana/anaDragon.cxx $(DRLIB)/libDragon.so $(CINT)/rootana/Dict.cxx $(DRLIB)/libRootanaCut.so $(ROOTANA_OBJS) $(ROOTANA_REMOTE_OBJS)
 	$(LINK) $(RBINC) $(ROOTANA_FLAGS) $(ROOTANA_DEFS) \
--o $@ -p $< $(CINT)/rootana/Dict.cxx $(ROOTANA_OBJS) -lDragon -lRootanaCut -L$(DRLIB) $(MIDASLIBS) $(ROOTANA_LIBS) \
+-o $@ $< $(CINT)/rootana/Dict.cxx $(ROOTANA_OBJS) -lDragon -lRootanaCut -L$(DRLIB) $(MIDASLIBS) $(ROOTANA_LIBS) \
 
 rootana_clean:
 	rm -f $(ROOTANA_OBJS) anaDragon libRootanaDragon.so $(CINT)/rootana/* $(DRLIB)/libRootanaCut.so
@@ -279,7 +279,7 @@ libRBDragon: $(DRLIB)/libRBDragon.so
 
 $(OBJ)/rootbeer/%.o: $(SRC)/rootbeer/%.cxx $(SRC)/rootbeer/*.hxx
 	$(CXX) $(RBINC) $(FPIC) -c \
--o $@ -p $< \
+-o $@ $< \
 
 
 Timestamp: $(OBJ)/rootbeer/Timestamp.o

@@ -8,6 +8,7 @@
 #include <vector>
 #include <sstream>
 #include <typeinfo>
+#include <iostream>
 #include "internal/mxml.h"
 #include "internal/strlcpy.h"
 

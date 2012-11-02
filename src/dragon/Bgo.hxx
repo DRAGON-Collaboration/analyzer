@@ -6,7 +6,6 @@
 #include <stdint.h>
 #include "utils/VariableStructs.hxx"
 
-
 namespace vme {
 class V792;
 class V1190;
@@ -71,6 +70,9 @@ PRIVATE:
 
 	/// Sum of all \e valid energies
 	double sum; //#
+
+	/// Which detector was the highest energy hit
+	int hit0;  //#
 
 	/// x position of the highest energy hit
 	double x0; //#
