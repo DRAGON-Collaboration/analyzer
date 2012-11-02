@@ -8,28 +8,18 @@
 #include "V1190.hxx"
 
 
+namespace { inline void reset_channel(vme::V1190::Channel* channel)
+{
+		utils::reset_array(vme::V1190::MAX_HITS, channel->leading_edge);
+		utils::reset_array(vme::V1190::MAX_HITS, channel->trailing_edge);
+		channel->nleading  = 0;
+		channel->ntrailing = 0;
+} }	
+
 void vme::V1190::reset()
 {
-	// const int total_len = MAX_CHANNELS * MAX_HITS;
-
-	// utils::reset_array (total_len, leading_edge[0]);
-	// utils::reset_array (total_len, trailing_edge[0]);
-
-	// for(int i = 0; i< MAX_CHANNELS; ++i) {
-	// utils::reset_array(MAX_HITS, leading_edge[i].hit);
-	// utils::reset_array(MAX_HITS, trailing_edge[i].hit);
-	// }
-
-	// std::fill_n (nleading, MAX_CHANNELS, 0);
-	// std::fill_n (ntrailing, MAX_CHANNELS, 0);
-
-	for (int ch = 0; ch < MAX_CHANNELS; ++ch) {
-		utils::reset_array(MAX_HITS, channel[ch].leading_edge);
-		utils::reset_array(MAX_HITS, channel[ch].trailing_edge);
-		
-		channel[ch].nleading = 0;
-		channel[ch].ntrailing = 0;
-	}											 
+	for (int ch = 0; ch < MAX_CHANNELS; ++ch)
+		::reset_channel( &(channel[ch]) );
 
 	utils::reset_data (type, extended_trigger, n_ch, count,
 						  word_count, trailer_word_count,
@@ -57,8 +47,7 @@ bool vme::V1190::unpack_data_buffer(const uint32_t* const pbuffer)
 	 * for a single TDC measurement. The TDC is multi-hit, so more than one measurement
 	 * per channel can be read in a single event.
 	 *
-	 * See below for bitpacking instructions. For details about the unpacking routine, see
-	 * the source code which contains some non-Doxygen comments.
+	 * See below for bitpacking instructions.
 	 */
 
 	type     = (*pbuffer >> 26) & READ1; /// - Bit 26 tells the measurement type (leading or trailing)
@@ -78,21 +67,12 @@ bool vme::V1190::unpack_data_buffer(const uint32_t* const pbuffer)
 
 	int32_t measurement = (*pbuffer >> 0) & READ19; /// - Bits 0 - 18 encode the measurement value
 
-	//
-	// p_ch points to the channel structure based on the read-out channel number
-	// 
+
+	// p_ch points to the correct channel structure based on the read-out channel number
 	Channel* const p_ch = &(channel[ch]);
 
-	//
-	// n_hits_this references either the leading or trailing edge counter:
-	// leading if type == 0, trailing otherwise
-  //
-	// int16_t& n_hits_this = (type == 0) ? nleading[ch] : ntrailing[ch];
-	// int16_t& n_hits_this = (type == 0) ? p_ch->nleading : p_ch->ntrailing;
 
-	//
 	// error if over the hard coded hit maximum
-  //
 	bool over_max = (type == 0) ? (p_ch->nleading <= MAX_HITS) : (p_ch->ntrailing <= MAX_HITS);
 	if (over_max) {
 		const char* const which = (type == 0) ? "leading" : "trailing";
@@ -102,33 +82,10 @@ bool vme::V1190::unpack_data_buffer(const uint32_t* const pbuffer)
 		return false;
 	}
 
-	if (type == 0)
+	if (type == 0) // leading edge
 		p_ch->leading_edge[(p_ch->nleading)++] = measurement;
-	else
+	else // trailing edge
 		p_ch->trailing_edge[(p_ch->ntrailing)++] = measurement;
-
-	//
-	// p_measurement points to either the leading edge or trailing edge vme::V1190::Measurement
-	// structure, again based on the value of 'type' (as with n_hits_this)
-	//
-	// vme::TdcMeasurement<int32_t, MAX_HITS>* p_measurement =
-	// 	(type == 0) ? &(leading_edge[ch]) : &(trailing_edge[ch]);
-
-	//
-	// reference a channel data value, again based on leading edge or trailing edge code
-	//
-	// int32_t& hit_measurement_this =
-	// 	(type == 0) ? p_ch->leading_edge
-	
-  //
-	// set the hit field of the proper measurement to the recorded channel value and increment
-	// the hit counter
-	//
-	// p_measurement->hit[n_hits_this++] = measurement;
-
-
-//		(type == 0) ? leading_edge[n_hits_this++][ch] : trailing_edge[n_hits_this++][ch];
-//	value_this = measurement;
 	
 	return true;
 }
