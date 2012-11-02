@@ -17,22 +17,24 @@ use-project boost
   : /opt/local/boost_1_49_0 ;
 
 lib libDragon : : 
-    <file>lib/libDragon.so ;
+    <file>../lib/libDragon.so ;
 
 # Set up the project-wide requirements that everything uses the
 # boost_python library from the project whose global ID is
 # /boost/python.
 project
-  : requirements <library>/boost/python//boost_python <include>./src <define>PRIVATE=public <define>OS_DARWIN <define>OS_LINUX <include>/Users/gchristian/packages/midas/include <define>MIDASSYS <define>BOOST_EXPORT_PYTHON <include>/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/include ;
+  : requirements <library>/boost/python//boost_python <include>../src <define>PRIVATE=public <define>OS_DARWIN <define>OS_LINUX <include>/Users/gchristian/packages/midas/include <define>MIDASSYS <define>BOOST_EXPORT_PYTHON ;
 
 # Declare the three extension modules.  You can specify multiple
 # source files after the colon separated by spaces.
-python-extension dragon : src/boost_python/BoostPython.cpp libDragon : <optimization>speed ;
+python-extension dragon : Dragon.cpp libDragon : <optimization>speed ;
+python-extension vme    : Vme.cpp libDragon : <optimization>speed ;
+#python-extension midas  : Midas.cpp libDragon : <optimization>speed ;
 
 # Put the extension and Boost.Python DLL in the current directory, so
 # that running script by hand works.
 install convenient_copy 
-  : dragon
+  : dragon vme #midas
   : <install-dependencies>on <install-type>SHARED_LIB <install-type>PYTHON_EXTENSION 
     <location>. 
   ;

@@ -43,10 +43,10 @@ RB_HOME=/Users/gchristian/soft/develop/rootbeer
 
 ### CHOOSE YOUR COMPILER IF YOU WANT ###
 #CXX=g++ -Wall
-CXX=clang++ -I/opt/local/include/ -I/opt/local/include/root
+CXX=clang++ -I/opt/local/include/
 
 #CC=gcc -Wall
-CC=clang -I/opt/local/include/ -I/opt/local/include/root
+CC=clang -I/opt/local/include/
 
 
 

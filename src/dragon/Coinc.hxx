@@ -7,7 +7,7 @@
 #include "Head.hxx"
 
 
-namespace midas { class CoincEvent; }
+namespace midas { struct CoincEvent; }
 
 
 /// Encloses all DRAGON classes
