@@ -1,0 +1,39 @@
+# Copyright David Abrahams 2006. Distributed under the Boost
+# Software License, Version 1.0. (See accompanying
+# file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+
+import python ;
+
+if ! [ python.configured ]
+{
+    ECHO "notice: no Python configured in user-config.jam" ;
+    ECHO "notice: will use default configuration" ;
+    using python ;
+}
+
+# Specify the path to the Boost project.  If you move this project,
+# adjust this path to refer to the Boost root directory.
+use-project boost
+  : /opt/local/boost_1_49_0 ;
+
+lib libDragon : : 
+    <file>lib/libDragon.so ;
+
+# Set up the project-wide requirements that everything uses the
+# boost_python library from the project whose global ID is
+# /boost/python.
+project
+  : requirements <library>/boost/python//boost_python <include>./src <define>PRIVATE=public <define>OS_DARWIN <define>OS_LINUX <include>/Users/gchristian/packages/midas/include <define>MIDASSYS <define>BOOST_EXPORT_PYTHON <include>/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/include ;
+
+# Declare the three extension modules.  You can specify multiple
+# source files after the colon separated by spaces.
+python-extension dragon : src/boost_python/BoostPython.cpp libDragon : <optimization>speed ;
+
+# Put the extension and Boost.Python DLL in the current directory, so
+# that running script by hand works.
+install convenient_copy 
+  : dragon
+  : <install-dependencies>on <install-type>SHARED_LIB <install-type>PYTHON_EXTENSION 
+    <location>. 
+  ;
+
