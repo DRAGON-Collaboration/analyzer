@@ -143,15 +143,19 @@ void dragon::Coinc::calculate()
 	<a href=http://www.boost.org/doc/libs/1_51_0/libs/python/doc/>boost::python</a> library.
 
 	\subsection download Download and Compile
-	The latest version of the code can be obtained using git:
-	\code
-	git clone [...]
-	\endcode
-	
-	or you can download it as a <a href=none>tarball</a>.
-	\todo Update once a public repository and download location are a reality.
+	The latest version of the code can be downloaded from github:
+	<br>
+	<a href=https://github.com/gchristian321/dragon_analyzer/tree/dev>
+	https://github.com/gchristian321/dragon_analyzer/tree/dev</a>
+	<br>
 
-	Before compiling, you may need to cousomize the Makefile to work on your system. If you open the file,
+	You can either download the current version of the code as a .zip file, or if you are familiar with
+	git, you can clone it into a local repository (note that you want to be on the 'dev' branch):
+	\code
+	git clone git@github.com:gchristian321/dragon_analyzer.git
+	\endcode
+
+	Before compiling, you may need to customize the Makefile to work on your system. If you open the file,
 	you will see a section at the top where you can customize things. There are comments explaining what each of
 	the optional features are and how you can change them.
 
