@@ -2,9 +2,11 @@
 ### USER CUSTOMIZABLE SECTION ###
 #################################
 
-### SET OPTIONAL #defines HERE ###
-# Don't remove the line below
+### SET OPTIONAL #defines HERE  ###
+
+### Don't remove the line below ###
 DEFINITIONS=
+###
 
 ## Uncomment (Comment) to (not) export "raw" modules for viewing in ROOT treew
 DEFINITIONS+=-DDISPLAY_MODULES

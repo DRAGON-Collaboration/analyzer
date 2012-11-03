@@ -125,8 +125,9 @@ void dragon::Coinc::calculate()
 	<a href=http://midas.psi.ch> MIDAS</a> must be installed in order to look at online data (offline
 	data viewing should be possible without a MIDAS installation, however).
 	
-	\todo There are plans to package the DRAGON analysis classes as a python module, allowing data to be analyzed
-	in python independent of ROOT/PyRoot. Stay tuned....
+	There is also an optional extension to create python wrappers for the DRAGON classes, allowing data
+	to be analyzed in python independent of ROOT/PyRoot. This package is somewhat in the experimental stage at
+	the moment and required installation of boost::python, as well as py++
 
 
 	\section installation Installation

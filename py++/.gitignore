@@ -1,6 +1,3 @@
-named_tuple.py
-__array_1.pypp.hpp
-exposed_decl.pypp.txt
 *.dylib
 bin
 *.so
