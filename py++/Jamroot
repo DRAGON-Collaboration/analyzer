@@ -29,12 +29,12 @@ project
 # source files after the colon separated by spaces.
 python-extension dragon : Dragon.cpp libDragon : <optimization>speed ;
 python-extension vme    : Vme.cpp libDragon : <optimization>speed ;
-#python-extension midas  : Midas.cpp libDragon : <optimization>speed ;
+python-extension midas  : Midas.cpp libDragon : <optimization>speed ;
 
 # Put the extension and Boost.Python DLL in the current directory, so
 # that running script by hand works.
 install convenient_copy 
-  : dragon vme #midas
+  : dragon vme midas
   : <install-dependencies>on <install-type>SHARED_LIB <install-type>PYTHON_EXTENSION 
     <location>. 
   ;

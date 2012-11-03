@@ -79,6 +79,9 @@ private:
 	double  fFreq;
 
 public:
+	/// Empty constructor
+	Event(): TMidasEvent() { }
+
 	/// Construct from event callback parameters
 	Event(const char* tsbank, const void* header, const void* data, int size);
 
@@ -98,7 +101,7 @@ public:
 
 	/// Read an event from a TMidasFile
 	bool ReadFromFile(TMidasFile& file)
-		{	Clear(); return file.Read(this);	}
+		{	Clear(); return file.Read(this); }
 
 	/// Returns trigger time in uSec
 	double TriggerTime() const { return fTriggerTime; }

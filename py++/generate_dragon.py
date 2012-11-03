@@ -44,20 +44,3 @@ mbDragon = create_module_builder(DRAGON_HEADERS, 'dragon')
 mbVme    = create_module_builder(VME_HEADERS, 'vme')
 write_module(mbDragon, 'Dragon.cpp')
 write_module(mbVme, 'Vme.cpp')
-
-#mbMidas  = create_module_builder(MIDAS_HEADERS, 'midas', [os.path.abspath('/Users/gchristian/packages/midas/include')])
-
-
-# OdbClass = mbMidas.classes( lambda decl: decl.name.startswith( 'Odb' ) )
-# XmlClass = mbMidas.classes( lambda decl: decl.name.startswith( 'Xml' ) )
-# OdbClass.exclude()
-# XmlClass.exclude()
-#tclass = mbMidas.classes(lambda decl: decl.name.startswith('TMidas'))
-#tbank = mbMidas.classes(lambda decl: decl.name.startswith('Bank'))
-#tclass.exclude()
-#tbank.exclude()
-
-#tme = mbMidas.class_('TMidasEvent')
-#tme.exclude()
-
-#write_module(mbMidas, 'Midas.cpp')
