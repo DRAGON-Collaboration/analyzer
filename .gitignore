@@ -23,3 +23,6 @@ midas.log
 *.mid
 *.so
 *.dylib
+Vme.cpp
+Dragon.cpp
+Midas.cpp
