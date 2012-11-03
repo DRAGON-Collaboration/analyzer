@@ -144,12 +144,9 @@ void dragon::Coinc::calculate()
 
 	\subsection download Download and Compile
 	The latest version of the code can be downloaded from github:
-	<br>
 	<a href=https://github.com/gchristian321/dragon_analyzer/tree/dev>
-	https://github.com/gchristian321/dragon_analyzer/tree/dev</a>
-	<br>
-
-	You can either download the current version of the code as a .zip file, or if you are familiar with
+	https://github.com/gchristian321/dragon_analyzer/tree/dev</a>. You can either download the current version
+	of the code as a .zip file, or if you are familiar with
 	git, you can clone it into a local repository (note that you want to be on the 'dev' branch):
 	\code
 	git clone git@github.com:gchristian321/dragon_analyzer.git
