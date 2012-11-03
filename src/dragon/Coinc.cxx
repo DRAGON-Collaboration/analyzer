@@ -219,7 +219,7 @@ void dragon::Coinc::calculate()
 	Doxygen</a>.  I don't claim that the present documentation is perfect by any means, but I hope it is at least a
 	large step in the right direction. If you happen to extend or modify the code base, \e please carefully document
 	anything that you do. If you are not familiar with Doxygen, it's quite intuitive and quick to learn - just follow
-	the example of existing	code and/or refer to the manual at the Doxygen website.
+	the example of existing	code and/or refer to the manual at the <a href=http://doxygen.org>Doxygen website</a>.
 
 
  */
