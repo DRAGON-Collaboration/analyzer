@@ -185,7 +185,14 @@ void dragon::Coinc::calculate()
 	the python libraries.
 
 	To compile the python extension, simply cd into the py++ directory and type 'make', \e after having compiled
-	the core dragon library. You can load the generated modules into a python session by doing:
+	the core dragon library. To be able to use the extensions from any directory, add the following to your bash
+	startup script:
+	\code
+	export PYTHONPATH=${PYTHONPATH}:"/path/to/your/dragon/analyzer/py++/"
+	export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:"/path/to/your/dragon/analyzer/py++/"
+	\endcode
+	and re-start your bash session or re-source the startup script. Now from a python session or script, you
+	can load the generated modules:
 	\code
 	import vme
 	import dragon
