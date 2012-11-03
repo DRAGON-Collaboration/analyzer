@@ -1,4 +1,4 @@
-all: code library
+all: library
 
 code:
 	./generate_dragon.py
