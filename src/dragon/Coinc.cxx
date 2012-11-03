@@ -127,7 +127,7 @@ void dragon::Coinc::calculate()
 	
 	There is also an optional extension to create python wrappers for the DRAGON classes, allowing data
 	to be analyzed in python independent of ROOT/PyRoot. This package is somewhat in the experimental stage at
-	the moment and required installation of boost::python to compile the libraries.
+	the moment and requires installation of boost::python to compile the libraries.
 
 
 	\section installation Installation
