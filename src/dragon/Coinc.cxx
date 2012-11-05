@@ -167,7 +167,7 @@ void dragon::Coinc::calculate()
 	to find what it needs.
 
 	If you run into any problems compiling this package, do not hesitate to contact the package maintainer
-	for help. If do you find a solution to your problems on your own, \e please alert the package maintainer
+	for help. If do you find a solution to your problems on your own, please alert the package maintainer
 	and describe 1) your problem; 2) what you did to fix it. The intent is for installion/compilation to be
 	a very quick and painless process for everyone using this package, so any problems and solutions that you
 	discover should be reflected in the standard version of the codes.
