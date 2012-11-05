@@ -20,6 +20,7 @@ class Coinc {
 private:
 	/** @cond */
 PRIVATE:
+	/** @endcond */
 	/// Head (gamma-ray) part of the event
 	Head head;
 
