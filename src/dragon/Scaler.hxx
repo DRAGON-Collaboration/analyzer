@@ -1,87 +1,92 @@
-//! \file Scaler.hxx
-//! \defines classes relevant to unpacking data from Scaler modules.
-#ifndef SCALER_HXX
-#define SCALER_HXX
-#include "midas/TMidasEvent.h"
+/// \file Scaler.hxx
+/// \author C. Stanford
+/// \author G. Christian
+/// \defines classes relevant to unpacking data from Scaler modules.
+#ifndef DRAGON_SCALER_HXX
+#define DRAGON_SCALER_HXX
+#include <string>
 
+
+#ifdef USE_ROOT
+class TTree;
+#endif
+
+namespace midas { class Event; }
+
+namespace dragon {
+
+/// Generic dragon scaler class
 class Scaler {
+
+	// Static const data //
 public:
-// ==== Classes ==== //
+	/// Number of scaler channels
+	static const int MAX_CHANNELS = 32;
+
+	// Sub classes //
+public:
   /// Scalar variables
   class Variables {
-  public:
-    /// \brief Maps Scalar channel to BGO detector
-    int Tail_triggers_presented_ch;
-    int Tail_triggers_aquired_ch;
-    int SB0_triggers_ch;
-    int SB1_triggers_ch;
-    int DSSSD_triggers_ch;
-    int IC0_triggers_ch;
-    int MCP0_triggers_ch;
-    int MCP1_triggers_ch;
-    int MCPTOF_triggers_ch;
-    int NaI0_triggers_ch;
-    int NaI1_triggers_ch;
-    int Ge0_triggers_ch;
+ public:
+		/** @cond */
+ PRIVATE:
+		/** @endcond */
+		/// Name of a given channel
+		std::string names[MAX_CHANNELS];
 
-    /// Constuctor, sets Tail_triggers_presented_ch to 0, Tail_triggers_aquired_ch to 1, etc.
+		/// Scaler bank names
+		struct BankNames {
+			std::string sum;   ///< Scaler sum bank name
+			std::string count; ///< Scaler counts bank name
+			std::string rate;  ///< Scaler rate bank name
+		};
+		/// Frontend Bank names
+		BankNames bank_names;
+
+    /// Constuctor
     Variables();
-
-    /// Destructor, nothing to do
-    ~Variables() { }
-
-    /// Copy constructor
-    Variables(const Variables& other);
-
-    /// Equivalency operator
-    Variables& operator= (const Variables& other);
-
+		/// Resets names to default values
+		void reset();
+		/// Set names from ODB
+		void set(const char* odb);
   };
 
-// ==== Data ==== //
+	/// Variables instance
+	Variables variables; //!
 
-  uint32_t ch_int[33];             //#
-  
-  float ch_double[33];              //#
-  
-  uint32_t count;                  //#
-  
-  float Tail_triggers_presented;   //#
-  float Tail_triggers_aquired;     //#
-  float SB0_triggers;              //#
-  float SB1_triggers;              //#
-  float DSSSD_triggers;            //#
-  float IC0_triggers;              //#
-  float MCP0_triggers;             //#
-  float MCP1_triggers;             //#
-  float MCPTOF_triggers;           //#
-  float NaI0_triggers;             //#
-  float NaI1_triggers;             //#
-  float Ge0_triggers;              //#
-  
+	// Class data //
+public:
+	/** @cond */
+PRIVATE:
+	/** @endcond */
 
+	/// Number of counts in a single read period
+	uint32_t count[MAX_CHANNELS];    //#
 
-  /// Instance of Scalar::Variable for mapping channels
-  Variables variables;             //!
+	/// Number of counts over the course of a run
+	uint32_t sum[MAX_CHANNELS];      //#
 
-  /// Initialize all scalars
+	/// Average count rate over the course of a run
+	double rate[MAX_CHANNELS];       //#
+  
+  /// Initialize data
   Scaler();
   
-  /// Deconstruct
-  ~Scaler();
-  
-  /// Copy constructor
-  Scaler(const Scaler& other);
-  
-  /// Equivalency operator
-  Scaler& operator= (const Scaler& other);
-  
-  /// Reset all scalars
+  /// Reset all data to zero
   void reset();
 
   /// Unpack Midas event data into scalar data structiures
-  void unpack(const TMidasEvent& event);
+  void unpack(const midas::Event& event);
+
+	/// Returns the name of a given scaler channel
+	const std::string& channel_name(int ch) const;
+
+#ifdef USE_ROOT
+	/// Set branch alises in a ROOT TTree.
+	void set_aliases(TTree* tree, const char* branchName) const;
+#endif
 };
 
+} // namespace dragon
 
 #endif

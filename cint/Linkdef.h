@@ -59,6 +59,8 @@
 #pragma link C++ class dragon::Head::Tof+;
 #pragma link C++ class dragon::Head::Tof::Variables+;
 
+#pragma link C++ defined_in ../src/dragon/Scaler.hxx;
+
 #pragma link C++ class vme::V792+;
 #pragma link C++ class vme::V785+;
 #pragma link C++ class vme::V1190+;

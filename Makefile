@@ -71,6 +71,7 @@ CXXFLAGS=$(DEBUG) $(INCFLAGS) $(DEFINITIONS)
 
 ROOTLIBS=
 ifeq ($(USE_ROOT),YES)
+DEFINITIONS+= -DUSE_ROOT
 ifdef ROOTSYS
 ROOTLIBS= -L$(ROOTSYS)/lib $(shell $(ROOTSYS)/bin/root-config --cflags --libs --glibs) -I$(ROOTSYS)/include -lXMLParser
 else
@@ -110,7 +111,7 @@ CXX+=$(CXXFLAGS)
 
 CC+=$(CXXFLAGS)
 
-LINK=$(CXX) $(RPATH) $(ROOTLIBS) -L$(PWD)/lib
+LINK=$(CXX) $(ROOTLIBS) $(RPATH) -L$(PWD)/lib
 
 MAKE_DRAGON_DICT=
 DR_DICT=
@@ -147,6 +148,7 @@ $(OBJ)/dragon/SurfaceBarrier.o      	\
 					\
 $(OBJ)/dragon/Head.o                	\
 $(OBJ)/dragon/Tail.o                	\
+$(OBJ)/dragon/Scaler.o			\
 					\
 $(OBJ)/dragon/Coinc.o
 ## END OBJECTS ##
@@ -242,7 +244,7 @@ $(CINT)/rootana/CutDict.cxx: $(SRC)/rootana/Cut.hxx $(SRC)/rootana/CutLinkdef.h
 	rootcint -f $@ -c $(CXXFLAGS) $(ROOTANA_FLAGS) -p $(SRC)/rootana/Cut.hxx $(SRC)/rootana/CutLinkdef.h \
 
 $(DRLIB)/libRootanaCut.so: $(CINT)/rootana/CutDict.cxx
-	$(LINK) $(DYLIB) $(FPIC) $(RBINC) $(ROOTANA_FLAGS) $(ROOTANA_DEFS)  \
+	$(LINK)  $(DYLIB) $(FPIC) $(RBINC) $(ROOTANA_FLAGS) $(ROOTANA_DEFS)  \
 -o $@ $< \
 
 $(OBJ)/rootana/%.o: $(SRC)/rootana/%.cxx $(CINT)/rootana/Dict.cxx
@@ -250,11 +252,11 @@ $(OBJ)/rootana/%.o: $(SRC)/rootana/%.cxx $(CINT)/rootana/Dict.cxx
 -o $@ $< $(ROOTLIBS) \
 
 libRootanaDragon.so: $(DRLIB)/libDragon.so $(CINT)/rootana/Dict.cxx $(DRLIB)/libRootanaCut.so $(ROOTANA_OBJS)
-	$(LINK) $(DYLIB) $(FPIC) $(RBINC) $(ROOTANA_FLAGS) $(ROOTANA_DEFS)  \
+	$(LINK)  $(DYLIB) $(FPIC) $(RBINC) $(ROOTANA_FLAGS) $(ROOTANA_DEFS)  \
 -o $@ $< $(CINT)/rootana/Dict.cxx $(ROOTANA_OBJS) -lDragon -lRootanaCut -L$(DRLIB) $(MIDASLIBS) \
 
 anaDragon: $(SRC)/rootana/anaDragon.cxx $(DRLIB)/libDragon.so $(CINT)/rootana/Dict.cxx $(DRLIB)/libRootanaCut.so $(ROOTANA_OBJS) $(ROOTANA_REMOTE_OBJS)
-	$(LINK) $(RBINC) $(ROOTANA_FLAGS) $(ROOTANA_DEFS) \
+	$(LINK)  $(RBINC) $(ROOTANA_FLAGS) $(ROOTANA_DEFS) \
 -o $@ $< $(CINT)/rootana/Dict.cxx $(ROOTANA_OBJS) -lDragon -lRootanaCut -L$(DRLIB) $(MIDASLIBS) $(ROOTANA_LIBS) \
 
 rootana_clean:
@@ -274,7 +276,7 @@ RB_HEADERS= $(SRC)/rootbeer/*.hxx
 
 
 $(DRLIB)/libRBDragon.so: $(RB_OBJECTS) $(RB_HEADERS)
-	$(LINK) $(RBINC) $(DYLIB) $(FPIC) -o $@ $(MIDASLIBS) $(RB_OBJECTS) \
+	$(LINK)  $(RBINC) $(DYLIB) $(FPIC) -o $@ $(MIDASLIBS) $(RB_OBJECTS) \
 
 libRBDragon: $(DRLIB)/libRBDragon.so
 
@@ -331,6 +333,7 @@ SurfaceBarrier.o: $(OBJ)/dragon/SurfaceBarrier.o
 
 Head.o:           $(OBJ)/dragon/Head.o
 Tail.o:           $(OBJ)/dragon/Tail.o
+Scaler.o:         $(OBJ)/dragon/Scaler.o
 
 odbtest: $(DRLIB)/libDragon.so
 	$(LINK) src/midas/Odb.cxx -o test/odbtest -DMIDASSYS -lDragon -L$(DRLIB) $(MIDASLIBS) -DODB_TEST -I$(PWD)/src
