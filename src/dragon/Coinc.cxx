@@ -192,9 +192,13 @@ void dragon::Coinc::calculate()
 	and re-start your bash session or re-source the startup script. Now from a python session or script, you
 	can load the generated modules:
 	\code
+	import midas
 	import vme
 	import dragon
 	\endcode
+
+	You can use the python 'help' function (<tt>help dragon</tt>, etc) to see the classes and functions
+	available in each module.
 
 	\section using For Users
 
