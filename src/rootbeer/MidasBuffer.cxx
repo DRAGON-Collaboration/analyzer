@@ -4,8 +4,8 @@
 #include "rootbeer/Timestamp.hxx"
 #include "utils/definitions.h"
 #include "midas/Event.hxx"
+#include "DragonEvents.hxx"
 #include "MidasBuffer.hxx"
-
 
 
 namespace {
@@ -62,11 +62,11 @@ Bool_t rootbeer::MidasBuffer::UnpackBuffer()
 	case DRAGON_TAIL_EVENT:  /// - DRAGON_TAIL_EVENT: Insert into timestamp matching queue
 		gQueue.Push(midas::Event("TSCT", fBuffer, evtHeader->fDataSize));
 		break;
-	case DRAGON_HEAD_SCALER: /// - DRAGON_HEAD_SCALER: TODO: implement C. Stanford's scaler codes
-		// <...process...> //
+	case DRAGON_HEAD_SCALER: /// - DRAGON_HEAD_SCALER: Unpack event
+		rb::Event::Instance<rootbeer::HeadScaler>()->Process(fBuffer, 0);
 		break;
-	case DRAGON_TAIL_SCALER: /// - DRAGON_TAIL_SCALER: TODO: implement C. Stanford's scaler codes
-		// <...process...> //
+	case DRAGON_TAIL_SCALER: /// - DRAGON_TAIL_SCALER: Unpack event
+		rb::Event::Instance<rootbeer::TailScaler>()->Process(fBuffer, 0);
 		break;
 	default: /// - Silently ignore other event types
 		break;
@@ -80,7 +80,7 @@ Bool_t rootbeer::MidasBuffer::UnpackBuffer()
 
 #ifdef MIDASSYS
 
-#define M__ONLINE_BAIL_OUT cm_disconnect_experiment(); return false
+#define M_ONLINE_BAIL_OUT cm_disconnect_experiment(); return false
 
 Bool_t rootbeer::MidasBuffer::ConnectOnline(const char* host, const char* experiment, char**, int)
 {
@@ -110,7 +110,7 @@ Bool_t rootbeer::MidasBuffer::ConnectOnline(const char* host, const char* experi
 		utils::err::Error("rootbeer::MidasBuffer::ConnectOnline")
 			<< "Error opening \"" << syncbuf << "\" shared memory buffer, status = "
 			<< status << DRAGON_ERR_FILE_LINE;
-		M__ONLINE_BAIL_OUT;
+		M_ONLINE_BAIL_OUT;
 	}
 
 	/// - Request (nonblocking) all types of events from the "SYNC" buffer
@@ -119,7 +119,7 @@ Bool_t rootbeer::MidasBuffer::ConnectOnline(const char* host, const char* experi
 		utils::err::Error("rootbeer::MidasBuffer::ConnectOnline")
 			<< "Error requesting events from \"" << syncbuf << "\", status = "
 			<< status << DRAGON_ERR_FILE_LINE;
-		M__ONLINE_BAIL_OUT;
+		M_ONLINE_BAIL_OUT;
 	}
 
 	/// - Register transition handlers
@@ -202,7 +202,7 @@ Bool_t rootbeer::MidasBuffer::ReadBufferOnline()
 
 #else
 
-#define M__NO_MIDASSYS (FUNC) do {																			\
+#define M_NO_MIDASSYS (FUNC) do {																				\
 		utils::err::Error(FUNC) <<																					\
 			"Online functionality requires MIDAS installed on your system"		\
 														 << DRAGON_ERR_FILE_LINE; }									\
@@ -210,18 +210,18 @@ Bool_t rootbeer::MidasBuffer::ReadBufferOnline()
 
 Bool_t rootbeer::MidasBuffer::ConnectOnline(const char* host, const char* experiment, char**, int)
 {
-	M__NO_MIDASSYS("rootbeer::MidasBuffer::ConnectOnline()");
+	M_NO_MIDASSYS("rootbeer::MidasBuffer::ConnectOnline()");
 	return false;
 }
 
 void rootbeer::MidasBuffer::DisconnectOnline()
 {
-	M__NO_MIDASSYS("rootbeer::MidasBuffer::DisconnectOnline()");
+	M_NO_MIDASSYS("rootbeer::MidasBuffer::DisconnectOnline()");
 }
 
 Bool_t rootbeer::MidasBuffer::ReadBufferOnline()
 {
-	M__NO_MIDASSYS("rootbeer::MidasBuffer::ReadBufferOnline()");
+	M_NO_MIDASSYS("rootbeer::MidasBuffer::ReadBufferOnline()");
 	return false;
 }
 
