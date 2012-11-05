@@ -1,7 +1,7 @@
 /// \file Scaler.hxx
 /// \author C. Stanford
 /// \author G. Christian
-/// \defines classes relevant to unpacking data from Scaler modules.
+/// \brief Defines classes relevant to unpacking data from Scaler modules.
 #ifndef DRAGON_SCALER_HXX
 #define DRAGON_SCALER_HXX
 #include <string>
@@ -21,7 +21,7 @@ class Scaler {
 	// Static const data //
 public:
 	/// Number of scaler channels
-	static const int MAX_CHANNELS = 32;
+	static const int MAX_CHANNELS = 32; //!
 
 	// Sub classes //
 public:
@@ -49,10 +49,12 @@ public:
 		void reset();
 		/// Set names from ODB
 		void set(const char* odb);
+		/// Set bank names
+		void set_bank_names(const char* base);
   };
 
 	/// Variables instance
-	Variables variables; //!
+	Variables variables;
 
 	// Class data //
 public:

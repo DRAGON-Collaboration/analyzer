@@ -100,3 +100,71 @@ Bool_t rootbeer::CoincEvent::DoProcess(const void* addr, Int_t nchar)
 	handle_event(fCoinc, AsCoincMidasEvent(addr));
 	return true;
 }
+
+
+// ======== Class dragon::HeadScaler ======== //
+
+rootbeer::HeadScaler::HeadScaler():
+	fScaler("scaler_h", this, true, "")
+{
+	fScaler->variables.set_bank_names("SCH");
+}
+
+void rootbeer::HeadScaler::HandleBadEvent()
+{
+	utils::err::Error("HeadScaler")
+		<< "Unknown error encountered during event processing";
+}
+
+Bool_t rootbeer::HeadScaler::DoProcess(const void* addr, Int_t nchar)
+{
+	/*!
+	 * Unpacks data from the head and tail MIDAS events into the corresponding
+	 * fields of fDragon, then calls the calculate() methods of each.
+	 * \todo Figure out a way to handle this without unpacking the events; in principle,
+	 * they should have already been handled as singles events, thus we add extra overhead
+	 * by going through the unpacking routines twice - it should be possible to buffer and
+	 * then copy the already-unpacked head and tail structures directly.
+	 */
+	if(!addr) {
+		utils::err::Error("rootbeer::HeadScaler::DoProcess") << "Received NULL event address";
+		return false;
+	}
+
+	fScaler->unpack(*AsMidasEvent(addr));
+	return true;
+}
+
+
+// ======== Class dragon::TailScaler ======== //
+
+rootbeer::TailScaler::TailScaler():
+	fScaler("sclaler_t", this, true, "")
+{
+	fScaler->variables.set_bank_names("SCT");
+}
+
+void rootbeer::TailScaler::HandleBadEvent()
+{
+	utils::err::Error("TailScaler")
+		<< "Unknown error encountered during event processing";
+}
+
+Bool_t rootbeer::TailScaler::DoProcess(const void* addr, Int_t nchar)
+{
+	/*!
+	 * Unpacks data from the tail and tail MIDAS events into the corresponding
+	 * fields of fDragon, then calls the calculate() methods of each.
+	 * \todo Figure out a way to handle this without unpacking the events; in principle,
+	 * they should have already been handled as singles events, thus we add extra overtail
+	 * by going through the unpacking routines twice - it should be possible to buffer and
+	 * then copy the already-unpacked tail and tail structures directly.
+	 */
+	if(!addr) {
+		utils::err::Error("rootbeer::TailScaler::DoProcess") << "Received NULL event address";
+		return false;
+	}
+
+	fScaler->unpack(*AsMidasEvent(addr));
+	return true;
+}

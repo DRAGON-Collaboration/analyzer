@@ -124,9 +124,7 @@ void dragon::Scaler::Variables::reset()
 		strm_name << "channel_" << i;
 		names[i] = strm_name.str();
 	}
-	bank_names.count  = "SCHD";
-	bank_names.rate   = "SCHR";
-	bank_names.sum    = "SCHS";
+	set_bank_names("SCH");
 }
 
 void dragon::Scaler::Variables::set(const char* odb)
@@ -136,4 +134,19 @@ void dragon::Scaler::Variables::set(const char* odb)
 	database.ReadValue("/dragon/scaler/head/bank_names/count", bank_names.count);
 	database.ReadValue("/dragon/scaler/head/bank_names/sum", bank_names.sum);
 	database.ReadValue("/dragon/scaler/head/bank_names/rate", bank_names.rate);
+}
+
+void dragon::Scaler::Variables::set_bank_names(const char* base)
+{
+	std::string strbase(base);
+	if(strbase.size() != 3) {
+		utils::err::Warning("dragon::Scaler::Variables::set_bank_names")
+			<< "Length of base: \"" << base << "\" != 3. Truncating...";
+		if(strbase.size() > 3) strbase = strbase.substr(0, 3);
+		else while (strbase.size() != 3) strbase.push_back('0');
+		std::cerr << "Base = " << strbase << "\n";
+	}
+	bank_names.count  = strbase + "D";
+	bank_names.rate   = strbase + "R";
+	bank_names.sum    = strbase + "S";
 }

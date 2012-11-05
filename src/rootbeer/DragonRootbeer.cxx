@@ -56,7 +56,11 @@ void rb::Rint::RegisterEvents()
 	/// - Coincidences [ rootbeer::CoincEvent ]: "CoincEvent"
   RegisterEvent<rootbeer::CoincEvent> (DRAGON_COINC_EVENT, "CoincEvent");
 
-	/// \todo Include scaler event processors
+	/// - Head Scalers [ rootbeer::HeadScaler ]: "HeadScaler"
+	RegisterEvent<rootbeer::HeadScaler> (DRAGON_HEAD_SCALER, "HeadScaler");
+
+	/// - Tail Scalers [ rootbeer::TailScaler ]: "TailScaler"
+	RegisterEvent<rootbeer::TailScaler> (DRAGON_TAIL_SCALER, "TailScaler");
 }
 
 
