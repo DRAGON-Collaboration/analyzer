@@ -119,12 +119,8 @@ void rootbeer::HeadScaler::HandleBadEvent()
 Bool_t rootbeer::HeadScaler::DoProcess(const void* addr, Int_t nchar)
 {
 	/*!
-	 * Unpacks data from the head and tail MIDAS events into the corresponding
-	 * fields of fDragon, then calls the calculate() methods of each.
-	 * \todo Figure out a way to handle this without unpacking the events; in principle,
-	 * they should have already been handled as singles events, thus we add extra overhead
-	 * by going through the unpacking routines twice - it should be possible to buffer and
-	 * then copy the already-unpacked head and tail structures directly.
+	 * Unpacks into scaler event structure.
+	 * \returns true is given a valid \d addr input, false otherwise
 	 */
 	if(!addr) {
 		utils::err::Error("rootbeer::HeadScaler::DoProcess") << "Received NULL event address";
@@ -153,12 +149,8 @@ void rootbeer::TailScaler::HandleBadEvent()
 Bool_t rootbeer::TailScaler::DoProcess(const void* addr, Int_t nchar)
 {
 	/*!
-	 * Unpacks data from the tail and tail MIDAS events into the corresponding
-	 * fields of fDragon, then calls the calculate() methods of each.
-	 * \todo Figure out a way to handle this without unpacking the events; in principle,
-	 * they should have already been handled as singles events, thus we add extra overtail
-	 * by going through the unpacking routines twice - it should be possible to buffer and
-	 * then copy the already-unpacked tail and tail structures directly.
+	 * Unpacks into scaler event structure.
+	 * \returns true is given a valid \d addr input, false otherwise
 	 */
 	if(!addr) {
 		utils::err::Error("rootbeer::TailScaler::DoProcess") << "Received NULL event address";
