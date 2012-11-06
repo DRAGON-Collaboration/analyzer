@@ -4,13 +4,13 @@
 #ifndef DRAGON_TAIL_HXX
 #define DRAGON_TAIL_HXX
 #include "utils/VariableStructs.hxx"
+#include "utils/Banks.hxx"
 #include "midas/Event.hxx"
 #include "vme/IO32.hxx"
 #include "vme/V792.hxx"
 #include "vme/V1190.hxx"
 #include "MCP.hxx"
 #include "DSSSD.hxx"
-#include "Banks.hxx"
 #include "Auxillary.hxx"
 #include "IonChamber.hxx"
 #include "SurfaceBarrier.hxx"
@@ -99,7 +99,7 @@ public:
 	// Class data //
 public:
 	/// Bank names
-	dragon::EventBanks<2, 1> banks; //!
+	utils::EventBanks<2, 1> banks; //!
 
 private:
 	/** @cond */

@@ -4,11 +4,11 @@
 #ifndef DRAGON_HEAD_HXX
 #define DRAGON_HEAD_HXX
 #include "utils/VariableStructs.hxx"
+#include "utils/Banks.hxx"
 #include "midas/Event.hxx"
 #include "vme/V1190.hxx"
 #include "vme/V792.hxx"
 #include "vme/IO32.hxx"
-#include "Banks.hxx"
 #include "Bgo.hxx"
 
 namespace dragon {
@@ -77,7 +77,7 @@ public:
 // Class Data //
 public:
 	/// Bank names
-	dragon::EventBanks<1, 1> banks; //!
+	utils::EventBanks<1, 1> banks; //!
 
 private:
   /** @cond */

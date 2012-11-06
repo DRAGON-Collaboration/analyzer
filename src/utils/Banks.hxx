@@ -1,13 +1,13 @@
 ///\file Banks.hxx
 ///\author G. Christian
 ///\brief Defines structs wrapping bank-name variables.
-#ifndef DRAGON_BANKS_HXX
-#define DRAGON_BANKS_HXX
+#ifndef DRAGON_UTILS_BANKS_HXX
+#define DRAGON_UTILS_BANKS_HXX
 
 
 namespace midas { class Database; }
 
-namespace dragon {
+namespace utils {
 
 /// Helper class to manage bank name setting (guarantee right length, etc.)
 class Banks {
@@ -95,8 +95,8 @@ struct EventBanks<1, 1> {
 
 
 #ifdef __MAKECINT__
-#pragma link C++ class dragon::EventBanks<2, 1>+;
-#pragma link C++ class dragon::EventBanks<1, 1>+;
+#pragma link C++ class utils::EventBanks<2, 1>+;
+#pragma link C++ class utils::EventBanks<1, 1>+;
 #endif
 
 #endif

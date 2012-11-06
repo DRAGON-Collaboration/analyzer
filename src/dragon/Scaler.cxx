@@ -136,9 +136,9 @@ void dragon::Scaler::Variables::set(const char* odb)
 	database.ReadValue("/dragon/scaler/head/bank_names/count", sCount);
 	database.ReadValue("/dragon/scaler/head/bank_names/rate", sRate);
 	database.ReadValue("/dragon/scaler/head/bank_names/sum", sSum);
-	dragon::Banks::Set(bank_names.count, sCount.c_str());
-	dragon::Banks::Set(bank_names.rate,  sRate.c_str());
-	dragon::Banks::Set(bank_names.sum ,  sSum.c_str());
+	utils::Banks::Set(bank_names.count, sCount.c_str());
+	utils::Banks::Set(bank_names.rate,  sRate.c_str());
+	utils::Banks::Set(bank_names.sum ,  sSum.c_str());
 }
 
 void dragon::Scaler::Variables::set_bank_names(const char* base)
@@ -151,7 +151,7 @@ void dragon::Scaler::Variables::set_bank_names(const char* base)
 		else while (strbase.size() != 3) strbase.push_back('0');
 		std::cerr << "Base = " << strbase << "\n";
 	}
-	dragon::Banks::Set(bank_names.count, (strbase + "D").c_str());
-	dragon::Banks::Set(bank_names.rate,  (strbase + "R").c_str());
-	dragon::Banks::Set(bank_names.sum ,  (strbase + "S").c_str());
+	utils::Banks::Set(bank_names.count, (strbase + "D").c_str());
+	utils::Banks::Set(bank_names.rate,  (strbase + "R").c_str());
+	utils::Banks::Set(bank_names.sum ,  (strbase + "S").c_str());
 }

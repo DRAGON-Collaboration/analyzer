@@ -5,7 +5,7 @@
 #ifndef DRAGON_SCALER_HXX
 #define DRAGON_SCALER_HXX
 #include <string>
-#include "Banks.hxx"
+#include "utils/Banks.hxx"
 
 #ifdef USE_ROOT
 class TTree;
@@ -35,7 +35,7 @@ public:
 		std::string names[MAX_CHANNELS];
 
 		/// Frontend bank names
-		dragon::ScalerBanks bank_names;
+		utils::ScalerBanks bank_names;
 
     /// Constuctor
     Variables();

@@ -29,11 +29,11 @@ dragon::Tail::Tail() :
 #endif
 	tof(this)
 {
-	dragon::Banks::Set(banks.io32,   "TLIO");
-	dragon::Banks::Set(banks.adc[0], "TLQ0");
-	dragon::Banks::Set(banks.adc[1], "TLQ1");
-	dragon::Banks::Set(banks.tdc,    "TLT0");
-	dragon::Banks::Set(banks.tsc,    "TSCT");
+	utils::Banks::Set(banks.io32,   "TLIO");
+	utils::Banks::Set(banks.adc[0], "TLQ0");
+	utils::Banks::Set(banks.adc[1], "TLQ1");
+	utils::Banks::Set(banks.tdc,    "TLT0");
+	utils::Banks::Set(banks.tsc,    "TSCT");
 	reset();
 }
 
@@ -145,11 +145,11 @@ void dragon::Tail::set_variables(const char* odb)
 
 	// Set bank names
 	midas::Database database(odb);
-	dragon::Banks::OdbSet(banks.io32,   database, "dragon/tail/bank_names/io32");
-	dragon::Banks::OdbSet(banks.adc[0], database, "dragon/tail/bank_names/adc[0]");
-	dragon::Banks::OdbSet(banks.adc[1], database, "dragon/tail/bank_names/adc[1]");
-	dragon::Banks::OdbSet(banks.tdc,    database, "dragon/tail/bank_names/tdc");
-	dragon::Banks::OdbSet(banks.tsc,    database, "dragon/tail/bank_names/tsc");
+	utils::Banks::OdbSet(banks.io32,   database, "dragon/tail/bank_names/io32");
+	utils::Banks::OdbSet(banks.adc[0], database, "dragon/tail/bank_names/adc[0]");
+	utils::Banks::OdbSet(banks.adc[1], database, "dragon/tail/bank_names/adc[1]");
+	utils::Banks::OdbSet(banks.tdc,    database, "dragon/tail/bank_names/tdc");
+	utils::Banks::OdbSet(banks.tsc,    database, "dragon/tail/bank_names/tsc");
 }
 
 

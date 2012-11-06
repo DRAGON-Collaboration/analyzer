@@ -12,10 +12,10 @@
 dragon::Head::Head() :
 	header(), io32(), v792(), v1190(), bgo(), tof(this)
 {
-	dragon::Banks::Set(banks.io32, "VRTH");
-	dragon::Banks::Set(banks.adc,  "ADC0");
-	dragon::Banks::Set(banks.tdc,  "TDC0");
-	dragon::Banks::Set(banks.tsc,  "TSCH");
+	utils::Banks::Set(banks.io32, "VRTH");
+	utils::Banks::Set(banks.adc,  "ADC0");
+	utils::Banks::Set(banks.tdc,  "TDC0");
+	utils::Banks::Set(banks.tsc,  "TSCH");
 	reset();
 }
 
@@ -41,10 +41,10 @@ void dragon::Head::set_variables(const char* odb)
 
 	// Set bank names
 	midas::Database database(odb);
-	dragon::Banks::OdbSet(banks.io32, database, "dragon/head/bank_names/io32");
-	dragon::Banks::OdbSet(banks.adc,  database, "dragon/head/bank_names/adc");
-	dragon::Banks::OdbSet(banks.tdc,  database, "dragon/head/bank_names/tdc");
-	dragon::Banks::OdbSet(banks.tsc,  database, "dragon/head/bank_names/tsc");
+	utils::Banks::OdbSet(banks.io32, database, "dragon/head/bank_names/io32");
+	utils::Banks::OdbSet(banks.adc,  database, "dragon/head/bank_names/adc");
+	utils::Banks::OdbSet(banks.tdc,  database, "dragon/head/bank_names/tdc");
+	utils::Banks::OdbSet(banks.tsc,  database, "dragon/head/bank_names/tsc");
 }
 
 void dragon::Head::unpack(const midas::Event& event)

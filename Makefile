@@ -133,6 +133,7 @@ $(OBJ)/midas/internal/TMidasFile.o  	\
 $(OBJ)/midas/internal/TMidasEvent.o 	\
 $(OBJ)/midas/Event.o                	\
 					\
+$(OBJ)/utils/Banks.o			\
 $(OBJ)/utils/TStamp.o              	\
 					\
 $(OBJ)/vme/V792.o             	      	\
@@ -149,7 +150,6 @@ $(OBJ)/dragon/SurfaceBarrier.o      	\
 $(OBJ)/dragon/Head.o                	\
 $(OBJ)/dragon/Tail.o                	\
 $(OBJ)/dragon/Scaler.o			\
-$(OBJ)/dragon/Banks.o			\
 					\
 $(OBJ)/dragon/Coinc.o
 ## END OBJECTS ##
