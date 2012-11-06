@@ -90,7 +90,6 @@ void dragon::Tail::unpack(const midas::Event& event)
 
 void dragon::Tail::calculate()
 {
-
 	/// - Read data from VME modules into data structures
 #ifndef DRAGON_OMIT_DSSSD
 	dsssd.read_data(v785, v1190);

@@ -5,7 +5,7 @@
 #ifndef DRAGON_SCALER_HXX
 #define DRAGON_SCALER_HXX
 #include <string>
-
+#include "Banks.hxx"
 
 #ifdef USE_ROOT
 class TTree;
@@ -34,14 +34,8 @@ public:
 		/// Name of a given channel
 		std::string names[MAX_CHANNELS];
 
-		/// Scaler bank names
-		struct BankNames {
-			std::string sum;   ///< Scaler sum bank name
-			std::string count; ///< Scaler counts bank name
-			std::string rate;  ///< Scaler rate bank name
-		};
-		/// Frontend Bank names
-		BankNames bank_names;
+		/// Frontend bank names
+		dragon::ScalerBanks bank_names;
 
     /// Constuctor
     Variables();

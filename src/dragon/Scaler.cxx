@@ -48,16 +48,16 @@ void dragon::Scaler::unpack(const midas::Event& event)
 	 * Unpacks scaler data directly into the various array structures.
 	 */
 	int bank_len;
-	uint32_t* pcount = event.GetBankPointer<uint32_t>(variables.bank_names.count.c_str(), &bank_len, false, true);
-	if ( check_bank_len(MAX_CHANNELS, bank_len, variables.bank_names.count.c_str()) )
+	uint32_t* pcount = event.GetBankPointer<uint32_t>(variables.bank_names.count, &bank_len, false, true);
+	if ( check_bank_len(MAX_CHANNELS, bank_len, variables.bank_names.count) )
 		std::copy(pcount, pcount + bank_len, count);
 
-	uint32_t* psum = event.GetBankPointer<uint32_t>(variables.bank_names.sum.c_str(), &bank_len, false, true);
-	if ( check_bank_len(MAX_CHANNELS, bank_len, variables.bank_names.sum.c_str()) )
+	uint32_t* psum = event.GetBankPointer<uint32_t>(variables.bank_names.sum, &bank_len, false, true);
+	if ( check_bank_len(MAX_CHANNELS, bank_len, variables.bank_names.sum) )
 		std::copy(psum, psum + bank_len, sum);
 
-	double* prate = event.GetBankPointer<double>(variables.bank_names.rate.c_str(), &bank_len, false, true);
-	if ( check_bank_len(MAX_CHANNELS, bank_len, variables.bank_names.rate.c_str()) )
+	double* prate = event.GetBankPointer<double>(variables.bank_names.rate, &bank_len, false, true);
+	if ( check_bank_len(MAX_CHANNELS, bank_len, variables.bank_names.rate) )
 		std::copy(rate, rate + bank_len, rate);
 }
 
@@ -131,9 +131,14 @@ void dragon::Scaler::Variables::set(const char* odb)
 {
 	midas::Database database(odb);
 	database.ReadArray("/dragon/scaler/head/names", names, MAX_CHANNELS);
-	database.ReadValue("/dragon/scaler/head/bank_names/count", bank_names.count);
-	database.ReadValue("/dragon/scaler/head/bank_names/sum", bank_names.sum);
-	database.ReadValue("/dragon/scaler/head/bank_names/rate", bank_names.rate);
+
+	std::string sCount, sSum, sRate;
+	database.ReadValue("/dragon/scaler/head/bank_names/count", sCount);
+	database.ReadValue("/dragon/scaler/head/bank_names/rate", sRate);
+	database.ReadValue("/dragon/scaler/head/bank_names/sum", sSum);
+	dragon::Banks::Set(bank_names.count, sCount.c_str());
+	dragon::Banks::Set(bank_names.rate,  sRate.c_str());
+	dragon::Banks::Set(bank_names.sum ,  sSum.c_str());
 }
 
 void dragon::Scaler::Variables::set_bank_names(const char* base)
@@ -146,7 +151,7 @@ void dragon::Scaler::Variables::set_bank_names(const char* base)
 		else while (strbase.size() != 3) strbase.push_back('0');
 		std::cerr << "Base = " << strbase << "\n";
 	}
-	bank_names.count  = strbase + "D";
-	bank_names.rate   = strbase + "R";
-	bank_names.sum    = strbase + "S";
+	dragon::Banks::Set(bank_names.count, (strbase + "D").c_str());
+	dragon::Banks::Set(bank_names.rate,  (strbase + "R").c_str());
+	dragon::Banks::Set(bank_names.sum ,  (strbase + "S").c_str());
 }

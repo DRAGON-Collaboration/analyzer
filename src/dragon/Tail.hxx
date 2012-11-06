@@ -52,6 +52,7 @@ public:
 			/// Give Tof class internal access
 			friend class dragon::Tail::Tof;
 		};
+		
 		/// Variables instance
 		Variables variables; //!
 
