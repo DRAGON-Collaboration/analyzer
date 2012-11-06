@@ -10,6 +10,7 @@
 #include "vme/V1190.hxx"
 #include "MCP.hxx"
 #include "DSSSD.hxx"
+#include "Banks.hxx"
 #include "Auxillary.hxx"
 #include "IonChamber.hxx"
 #include "SurfaceBarrier.hxx"
@@ -96,10 +97,15 @@ public:
 	};
 
 	// Class data //
+public:
+	/// Bank names
+	dragon::EventBanks<2, 1> banks; //!
+
 private:
 	/** @cond */
 PRIVATE:
 	/** @endcond */
+
 	/// Electronics modules
 #ifdef DISPLAY_MODULES
 	/// IO32 FPGA

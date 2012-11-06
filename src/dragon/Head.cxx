@@ -12,6 +12,10 @@
 dragon::Head::Head() :
 	header(), io32(), v792(), v1190(), bgo(), tof(this)
 {
+	dragon::Banks::Set(banks.io32, "VRTH");
+	dragon::Banks::Set(banks.adc,  "ADC0");
+	dragon::Banks::Set(banks.tdc,  "TDC0");
+	dragon::Banks::Set(banks.tsc,  "TSCH");
 	reset();
 }
 
@@ -34,6 +38,13 @@ void dragon::Head::set_variables(const char* odb)
 	 */
 	bgo.variables.set(odb);
 	tof.variables.set(odb);
+
+	// Set bank names
+	midas::Database database(odb);
+	dragon::Banks::OdbSet(banks.io32, database, "dragon/head/bank_names/io32");
+	dragon::Banks::OdbSet(banks.adc,  database, "dragon/head/bank_names/adc");
+	dragon::Banks::OdbSet(banks.tdc,  database, "dragon/head/bank_names/tdc");
+	dragon::Banks::OdbSet(banks.tsc,  database, "dragon/head/bank_names/tsc");
 }
 
 void dragon::Head::unpack(const midas::Event& event)
@@ -50,13 +61,11 @@ void dragon::Head::unpack(const midas::Event& event)
 	 *
 	 * \note Recompile with <c> report = true </c> to print warning messages
 	 *  for missing banks
-	 *
-	 * \todo Don't hard code bank names
 	 */
 	const bool report = false;
-	io32.unpack (event, "VRTH", report);
-	v792.unpack (event, "ADC0", report);
-	v1190.unpack(event, "TDC0", report);
+	io32.unpack (event, banks.io32, report);
+	v792.unpack (event, banks.adc , report);
+	v1190.unpack(event, banks.tdc,  report);
 	event.CopyHeader(header);
 }
 

@@ -57,10 +57,12 @@ Bool_t rootbeer::MidasBuffer::UnpackBuffer()
 
 	switch (evtHeader->fEventId) {
 	case DRAGON_HEAD_EVENT:  /// - DRAGON_HEAD_EVENT: Insert into timestamp matching queue
-		gQueue.Push(midas::Event("TSCH", fBuffer, evtHeader->fDataSize));
+		gQueue.Push(midas::Event(rb::Event::Instance<rootbeer::GammaEvent>()->TscBank(),
+														 fBuffer, evtHeader->fDataSize));
 		break;
 	case DRAGON_TAIL_EVENT:  /// - DRAGON_TAIL_EVENT: Insert into timestamp matching queue
-		gQueue.Push(midas::Event("TSCT", fBuffer, evtHeader->fDataSize));
+		gQueue.Push(midas::Event(rb::Event::Instance<rootbeer::HeavyIonEvent>()->TscBank(),
+														 fBuffer, evtHeader->fDataSize));
 		break;
 	case DRAGON_HEAD_SCALER: /// - DRAGON_HEAD_SCALER: Unpack event
 		rb::Event::Instance<rootbeer::HeadScaler>()->Process(fBuffer, 0);

@@ -8,6 +8,7 @@
 #include "vme/V1190.hxx"
 #include "vme/V792.hxx"
 #include "vme/IO32.hxx"
+#include "Banks.hxx"
 #include "Bgo.hxx"
 
 namespace dragon {
@@ -74,6 +75,10 @@ public:
 	};
 
 // Class Data //
+public:
+	/// Bank names
+	dragon::EventBanks<1, 1> banks; //!
+
 private:
   /** @cond */
 PRIVATE:

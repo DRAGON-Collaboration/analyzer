@@ -31,6 +31,10 @@ public:
 	/// Empty
 	~GammaEvent() {}
 
+	/// Returns the TSC bank name
+	const char* TscBank() const
+		{ return fGamma->banks.tsc; }
+
 private:
 	/// Casts from const void* to const midas::Event*
 	const midas::Event* AsMidasEvent(const void* addr)
@@ -57,6 +61,10 @@ public:
 
 	/// Empty
 	~HeavyIonEvent() {}
+
+	/// Returns the TSC bank name
+	const char* TscBank() const
+		{ return fHeavyIon->banks.tsc; }
 
 private:
 	/// Casts from const void* to const midas::Event*

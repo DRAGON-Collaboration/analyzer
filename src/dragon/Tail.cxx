@@ -29,6 +29,11 @@ dragon::Tail::Tail() :
 #endif
 	tof(this)
 {
+	dragon::Banks::Set(banks.io32,   "TLIO");
+	dragon::Banks::Set(banks.adc[0], "TLQ0");
+	dragon::Banks::Set(banks.adc[1], "TLQ1");
+	dragon::Banks::Set(banks.tdc,    "TLT0");
+	dragon::Banks::Set(banks.tsc,    "TSCT");
 	reset();
 }
 
@@ -70,21 +75,13 @@ void dragon::Tail::unpack(const midas::Event& event)
 	 *
 	 * \note Recompile with <c> report = true </c> to print warning messages
 	 *  for missing banks
-	 *
-	 * \todo Don't hard code bank names
 	 */
 	const bool report = false;
-
-	io32.unpack (event, "VTRT", report);
-	
-	assert (NUM_ADC < 10);
+	io32.unpack (event, banks.io32, report);
 	for (int i=0; i< NUM_ADC; ++i) {
-		char bkname[5];
-		sprintf(bkname, "TLQ%d", i);
-		v785[i].unpack (event, bkname, report);
+		v785[i].unpack(event, banks.adc[i], report);
 	}
-
-	v1190.unpack (event, "TLT0", report);
+	v1190.unpack(event, banks.tdc, report);
 	event.CopyHeader(header);
 }
 
@@ -145,6 +142,14 @@ void dragon::Tail::set_variables(const char* odb)
 	ge.variables.set(odb);
 #endif
 	tof.variables.set(odb);
+
+	// Set bank names
+	midas::Database database(odb);
+	dragon::Banks::OdbSet(banks.io32,   database, "dragon/tail/bank_names/io32");
+	dragon::Banks::OdbSet(banks.adc[0], database, "dragon/tail/bank_names/adc[0]");
+	dragon::Banks::OdbSet(banks.adc[1], database, "dragon/tail/bank_names/adc[1]");
+	dragon::Banks::OdbSet(banks.tdc,    database, "dragon/tail/bank_names/tdc");
+	dragon::Banks::OdbSet(banks.tsc,    database, "dragon/tail/bank_names/tsc");
 }
 
 
