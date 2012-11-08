@@ -21,26 +21,17 @@ rootbeer::TSQueue gQueue (QUEUE_TIME);
 Bool_t rootbeer::MidasBuffer::ReadBufferOffline()
 {
 	/*!
-	 * Calls TMidasFile::Read() to put data into a temporary TMidasEvent,
-	 * then copies to fBuffer.
-	 * \todo Figure out a way to do this without the temporary TMidasEvent
+	 * Reads event data into fBuffer
 	 */
 	TMidasEvent temp;
+	temp.SetData(sizeof(fBuffer), fBuffer);
+	temp.Clear();
+
 	Bool_t have_event = fFile.Read(&temp);
-	if (have_event) {
-		const int buffer_size = sizeof(fBuffer);
-		const int header_size = sizeof(midas::Event::Header);
-
-		memcpy(fBuffer, temp.GetEventHeader(), header_size);
-		int size_to_read = temp.GetDataSize();
-
-		if (size_to_read + header_size > buffer_size) {
-			utils::err::Warning("rootbeer::MidasBuffer::ReadBufferOffline") << "Received a truncated event";
-			size_to_read = buffer_size - header_size;
-			fIsTruncated = true;
-		}
-
-		memcpy(fBuffer + header_size, temp.GetData(), size_to_read);
+	if ( have_event &&
+			 temp.GetDataSize() + sizeof(midas::Event::Header) > sizeof(fBuffer) ) {
+		utils::err::Warning("rootbeer::MidasBuffer::ReadBufferOffline") << "Received a truncated event";
+		fIsTruncated = true;
 	}
 
 	return have_event;
@@ -253,4 +244,26 @@ INT rootbeer_run_resume(INT runnum, char* err)
 {
 	utils::err::Info("rb::Midas") << "Resuming run number " << runnum;
 	return CM_SUCCESS;
+}
+#include <midas.h>
+#include "utils/Error.hxx"
+#include "midas/Database.hxx"
+
+void dbtest()
+{
+
+	midas::Database db("online");
+	double slope = -1001;
+	db.ReadValue("/dragon/head/variables/xtdc/slope", slope);
+	printf("slope: %f\n", slope);
+
+
+	// int hndle;
+	
+	// printf("Exists? %i [ CM_SUCCESS = %i, CM_NO_CLIENT = %i ]\n", cm_exist("rootbeer", TRUE), CM_SUCCESS, CM_NO_CLIENT);
+
+	// cm_get_experiment_database(&hndle, 0);
+	// if (hndle == 0)
+	// 	err::Error("midas::Odb") << "Not connected to an experiment\n";
+
 }
