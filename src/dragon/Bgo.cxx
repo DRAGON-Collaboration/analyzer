@@ -107,11 +107,10 @@ void dragon::Bgo::Variables::set(const char* odb)
 {
 	/*!
 	 * \param [in] odb_file Path of the odb file from which you are extracting variable values
-	 * \todo Needs testing
 	 */
 	midas::Database database(odb);
+	if(database.IsZombie()) return;
 
-	database.ReadArray("/dragon/bgo/variables/adc/module",   adc.module,   MAX_CHANNELS);
 	database.ReadArray("/dragon/bgo/variables/adc/channel",  adc.channel,  MAX_CHANNELS);
 	database.ReadArray("/dragon/bgo/variables/adc/pedestal", adc.pedestal, MAX_CHANNELS);
 	database.ReadArray("/dragon/bgo/variables/adc/slope",    adc.slope,    MAX_CHANNELS);

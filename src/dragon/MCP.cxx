@@ -110,6 +110,7 @@ void dragon::MCP::Variables::set(const char* odb)
 	 * \todo Test
 	 */
 	midas::Database database(odb);
+	if(database.IsZombie()) return;
 
 	database.ReadArray("/dragon/mcp/variables/adc/channel",  adc.channel,  MAX_CHANNELS);
 	database.ReadArray("/dragon/mcp/variables/adc/module",   adc.module,   MAX_CHANNELS);

@@ -17,12 +17,10 @@
 HNDLE midas::Odb::GetHandle()
 {
 	int hndle;
-	
-	printf("Exists? %i [ CM_SUCCESS = %i, CM_NO_CLIENT = %i ]\n", cm_exist("rootbeer", TRUE), CM_SUCCESS, CM_NO_CLIENT);
-
 	cm_get_experiment_database(&hndle, 0);
 	if (hndle == 0)
-		utils::err::Error("midas::Odb") << "Not connected to an experiment\n";
+		utils::err::Error("midas::Odb") << "Not connected to an experiment.";
+
 	return hndle;
 }
 
@@ -42,7 +40,7 @@ int midas::Odb::ReadAny(const char*name,int index,int tid,void* value,int valueL
 		status = db_get_data_index(GetHandle(), hkey, value, &size, index, tid);
 		if (status != SUCCESS)
 		{
-			fprintf(stderr, "Cannot read \'%s\'[%d] of type %d from odb, db_get_data_index() status %d", name, index, tid, status);
+			fprintf(stderr, "Cannot read \'%s\'[%d] of type %d from odb, db_get_data_index() status %d\n", name, index, tid, status);
 			return -1;
 		}
 
@@ -55,14 +53,14 @@ int midas::Odb::ReadAny(const char*name,int index,int tid,void* value,int valueL
 		status = db_create_key(GetHandle(), hdir, (char*)name, tid);
 		if (status != SUCCESS)
 		{
-			fprintf(stderr, "Cannot create \'%s\' of type %d, db_create_key() status %d", name, tid, status);
+			fprintf(stderr, "Cannot create \'%s\' of type %d, db_create_key() status %d\n", name, tid, status);
 			return -1;
 		}
 
 		status = db_find_key (GetHandle(), hdir, (char*)name, &hkey);
 		if (status != SUCCESS)
 		{
-			fprintf(stderr, "Cannot create \'%s\', db_find_key() status %d", name, status);
+			fprintf(stderr, "Cannot create \'%s\', db_find_key() status %d\n", name, status);
 			return -1;
 		}
 

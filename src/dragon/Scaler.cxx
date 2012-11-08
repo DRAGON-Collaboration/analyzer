@@ -130,6 +130,8 @@ void dragon::Scaler::Variables::reset()
 void dragon::Scaler::Variables::set(const char* odb)
 {
 	midas::Database database(odb);
+	if(database.IsZombie()) return;
+		
 	database.ReadArray("/dragon/scaler/head/names", names, MAX_CHANNELS);
 
 	std::string sCount, sSum, sRate;

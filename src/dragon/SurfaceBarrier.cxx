@@ -72,6 +72,7 @@ void dragon::SurfaceBarrier::Variables::set(const char* odb)
 	 * \todo Needs testing
 	 */
 	midas::Database database(odb);
+	if(database.IsZombie()) return;
 
 	database.ReadArray("/dragon/sb/variables/adc/module",   adc.module,   MAX_CHANNELS);
 	database.ReadArray("/dragon/sb/variables/adc/channel",  adc.channel,  MAX_CHANNELS);

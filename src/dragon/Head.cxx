@@ -41,6 +41,8 @@ void dragon::Head::set_variables(const char* odb)
 
 	// Set bank names
 	midas::Database database(odb);
+	if(database.IsZombie()) return;
+
 	utils::Banks::OdbSet(banks.io32, database, "dragon/head/bank_names/io32");
 	utils::Banks::OdbSet(banks.adc,  database, "dragon/head/bank_names/adc");
 	utils::Banks::OdbSet(banks.tdc,  database, "dragon/head/bank_names/tdc");
@@ -136,7 +138,8 @@ void dragon::Head::Tof::Variables::reset()
 void dragon::Head::Tof::Variables::set(const char* odb)
 {
 	midas::Database database(odb);
-	
+	if(database.IsZombie()) return;
+
 	database.ReadValue("/dragon/head/variables/xtdc/channel", xtdc.channel);
 	database.ReadValue("/dragon/head/variables/xtdc/slope",   xtdc.slope);
 	database.ReadValue("/dragon/head/variables/xtdc/offset",  xtdc.offset);

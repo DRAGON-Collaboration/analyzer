@@ -82,6 +82,7 @@ void dragon::IonChamber::Variables::set(const char* odb)
 	 * \todo Needs testing
 	 */
 	midas::Database database(odb);
+	if(database.IsZombie()) return;
 
 	database.ReadArray("/dragon/ic/variables/adc/module",   adc.module,   MAX_CHANNELS);
 	database.ReadArray("/dragon/ic/variables/adc/channel",  adc.channel,  MAX_CHANNELS);

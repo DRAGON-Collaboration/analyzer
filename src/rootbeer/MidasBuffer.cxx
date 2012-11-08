@@ -245,25 +245,3 @@ INT rootbeer_run_resume(INT runnum, char* err)
 	utils::err::Info("rb::Midas") << "Resuming run number " << runnum;
 	return CM_SUCCESS;
 }
-#include <midas.h>
-#include "utils/Error.hxx"
-#include "midas/Database.hxx"
-
-void dbtest()
-{
-
-	midas::Database db("online");
-	double slope = -1001;
-	db.ReadValue("/dragon/head/variables/xtdc/slope", slope);
-	printf("slope: %f\n", slope);
-
-
-	// int hndle;
-	
-	// printf("Exists? %i [ CM_SUCCESS = %i, CM_NO_CLIENT = %i ]\n", cm_exist("rootbeer", TRUE), CM_SUCCESS, CM_NO_CLIENT);
-
-	// cm_get_experiment_database(&hndle, 0);
-	// if (hndle == 0)
-	// 	err::Error("midas::Odb") << "Not connected to an experiment\n";
-
-}
