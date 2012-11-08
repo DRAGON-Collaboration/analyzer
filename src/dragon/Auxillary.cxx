@@ -64,7 +64,6 @@ void dragon::NaI::Variables::set(const char* odb)
 {
 	/*!
 	 * \param [in] odb_file Path of the odb file from which you are extracting variable values
-	 * \todo Needs testing
 	 */
 	midas::Database database(odb);
 	if(database.IsZombie()) return;
@@ -132,7 +131,6 @@ void dragon::Ge::Variables::set(const char* odb)
 {
 	/*!
 	 * \param [in] odb_file Path of the odb file from which you are extracting variable values
-	 * \todo Needs testing
 	 */
 	midas::Database database(odb);
 

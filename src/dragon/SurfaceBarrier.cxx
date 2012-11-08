@@ -69,7 +69,6 @@ void dragon::SurfaceBarrier::Variables::set(const char* odb)
 {
 	/*!
 	 * \param [in] odb_file Path of the odb file from which you are extracting variable values
-	 * \todo Needs testing
 	 */
 	midas::Database database(odb);
 	if(database.IsZombie()) return;
