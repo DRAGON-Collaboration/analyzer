@@ -62,5 +62,3 @@ void rb::Rint::RegisterEvents()
 	/// - Tail Scalers [ rootbeer::TailScaler ]: "TailScaler"
 	RegisterEvent<rootbeer::TailScaler> (DRAGON_TAIL_SCALER, "TailScaler");
 }
-
-

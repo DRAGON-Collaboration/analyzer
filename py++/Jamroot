@@ -16,6 +16,9 @@ if ! [ python.configured ]
 use-project boost
   : /opt/local/boost_1_49_0 ;
 
+lib libboost_python : :
+    <file>/opt/local/boost_1_49_0/libs/python/example/tutorial/libboost_python.dylib ;
+
 lib libDragon : : 
     <file>../lib/libDragon.so ;
 
@@ -28,14 +31,14 @@ project
 # Declare the three extension modules.  You can specify multiple
 # source files after the colon separated by spaces.
 python-extension dragon : Dragon.cpp libDragon : <optimization>speed ;
-python-extension vme    : Vme.cpp libDragon : <optimization>speed ;
-python-extension midas  : Midas.cpp libDragon : <optimization>speed ;
+python-extension vme    : Vme.cpp    libDragon : <optimization>speed ;
+python-extension midas  : Midas.cpp  libDragon : <optimization>speed ;
 
 # Put the extension and Boost.Python DLL in the current directory, so
 # that running script by hand works.
 install convenient_copy 
-  : dragon vme midas
-  : <install-dependencies>on <install-type>SHARED_LIB <install-type>PYTHON_EXTENSION 
+  : dragon vme midas libboost_python
+  : <install-dependencies>off <install-type>SHARED_LIB <install-type>PYTHON_EXTENSION 
     <location>. 
   ;
 

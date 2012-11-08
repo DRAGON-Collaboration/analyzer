@@ -105,7 +105,7 @@ Bool_t rootbeer::CoincEvent::DoProcess(const void* addr, Int_t nchar)
 // ======== Class dragon::HeadScaler ======== //
 
 rootbeer::HeadScaler::HeadScaler():
-	fScaler("scaler_h", this, true, "")
+	fScaler("head_scaler", this, true, "")
 {
 	fScaler->variables.set_bank_names("SCH");
 }
@@ -135,7 +135,7 @@ Bool_t rootbeer::HeadScaler::DoProcess(const void* addr, Int_t nchar)
 // ======== Class dragon::TailScaler ======== //
 
 rootbeer::TailScaler::TailScaler():
-	fScaler("sclaler_t", this, true, "")
+	fScaler("tail_scaler", this, true, "")
 {
 	fScaler->variables.set_bank_names("SCT");
 }
