@@ -54,7 +54,11 @@ Bool_t rootbeer::MidasBuffer::ReadBufferOffline()
 	Bool_t have_event = fFile.Read(&temp);
 	if ( have_event &&
 			 temp.GetDataSize() + sizeof(midas::Event::Header) > fBufferSize ) {
-		utils::err::Warning("rootbeer::MidasBuffer::ReadBufferOffline") << "Received a truncated event";
+		utils::err::Warning("rootbeer::MidasBuffer::ReadBufferOffline")
+			<< "Received a truncated event: event size = "
+			<< ( temp.GetDataSize() + sizeof(midas::Event::Header) )
+			<< ", max size = " << fBufferSize << " (Id, serial = "
+			<< temp.GetEventId() << ", " << temp.GetSerialNumber() << ")";
 		fIsTruncated = true;
 	}
 
@@ -197,7 +201,10 @@ Bool_t rootbeer::MidasBuffer::ReadBufferOnline()
 
 	/// - Print a warning message if the event was truncated
 	if (status == BM_TRUNCATED) {
-		utils::err::Warning("rootbeer::MidasBuffer::ReadBufferOnline") << "Received a truncated event";
+		utils::err::Warning("rootbeer::MidasBuffer::ReadBufferOnline")
+			<< "Received a truncated event: event size = "
+			<< ( reinterpret_cast<midas::Event::Header*>(fBuffer)->fDataSize + sizeof(midas::Event::Header) )
+			<< ", max size = " << fBufferSize;
 		fIsTruncated = true;
 	}
 

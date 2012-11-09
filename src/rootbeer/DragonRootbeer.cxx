@@ -31,7 +31,7 @@ rb::BufferSource* rb::BufferSource::New()
 	 * In this specific instance, we return a pointer to a \c new rootbeer::MidasBuffer
 	 */ 
 	
-  return new rootbeer::MidasBuffer();
+  return new rootbeer::MidasBuffer(1024*100);
 }
 
 void rb::Rint::RegisterEvents()
