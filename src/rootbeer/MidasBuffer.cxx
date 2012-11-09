@@ -1,6 +1,7 @@
 /// \file MidasBuffer.cxx
 /// \author G. Christian
 /// \brief Implements MidasBuffer.hxx
+#include <cassert>
 #include "rootbeer/Timestamp.hxx"
 #include "utils/definitions.h"
 #include "midas/Event.hxx"
@@ -18,18 +19,35 @@ rootbeer::TSQueue gQueue (QUEUE_TIME);
 }
 
 
+rootbeer::MidasBuffer::MidasBuffer(size_t size):
+	fIsTruncated(false),
+	fBuffer(static_cast<char*>(malloc(size))),
+	fBufferSize(size)
+{
+	/*!
+	 * \param size Size of the internal buffer in bytes. This should be larger than the
+	 * biggest expected event.
+	 */
+	assert(fBuffer);
+}
+
+rootbeer::MidasBuffer::~MidasBuffer()
+{
+	free(fBuffer);
+}
+
 Bool_t rootbeer::MidasBuffer::ReadBufferOffline()
 {
 	/*!
 	 * Reads event data into fBuffer
 	 */
 	TMidasEvent temp;
-	temp.SetData(sizeof(fBuffer), fBuffer);
+	temp.SetData(fBufferSize, fBuffer);
 	temp.Clear();
 
 	Bool_t have_event = fFile.Read(&temp);
 	if ( have_event &&
-			 temp.GetDataSize() + sizeof(midas::Event::Header) > sizeof(fBuffer) ) {
+			 temp.GetDataSize() + sizeof(midas::Event::Header) > fBufferSize ) {
 		utils::err::Warning("rootbeer::MidasBuffer::ReadBufferOffline") << "Received a truncated event";
 		fIsTruncated = true;
 	}
@@ -148,7 +166,7 @@ Bool_t rootbeer::MidasBuffer::ReadBufferOnline()
 	const int timeout = 0;
 	INT size, status;
 	do {
-		size = sizeof(fBuffer);
+		size = fBufferSize;
 
 		/// - Check status of client w/ cm_yield()
 		status = cm_yield(timeout);
