@@ -35,6 +35,9 @@ public:
 	const char* TscBank() const
 		{ return fGamma->banks.tsc; }
 
+	/// Read variables from ODB
+	void ReadOdb();
+
 private:
 	/// Casts from const void* to const midas::Event*
 	const midas::Event* AsMidasEvent(const void* addr)
@@ -66,6 +69,9 @@ public:
 	const char* TscBank() const
 		{ return fHeavyIon->banks.tsc; }
 
+	/// Read variables from ODB
+	void ReadOdb();
+
 private:
 	/// Casts from const void* to const midas::Event*
 	const midas::Event* AsMidasEvent(const void* addr)
@@ -91,6 +97,9 @@ public:
 
 	/// Empty
 	~CoincEvent() {}
+
+	/// Read variables from ODB
+	void ReadOdb();
 
 private:
 	/// Casts from const void* to const midas::CoincEvent*
@@ -118,6 +127,9 @@ public:
 	/// Empty
 	~HeadScaler() {}
 
+	/// Read variables from ODB
+	void ReadOdb();
+
 private:
 	/// Casts from const void* to const midas::Event*
 	const midas::Event* AsMidasEvent(const void* addr)
@@ -143,6 +155,9 @@ public:
 
 	/// Empty
 	~TailScaler() {}
+
+	/// Read variables from ODB
+	void ReadOdb();
 
 private:
 	/// Casts from const void* to const midas::Event*

@@ -72,6 +72,9 @@ private:
 
 	/// Disallow assign
 	MidasBuffer& operator= (const MidasBuffer&) { return *this; }
+
+	/// Read variables from the ODB
+	void ReadOdb();
 };
 
 } // namespace rootbeer

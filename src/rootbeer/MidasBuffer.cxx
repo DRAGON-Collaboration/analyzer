@@ -151,6 +151,9 @@ Bool_t rootbeer::MidasBuffer::ConnectOnline(const char* host, const char* experi
 	cm_register_transition (TR_PAUSE,  rootbeer_run_pause,  500);
 	cm_register_transition (TR_RESUME, rootbeer_run_resume, 500);
 
+	/// - Update variables from ODB
+	this->ReadOdb();
+
 	return true;
 }
 
@@ -163,6 +166,15 @@ void rootbeer::MidasBuffer::DisconnectOnline()
 		<< "Disconnecting from experiment";
 }
 
+void rootbeer::MidasBuffer::ReadOdb()
+{
+	utils::err::Info("rootbeer::MidasBuffer")	<< "Synching variable values with the MIDAS ODB."
+	rb::Event::Instance<rootbeer::GammaEvent>()->ReadOdb();
+	rb::Event::Instance<rootbeer::HeavyIonEvent>()->ReadOdb();
+	rb::Event::Instance<rootbeer::CoincEvent>()->ReadOdb();
+	rb::Event::Instance<rootbeer::HeadScaler>()->ReadOdb();
+	rb::Event::Instance<rootbeer::TailScaler>()->ReadOdb();
+}
 
 Bool_t rootbeer::MidasBuffer::ReadBufferOnline()
 {

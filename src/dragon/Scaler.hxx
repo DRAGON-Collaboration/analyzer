@@ -77,6 +77,9 @@ PRIVATE:
 	/// Returns the name of a given scaler channel
 	const std::string& channel_name(int ch) const;
 
+	/// Sets variable values
+	void set_variables(const char* odb);
+
 #ifdef USE_ROOT
 	/// Set branch alises in a ROOT TTree.
 	void set_aliases(TTree* tree, const char* branchName) const;

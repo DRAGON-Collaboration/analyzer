@@ -29,6 +29,14 @@ void dragon::Scaler::reset()
 	std::fill(rate, rate + MAX_CHANNELS, 0.);
 }
 
+void dragon::Scaler::set_variables(const char* odb)
+{
+	/*!
+	 * Delegates to dragon::Scaler::Variables::Set()
+	 */
+	variables.set(odb);
+}
+
 namespace {
 inline bool check_bank_len(int expected, int gotten, const char* bkname)
 {
