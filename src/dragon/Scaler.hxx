@@ -94,6 +94,13 @@ void dragon::Scaler::set_aliases(T* t, const char* branchName) const
 	 * \param t Pointer to a class having a "SetAlias(const char*, const char*) method
 	 * (e.g. TTree) and for which you want to set aliases.
 	 * \param branchName "Base" name of the branch
+	 * \tparam T Some class with a "SetAlias" method.
+	 *
+	 * \note Intended for TTree, but defined as a template
+	 * function to maintain compatability with systems that don't use ROOT. In the case that ROOT is
+	 * not available and this function is never used, it simply gets ignored by the compiler. Note also,
+	 * that for systems with ROOT, a CINT dictionary definition is automoatically provided for TTree
+	 * as the template parameter.
 	 *
 	 * Example:
 	 * \code
@@ -106,12 +113,6 @@ void dragon::Scaler::set_aliases(T* t, const char* branchName) const
 	 * t.Fill(); // adds a events worth of data
 	 * t.Draw("scaler_count_bgo_triggers_presented"); // same as doing t.Draw("scaler.count[0]");
 	 * \endcode
-	 *
-	 * \tparam T Some class with a "SetAlias" method. Intended for TTree, but defined as a template
-	 * function to maintain compatability with systems that don't use ROOT. In the case that ROOT is
-	 * not available and this function is never used, it simply gets ignored by the compiler. Note also,
-	 * that for systems with ROOT, a CINT dictionary definition is automoatically provided for TTree
-	 * as the template parameter.
 	 */
 	const std::string chNames[3] = { "count", "sum", "rate" };
 	for(int i=0; i< MAX_CHANNELS; ++i) {
