@@ -90,7 +90,9 @@ void dragon::Scaler::set_aliases(T* t, const char* branchName) const
 	/*!
 	 * Sets tree branch aliases based on variable values - results in easier to use
 	 * branch names (e.g. something descriptive instead of 'scaler.sum[0]', etc.)
-	 * \param tree Pointer to the TTree for which you want to set aliases
+	 *
+	 * \param t Pointer to a class having a "SetAlias(const char*, const char*) method
+	 * (e.g. TTree) and for which you want to set aliases.
 	 * \param branchName "Base" name of the branch
 	 *
 	 * Example:
