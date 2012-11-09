@@ -202,6 +202,22 @@ void dragon::Coinc::calculate()
 
 	\section using For Users
 
+	\subsection Rootana online analyzer
+
+	This package includes a library to interface the DRAGON analysis codes with MIDAS's
+	<a href=http://ladd00.triumf.ca/~olchansk/rootana/>rootana</a> system,
+	which allows visualization of online and offline data in histograms, in. If you are familiar with the "old"
+	DRAGON analyzer, this is essentially the same thing, but with a few added features. To use this analyzer,
+	simply compile with the "USE_ROOTANA" option set to "YES" in the makefile. Then run the 'anaDragon' executable,
+	either from a shell or by starting it on the MIDAS status page.  To view histograms, you will need to run the
+	'roody' executable, which should be available on your system if you have MIDAS installed.
+
+	As mentioned, there are a couple feature addidions since the previous version of the DRAGON analyzer. The main
+	one is the ability to define histograms and cuts at runtime instead of compile time. The hope is that this will
+	allow for easy and quick changes to be made to the available visualization, even for users who are completely
+	inexperienced with C++.
+
+	
 
 
 	\section developers For Developers
