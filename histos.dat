@@ -26,7 +26,7 @@ SUMMARY:
         ("bgo_q", "Bgo energies [singles]", 256, 0, 4096)
 	rootana::gHead.bgo.q
 	30
- CUT:
+CUT:
  	Cut2D(gHead.bgo.q[0], gHead.bgo.q[1], cutg) && Less(gHead.bgo.q[0], 2000)
 
 DIR:
