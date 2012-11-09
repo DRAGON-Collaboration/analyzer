@@ -168,7 +168,9 @@ void rootbeer::MidasBuffer::DisconnectOnline()
 
 void rootbeer::MidasBuffer::ReadOdb()
 {
-	utils::err::Info("rootbeer::MidasBuffer")	<< "Synching variable values with the MIDAS ODB."
+	utils::err::Info("rootbeer::MidasBuffer")
+		<< "Synching variable values with the MIDAS ODB.";
+
 	rb::Event::Instance<rootbeer::GammaEvent>()->ReadOdb();
 	rb::Event::Instance<rootbeer::HeavyIonEvent>()->ReadOdb();
 	rb::Event::Instance<rootbeer::CoincEvent>()->ReadOdb();

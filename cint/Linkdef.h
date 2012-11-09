@@ -23,6 +23,7 @@
 //! \endcode
 //! (note that the '+' at the end is required except in special cases).
 #ifdef __MAKECINT__
+
 #pragma link off all globals;
 #pragma link off all classes;
 #pragma link off all functions;
@@ -61,6 +62,9 @@
 
 #pragma link C++ defined_in ../src/dragon/Scaler.hxx;
 #pragma link C++ defined_in ../src/utils/Banks.hxx;
+
+class TTree;
+#pragma link C++ function dragon::Scaler::set_aliases(TTree*, const char*);
 
 #pragma link C++ class vme::V792+;
 #pragma link C++ class vme::V785+;

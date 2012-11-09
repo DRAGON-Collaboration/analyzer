@@ -117,7 +117,7 @@ MAKE_DRAGON_DICT=
 DR_DICT=
 DR_DICT_DEP=
 ifeq ($(USE_ROOT),YES)
-MAKE_DRAGON_DICT+=rootcint -f $@ -c $(CXXFLAGS) -p $(HEADERS) $(CINT)/Linkdef.h
+MAKE_DRAGON_DICT+=rootcint -f $@ -c $(CXXFLAGS) -p $(HEADERS) TTree.h $(CINT)/Linkdef.h
 DR_DICT=$(CINT)/DragonDictionary.cxx 
 DR_DICT_DEP=$(CINT)/DragonDictionary.cxx 
 endif

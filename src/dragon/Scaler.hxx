@@ -5,11 +5,8 @@
 #ifndef DRAGON_SCALER_HXX
 #define DRAGON_SCALER_HXX
 #include <string>
+#include <sstream>
 #include "utils/Banks.hxx"
-
-#ifdef USE_ROOT
-class TTree;
-#endif
 
 namespace midas { class Event; }
 
@@ -80,12 +77,51 @@ PRIVATE:
 	/// Sets variable values
 	void set_variables(const char* odb);
 
-#ifdef USE_ROOT
 	/// Set branch alises in a ROOT TTree.
-	void set_aliases(TTree* tree, const char* branchName) const;
-#endif
+	template <class T>
+	void set_aliases(T* t, const char* branchName) const;
 };
 
 } // namespace dragon
 
-#endif
+template <class T>
+void dragon::Scaler::set_aliases(T* t, const char* branchName) const
+{
+	/*!
+	 * Sets tree branch aliases based on variable values - results in easier to use
+	 * branch names (e.g. something descriptive instead of 'scaler.sum[0]', etc.)
+	 * \param tree Pointer to the TTree for which you want to set aliases
+	 * \param branchName "Base" name of the branch
+	 *
+	 * Example:
+	 * \code
+	 * TTree t("t","");
+	 * dragon::Scaler scaler;
+	 * scaler.variables.names[0] = "bgo_triggers_presented";
+	 * void* pScaler = &scaler;
+	 * t.Branch("scaler", "dragon::Scaler", &pScaler);
+	 * scaler.set_aliases(&t, "scaler");
+	 * t.Fill(); // adds a events worth of data
+	 * t.Draw("scaler_count_bgo_triggers_presented"); // same as doing t.Draw("scaler.count[0]");
+	 * \endcode
+	 *
+	 * \tparam T Some class with a "SetAlias" method. Intended for TTree, but defined as a template
+	 * function to maintain compatability with systems that don't use ROOT. In the case that ROOT is
+	 * not available and this function is never used, it simply gets ignored by the compiler. Note also,
+	 * that for systems with ROOT, a CINT dictionary definition is automoatically provided for TTree
+	 * as the template parameter.
+	 */
+	const std::string chNames[3] = { "count", "sum", "rate" };
+	for(int i=0; i< MAX_CHANNELS; ++i) {
+		for(int j=0; j< 3; ++j) {
+			std::stringstream oldName, newName;
+			oldName << branchName << "." << chNames[j] << "[" << i << "]";
+			newName << branchName << "_" << chNames[j] << "_" << variables.names[i];
+
+			t->SetAlias(newName.str().c_str(), oldName.str().c_str());
+		}
+	}
+}
+
+
+#endif // Include guard

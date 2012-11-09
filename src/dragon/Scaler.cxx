@@ -2,11 +2,7 @@
 /// \author C. Stanford
 /// \author G. Christian
 /// \brief Implements Scaler.hxx
-#include <sstream>
 #include <iostream>
-#ifdef USE_ROOT
-#include <TTree.h>
-#endif
 #include "utils/Error.hxx"
 #include "midas/Database.hxx"
 #include "midas/Event.hxx"
@@ -80,40 +76,6 @@ const std::string& dragon::Scaler::channel_name(int ch) const
 	static std::string junk = "";
 	return junk;
 }
-
-#ifdef USE_ROOT
-void dragon::Scaler::set_aliases(TTree* tree, const char* branchName) const
-{
-	/*!
-	 * Sets tree branch aliases based on variable values - results in easier to use
-	 * branch names (e.g. something descriptive instead of 'scaler.sum[0]', etc.)
-	 * \param tree Pointer to the TTree for which you want to set aliases
-	 * \param branchName "Base" name of the branch
-	 *
-	 * Example:
-	 * \code
-	 * TTree t("t","");
-	 * dragon::Scaler scaler;
-	 * scaler.variables.names[0] = "bgo_triggers_presented";
-	 * void* pScaler = &scaler;
-	 * t.Branch("scaler", "dragon::Scaler", &pScaler);
-	 * scaler.set_aliases(&t, "scaler");
-	 * t.Fill(); // adds a events worth of data
-	 * t.Draw("scaler_count_bgo_triggers_presented"); // same as doing t.Draw("scaler.count[0]");
-	 * \endcode
-	 */
-	const std::string chNames[3] = { "count", "sum", "rate" };
-	for(int i=0; i< MAX_CHANNELS; ++i) {
-		for(int j=0; j< 3; ++j) {
-			std::stringstream oldName, newName;
-			oldName << branchName << "." << chNames[j] << "[" << i << "]";
-			newName << branchName << "_" << chNames[j] << "_" << variables.names[i];
-
-			tree->SetAlias(newName.str().c_str(), oldName.str().c_str());
-		}
-	}
-}
-#endif
 
 
 // ========== Class Scaler::Variables ========== //
