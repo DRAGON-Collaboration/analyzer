@@ -18,17 +18,23 @@ rootbeer::TSQueue gQueue (QUEUE_TIME);
 
 }
 
+namespace {
+template <typename T>
+inline void Malloc(T* buf, size_t size)
+{
+	buf = static_cast<T*>(malloc(size));
+	assert(buf);
+} }
 
 rootbeer::MidasBuffer::MidasBuffer(size_t size):
 	fIsTruncated(false),
-	fBuffer(static_cast<char*>(malloc(size))),
 	fBufferSize(size)
 {
 	/*!
 	 * \param size Size of the internal buffer in bytes. This should be larger than the
 	 * biggest expected event.
 	 */
-	assert(fBuffer);
+	Malloc(fBuffer, size);
 }
 
 rootbeer::MidasBuffer::~MidasBuffer()
