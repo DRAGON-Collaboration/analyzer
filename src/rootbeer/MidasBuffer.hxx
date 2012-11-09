@@ -65,6 +65,13 @@ public:
 
 	/// Closes on offline MIDAS file
 	virtual void CloseFile() { return fFile.Close(); }
+
+private:
+	/// Disallow copy
+	MidasBuffer(const MidasBuffer&) {  }
+
+	/// Disallow assign
+	MidasBuffer& operator= (const MidasBuffer&) { return *this; }
 };
 
 } // namespace rootbeer

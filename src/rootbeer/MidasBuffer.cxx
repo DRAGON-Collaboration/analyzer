@@ -20,7 +20,7 @@ rootbeer::TSQueue gQueue (QUEUE_TIME);
 
 namespace {
 template <typename T>
-inline void Malloc(T* buf, size_t size)
+inline void Malloc(T*& buf, size_t size)
 {
 	buf = static_cast<T*>(malloc(size));
 	assert(buf);
