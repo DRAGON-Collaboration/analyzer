@@ -18,15 +18,15 @@ namespace vme {
 /// CAEN V1190 TDC module
 class V1190 {
 public:
-	static const uint16_t TDC_HEADER            = 0x1;    ///< Header buffer code
-	static const uint16_t TDC_MEASUREMENT       = 0x0;    ///< Measurement (data) buffer code
-	static const uint16_t TDC_ERROR             = 0x4;    ///< Error buffer code
-	static const uint16_t TDC_TRAILER           = 0x3;    ///< Trailer buffer code
-	static const uint16_t GLOBAL_HEADER         = 0x8;    ///< Global header buffer code
-	static const uint16_t GLOBAL_TRAILER        = 0x10;   ///< Global trailer buffer code
-	static const uint16_t EXTENDED_TRIGGER_TIME = 0x11;   ///< Extended trigger time buffer code
-	static const uint16_t MAX_CHANNELS = 64;              ///< Number of data channels available in the TDC
-	static const uint16_t MAX_HITS = DRAGON_TDC_MAX_HITS; ///< Maximum number of hits (head + tail) in a channel
+	static const uint16_t TDC_HEADER            = 0x1;    //!< Header buffer code
+	static const uint16_t TDC_MEASUREMENT       = 0x0;    //!< Measurement (data) buffer code
+	static const uint16_t TDC_ERROR             = 0x4;    //!< Error buffer code
+	static const uint16_t TDC_TRAILER           = 0x3;    //!< Trailer buffer code
+	static const uint16_t GLOBAL_HEADER         = 0x8;    //!< Global header buffer code
+	static const uint16_t GLOBAL_TRAILER        = 0x10;   //!< Global trailer buffer code
+	static const uint16_t EXTENDED_TRIGGER_TIME = 0x11;   //!< Extended trigger time buffer code
+	static const uint16_t MAX_CHANNELS = 64;              //!< Number of data channels available in the TDC
+	static const uint16_t MAX_HITS = DRAGON_TDC_MAX_HITS; //!< Maximum number of hits (head + tail) in a channel
 
 public:
 	/// Encloses measurement data for a single channel

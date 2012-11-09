@@ -14,11 +14,11 @@ namespace vme {
 /// CAEN v792 ADC
 class V792 {
 public:
-	static const uint16_t DATA_BITS    = 0x0; ///< Code to specify a data buffer
-	static const uint16_t HEADER_BITS  = 0x2; ///< Code to specify a header buffer
-	static const uint16_t FOOTER_BITS  = 0x4; ///< Code to specify a footer buffer
-	static const uint16_t INVALID_BITS = 0x6; ///< Code to specify an invalid buffer
-	static const uint16_t MAX_CHANNELS = 32; 	///< Number of data channels availible in the ADC
+	static const uint16_t DATA_BITS    = 0x0; //!< Code to specify a data buffer
+	static const uint16_t HEADER_BITS  = 0x2; //!< Code to specify a header buffer
+	static const uint16_t FOOTER_BITS  = 0x4; //!< Code to specify a footer buffer
+	static const uint16_t INVALID_BITS = 0x6; //!< Code to specify an invalid buffer
+	static const uint16_t MAX_CHANNELS = 32; 	//!< Number of data channels availible in the ADC
 
 	int16_t n_ch;	  ///< Number of channels present in an event
 
