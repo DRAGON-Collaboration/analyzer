@@ -17,7 +17,6 @@
 HNDLE midas::Odb::GetHandle()
 {
 	int hndle;
-	printf("Exists? %i [ CM_SUCCESS = %i, CM_NO_CLIENT = %i ]\n", cm_exist("rootbeer", TRUE), CM_SUCCESS, CM_NO_CLIENT);
 	cm_get_experiment_database(&hndle, 0);
 	if (hndle == 0)
 		utils::err::Error("midas::Odb") << "Not connected to an experiment.";
