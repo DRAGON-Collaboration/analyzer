@@ -32,7 +32,7 @@
 	<a href=http://midas.psi.ch>MIDAS</a> data
 	generated during an experiment into a format that is more suitable for human consumption, as well as to
 	perform	some of the more basic and commonly needed analysis tasks. From here, users can further process the
-	data using their own codes, or they can interface with a vistualzation library to view the data in histograms,
+	data using their own codes, or they can interface with a visualization library to view the data in histograms,
 	either online or offline. The core of the package is written in "plain" C++, that is without any dependence on
 	libraries other than the standard library.
 
@@ -40,7 +40,7 @@
 	<a href=http://ladd00.triumf.ca/~olchansk/rootana/>rootana</a> data analysis package distributed as part of
 	<a href=http://midas.psi.ch>MIDAS</a> and the
 	<a href=http://trshare.triumf.ca/~gchristian/rootbeer/doc/html/index.html>rootbeer</a> program for data
-	vistualzation. Each of these packages is designed for "user friendly" viewing of data in histograms, either
+	visualization. Each of these packages is designed for "user friendly" viewing of data in histograms, either
 	from saved files or real-time online data. Both require that a relatively recent
 	version of <a href=http://root.cern.ch>ROOT</a> be installed on your system, and, additionally,
 	<a href=http://midas.psi.ch> MIDAS</a> must be installed in order to look at online data (offline
@@ -89,7 +89,7 @@
 
 	If you run into any problems compiling this package, do not hesitate to contact the package maintainer
 	for help. If do you find a solution to your problems on your own, please alert the package maintainer
-	and describe 1) your problem; 2) what you did to fix it. The intent is for installion/compilation to be
+	and describe 1) your problem; 2) what you did to fix it. The intent is for installation/compilation to be
 	a very quick and painless process for everyone using this package, so any problems and solutions that you
 	discover should be reflected in the standard version of the codes.
 
@@ -135,12 +135,12 @@
 	flags, run with the \c -h flag. To view histograms, you will
 	need to run the 'roody' executable, which should be available on your system if you have MIDAS installed.
 
-	As mentioned, there are a couple feature addidions since the previous version of the DRAGON analyzer. The main
-	one is the ability to define histograms and cuts at runtime instead of compile time. The hope is that this will
+	As mentioned, there are a couple feature additions since the previous version of the DRAGON analyzer. The main
+	one is the ability to define histograms and cuts at run-time instead of compile time. The hope is that this will
 	allow for easy and quick changes to be made to the available visualization, even for users who are completely
 	inexperienced with C++.
 
-	Histograms are created at runtime (\c anaDragon program start) by parsing a text file that contains histogram
+	Histograms are created at run-time (\c anaDragon program start) by parsing a text file that contains histogram
 	definitions. By default, histograms are created from the file <tt>${DR_HOME}/histos.dat</tt>, where \c ${DR_HOME}
 	is the location of the DRAGON analyzer package. However, you can alternatively specify a different histogram
 	definition file by invoking the \c -histos flag at program start:
@@ -162,24 +162,24 @@
 	ROOT object. The "keys" available are as follows:
 	
 	-# DIR: Create a directory.\n\n
-	The succeding line should contain the full path of the directory as plain text.\n
+	The succeeding line should contain the full path of the directory as plain text.\n
 	For example:
   \code
   DIR:
   histos/gamma
   \endcode
-  This would create a new directory "histos", with "gamma" as a subdirectory. Note that if you later do
+  This would create a new directory "histos", with "gamma" as a sub-directory. Note that if you later do
   \code
   DIR:
   histos/hion
   \endcode
-  the "histos" directory would not be re-created; instead, "hion" would be added as a new subdirectory. When
-  you specify a directory, any histogram definitions succeding it will be members of that directory, until another
+  the "histos" directory would not be re-created; instead, "hion" would be added as a new sub-directory. When
+  you specify a directory, any histogram definitions succeeding it will be members of that directory, until another
   directory line is encountered. If any histograms are defined before the first "DIR:" command, they will belong to
   the "top level" directory (e.g. in a TFile, their owning directory will be the TFile itself).
 	\n\n
 	-# TH1D: Create a 1d histogram.\n\n
-	Should be succeded by two lines: 1) the argument to a TH1D constructor, and 2)
+	Should be succeeded by two lines: 1) the argument to a TH1D constructor, and 2)
 	the parameter to display in the histogram.\n
 	Example:
 	\code
@@ -192,8 +192,8 @@
 	4096 with 256 bins. The parameter to be displayed in the histogram would be rootana::gHead.bgo.ecal[0].
 	\n\n
 	-# TH2D: Create a 2d histogram.\n\n
-	Succeding lines are in the same sprit as the 1d case, except a third line is
-	aded to specify the y-axis parameter.\n
+	Succeeding lines are in the same spirit as the 1d case, except a third line is
+	added to specify the y-axis parameter.\n
 	Example:
 	\code
   TH2D:
@@ -211,9 +211,9 @@
 	at once, like this:\n\n
 	\image html summary.png
 	\n\n
-	Note that sumary histograms are currently only available for arrays, that is, where each y-axis bin corresponds
+	Note that summary histograms are currently only available for arrays, that is, where each y-axis bin corresponds
 	to a different array index. If you need to display summary information for parameters not contained in an array,
-	you will have to define the histogram manually in C++. However, in nearly all cases where summary imformation
+	you will have to define the histogram manually in C++. However, in nearly all cases where summary information
 	might be desired, the parameters are already contained in an array anyway.
 	\n\n
 	The lines following a "SUMMARY:" command are 1) Constructor for a 1d histogram; this will define the x-axis
@@ -276,7 +276,7 @@
       cutg.SetPoint(6,37.8544,70.113);
   END
 	\endcode
-	This cut is then available in future satements; for example to create a Cut2D object to be applied to a histogram
+	This cut is then available in future statements; for example to create a Cut2D object to be applied to a histogram
 	\code
   SUMMARY:
       ("bgo_ecal", "Bgo energies [singles]", 256, 0, 4096)
@@ -291,7 +291,7 @@
 	need in the online analyzer without ever having to touch the source code. A few more notes about histogram definition
 	files:
 
-	- Whitespace is ignored, though good indention improves readability immensely.
+	- White-space is ignored, though good indention improves readability immensely.
 	\n\n
 	- The \c # character denotes a comment, all characters on the same line coming after a \c # are ignored:
 	\code
@@ -299,7 +299,7 @@
 	TH1D: #Ignore this descriptive comment also...
 	\endcode
 	\n\n
-	- The runtime parsing is done using CINT via the \c gROOT->ProcessLine() and
+	- The run-time parsing is done using CINT via the \c gROOT->ProcessLine() and
 	\c gROOT->ProcessLineFast() commands. These have very little native
 	error handling. Some support has been added in the DRAGON analyzer to "gracefully" handle common errors when
 	detectable; for example, skipping the current definition and moving onto others, but alerting the user.
@@ -307,20 +307,20 @@
 	script file causes a crash or un-reported failure), do not hesitate to alert the developers.
 
 	Once started, the online analyzer simply runs in the background to receive, match, and analyze events coming
-	from the two separate frontends. The analyzed data are then summarized in the histograms requested by the user
-	as outlined in the proceeding paragraphs. As menetioned, roody can be used to visualize the histograms as data
-	is coming in. To start roody, you will need to specify the host and port of the histogram server. Ususally this
+	from the two separate front-ends. The analyzed data are then summarized in the histograms requested by the user
+	as outlined in the proceeding paragraphs. As mentioned, roody can be used to visualize the histograms as data
+	is coming in. To start roody, you will need to specify the host and port of the histogram server. Usually this
 	means, the following:
 	\code
 	roody -Plocalhost:9091
 	\endcode
-	if running locally from the backend host, or
+	if running locally from the back-end host, or
 	\code
 	roody -Pdraco.triumf.ca:9091
 	\endcode
 	if running remotely.
 
-	Roody is a graphical program, and as such it's use is fairly intuituve. When you start the program,
+	Roody is a graphical program, and as such it's use is fairly intuitive. When you start the program,
 	you should see something like this:
 	\n\n
 	\image html roody.png
@@ -338,13 +338,13 @@
 
 	In writing this code, I've tried to adhere to a few design principles. I'll give a brief listing here
 	in hopes that future developers (or users) of the code can better understand what's going on and the
-	reasoning bahind it. In the future (barring a major re-write), I think it will be beneficial to follow
+	reasoning behind it. In the future (barring a major re-write), I think it will be beneficial to follow
 	a similar design pattern for modifications and updates to the code, if for no other reason than to keep
 	a sense of uniformity which will hopefully facilitate understanding of the code.
 
 	- Separate the handling of "raw" data from that of abstract experiment parameters.
 
-	By this I mean separating the "raw" tasks of reading data directly from VME modules from that of orgainizing
+	By this I mean separating the "raw" tasks of reading data directly from VME modules from that of organizing
 	the data into parameters which represent more abstract experimental quantities. As a simple example, separate
 	the "raw" task of reading the conversion value of QDC channel 27 from the "abstract" task of realizing that
 	this value corresponds to the energy deposited in BGO detector number 27. The hope is that by de-coupling the
@@ -355,7 +355,7 @@
 	documentation of vme::V792, which represents a CAEN V792 QDC module.
 
 
-	- Store abstract experiment parameters in classes which logically corresond to the separate pieces of
+	- Store abstract experiment parameters in classes which logically correspond to the separate pieces of
 	a DRAGON experiment.
 
 	The basic idea is that we want to take the important data captured during a DRAGON event and break it down
@@ -363,7 +363,7 @@
 	the DRAGON system, and the various "leaves" correspond to quantities measured by that detector. For example, see
 	the dragon::Coinc documentation and the "Attribute" links therein.
 
-	Taking this approach allows a couple of practical advanteges beyond code orginization and maintenance. The main one
+	Taking this approach allows a couple of practical advantages beyond code organization and maintenance. The main one
 	is that we can use ROOT's dictionary facility to create <tt>TTree</tt>s whose branches are defined by the structure
 	of our classes. For example we can just do:
 	\code
@@ -372,7 +372,7 @@
 	tcoinc.Branch("coinc","dragon::Coinc",&coinc);
 	\endcode
 	
-	After just a few lines of code, we now have the abilty to access any parameter in a DRAGON coincidence event through
+	After just a few lines of code, we now have the ability to access any parameter in a DRAGON coincidence event through
 	the 'tcoinc' tree:
 	\code
 	tcoinc.Draw("coinc.head.bgo.ecal[0]>>hst_e0(400,0,4000)"); // Draws BGO energy, channel 0
@@ -391,7 +391,7 @@
 	
 	
 
-	- Finall ... 
+	- Finally ... 
 
 	lsfjpo
 
