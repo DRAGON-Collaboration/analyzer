@@ -1,6 +1,6 @@
 //! \file Odb.cxx
 //! \author K. Olchanski (implementation author)
-//! \author G. Christian (restructiring into a static class)
+//! \author G. Christian (restructuring into a static class)
 //! \brief Allows reading of data from the MIDAS Online DataBase (ODB).
 //! \note Originally copied from DRAGON frontend code directory, then edited.
 //!  Implementations originally from TMidasOnline.cxx
@@ -17,6 +17,7 @@
 HNDLE midas::Odb::GetHandle()
 {
 	int hndle;
+	printf("Exists? %i [ CM_SUCCESS = %i, CM_NO_CLIENT = %i ]\n", cm_exist("rootbeer", TRUE), CM_SUCCESS, CM_NO_CLIENT);
 	cm_get_experiment_database(&hndle, 0);
 	if (hndle == 0)
 		utils::err::Error("midas::Odb") << "Not connected to an experiment\n";
