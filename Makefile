@@ -74,6 +74,7 @@ ifeq ($(USE_ROOT),YES)
 DEFINITIONS+= -DUSE_ROOT
 ifdef ROOTSYS
 ROOTLIBS= -L$(ROOTSYS)/lib $(shell $(ROOTSYS)/bin/root-config --cflags --libs --glibs) -I$(ROOTSYS)/include -lXMLParser
+CXXFLAGS += -I$(ROOTSYS)/include
 else
 ROOTLIBS= - $(shell $(ROOTSYS)/bin/root-config --cflags --libs --glibs) -lXMLParser -lThread -lTreePlayer
 endif

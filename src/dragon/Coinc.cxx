@@ -208,9 +208,11 @@ void dragon::Coinc::calculate()
 	<a href=http://ladd00.triumf.ca/~olchansk/rootana/>rootana</a> system,
 	which allows visualization of online and offline data in histograms, in. If you are familiar with the "old"
 	DRAGON analyzer, this is essentially the same thing, but with a few added features. To use this analyzer,
-	simply compile with the "USE_ROOTANA" option set to "YES" in the makefile. Then run the 'anaDragon' executable,
-	either from a shell or by starting it on the MIDAS status page.  To view histograms, you will need to run the
-	'roody' executable, which should be available on your system if you have MIDAS installed.
+	simply compile with the "USE_ROOTANA" option set to "YES" in the Makefile (of course, for this to work,
+	you will need to have the corresponding MIDAS packages installed on your system). Then run the 'anaDragon'
+	executable, either from a shell or by starting it on the MIDAS status page.  To see a list of command line option
+	flags, run with the \c -h flag. To view histograms, you will
+	need to run the 'roody' executable, which should be available on your system if you have MIDAS installed.
 
 	As mentioned, there are a couple feature addidions since the previous version of the DRAGON analyzer. The main
 	one is the ability to define histograms and cuts at runtime instead of compile time. The hope is that this will
@@ -382,6 +384,10 @@ void dragon::Coinc::calculate()
 	you feel the error handling could be improved (in particular, where a mistake in the script file causes a crash
 	or un-reported failure), do not hesitate to alert the developers.
 
+	Once started, the online analyzer simply runs in the background to receive, match, and analyze events coming
+	from the two separate frontends. The analyzed data are then summarized in the histograms requested by the user
+	as outlined in the proceeding paragraphs. As menetioned, roody can be used to visualize the histograms as data
+	is coming in. Roody is a graphical program, and as such it's use is fairly intuituve
 
 	\section developers For Developers
 
