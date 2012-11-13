@@ -82,7 +82,7 @@ endif
 
 ifdef MIDASSYS
 CXXFLAGS += -DMIDASSYS
-MIDASLIBS = -lmidas-shared -L$(MIDAS_LIB_DIR)
+MIDASLIBS = -lmidas -L$(MIDAS_LIB_DIR)
 INCFLAGS += -I$(MIDASSYS)/include
 endif
 
@@ -255,11 +255,11 @@ $(OBJ)/rootana/%.o: $(SRC)/rootana/%.cxx $(CINT)/rootana/Dict.cxx
 
 libRootanaDragon.so: $(DRLIB)/libDragon.so $(CINT)/rootana/Dict.cxx $(DRLIB)/libRootanaCut.so $(ROOTANA_OBJS)
 	$(LINK)  $(DYLIB) $(FPIC) $(RBINC) $(ROOTANA_FLAGS) $(ROOTANA_DEFS)  \
--o $@ $< $(CINT)/rootana/Dict.cxx $(ROOTANA_OBJS) -lDragon -lRootanaCut -L$(DRLIB) $(MIDASLIBS) \
+-o $@ $< $(CINT)/rootana/Dict.cxx $(ROOTANA_OBJS) -lDragon -lRootanaCut -L$(DRLIB) \
 
 anaDragon: $(SRC)/rootana/anaDragon.cxx $(DRLIB)/libDragon.so $(CINT)/rootana/Dict.cxx $(DRLIB)/libRootanaCut.so $(ROOTANA_OBJS) $(ROOTANA_REMOTE_OBJS)
 	$(LINK)  $(RBINC) $(ROOTANA_FLAGS) $(ROOTANA_DEFS) \
--o $@ $< $(CINT)/rootana/Dict.cxx $(ROOTANA_OBJS) -lDragon -lRootanaCut -L$(DRLIB) $(MIDASLIBS) $(ROOTANA_LIBS) \
+-o $@ $< $(CINT)/rootana/Dict.cxx $(ROOTANA_OBJS) -lDragon -lRootanaCut -L$(DRLIB) $(ROOTANA_LIBS) \
 
 rootana_clean:
 	rm -f $(ROOTANA_OBJS) anaDragon libRootanaDragon.so $(CINT)/rootana/* $(DRLIB)/libRootanaCut.so
@@ -278,7 +278,7 @@ RB_HEADERS= $(SRC)/rootbeer/*.hxx
 
 
 $(DRLIB)/libRBDragon.so: $(RB_OBJECTS) $(RB_HEADERS)
-	$(LINK)  $(RBINC) $(DYLIB) $(FPIC) -o $@ $(MIDASLIBS) $(RB_OBJECTS) \
+	$(LINK)  $(RBINC) $(DYLIB) $(FPIC) -o $@ $(RB_OBJECTS) \
 
 libRBDragon: $(DRLIB)/libRBDragon.so
 
