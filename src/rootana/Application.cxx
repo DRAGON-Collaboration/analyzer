@@ -440,7 +440,7 @@ void rootana::App::help()
   printf("\t-h: print this help message\n");
   printf("\t-T: test mode - start and serve a test histogram\n");
 	printf("\t-histos: Specify offline/online histogram definition file\n");
-	printf("\t-histos: Specify online *only* histogram definition file\n");
+	printf("\t-histos0: Specify online *only* histogram definition file\n");
   printf("\t-Hhostname: connect to MIDAS experiment on given host\n");
   printf("\t-Eexptname: connect to this MIDAS experiment\n");
 	printf("\t-Qtime: Set timestamp matching queue time in microseconds (default: 10e6)\n");

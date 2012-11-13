@@ -1,11 +1,12 @@
 /// \file MidasBuffer.cxx
 /// \author G. Christian
 /// \brief Implements MidasBuffer.hxx
+#include <cassert>
 #include "rootbeer/Timestamp.hxx"
 #include "utils/definitions.h"
 #include "midas/Event.hxx"
+#include "DragonEvents.hxx"
 #include "MidasBuffer.hxx"
-
 
 
 namespace {
@@ -17,30 +18,48 @@ rootbeer::TSQueue gQueue (QUEUE_TIME);
 
 }
 
+namespace {
+template <typename T>
+inline void Malloc(T*& buf, size_t size)
+{
+	buf = static_cast<T*>(malloc(size));
+	assert(buf);
+} }
+
+rootbeer::MidasBuffer::MidasBuffer(size_t size):
+	fIsTruncated(false),
+	fBufferSize(size)
+{
+	/*!
+	 * \param size Size of the internal buffer in bytes. This should be larger than the
+	 * biggest expected event.
+	 */
+	Malloc(fBuffer, size);
+}
+
+rootbeer::MidasBuffer::~MidasBuffer()
+{
+	free(fBuffer);
+}
 
 Bool_t rootbeer::MidasBuffer::ReadBufferOffline()
 {
 	/*!
-	 * Calls TMidasFile::Read() to put data into a temporary TMidasEvent,
-	 * then copies to fBuffer.
-	 * \todo Figure out a way to do this without the temporary TMidasEvent
+	 * Reads event data into fBuffer
 	 */
 	TMidasEvent temp;
+	temp.SetData(fBufferSize, fBuffer);
+	temp.Clear();
+
 	Bool_t have_event = fFile.Read(&temp);
-	if (have_event) {
-		const int buffer_size = sizeof(fBuffer);
-		const int header_size = sizeof(midas::Event::Header);
-
-		memcpy(fBuffer, temp.GetEventHeader(), header_size);
-		int size_to_read = temp.GetDataSize();
-
-		if (size_to_read + header_size > buffer_size) {
-			utils::err::Warning("rootbeer::MidasBuffer::ReadBufferOffline") << "Received a truncated event";
-			size_to_read = buffer_size - header_size;
-			fIsTruncated = true;
-		}
-
-		memcpy(fBuffer + header_size, temp.GetData(), size_to_read);
+	if ( have_event &&
+			 temp.GetDataSize() + sizeof(midas::Event::Header) > fBufferSize ) {
+		utils::err::Warning("rootbeer::MidasBuffer::ReadBufferOffline")
+			<< "Received a truncated event: event size = "
+			<< ( temp.GetDataSize() + sizeof(midas::Event::Header) )
+			<< ", max size = " << fBufferSize << " (Id, serial = "
+			<< temp.GetEventId() << ", " << temp.GetSerialNumber() << ")";
+		fIsTruncated = true;
 	}
 
 	return have_event;
@@ -57,16 +76,18 @@ Bool_t rootbeer::MidasBuffer::UnpackBuffer()
 
 	switch (evtHeader->fEventId) {
 	case DRAGON_HEAD_EVENT:  /// - DRAGON_HEAD_EVENT: Insert into timestamp matching queue
-		gQueue.Push(midas::Event("TSCH", fBuffer, evtHeader->fDataSize));
+		gQueue.Push(midas::Event(rb::Event::Instance<rootbeer::GammaEvent>()->TscBank(),
+														 fBuffer, evtHeader->fDataSize));
 		break;
 	case DRAGON_TAIL_EVENT:  /// - DRAGON_TAIL_EVENT: Insert into timestamp matching queue
-		gQueue.Push(midas::Event("TSCT", fBuffer, evtHeader->fDataSize));
+		gQueue.Push(midas::Event(rb::Event::Instance<rootbeer::HeavyIonEvent>()->TscBank(),
+														 fBuffer, evtHeader->fDataSize));
 		break;
-	case DRAGON_HEAD_SCALER: /// - DRAGON_HEAD_SCALER: TODO: implement C. Stanford's scaler codes
-		// <...process...> //
+	case DRAGON_HEAD_SCALER: /// - DRAGON_HEAD_SCALER: Unpack event
+		rb::Event::Instance<rootbeer::HeadScaler>()->Process(fBuffer, 0);
 		break;
-	case DRAGON_TAIL_SCALER: /// - DRAGON_TAIL_SCALER: TODO: implement C. Stanford's scaler codes
-		// <...process...> //
+	case DRAGON_TAIL_SCALER: /// - DRAGON_TAIL_SCALER: Unpack event
+		rb::Event::Instance<rootbeer::TailScaler>()->Process(fBuffer, 0);
 		break;
 	default: /// - Silently ignore other event types
 		break;
@@ -80,7 +101,7 @@ Bool_t rootbeer::MidasBuffer::UnpackBuffer()
 
 #ifdef MIDASSYS
 
-#define M__ONLINE_BAIL_OUT cm_disconnect_experiment(); return false
+#define M_ONLINE_BAIL_OUT cm_disconnect_experiment(); return false
 
 Bool_t rootbeer::MidasBuffer::ConnectOnline(const char* host, const char* experiment, char**, int)
 {
@@ -110,7 +131,7 @@ Bool_t rootbeer::MidasBuffer::ConnectOnline(const char* host, const char* experi
 		utils::err::Error("rootbeer::MidasBuffer::ConnectOnline")
 			<< "Error opening \"" << syncbuf << "\" shared memory buffer, status = "
 			<< status << DRAGON_ERR_FILE_LINE;
-		M__ONLINE_BAIL_OUT;
+		M_ONLINE_BAIL_OUT;
 	}
 
 	/// - Request (nonblocking) all types of events from the "SYNC" buffer
@@ -119,7 +140,7 @@ Bool_t rootbeer::MidasBuffer::ConnectOnline(const char* host, const char* experi
 		utils::err::Error("rootbeer::MidasBuffer::ConnectOnline")
 			<< "Error requesting events from \"" << syncbuf << "\", status = "
 			<< status << DRAGON_ERR_FILE_LINE;
-		M__ONLINE_BAIL_OUT;
+		M_ONLINE_BAIL_OUT;
 	}
 
 	/// - Register transition handlers
@@ -129,6 +150,9 @@ Bool_t rootbeer::MidasBuffer::ConnectOnline(const char* host, const char* experi
 	cm_register_transition (TR_START,  rootbeer_run_start,  500);
 	cm_register_transition (TR_PAUSE,  rootbeer_run_pause,  500);
 	cm_register_transition (TR_RESUME, rootbeer_run_resume, 500);
+
+	/// - Update variables from ODB
+	this->ReadOdb();
 
 	return true;
 }
@@ -142,6 +166,17 @@ void rootbeer::MidasBuffer::DisconnectOnline()
 		<< "Disconnecting from experiment";
 }
 
+void rootbeer::MidasBuffer::ReadOdb()
+{
+	utils::err::Info("rootbeer::MidasBuffer")
+		<< "Synching variable values with the MIDAS ODB.";
+
+	rb::Event::Instance<rootbeer::GammaEvent>()->ReadOdb();
+	rb::Event::Instance<rootbeer::HeavyIonEvent>()->ReadOdb();
+	rb::Event::Instance<rootbeer::CoincEvent>()->ReadOdb();
+	rb::Event::Instance<rootbeer::HeadScaler>()->ReadOdb();
+	rb::Event::Instance<rootbeer::TailScaler>()->ReadOdb();
+}
 
 Bool_t rootbeer::MidasBuffer::ReadBufferOnline()
 {
@@ -155,7 +190,7 @@ Bool_t rootbeer::MidasBuffer::ReadBufferOnline()
 	const int timeout = 0;
 	INT size, status;
 	do {
-		size = sizeof(fBuffer);
+		size = fBufferSize;
 
 		/// - Check status of client w/ cm_yield()
 		status = cm_yield(timeout);
@@ -180,7 +215,10 @@ Bool_t rootbeer::MidasBuffer::ReadBufferOnline()
 
 	/// - Print a warning message if the event was truncated
 	if (status == BM_TRUNCATED) {
-		utils::err::Warning("rootbeer::MidasBuffer::ReadBufferOnline") << "Received a truncated event";
+		utils::err::Warning("rootbeer::MidasBuffer::ReadBufferOnline")
+			<< "Received a truncated event: event size = "
+			<< ( reinterpret_cast<midas::Event::Header*>(fBuffer)->fDataSize + sizeof(midas::Event::Header) )
+			<< ", max size = " << fBufferSize;
 		fIsTruncated = true;
 	}
 
@@ -202,7 +240,7 @@ Bool_t rootbeer::MidasBuffer::ReadBufferOnline()
 
 #else
 
-#define M__NO_MIDASSYS (FUNC) do {																			\
+#define M_NO_MIDASSYS (FUNC) do {																				\
 		utils::err::Error(FUNC) <<																					\
 			"Online functionality requires MIDAS installed on your system"		\
 														 << DRAGON_ERR_FILE_LINE; }									\
@@ -210,18 +248,18 @@ Bool_t rootbeer::MidasBuffer::ReadBufferOnline()
 
 Bool_t rootbeer::MidasBuffer::ConnectOnline(const char* host, const char* experiment, char**, int)
 {
-	M__NO_MIDASSYS("rootbeer::MidasBuffer::ConnectOnline()");
+	M_NO_MIDASSYS("rootbeer::MidasBuffer::ConnectOnline()");
 	return false;
 }
 
 void rootbeer::MidasBuffer::DisconnectOnline()
 {
-	M__NO_MIDASSYS("rootbeer::MidasBuffer::DisconnectOnline()");
+	M_NO_MIDASSYS("rootbeer::MidasBuffer::DisconnectOnline()");
 }
 
 Bool_t rootbeer::MidasBuffer::ReadBufferOnline()
 {
-	M__NO_MIDASSYS("rootbeer::MidasBuffer::ReadBufferOnline()");
+	M_NO_MIDASSYS("rootbeer::MidasBuffer::ReadBufferOnline()");
 	return false;
 }
 

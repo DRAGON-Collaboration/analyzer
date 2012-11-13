@@ -1,6 +1,8 @@
 /// \file Database.hxx
 /// \author G. Christian
 /// \brief Defines a generic (online or from XML file) database reader
+#ifndef DRAGON_MIDAS_DATABASE_HXX
+#define DRAGON_MIDAS_DATABASE_HXX
 #include <memory>
 #include "Odb.hxx"
 #include "Xml.hxx"
@@ -24,9 +26,12 @@ private:
 	/// Flag specifying online mode
 	bool fIsOnline;
 
+	/// Flag specifying 'zombie' status
+	bool fIsZombie;
+
 public:
 	/// Determines online or offline mode
-	Database (const char* filename): fXml(0)
+	Database (const char* filename): fXml(0), fIsZombie(false)
 		{
 			/*!
 			 * \param filename Name of the XML (or .mid) file from which to read
@@ -35,10 +40,20 @@ public:
 			 */
 			if (strcmp(filename, "online")) {
 				fXml.reset(new Xml(filename));
-				if (fXml->IsZombie()) fXml.reset(0);
+				if (fXml->IsZombie()) {
+					fXml.reset(0);
+					fIsZombie = true;
+				}
 			}
-			else fIsOnline = true;
+			else {
+				fIsOnline = true;
+				if (Odb::GetHandle() == 0)
+					fIsZombie = true;
+			}
 		}
+
+	/// Tell the public if a zombie or not
+	bool IsZombie() { return fIsZombie; }
 
 	/// Read a single value
 	template <typename T> bool ReadValue(const char* path, T& value)
@@ -49,6 +64,7 @@ public:
 			 * \tparam T The type of the data to be read
 			 * \returns true if read was successful, false otherwise
 			 */
+			if(fIsZombie) return false;
 			if (fIsOnline) return Odb::ReadValue(path, value);
 			else if (fXml.get()) {
 				bool success;
@@ -68,6 +84,7 @@ public:
 			 * \tparam T The type of the data in the array to be read
 			 * \returns The length of the array that was read (0 if error)
 			 */
+			if(fIsZombie) return false;
 			if (fIsOnline) return Odb::ReadArray(path, array, length);
 			else if (fXml.get()) {
 				bool success;
@@ -79,3 +96,6 @@ public:
 };
 
 }
+
+
+#endif

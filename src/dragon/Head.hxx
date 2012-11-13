@@ -3,6 +3,8 @@
 /// \brief Defines classes for DRAGON head (gamma-ray) detectors.
 #ifndef DRAGON_HEAD_HXX
 #define DRAGON_HEAD_HXX
+#include "utils/VariableStructs.hxx"
+#include "utils/Banks.hxx"
 #include "midas/Event.hxx"
 #include "vme/V1190.hxx"
 #include "vme/V792.hxx"
@@ -18,7 +20,65 @@ public:
 	/// Midas event header
 	midas::Event::Header header; //#
 
+	// Subclasses //
+public:
+	/// Times-of-flight measured by the Head ADC.
+	class Tof {
+ public:
+		// Subclasses //
+		class Variables {
+	 private:
+			/** @cond */
+	 PRIVATE:
+			/** @endcond */
+			/// Crossover TDC channel variables
+			utils::TdcVariables<1> xtdc;
+
+			// Methods //
+	 public:
+			/// Sets data to defaults
+			Variables();
+			/// Sets data to defaults
+			void reset();
+			/// Sets data from ODB
+			void set(const char* odb);
+
+			/// Give parent Tof class internal access
+			friend class dragon::Head::Tof;
+		};
+		/// Variables instance
+		Variables variables; //!
+
+		// Class data //
+ private:
+		/// "Parent" instance of dragon::Head
+		const dragon::Head* fParent; //!
+
+		/** @cond */
+ PRIVATE:
+		/** @endcond */
+		/// Crossover tcal value [tail trigger]
+		double tcalx;
+		/// GAMMA_TRIGGER->TAIL_TRIGGER TOF
+		double gamma_tail;
+
+		// Class methods //
+ public:
+		/// Sets data to defaults
+		Tof(const dragon::Head* parent);
+		/// Sets data to dragon::NO_DATA
+		void reset();
+		/// Reads data from raw VME modules
+		void read_data(const vme::V785&, const vme::V1190& v1190);
+		/// Performs calibration of xover tdc and TOF calculations
+		void calculate();
+	};
+
 // Class Data //
+public:
+	/// Bank names
+	utils::EventBanks<1, 1> banks; //!
+
 private:
   /** @cond */
 PRIVATE:
@@ -46,6 +106,9 @@ PRIVATE:
 	/// Bgo array
 	dragon::Bgo bgo;
 
+	/// Flight times
+	dragon::Head::Tof tof;
+
 // Methods //
 public:
 	/// Initializes data values
@@ -62,6 +125,9 @@ public:
 
 	/// Calculate higher-level data for each detector, or across detectors
 	void calculate();
+
+	/// Allow Tof subclass internal access
+	friend class dragon::Head::Tof;
 };
 
 } // namespace dragon

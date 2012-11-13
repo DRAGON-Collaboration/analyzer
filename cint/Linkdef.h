@@ -23,6 +23,7 @@
 //! \endcode
 //! (note that the '+' at the end is required except in special cases).
 #ifdef __MAKECINT__
+
 #pragma link off all globals;
 #pragma link off all classes;
 #pragma link off all functions;
@@ -31,8 +32,12 @@
 #pragma link C++ class dragon+;
 #pragma link C++ class vme+;
 
+#pragma link C++ defined_in ../src/utils/VariableStructs.hxx;
+#pragma link C++ defined_in ../src/vme/V1190.hxx;
+
 #pragma link C++ class dragon::Coinc+;
 #pragma link C++ class dragon::Tail+;
+
 #pragma link C++ class dragon::MCP+;
 #pragma link C++ class dragon::MCP::Variables+;
 #pragma link C++ class dragon::DSSSD+;
@@ -46,11 +51,20 @@
 #pragma link C++ class dragon::Ge+;
 #pragma link C++ class dragon::Ge::Variables+;
 
-#pragma link C++ class dragon::Tail::Variables+;
-
 #pragma link C++ class dragon::Head+;
 #pragma link C++ class dragon::Bgo+;
 #pragma link C++ class dragon::Bgo::Variables+;
+
+#pragma link C++ class dragon::Tail::Tof+;
+#pragma link C++ class dragon::Tail::Tof::Variables+;
+#pragma link C++ class dragon::Head::Tof+;
+#pragma link C++ class dragon::Head::Tof::Variables+;
+
+#pragma link C++ defined_in ../src/dragon/Scaler.hxx;
+#pragma link C++ defined_in ../src/utils/Banks.hxx;
+
+class TTree;
+#pragma link C++ function dragon::Scaler::set_aliases(TTree*, const char*);
 
 #pragma link C++ class vme::V792+;
 #pragma link C++ class vme::V785+;
@@ -61,11 +75,6 @@
 
 #pragma link C++ class midas::Xml+;
 #pragma link C++ class midas::Odb+;
-
-
-
-/* //#pragma link C++ function utils::index_sort(double*, double*, int*, int); */
-
 
 /*
 	for j in Adc Tdc

@@ -3,12 +3,16 @@
 /// \brief Defines DRAGON event classes for use in ROOTBEER.
 #ifndef DRAGON_RB_EVENT_HXX
 #define DRAGON_RB_EVENT_HXX
-#include "Event.hxx"        // rb::Event (rootbeer)
-#include "Data.hxx"         // rb::Data<T> (rootbeer)
-#include "midas/Event.hxx"  // midas::Event (dragon)
+// ROOTBEER includes //
+#include "Event.hxx"
+#include "Data.hxx"
+
+// DRAGON includes //
+#include "midas/Event.hxx"
 #include "dragon/Head.hxx"
 #include "dragon/Tail.hxx"
 #include "dragon/Coinc.hxx"
+#include "dragon/Scaler.hxx"
 
 
 namespace rootbeer {
@@ -26,6 +30,13 @@ public:
 
 	/// Empty
 	~GammaEvent() {}
+
+	/// Returns the TSC bank name
+	const char* TscBank() const
+		{ return fGamma->banks.tsc; }
+
+	/// Read variables from ODB
+	void ReadOdb();
 
 private:
 	/// Casts from const void* to const midas::Event*
@@ -54,6 +65,13 @@ public:
 	/// Empty
 	~HeavyIonEvent() {}
 
+	/// Returns the TSC bank name
+	const char* TscBank() const
+		{ return fHeavyIon->banks.tsc; }
+
+	/// Read variables from ODB
+	void ReadOdb();
+
 private:
 	/// Casts from const void* to const midas::Event*
 	const midas::Event* AsMidasEvent(const void* addr)
@@ -66,6 +84,7 @@ private:
 	void HandleBadEvent();
 };
 
+/// Coincidence event
 class CoincEvent : public rb::Event
 {
 private:
@@ -79,10 +98,71 @@ public:
 	/// Empty
 	~CoincEvent() {}
 
+	/// Read variables from ODB
+	void ReadOdb();
+
 private:
 	/// Casts from const void* to const midas::CoincEvent*
 	const midas::CoincEvent* AsCoincMidasEvent(const void* addr)
 		{ return reinterpret_cast<const midas::CoincEvent*>(addr); }
+
+	/// Does the work of processing a received event within a loop
+	Bool_t DoProcess(const void* event_address, Int_t nchar);
+
+	/// What to do in case of an error in event processing
+	void HandleBadEvent();
+};
+
+/// Head scaler event
+class HeadScaler : public rb::Event
+{
+private:
+	/// Wrapper of dragon::Scaler class that stored the unpacked scaler data
+	rb::data::Wrapper<dragon::Scaler> fScaler;
+
+public:
+	/// Initializes fGamma
+	HeadScaler();
+
+	/// Empty
+	~HeadScaler() {}
+
+	/// Read variables from ODB
+	void ReadOdb();
+
+private:
+	/// Casts from const void* to const midas::Event*
+	const midas::Event* AsMidasEvent(const void* addr)
+		{ return reinterpret_cast<const midas::Event*>(addr); }
+
+	/// Does the work of processing a received event within a loop
+	Bool_t DoProcess(const void* event_address, Int_t nchar);
+
+	/// What to do in case of an error in event processing
+	void HandleBadEvent();
+};
+
+/// Tail scaler event
+class TailScaler : public rb::Event
+{
+private:
+	/// Wrapper of dragon::Scaler class that stored the unpacked scaler data
+	rb::data::Wrapper<dragon::Scaler> fScaler;
+
+public:
+	/// Initializes fGamma
+	TailScaler();
+
+	/// Empty
+	~TailScaler() {}
+
+	/// Read variables from ODB
+	void ReadOdb();
+
+private:
+	/// Casts from const void* to const midas::Event*
+	const midas::Event* AsMidasEvent(const void* addr)
+		{ return reinterpret_cast<const midas::Event*>(addr); }
 
 	/// Does the work of processing a received event within a loop
 	Bool_t DoProcess(const void* event_address, Int_t nchar);

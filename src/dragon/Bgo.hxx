@@ -13,6 +13,8 @@ class V1190;
 
 namespace dragon {
 
+class Head;
+
 /// The BGO array
 class Bgo {
 public:
@@ -69,6 +71,9 @@ PRIVATE:
 	/// Sum of all \e valid energies
 	double sum; //#
 
+	/// Which detector was the highest energy hit
+	int hit0;  //#
+
 	/// x position of the highest energy hit
 	double x0; //#
 
@@ -85,7 +90,7 @@ public:
 	/// Constructor, initializes data values
 	Bgo();
 
-	/// Sets all data values to vme::NONE
+	/// Sets all data values to dragon::NO_DATA
 	void reset();
 
 	/// Read adc & tdc data
@@ -93,6 +98,9 @@ public:
 
 	/// Do higher-level parameter calculations
 	void calculate();
+
+	/// Allow parent class access to internals
+	friend class dragon::Head;
 };
 
 } // namespace dragon

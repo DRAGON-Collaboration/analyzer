@@ -92,9 +92,9 @@ void dragon::DSSSD::Variables::set(const char* odb)
 {
 	/*!
 	 * \param [in] odb_file Path of the odb file from which you are extracting variable values
-	 * \todo Needs testing
 	 */
 	midas::Database database(odb);
+	if(database.IsZombie()) return;
 
 	database.ReadArray("/dragon/dsssd/variables/adc/module",   adc.module,   MAX_CHANNELS);
 	database.ReadArray("/dragon/dsssd/variables/adc/channel",  adc.channel,  MAX_CHANNELS);

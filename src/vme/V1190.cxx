@@ -8,15 +8,18 @@
 #include "V1190.hxx"
 
 
+namespace { inline void reset_channel(vme::V1190::Channel* channel)
+{
+		utils::reset_array(vme::V1190::MAX_HITS, channel->leading_edge);
+		utils::reset_array(vme::V1190::MAX_HITS, channel->trailing_edge);
+		channel->nleading  = 0;
+		channel->ntrailing = 0;
+} }	
+
 void vme::V1190::reset()
 {
-	const int total_len = MAX_CHANNELS * MAX_HITS;
-
-	utils::reset_array (total_len, leading_edge[0]);
-	utils::reset_array (total_len, trailing_edge[0]);
-
-	std::fill_n (nleading, MAX_CHANNELS, 0);
-	std::fill_n (ntrailing, MAX_CHANNELS, 0);
+	for (int ch = 0; ch < MAX_CHANNELS; ++ch)
+		::reset_channel( &(channel[ch]) );
 
 	utils::reset_data (type, extended_trigger, n_ch, count,
 						  word_count, trailer_word_count,
@@ -47,8 +50,8 @@ bool vme::V1190::unpack_data_buffer(const uint32_t* const pbuffer)
 	 * See below for bitpacking instructions.
 	 */
 
-	type     = (*pbuffer >> 26) & READ1; /// Bit 26 tells the measurement type (leading or trailing)
-	int ch   = (*pbuffer >> 19) & READ7; /// Bits 19-25 tell the channel number
+	type     = (*pbuffer >> 26) & READ1; /// - Bit 26 tells the measurement type (leading or trailing)
+	int ch   = (*pbuffer >> 19) & READ7; /// - Bits 19-25 tell the channel number
 	if (ch >= MAX_CHANNELS) {
 		utils::err::Error("vme::V1190::unpack_data_buffer")
 			<< DRAGON_ERR_FILE_LINE << "Read a channel number (" << ch
@@ -62,19 +65,27 @@ bool vme::V1190::unpack_data_buffer(const uint32_t* const pbuffer)
 		return false;
 	}
 
-	int32_t measurement = (*pbuffer >> 0) & READ19; /// Bits 0 - 18 encode the measurement value
+	int32_t measurement = (*pbuffer >> 0) & READ19; /// - Bits 0 - 18 encode the measurement value
 
-	int16_t& n_hits_this = (type == 0) ? nleading[ch] : ntrailing[ch];
-	if (n_hits_this >= MAX_HITS) {
+
+	// p_ch points to the correct channel structure based on the read-out channel number
+	Channel* const p_ch = &(channel[ch]);
+
+
+	// error if over the hard coded hit maximum
+	bool over_max = (type == 0) ? (p_ch->nleading <= MAX_HITS) : (p_ch->ntrailing <= MAX_HITS);
+	if (over_max) {
 		const char* const which = (type == 0) ? "leading" : "trailing";
+		int n_hits_this = (type == 0) ? p_ch->nleading : p_ch->ntrailing;
 		report_max_hits(ch, n_hits_this+1, MAX_HITS, which);
 		std::cerr << DRAGON_ERR_FILE_LINE;
 		return false;
 	}
 
-	int32_t& value_this =
-		(type == 0) ? leading_edge[n_hits_this++][ch] : trailing_edge[n_hits_this++][ch];
-	value_this = measurement;
+	if (type == 0) // leading edge
+		p_ch->leading_edge[(p_ch->nleading)++] = measurement;
+	else // trailing edge
+		p_ch->trailing_edge[(p_ch->ntrailing)++] = measurement;
 	
 	return true;
 }

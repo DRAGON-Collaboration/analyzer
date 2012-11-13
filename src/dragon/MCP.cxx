@@ -107,9 +107,9 @@ void dragon::MCP::Variables::set(const char* odb)
 {
 	/*!
 	 * \param [in] odb_file Path of the odb file from which you are extracting variable values
-	 * \todo Test
 	 */
 	midas::Database database(odb);
+	if(database.IsZombie()) return;
 
 	database.ReadArray("/dragon/mcp/variables/adc/channel",  adc.channel,  MAX_CHANNELS);
 	database.ReadArray("/dragon/mcp/variables/adc/module",   adc.module,   MAX_CHANNELS);

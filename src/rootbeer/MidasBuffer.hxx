@@ -25,8 +25,11 @@ private:
 	/// MIDAS shared memory buffer handle
 	HNDLE fBufferHandle;
 
-  /// Temporary storage buffer for online events
-	char fBuffer[100*1024];
+  /// Storage buffer for online events
+	char* fBuffer;
+
+	/// Size of the storage buffer
+	size_t fBufferSize;
 
 	/// Flag for truncated MIDAS events
 	Bool_t fIsTruncated;
@@ -35,11 +38,11 @@ private:
 	TMidasFile fFile;
 
 public:
-	/// Sets fIsTruncated to false
-	MidasBuffer(): fIsTruncated(false) { }
+	/// Sets fIsTruncated to false, and allocates the internal buffer
+	MidasBuffer(size_t size = 102400);
 
-	/// Empyt
-	virtual ~MidasBuffer() { }
+	/// Frees fBuffer
+	virtual ~MidasBuffer();
 
 	/// Opens an offline MIDAS file
 	virtual Bool_t OpenFile(const char* file_name, char** other = 0, int nother = 0)
@@ -62,6 +65,16 @@ public:
 
 	/// Closes on offline MIDAS file
 	virtual void CloseFile() { return fFile.Close(); }
+
+private:
+	/// Disallow copy
+	MidasBuffer(const MidasBuffer&) {  }
+
+	/// Disallow assign
+	MidasBuffer& operator= (const MidasBuffer&) { return *this; }
+
+	/// Read variables from the ODB
+	void ReadOdb();
 };
 
 } // namespace rootbeer

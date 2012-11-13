@@ -4,7 +4,7 @@
 /// of functions declared in ROOTBEER headers.
 
 
-#ifdef FOR__DOXYGEN_ONLY
+#ifdef FOR_DOXYGEN_ONLY
 
 
 namespace rb {

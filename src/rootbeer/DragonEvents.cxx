@@ -6,13 +6,22 @@
 
 
 namespace {
+
 template <class T, class E>
 inline void handle_event(rb::data::Wrapper<T>& data, const E* buf)
 {
 	data->reset();
 	data->unpack(*buf);
 	data->calculate();
-} }
+}
+
+template <class T>
+inline void odb_read(rb::data::Wrapper<T>& data)
+{
+	data->set_variables("online");
+}
+
+} // namespace
 
 
 // ======== Class dragon::GammaEvent ======== //
@@ -42,6 +51,11 @@ Bool_t rootbeer::GammaEvent::DoProcess(const void* addr, Int_t nchar)
 	return true;
 }
 
+void rootbeer::GammaEvent::ReadOdb()
+{
+	odb_read(fGamma);
+}
+
 
 // ======== Class dragon::HeavyIonEvent ======== //
 
@@ -68,6 +82,11 @@ Bool_t rootbeer::HeavyIonEvent::DoProcess(const void* addr, Int_t nchar)
 
 	handle_event(fHeavyIon, AsMidasEvent(addr));
 	return true;
+}
+
+void rootbeer::HeavyIonEvent::ReadOdb()
+{
+	odb_read(fHeavyIon);
 }
 
 
@@ -99,4 +118,79 @@ Bool_t rootbeer::CoincEvent::DoProcess(const void* addr, Int_t nchar)
 
 	handle_event(fCoinc, AsCoincMidasEvent(addr));
 	return true;
+}
+
+void rootbeer::CoincEvent::ReadOdb()
+{
+	odb_read(fCoinc);
+}
+
+
+// ======== Class dragon::HeadScaler ======== //
+
+rootbeer::HeadScaler::HeadScaler():
+	fScaler("head_scaler", this, true, "")
+{
+	fScaler->variables.set_bank_names("SCH");
+}
+
+void rootbeer::HeadScaler::HandleBadEvent()
+{
+	utils::err::Error("HeadScaler")
+		<< "Unknown error encountered during event processing";
+}
+
+Bool_t rootbeer::HeadScaler::DoProcess(const void* addr, Int_t nchar)
+{
+	/*!
+	 * Unpacks into scaler event structure.
+	 * \returns true is given a valid \d addr input, false otherwise
+	 */
+	if(!addr) {
+		utils::err::Error("rootbeer::HeadScaler::DoProcess") << "Received NULL event address";
+		return false;
+	}
+
+	fScaler->unpack(*AsMidasEvent(addr));
+	return true;
+}
+
+void rootbeer::HeadScaler::ReadOdb()
+{
+	odb_read(fScaler);
+}
+
+
+// ======== Class dragon::TailScaler ======== //
+
+rootbeer::TailScaler::TailScaler():
+	fScaler("tail_scaler", this, true, "")
+{
+	fScaler->variables.set_bank_names("SCT");
+}
+
+void rootbeer::TailScaler::HandleBadEvent()
+{
+	utils::err::Error("TailScaler")
+		<< "Unknown error encountered during event processing";
+}
+
+Bool_t rootbeer::TailScaler::DoProcess(const void* addr, Int_t nchar)
+{
+	/*!
+	 * Unpacks into scaler event structure.
+	 * \returns true is given a valid \d addr input, false otherwise
+	 */
+	if(!addr) {
+		utils::err::Error("rootbeer::TailScaler::DoProcess") << "Received NULL event address";
+		return false;
+	}
+
+	fScaler->unpack(*AsMidasEvent(addr));
+	return true;
+}
+
+void rootbeer::TailScaler::ReadOdb()
+{
+	odb_read(fScaler);
 }

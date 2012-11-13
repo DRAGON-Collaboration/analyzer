@@ -12,8 +12,9 @@ class V1190;
 typedef V792 V785;
 }
 
-
 namespace dragon {
+
+class Tail;
 
 /// Micro channel plates
 class MCP {
@@ -77,10 +78,10 @@ PRIVATE:
 	double tac; //#
 
 	/// x-position
-	double x; //#
+	double x;  //#
 
 	/// y-position
-	double y; //#
+	double y;  //#
 
 public:
 	/// Constructor, initialize data
@@ -94,6 +95,9 @@ public:
 
 	/// Calibrate ADC/TDC signals, calculate x and y positions
 	void calculate();
+
+	/// Allow tof calculation access to internals
+	friend class dragon::Tail;
 };
 
 } // namespace dragon

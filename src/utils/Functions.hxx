@@ -3,10 +3,27 @@
 /// \brief Defines some functions commonly used in processing data
 #ifndef DRAGON_UTILS_FUNCTIONS_HXX
 #define DRAGON_UTILS_FUNCTIONS_HXX
+#include <functional>
 #include "Valid.hxx"
+
 
 /// Encloses various 'utility' functions
 namespace utils {
+
+/// Calculates time-of-flight if both parameters are valid
+template <class T1, class T2>
+inline double calculate_tof(const T1& t1, const T2& t2)
+{
+	/*!
+	 * \param t1 Later time
+	 * \param t2 Earlier time
+	 * \returns <c>t1 - t2</c> if both parameters are valid; otherwise: \c dragon::NO_DATA
+	 */
+	if (utils::is_valid(t1) && utils::is_valid(t2))
+		return t1 - t2;
+	else
+		return dragon::NO_DATA;
+}
 
 /// Sums all values in an array, <e>ignoring "null" values</e>
 template <class T>

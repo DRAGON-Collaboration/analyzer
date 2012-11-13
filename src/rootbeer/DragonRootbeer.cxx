@@ -31,7 +31,7 @@ rb::BufferSource* rb::BufferSource::New()
 	 * In this specific instance, we return a pointer to a \c new rootbeer::MidasBuffer
 	 */ 
 	
-  return new rootbeer::MidasBuffer();
+  return new rootbeer::MidasBuffer(1024*100);
 }
 
 void rb::Rint::RegisterEvents()
@@ -56,7 +56,9 @@ void rb::Rint::RegisterEvents()
 	/// - Coincidences [ rootbeer::CoincEvent ]: "CoincEvent"
   RegisterEvent<rootbeer::CoincEvent> (DRAGON_COINC_EVENT, "CoincEvent");
 
-	/// \todo Include scaler event processors
+	/// - Head Scalers [ rootbeer::HeadScaler ]: "HeadScaler"
+	RegisterEvent<rootbeer::HeadScaler> (DRAGON_HEAD_SCALER, "HeadScaler");
+
+	/// - Tail Scalers [ rootbeer::TailScaler ]: "TailScaler"
+	RegisterEvent<rootbeer::TailScaler> (DRAGON_TAIL_SCALER, "TailScaler");
 }
-
-

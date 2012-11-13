@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include "utils/VariableStructs.hxx"
 
+
 namespace vme {
 class V792;
 class V1190;
@@ -13,6 +14,8 @@ typedef V792 V785;
 }
 
 namespace dragon {
+
+class Tail;
 
 /// Ionization chamber
 class IonChamber {
@@ -82,6 +85,9 @@ public:
 
 	/// Calculate higher-level parameters
 	void calculate();
+
+	/// Allow Tof calculation access to internals
+	friend class dragon::Tail;
 };
 
 } // namespace dragon
