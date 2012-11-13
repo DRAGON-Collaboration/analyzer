@@ -7,13 +7,19 @@
 
 	\section toc Table of Contents
 
-	- \link intro Introduction \endlink
+	- <a href=#intro><b>Introduction</b></a>
 
-	- \link installation Installation \endlink
+	- <a href=#installation><b>Installation</b></a>
+	  - <a href=#dependencies><b>Dependencies</b></a>
+	  - <a href=#download><b>Download and Compile</b></a>
+	  - <a href=#pyext><b>Python Extension</b></a>
 
-	- \link using For Users \endlink
+	- <a href=#using><b>For Users</b></a>
+	  - <a href=#rootana><b>Rootana Online Analyzer</b></a>
 
-	- \link developers For Developers \endlink
+	- <a href=#developers><b>For Developers</b></a>
+	    - <a href=#design><b>Design</b></a>
+      - <a href=#doc><b>Documentation</b></a>
 
 
 	\section intro Introduction
