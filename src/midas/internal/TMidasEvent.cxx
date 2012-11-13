@@ -175,11 +175,7 @@ int TMidasEvent::FindBank(const char* name, int *bklen, int *bktype, void **pdat
     pbk32 = (Bank32_t *) (pbkh + 1);
     memcpy(&dname, name, 4);
     do {
-#if 0
       if (*((uint32_t *) pbk32->fName) == dname) {
-#else
-		  if(strcmp(name, pbk32->fName) == 0) {
-#endif
         *pdata = pbk32 + 1;
         if (TID_SIZE[pbk32->fType & 0xFF] == 0)
           *bklen = pbk32->fDataSize;
@@ -196,11 +192,7 @@ int TMidasEvent::FindBank(const char* name, int *bklen, int *bktype, void **pdat
     pbk = (Bank_t *) (pbkh + 1);
     memcpy(&dname, name, 4);
     do {
-#if 0
       if (*((uint32_t *) pbk->fName) == dname) {
-#else
-		  if(strcmp(name, pbk32->fName) == 0) {
-#endif
         *pdata = pbk + 1;
         if (TID_SIZE[pbk->fType & 0xFF] == 0)
           *bklen = pbk->fDataSize;
