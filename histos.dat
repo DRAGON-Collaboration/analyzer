@@ -17,39 +17,39 @@ DIR:
 histos/gamma
 
 TH1D:
-	("bgo_q0", "Bgo energy, ch 0 [singles]", 256, 0, 4096)
-	rootana::gHead.bgo.q[0]
+	("bgo_e0", "Bgo energy, ch 0 [singles]", 256, 0, 4096)
+	rootana::gHead.bgo.ecal[0]
 CUT:
-        True() || (Less(gHead.bgo.q[0], 2000) && Cut2D(gHead.bgo.q[0], gHead.bgo.q[1], -2,-2,0,0,0,2,-2,-2))
+        True() || (Less(gHead.bgo.ecal[0], 2000) && Cut2D(gHead.bgo.ecal[0], gHead.bgo.ecal[1], -2,-2,0,0,0,2,-2,-2))
 
 SUMMARY:
-        ("bgo_q", "Bgo energies [singles]", 256, 0, 4096)
-	rootana::gHead.bgo.q
+        ("bgo_ecal", "Bgo energies [singles]", 256, 0, 4096)
+	rootana::gHead.bgo.ecal
 	30
 CUT:
- 	Cut2D(gHead.bgo.q[0], gHead.bgo.q[1], cutg) && Less(gHead.bgo.q[0], 2000)
+ 	Cut2D(gHead.bgo.ecal[0], gHead.bgo.ecal[1], cutg) && Less(gHead.bgo.ecal[0], 2000)
 
 DIR:
 histos/hion
 
 TH1D:
-	("dsssd_qraw_0", "DSSSD energy, ch 0 [singles]", 256, 0, 4096)
-	rootana::gTail.dsssd.qraw[0]
+	("dsssd_ecal_0", "DSSSD energy, ch 0 [singles]", 256, 0, 4096)
+	rootana::gTail.dsssd.ecal[0]
 
 DIR:
 histos/coinc
 
 TH1D:
-	("bgo_q0", "Bgo energy, ch 0 [coinc]", 256, 0, 4096)
-	rootana::gCoinc.head.bgo.q[0]
+	("bgo_ecal0", "Bgo energy, ch 0 [coinc]", 256, 0, 4096)
+	rootana::gCoinc.head.bgo.ecal[0]
 
 TH2D:
-	("bgo_q1_q0", "Bgo energy 1 vs. 0 [coinc]", 256, 0, 4096, 256, 0, 4096)
-	rootana::gCoinc.head.bgo.q[1]
-	rootana::gCoinc.head.bgo.q[0]
+	("bgo_ecal1_ecal0", "Bgo energy 1 vs. 0 [coinc]", 256, 0, 4096, 256, 0, 4096)
+	rootana::gCoinc.head.bgo.ecal[1]
+	rootana::gCoinc.head.bgo.ecal[0]
 
 SUMMARY:
-	("bgo_q", "Bgo energies [coinc]", 256, 0, 4096)
-	rootana::gCoinc.head.bgo.q
+	("bgo_ecal", "Bgo energies [coinc]", 256, 0, 4096)
+	rootana::gCoinc.head.bgo.ecal
 	30
 

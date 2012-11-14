@@ -225,7 +225,7 @@ $(PWD)/src/utils/
 ### FOR ROOTANA ###
 ROOTANA=$(HOME)/packages/rootana
 ROOTANA_FLAGS=-ansi -Df2cFortran -I$(ROOTANA)
-ROOTANA_DEFS=-DROOTANA_DEFAULT_HISTOS=$(PWD)/src/rootana/histos.dat
+ROOTANA_DEFS=-DROOTANA_DEFAULT_HISTOS=$(PWD)/histos.dat
 
 ROOTANA_REMOTE_OBJS=				\
 $(ROOTANA)/libNetDirectory/netDirectoryServer.o
