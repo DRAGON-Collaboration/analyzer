@@ -19,6 +19,7 @@
 
   - <a href=#developers><b>For Developers</b></a>
     - <a href=#design><b>Design</b></a>
+    - <a href=#conventions><b>Coding Conventions</b></a>
     - <a href=#doc><b>Documentation</b></a>
 
 
@@ -342,7 +343,7 @@
 	a similar design pattern for modifications and updates to the code, if for no other reason than to keep
 	a sense of uniformity which will hopefully facilitate understanding of the code.
 	\n\n
-	- Separate the handling of "raw" data from that of abstract experiment parameters.
+	- <b>Separate the handling of "raw" data from that of abstract experiment parameters.</b>
 
 	By this I mean separating the "raw" tasks of reading data directly from VME modules from that of organizing
 	the data into parameters which represent more abstract experimental quantities. As a simple example, separate
@@ -354,8 +355,8 @@
 	raw vme data. Each vme class contains data fields to store its respective measurements. For example, see the
 	documentation of vme::V792, which represents a CAEN V792 QDC module.
 	\n\n
-	- Store abstract experiment parameters in classes which logically correspond to the separate pieces of
-	a DRAGON experiment.
+	- <b>Store abstract experiment parameters in classes which logically correspond to the separate pieces of
+	a DRAGON experiment.</b>
 
 	The basic idea is that we want to take the important data captured during a DRAGON event and break it down
 	into a tree-like structure. In general, each "branch" of the tree corresponds to a different detector within
@@ -444,7 +445,7 @@
 	design. Then when set up for "prioduction" mode, switch over to PRIVATE=public to allow direct variable access in
 	CINT (and in the python modules, if used).
 	\n\n
-	- Add a layer of abstraction for commonly performed routines.
+	- <b>Add a layer of abstraction for commonly performed routines.</b>
 	
 	For example, to read raw QDC data into the dragon::Bgo class, we \e could do:
 	\code
@@ -471,10 +472,73 @@
 	<a href=namespaceutils.html>utils</a> namespace, or using
 	<a href=http://www.cplusplus.com/reference/algorithm/>standard library algorithms</a>.	
 
-	\n\n
-	Finally, there are a few stylistic issues to address:
+	\subsection conventions Coding Conventions
+	Finally, there are a few stylistic issues to address. Much of this is just preference, but it would be nice to
+	keep consistency in future code.
 
-	- Class names generally start with a capitol letter and use "CamelCase" when consisting of multiple words.
+	- Make use of namespaces to logically group related classes together. For example, all classes representing vme
+	modules are under the <a href=namespacevme>vme</a> namespace, all classes representing dragon detectors or
+	collections of detectors are under the <a href=namespacedragon>dragon</a> namespace, all midas-related stuff
+	under the <a href=namespacemidas>midas</a> namesapce and so on. Source files belonging to a common namespace are
+	grouped into the same subdirectory within <tt>src/</tt>.
+
+	- Class names generally start with a capitol letter and use "CamelCase" when consisting of multiple words. Acronyms
+	aren't treated any differently, to avoid confusion; for example <tt>class Dsssd</tt> \e not <tt>class DSSSD</tt>.
+
+	- Class methods and free functions are all lowercase (including acronyms) and use underscores to denote spaces
+	(<tt>some_method</tt> \e not <tt>SomeMethod</tt>).
+
+	- Brackets: for everything except function definitions, keep the opening bracket on the same line and the trailing
+	bracket on a new line:
+	\code
+  namespace dragon {
+  class Bgo {
+  public:
+    void calculate();
+    // ... //
+  };
+  } // namespace dragon
+
+  void dragon::Bgo::calculate()
+  {
+    for (int i=0; i< MAX_CHANNELS; ++i) {
+      // ... //
+    }
+    // ... //
+  }
+	\endcode
+
+	- In any class that might be parsed into a tree structure using rootcint, class members are all lowercase,
+	should be descriptive yet brief when parsing classes into a tree structure, and
+	should \e not use any form of Hungarian notation (as it will conflict with the "nicely descriptive" requirement).
+	This has a practical advantage when we let ROOT parse our classes into a TTree: the brach names make sense and are
+	logical. I would much rather type:
+	\code
+	t->Draw("head.bgo.ecal[0]");
+	\endcode
+	than
+	\code
+	t->Draw("gHead.fBgo.fEnergy[0]"); // (following the ROOT / Taligent convention)
+	\endcode
+	\n
+	For classes that aren't intended to be made TTree branches, the ROOT/Taligent hungarian notation can be quite nice,
+	however.
+
+	- Whenever appropriate, prefer arrays to separate variables. For example, bgo energies are defined as
+	\code
+	double ecal[MAX_CHANNELS];
+	\endcode
+	instead of
+	\code
+	double ecal0;
+	double ecal1;
+	// ... //
+	double ecal29;
+	\endcode
+
+	This has a number of practical advantages, such as allowing for loops and std::algorithms to handle the data,
+	and in general it makes life much easier in later analyses as well.
+	
 
 	\subsection doc Documentation
 
