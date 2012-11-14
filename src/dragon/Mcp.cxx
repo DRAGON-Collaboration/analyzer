@@ -1,6 +1,6 @@
-/// \file MCP.cxx
+/// \file Mcp.cxx
 /// \author G. Christian
-/// \brief Implements MCP.hxx
+/// \brief Implements Mcp.hxx
 #include <string>
 #include <iostream>
 #include <algorithm>
@@ -10,23 +10,23 @@
 #include "vme/V792.hxx"
 #include "Channels.h"
 #include "Tail.hxx"
-#include "MCP.hxx"
+#include "Mcp.hxx"
 
 
-// ====== class dragon::MCP ====== //
+// ====== class dragon::Mcp ====== //
 
-dragon::MCP::MCP()
+dragon::Mcp::Mcp()
 {
 	reset();
 }
 
-void dragon::MCP::reset()
+void dragon::Mcp::reset()
 {
-	utils::reset_data(tac, x, y);
+	utils::reset_data(esum, tac, x, y);
 	utils::reset_array(MAX_CHANNELS, anode);
 }
 
-void dragon::MCP::read_data(const vme::V785 adcs[], const vme::V1190& tdc)
+void dragon::Mcp::read_data(const vme::V785 adcs[], const vme::V1190& tdc)
 {
 	/*!
 	 * Copies ADC and TDC data into anode, tcal, and tac parameters.
@@ -40,7 +40,7 @@ void dragon::MCP::read_data(const vme::V785 adcs[], const vme::V1190& tdc)
 	utils::channel_map(tac, variables.tac_adc.channel, variables.tac_adc.module, adcs);
 }
 
-void dragon::MCP::calculate()
+void dragon::Mcp::calculate()
 {
   /*!
 	 * Pedestal-subtracts and calibrates anode, tcal, and tac values; calculates x- and
@@ -59,6 +59,8 @@ void dragon::MCP::calculate()
 	utils::pedestal_subtract(tac, variables.tac_adc);
 	utils::linear_calibrate(tac, variables.tac_adc);
 
+	utils::calculate_sum(anode, anode + MAX_CHANNELS);
+
 	// Position calculation if we have all valid anode signals
 	if(utils::is_valid(anode, MAX_CHANNELS)) {
 		const double Lhalf = 25.;  // half the length of a single side of the MCP (50/2 [mm])
@@ -72,15 +74,15 @@ void dragon::MCP::calculate()
 }
 
 
-// ====== class dragon::MCP::Variables ====== //
+// ====== class dragon::Mcp::Variables ====== //
 
-dragon::MCP::Variables::Variables()
+dragon::Mcp::Variables::Variables()
 {
 	/*! Calls reset() */
 	reset();
 }
 
-void dragon::MCP::Variables::reset()
+void dragon::Mcp::Variables::reset()
 {
 	std::fill(adc.module, adc.module + MAX_CHANNELS, DEFAULT_HI_MODULE);
 	utils::index_fill(adc.channel, adc.channel + MAX_CHANNELS, MCP_ADC0);
@@ -103,7 +105,7 @@ void dragon::MCP::Variables::reset()
 	std::fill(tdc.slope, tdc.slope + NUM_DETECTORS, 1.);
 }
 
-void dragon::MCP::Variables::set(const char* odb)
+void dragon::Mcp::Variables::set(const char* odb)
 {
 	/*!
 	 * \param [in] odb_file Path of the odb file from which you are extracting variable values

@@ -24,6 +24,7 @@ public:
 public:
   /// Scalar variables
   class Variables {
+		// Class data //
  public:
 		/** @cond */
  PRIVATE:
@@ -34,6 +35,8 @@ public:
 		/// Frontend bank names
 		utils::ScalerBanks bank_names;
 
+		// Class Methods //
+ public:
     /// Constuctor
     Variables();
 		/// Resets names to default values
@@ -42,6 +45,8 @@ public:
 		void set(const char* odb);
 		/// Set bank names
 		void set_bank_names(const char* base);
+		/// Allow owning class access to internals
+		friend class dragon::Scaler;
   };
 
 	/// Variables instance
@@ -61,7 +66,8 @@ PRIVATE:
 
 	/// Average count rate over the course of a run
 	double rate[MAX_CHANNELS];       //#
-  
+
+public:  
   /// Initialize data
   Scaler();
   

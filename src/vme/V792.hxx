@@ -20,6 +20,10 @@ public:
 	static const uint16_t INVALID_BITS = 0x6; //!< Code to specify an invalid buffer
 	static const uint16_t MAX_CHANNELS = 32; 	//!< Number of data channels availible in the ADC
 
+private:
+	/** @cond */
+PRIVATE:
+	/** @endcond */
 	int16_t n_ch;	  ///< Number of channels present in an event
 
 	int32_t count;  ///< Event counter

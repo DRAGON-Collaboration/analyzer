@@ -1,4 +1,4 @@
-/// \file DSSSD.hxx
+/// \file Dsssd.hxx
 /// \brief Defines the DRAGON Double Sided Silicon Strip Detector (DSSSD) class.
 #ifndef DRAGON_DSSSD_HXX
 #define DRAGON_DSSSD_HXX
@@ -18,13 +18,13 @@ namespace dragon {
 class Tail;
 
 /// Double-Sided Silicon Strip Detector
-class DSSSD {
+class Dsssd {
 public:
 	/// Number of channels
 	static const int MAX_CHANNELS = 32; //!
 
 public:
-	/// DSSSD Variables Class
+	/// Dsssd Variables Class
 	class Variables {
  private:
 		/** @cond */
@@ -47,12 +47,12 @@ public:
 		/// Reset all variable values to defaults
 		void reset();
 
-		/// Allows DSSSD class access to internals
-		friend class dragon::DSSSD;
+		/// Allows Dsssd class access to internals
+		friend class dragon::Dsssd;
 	};
 
-	/// Instance of DSSSD::Variables
-	DSSSD::Variables variables; //!
+	/// Instance of Dsssd::Variables
+	Dsssd::Variables variables; //!
 
 private:
 	/** @cond */
@@ -78,7 +78,7 @@ PRIVATE:
 
 public:
 	/// Constructor, initialize data
-	DSSSD();
+	Dsssd();
 
 	/// Reset all data to VME::none
 	void reset();
@@ -97,7 +97,7 @@ public:
 
 
 #ifdef __MAKECINT__
-#pragma link C++ class utils::AdcVariables<dragon::DSSSD::MAX_CHANNELS>+;
+#pragma link C++ class utils::AdcVariables<dragon::Dsssd::MAX_CHANNELS>+;
 #pragma link C++ class utils::TdcVariables<1>+;
 #endif
 

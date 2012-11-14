@@ -1,13 +1,13 @@
-//! \file IO32.cxx
+//! \file Io32.cxx
 //! \author G. Christian
-//! \brief Implements IO32.hxx
+//! \brief Implements Io32.hxx
 #include "utils/Error.hxx"
 #include "utils/Valid.hxx"
 #include "midas/Event.hxx"
-#include "IO32.hxx"
+#include "Io32.hxx"
 
 
-bool vme::IO32::unpack(const midas::Event& event, const char* bankName, bool reportMissing)
+bool vme::Io32::unpack(const midas::Event& event, const char* bankName, bool reportMissing)
 {
  /*! Here is the portion of the MIDAS frontent where values are written to the "main" bank:
 	* \code
@@ -35,7 +35,7 @@ bool vme::IO32::unpack(const midas::Event& event, const char* bankName, bool rep
 	if (!pdata32) return false;
 
 	if (bank_len != expected_bank_len) {
-		utils::err::Error("vme::IO32::unpack") <<
+		utils::err::Error("vme::Io32::unpack") <<
 			"Bank length: " << bank_len << " != 8, skipping..." << DRAGON_ERR_FILE_LINE;
 		return false;
 	}
@@ -52,7 +52,7 @@ bool vme::IO32::unpack(const midas::Event& event, const char* bankName, bool rep
 }
 
 
-void vme::IO32::reset()
+void vme::Io32::reset()
 {
 	utils::reset_data(header, trig_count, tstamp, start, end, latency, read_time, busy_time, trigger_latch);
 }

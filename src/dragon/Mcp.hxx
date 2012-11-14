@@ -1,4 +1,4 @@
-/// \file MCP.hxx
+/// \file Mcp.hxx
 /// \author G. Christian
 /// \brief Defines a class for DRAGON Micro Channel Plate (MCP) detectors
 #ifndef DRAGON_MCP_HXX
@@ -17,7 +17,7 @@ namespace dragon {
 class Tail;
 
 /// Micro channel plates
-class MCP {
+class Mcp {
 
 // Class global constants //
 public:
@@ -58,7 +58,7 @@ public:
 		void set(const char* odb_file);
 
 		/// Allow Mcp class access to internals
-		friend class dragon::MCP;
+		friend class dragon::Mcp;
 	};
 
 	/// Variables instance
@@ -74,18 +74,21 @@ PRIVATE:
 	/// TDC signals
 	double tcal[NUM_DETECTORS]; //#
 
+	/// Sum of anode signals
+	double esum; //#
+
 	/// TAC signal (MCP_TOF).
-	double tac; //#
+	double tac;  //#
 
 	/// x-position
-	double x;  //#
+	double x;    //#
 
 	/// y-position
-	double y;  //#
+	double y;    //#
 
 public:
 	/// Constructor, initialize data
-	MCP();
+	Mcp();
 
 	/// Reset all data to VME::none
 	void reset();
@@ -104,8 +107,8 @@ public:
 
 
 #ifdef __MAKECINT__
-#pragma link C++ class utils::AdcVariables<dragon::MCP::MAX_CHANNELS>;
-#pragma link C++ class utils::TdcVariables<dragon::MCP::NUM_DETECTORS>;
+#pragma link C++ class utils::AdcVariables<dragon::Mcp::MAX_CHANNELS>;
+#pragma link C++ class utils::TdcVariables<dragon::Mcp::NUM_DETECTORS>;
 #endif
 
 #endif // include guard

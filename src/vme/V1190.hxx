@@ -37,7 +37,10 @@ public:
 		int16_t ntrailing;                          ///< Number of trailing-edge hits
 	};
 
-public:
+private:
+	/** @cond */
+PRIVATE:
+	/** @endcond */
 	int16_t n_ch;                  ///< Number of channels present in an event
 
 	int32_t count;                 ///< Event counter

@@ -6,11 +6,11 @@
 #include "utils/VariableStructs.hxx"
 #include "utils/Banks.hxx"
 #include "midas/Event.hxx"
-#include "vme/IO32.hxx"
+#include "vme/Io32.hxx"
 #include "vme/V792.hxx"
 #include "vme/V1190.hxx"
-#include "MCP.hxx"
-#include "DSSSD.hxx"
+#include "Mcp.hxx"
+#include "Dsssd.hxx"
 #include "Auxillary.hxx"
 #include "IonChamber.hxx"
 #include "SurfaceBarrier.hxx"
@@ -109,7 +109,7 @@ PRIVATE:
 	/// Electronics modules
 #ifdef DISPLAY_MODULES
 	/// IO32 FPGA
-	vme::IO32 io32;          //#
+	vme::Io32 io32;          //#
 
 	/// CAEN v785 ADC (x2)
 	vme::V785 v785[NUM_ADC]; //#
@@ -118,7 +118,7 @@ PRIVATE:
 	vme::V1190 v1190;        //#
 #else
 	/// IO32 FPGA
-	vme::IO32 io32;          //!
+	vme::Io32 io32;          //!
 
 	/// CAEN v785 ADC (x2)
 	vme::V785 v785[NUM_ADC]; //!
@@ -129,7 +129,7 @@ PRIVATE:
 
 #ifndef DRAGON_OMIT_DSSSD
 	/// DSSSD detector
-	DSSSD dsssd;             //
+	Dsssd dsssd;             //
 #endif
 
 #ifndef DRAGON_OMIT_IC
@@ -138,7 +138,7 @@ PRIVATE:
 #endif
 
 	/// MCPs
-	MCP mcp;                 //
+	Mcp mcp;                 //
 
 	/// Surface barrier detectors
 	SurfaceBarrier sb;       //

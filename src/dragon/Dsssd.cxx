@@ -1,6 +1,6 @@
-/// \file DSSSD.cxx
+/// \file Dsssd.cxx
 /// \author G. Christian
-/// \brief Implements DSSSD.hxx
+/// \brief Implements Dsssd.hxx
 #include <string>
 #include <cassert>
 #include <iostream>
@@ -10,24 +10,24 @@
 #include "vme/V792.hxx"
 #include "Channels.h"
 #include "Tail.hxx"
-#include "DSSSD.hxx"
+#include "Dsssd.hxx"
 
 
-// ====== class dragon::DSSSD ====== //
+// ====== class dragon::Dsssd ====== //
 
-dragon::DSSSD::DSSSD():
+dragon::Dsssd::Dsssd():
 	variables()
 {
 	reset();
 }
 
-void dragon::DSSSD::reset()
+void dragon::Dsssd::reset()
 {
 	utils::reset_data(efront, eback, hit_front, hit_back);
 	utils::reset_array(MAX_CHANNELS, ecal);
 }
 
-void dragon::DSSSD::read_data(const vme::V785 adcs[], const vme::V1190& tdc)
+void dragon::Dsssd::read_data(const vme::V785 adcs[], const vme::V1190& tdc)
 {
 	/*!
 	 * Copies adc data into \c this->ecal[] with channel and module mapping taken
@@ -41,7 +41,7 @@ void dragon::DSSSD::read_data(const vme::V785 adcs[], const vme::V1190& tdc)
 	utils::channel_map(tcal, variables.tdc.channel, tdc);
 }
 
-void dragon::DSSSD::calculate()
+void dragon::Dsssd::calculate()
 {
 	/*!
 	 * Does a linear transformation on each element in \c this->ecal[] using the slopes and offsets
@@ -65,15 +65,15 @@ void dragon::DSSSD::calculate()
 }
 
 
-// ====== class dragon::DSSSD::Variables ====== //
+// ====== class dragon::Dsssd::Variables ====== //
 
-dragon::DSSSD::Variables::Variables()
+dragon::Dsssd::Variables::Variables()
 {
 	/*! Calls reset() */
 	reset();
 }
 
-void dragon::DSSSD::Variables::reset()
+void dragon::Dsssd::Variables::reset()
 {
 	std::fill(adc.module, adc.module + MAX_CHANNELS, DSSSD_MODULE);
 	utils::index_fill(adc.channel, adc.channel + MAX_CHANNELS, DSSSD_ADC0);
@@ -88,7 +88,7 @@ void dragon::DSSSD::Variables::reset()
 	tdc.offset  = 0.;
 }
 
-void dragon::DSSSD::Variables::set(const char* odb)
+void dragon::Dsssd::Variables::set(const char* odb)
 {
 	/*!
 	 * \param [in] odb_file Path of the odb file from which you are extracting variable values

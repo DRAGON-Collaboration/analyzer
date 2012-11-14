@@ -29,10 +29,10 @@ DEFINITIONS+=-DDISPLAY_MODULES
 # }
 
 ### Uncomment for 'public' option
-DEFINITIONS+=-DPRIVATE=public  -DPROTECTED=public
+#DEFINITIONS+=-DPRIVATE=public  -DPROTECTED=public
 
 ### Uncomment for 'private' option
-#DEFINITIONS+=-DPRIVATE=private -DPROTECTED=protected
+DEFINITIONS+=-DPRIVATE=private -DPROTECTED=protected
 
 ### Set to YES (NO) to turn on (off) root [or rootbeer, or rootana, or ...] usage ###
 USE_ROOT=YES
@@ -139,11 +139,11 @@ $(OBJ)/utils/TStamp.o              	\
 					\
 $(OBJ)/vme/V792.o             	      	\
 $(OBJ)/vme/V1190.o             	     	\
-$(OBJ)/vme/IO32.o              	     	\
+$(OBJ)/vme/Io32.o              	     	\
 					\
 $(OBJ)/dragon/Bgo.o                 	\
-$(OBJ)/dragon/MCP.o                 	\
-$(OBJ)/dragon/DSSSD.o               	\
+$(OBJ)/dragon/Mcp.o                 	\
+$(OBJ)/dragon/Dsssd.o               	\
 $(OBJ)/dragon/Auxillary.o           	\
 $(OBJ)/dragon/IonChamber.o          	\
 $(OBJ)/dragon/SurfaceBarrier.o      	\
@@ -324,11 +324,11 @@ TStamp.o:         $(OBJ)/tstamp/TStamp.o
 
 V792.o:           $(OBJ)/vme/V792.o
 V1190.o:          $(OBJ)/vme/V1190.o
-IO32.o:           $(OBJ)/vme/IO32.o
+Io32.o:           $(OBJ)/vme/Io32.o
 
 Bgo.o:            $(OBJ)/dragon/Bgo.o
-MCP.o:            $(OBJ)/dragon/MCP.o
-DSSSD.o:          $(OBJ)/dragon/DSSSD.o
+Mcp.o:            $(OBJ)/dragon/Mcp.o
+Dsssd.o:          $(OBJ)/dragon/Dsssd.o
 Auxillary.o:      $(OBJ)/dragon/Auxillary.o
 IonChamber.o:     $(OBJ)/dragon/IonChamber.o
 SurfaceBarrier.o: $(OBJ)/dragon/SurfaceBarrier.o

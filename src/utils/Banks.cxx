@@ -1,4 +1,4 @@
-///\file Banks.hxx
+///\file Banks.cxx
 ///\author G. Christian
 ///\brief Implements Banks.hxx
 #include <cstring>
