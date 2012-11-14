@@ -12,7 +12,10 @@ namespace vme {
 
 /// IO32 FPGA
 class IO32 {
-public:
+private:
+	/** @cond */
+PRIVATE:
+	/** @endcond */
 	/// Header and version
 	uint32_t header;
 

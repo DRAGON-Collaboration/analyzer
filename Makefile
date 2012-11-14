@@ -29,10 +29,10 @@ DEFINITIONS+=-DDISPLAY_MODULES
 # }
 
 ### Uncomment for 'public' option
-DEFINITIONS+=-DPRIVATE=public  -DPROTECTED=public
+#DEFINITIONS+=-DPRIVATE=public  -DPROTECTED=public
 
 ### Uncomment for 'private' option
-#DEFINITIONS+=-DPRIVATE=private -DPROTECTED=protected
+DEFINITIONS+=-DPRIVATE=private -DPROTECTED=protected
 
 ### Set to YES (NO) to turn on (off) root [or rootbeer, or rootana, or ...] usage ###
 USE_ROOT=YES
