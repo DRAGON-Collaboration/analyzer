@@ -16,13 +16,31 @@
 #pragma link C++ function False();
 
 /*
+for j in Char_t Short_t Int_t Long_t Long64_t UChar_t UShort_t UInt_t ULong_t ULong64_t Float_t Double_t;
+do echo "#pragma link C++ function IsValid(${j}&);"
+done >> CutLinkDef.h
+*/
+#pragma link C++ function IsValid(Char_t&);
+#pragma link C++ function IsValid(Short_t&);
+#pragma link C++ function IsValid(Int_t&);
+#pragma link C++ function IsValid(Long_t&);
+#pragma link C++ function IsValid(Long64_t&);
+#pragma link C++ function IsValid(UChar_t&);
+#pragma link C++ function IsValid(UShort_t&);
+#pragma link C++ function IsValid(UInt_t&);
+#pragma link C++ function IsValid(ULong_t&);
+#pragma link C++ function IsValid(ULong64_t&);
+#pragma link C++ function IsValid(Float_t&);
+#pragma link C++ function IsValid(Double_t&);
+
+/*
 for i in Less Equal Greater NotEqual LessEqual GreaterEqual;
 do for j in Char_t Short_t Int_t Long_t Long64_t UChar_t UShort_t UInt_t ULong_t ULong64_t Float_t Double_t;
 do for k in Char_t Short_t Int_t Long_t Long64_t UChar_t UShort_t UInt_t ULong_t ULong64_t Float_t Double_t;
-do echo "#pragma link C++ function rootana::${i}(${j}&, ${k}&);"
+do echo "#pragma link C++ function ${i}(${j}&, ${k}&);"
 done
 done
-done > CutLinkDef.h
+done >> CutLinkDef.h
 */
 #pragma link C++ function Less(Char_t&, Char_t&);
 #pragma link C++ function Less(Char_t&, Short_t&);

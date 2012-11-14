@@ -128,7 +128,7 @@ TH2D:
 	rootana::gTail.mcp.y
 
 CUT:
-        NotEqual(rootana::gTail.mcp.x, -1) && NotEqual(rootana::gTail.mcp.y, -1)
+        IsValid(rootana::gTail.mcp.x) && IsValid(rootana::gTail.mcp.y)
 
 TH1D:
         ("mcpTOF", "MCP TAC signal;TAC [channel];Counts", 256, 0, 4096)
@@ -298,7 +298,7 @@ TH2D:
 	rootana::gCoinc.tail.mcp.y
 
 CUT:
-        NotEqual(rootana::gCoinc.tail.mcp.x, -1) && NotEqual(rootana::gCoinc.tail.mcp.y, -1)
+        IsValid(rootana::gCoinc.tail.mcp.x) && IsValid(rootana::gCoinc.tail.mcp.y)
 
 TH1D:
         ("mcpTOF", "MCP TAC signal;TAC [channel];Counts", 256, 0, 4096)
@@ -360,16 +360,16 @@ TH1D:
         ("xtof_head", "Crossover TOF (bgo->tail trig., measured by head TDC);ToF [arb.];Counts", 500, 0, 10000)
 	rootana::gCoinc.head.tof.gamma_tail
 CUT:
-        NotEqual(rootana::gCoinc.head.tof.gamma_tail, -1)
+        IsValid(rootana::gCoinc.head.tof.gamma_tail)
 
 TH1D:
         ("gamma_ic", "Crossover TOF (BGO->ic, measured by tail TDC);ToF [arb.];Counts", 500, 0, 10000)
 	rootana::gCoinc.tail.tof.gamma_ic
 CUT:
-        NotEqual(rootana::gCoinc.tail.tof.gamma_ic, -1)
+        IsValid(rootana::gCoinc.tail.tof.gamma_ic)
 
 TH1D:
         ("gamma_dsssd", "Crossover TOF (BGO->dsssd, measured by tail TDC);ToF [arb.];Counts", 500, 0, 10000)
 	rootana::gCoinc.tail.tof.gamma_dsssd
 CUT:
-        NotEqual(rootana::gCoinc.tail.tof.gamma_dsssd, -1)
+        IsValid(rootana::gCoinc.tail.tof.gamma_dsssd)

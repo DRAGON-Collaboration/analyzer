@@ -38,7 +38,7 @@
 #include <vector>
 #include <TCutG.h>
 #include "utils/Error.hxx"
-
+#include "utils/Functions.hxx"
 
 /// Point-by-point arguments for use with rootana::Condition2D
 #define ROOTANA_CUT2D_POINT_ARGS double x0 = 0, double y0 = 0, double x1 = 0, double y1 = 0, double x2 = 0, double y2 = 0, double x3 = 0, double y3 = 0, double x4 = 0, double y4 = 0, double x5 = 0, double y5 = 0, double x6 = 0, double y6 = 0, double x7 = 0, double y7 = 0, double x8 = 0, double y8 = 0, double x9 = 0, double y9 = 0, double x10 = 0, double y10 = 0, double x11 = 0, double y11 = 0, double x12 = 0, double y12 = 0, double x13 = 0, double y13 = 0
@@ -99,6 +99,29 @@ public:
 	bool operator() () const
 		{ return F()( fV1, fV2 ); }
 };
+
+/// Implementation of rootana::Condition for checking parameter validity
+/*!
+ * Checks if a numerical valie is "valid" (!= dragon::NO_DATA)
+ * 
+ * \tparam T1 type of the value to compare.
+ */
+template <class T1>
+class Validity: public Condition {
+private:
+	const T1& fV1; ///< First Comparison value
+public:
+	/// Sets fV1
+	Validity(const T1& v1):
+		fV1(v1) { }
+	/// Returns \c new copy of \c this
+	Condition* clone() const
+		{ return new Validity(*this); }
+	/// Checks if fV1 is valid
+	bool operator() () const
+		{ return utils::is_valid(fV1); }
+};
+
 
 /// Two-dimensional "polygon" Condition
 /*!
@@ -411,6 +434,11 @@ inline rootana::Cut LessEqual(const T1& v1, const T2& v2)
 template <class T1, class T2> 
 inline rootana::Cut GreaterEqual(const T1& v1, const T2& v2)
 { rootana::Cut c_(new rootana::Equivalency<T1, T2, std::greater_equal<double> >(v1, v2)); return c_; }
+
+/// Checks if a parameter is valid, using utils::is_valid()
+template <class T1>
+inline rootana::Cut IsValid(const T1& v1)
+{ rootana::Cut c_(new rootana::Validity<T1>(v1)); return c_; }
 
 /// 2D cut (from TCutG)
 template <class T1, class T2>
