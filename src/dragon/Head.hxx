@@ -8,7 +8,7 @@
 #include "midas/Event.hxx"
 #include "vme/V1190.hxx"
 #include "vme/V792.hxx"
-#include "vme/IO32.hxx"
+#include "vme/Io32.hxx"
 #include "Bgo.hxx"
 
 namespace dragon {
@@ -85,7 +85,7 @@ PRIVATE:
 	/** @endcond */
 #ifdef DISPLAY_MODULES
 	/// IO32 FPGA
-	vme::IO32 io32;   //#
+	vme::Io32 io32;   //#
 
 	/// CAEN V792 QDC
 	vme::V792 v792;   //#
@@ -94,7 +94,7 @@ PRIVATE:
 	vme::V1190 v1190; //#
 #else
 	/// IO32 FPGA
-	vme::IO32 io32;   //!
+	vme::Io32 io32;   //!
 
 	/// CAEN V792 QDC
 	vme::V792 v792;   //!

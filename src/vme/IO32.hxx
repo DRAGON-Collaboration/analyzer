@@ -1,4 +1,4 @@
-/// \file IO32.hxx
+/// \file Io32.hxx
 /// \brief Defines structures and routines for IO32 FPGA data
 #ifndef DRAGON_VME_IO32_HXX
 #define DRAGON_VME_IO32_HXX
@@ -11,7 +11,7 @@ namespace midas { class Event; }
 namespace vme {
 
 /// IO32 FPGA
-class IO32 {
+class Io32 {
 private:
 	/** @cond */
 PRIVATE:
@@ -52,10 +52,10 @@ public:
 	void reset();
 
 	/// Calls reset()
-	IO32() { reset(); }
+	Io32() { reset(); }
 
 	/// Empty
-	~IO32() { }
+	~Io32() { }
 };
 
 } // namespace vme

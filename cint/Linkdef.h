@@ -40,8 +40,8 @@
 
 #pragma link C++ class dragon::Mcp+;
 #pragma link C++ class dragon::Mcp::Variables+;
-#pragma link C++ class dragon::DSSSD+;
-#pragma link C++ class dragon::DSSSD::Variables+;
+#pragma link C++ class dragon::Dsssd+;
+#pragma link C++ class dragon::Dsssd::Variables+;
 #pragma link C++ class dragon::IonChamber+;
 #pragma link C++ class dragon::IonChamber::Variables+;
 #pragma link C++ class dragon::SurfaceBarrier+;
@@ -69,7 +69,7 @@ class TTree;
 #pragma link C++ class vme::V792+;
 #pragma link C++ class vme::V785+;
 #pragma link C++ class vme::V1190+;
-#pragma link C++ class vme::IO32+;
+#pragma link C++ class vme::Io32+;
 
 #pragma link C++ class midas::Event::Header+;
 
