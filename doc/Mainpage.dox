@@ -400,7 +400,7 @@
 
   void handle_all_events()
   {
-    handle_event(mcp, adc, tdc); // mcp is an instance of dragon::MCP
+    handle_event(mcp, adc, tdc); // mcp is an instance of dragon::Mcp
     handle_event(ic, adc, tdc); // ic is an instance of dragon::IonChamber
     // ... etc ... //
   }
@@ -429,7 +429,7 @@
 
 	However, despite the usefulness of public data for scripting use, it is still a good idea to design the
 	\e source code as if the data were private. This reduces the coupling between the various classes, and as a
-	result makeing a small change to the structure of one class (or module) is guaranteed not to affect the others.
+	result making a small change to the structure of one class (or module) is guaranteed not to affect the others.
 	To enforce this, I have defined a macro \c PRIVATE which can be set to be equal to either \c private or \c public
 	in the Makefile and defined all of the class data members under this token.
 	\code
@@ -465,12 +465,16 @@
   }
 	\endcode
 	
-	The main motivation for this is to concentrate the majority of the "heavy lifing" used in various calculations into
-	one place. This helps to reduce the occurance of bugs due to re-writing of similar code, and if bugs are found to
+	The main motivation for this is to concentrate the majority of the "heavy lifting" used in various calculations into
+	one place. This helps to reduce the occurrence of bugs due to re-writing of similar code, and if bugs are found to
 	facilitate easier fixes. Most of the "heavy lifting" is done in free functions contained in the
 	<a href=namespaceutils.html>utils</a> namespace, or using
 	<a href=http://www.cplusplus.com/reference/algorithm/>standard library algorithms</a>.	
 
+	\n\n
+	Finally, there are a few stylistic issues to address:
+
+	- Class names generally start with a capitol letter and use "CamelCase" when consisting of multiple words.
 
 	\subsection doc Documentation
 

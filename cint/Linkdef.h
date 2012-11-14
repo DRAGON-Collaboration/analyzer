@@ -38,8 +38,8 @@
 #pragma link C++ class dragon::Coinc+;
 #pragma link C++ class dragon::Tail+;
 
-#pragma link C++ class dragon::MCP+;
-#pragma link C++ class dragon::MCP::Variables+;
+#pragma link C++ class dragon::Mcp+;
+#pragma link C++ class dragon::Mcp::Variables+;
 #pragma link C++ class dragon::DSSSD+;
 #pragma link C++ class dragon::DSSSD::Variables+;
 #pragma link C++ class dragon::IonChamber+;

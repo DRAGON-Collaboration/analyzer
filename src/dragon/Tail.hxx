@@ -9,7 +9,7 @@
 #include "vme/IO32.hxx"
 #include "vme/V792.hxx"
 #include "vme/V1190.hxx"
-#include "MCP.hxx"
+#include "Mcp.hxx"
 #include "DSSSD.hxx"
 #include "Auxillary.hxx"
 #include "IonChamber.hxx"
@@ -138,7 +138,7 @@ PRIVATE:
 #endif
 
 	/// MCPs
-	MCP mcp;                 //
+	Mcp mcp;                 //
 
 	/// Surface barrier detectors
 	SurfaceBarrier sb;       //
