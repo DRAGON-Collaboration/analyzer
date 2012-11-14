@@ -21,128 +21,355 @@ TH1D:
 	("bgoZ", "Bgo Z position;z0 [mm];Counts",100, -200, 200)
 	rootana::gHead.bgo.z0
 
-# SUMMARY:
-#  	("bgoE", "Bgo chan vs. Energy;Energy [keV/10];Detector Number", 256, 0, 4096)
-#  	rootana::gHead.bgo.ecal
-# 	30
+SUMMARY:
+ 	("bgoE", "Bgo chan vs. Energy;Energy [keV/10];Detector Number", 256, 0, 4096)
+ 	rootana::gHead.bgo.ecal
+	30
 
-# TH1D:
-# 	("bgo0", "BGO_{0} Channel;BGO;Counts", 30, 0, 30)
-# 	rootana::gHead.bgo.hit0
-# CUT:
-# 	Greater(rootana::gHead.bgo.hit0, 0)
+TH1D:
+	("bgo0", "BGO_{0} Channel;BGO;Counts", 30, 0, 30)
+	rootana::gHead.bgo.hit0
+CUT:
+	Greater(rootana::gHead.bgo.hit0, 0)
 
-# TH2D:
-# 	("bgoE0", "BGO_{0} Channel vs. Energy;Energy [keV/10];Detector Number", 256, 0, 4096, 30, 0, 30)
-# 	rootana::gHead.bgo.esort[0]
-# 	rootana::gHead.bgo.hit0
-# CUT:
-# 	Greater(rootana::gHead.bgo.esort[0], 0)
+TH2D:
+	("bgoE0", "BGO_{0} Channel vs. Energy;Energy [keV/10];Detector Number", 256, 0, 4096, 30, 0, 30)
+	rootana::gHead.bgo.esort[0]
+	rootana::gHead.bgo.hit0
+CUT:
+	Greater(rootana::gHead.bgo.esort[0], 0)
 
-# TH2D:
-# 	("bgoE0E1", "BGO_{1} vs. BGO_{0};E0 [keV/10];E1 [keV/10]", 256, 0, 4096, 256, 0, 4096)
-# 	rootana::gHead.bgo.esort[0]
-# 	rootana::gHead.bgo.esort[1]
-# CUT:
-# 	Greater(rootana::gHead.bgo.esort[1], 0)
-
-
-# ## DSSSD SINGLES ##
-# DIR:
-# histos/event/hion/dsssd
-
-# SUMMARY:
-# 	("dsssdE", "DSSSD channel vs. Energy;Energy [keV];Channel", 200, 0, 20000)
-# 	rootana::gTail.dsssd.ecal
-
-# TH1D:
-# 	("dsssdT", "DSSSD time;TDC [arb.];Counts", 200, 0, 20000)
-# 	rootana::gTail.dsssd.tcal
-
-# TH2D:
-#         ("dsssdEfront_mcpTAC", "DSSSD Efront vs. MCP TAC", 256, 0, 4096, 200, 0, 20000)
-# 	rootana::gTail.mcp.tac
-# 	rootana::gTail.dsssd.efront
-# CUT:
-#         Greater(rootana::gTail.mcp.tac, 0) && Greater(rootana::gTail.dsssd.efront, 0)
-
-# TH2D:
-#         ("dsssdEback_mcpTAC", "DSSSD Eback vs. MCP TAC", 256, 0, 4096, 200, 0, 20000)
-# 	rootana::gTail.mcp.tac
-# 	rootana::gTail.dsssd.eback
-# CUT:
-# 	Greater(rootana::gTail.mcp.tac, 0) && Greater(rootana::gTail.dsssd.eback, 0)
+TH2D:
+	("bgoE0E1", "BGO_{1} vs. BGO_{0};E0 [keV/10];E1 [keV/10]", 256, 0, 4096, 256, 0, 4096)
+	rootana::gHead.bgo.esort[0]
+	rootana::gHead.bgo.esort[1]
+CUT:
+	Greater(rootana::gHead.bgo.esort[1], 0)
 
 
-# ## MCP SINGLES ##
-# DIR:
-# histos/event/hion/mcp
+## DSSSD SINGLES ##
+DIR:
+histos/event/hion/dsssd
 
-# TH1D:
-#         ("mcpEsum", "Sum of MCP anodes;Esum [arb.];Counts", 250, 0, 50000)
-# 	rootana::gTail.mcp.esum
-# CUT:
-#         Greater(rootana::gTail.mcp.esum, 0)
+SUMMARY:
+	("dsssdE", "DSSSD channel vs. Energy;Energy [keV];Channel", 200, 0, 20000)
+	rootana::gTail.dsssd.ecal
+	32
 
-# SUMMARY:
-#         ("mcpAnode", "MCP channel vs. anode signal;Anode [channel];Channel", 256, 0, 4096)
-# 	rootana::gTail.mcp.anode
+TH1D:
+	("dsssdT", "DSSSD time;TDC [arb.];Counts", 200, 0, 20000)
+	rootana::gTail.dsssd.tcal
 
-# TH2D:
-#         ("mcpXY", "MCP x vs. y;xpos [arb.];ypos [arb.]", 60,-30,30,60,-30,30)
-# 	rootana::gTail.mcp.x
-# 	rootana::gTail.mcp.y
+TH2D:
+        ("dsssdEfront_mcpTAC", "DSSSD Efront vs. MCP TAC", 256, 0, 4096, 200, 0, 20000)
+	rootana::gTail.mcp.tac
+	rootana::gTail.dsssd.efront
+CUT:
+        Greater(rootana::gTail.mcp.tac, 0) && Greater(rootana::gTail.dsssd.efront, 0)
 
-# CUT:
-# 	Greater(rootana::gTail.mcp.x, 0) && Greater(rootana::gTail.mcp.y, 0)
-
-# TH1D:
-#         ("mcpTOF", "MCP TAC signal;TAC [channel];Counts", 256, 0, 4096)
-# 	rootana::gTail.mcp.tac
-# CUT:
-#         Greater(rootana::gTail.mcp.tac, 0)
+TH2D:
+        ("dsssdEback_mcpTAC", "DSSSD Eback vs. MCP TAC", 256, 0, 4096, 200, 0, 20000)
+	rootana::gTail.mcp.tac
+	rootana::gTail.dsssd.eback
+CUT:
+	Greater(rootana::gTail.mcp.tac, 0) && Greater(rootana::gTail.dsssd.eback, 0)
 
 
-# ## SURFACE BARRIER SINGLES ##
-# DIR:
-# histos/event/hion/sb
+## IC SINGLES ##
+DIR:
+histos/event/hion/ic
 
-# TH1D:
-#         ("sbE0", "Surface barrier energy, ch. 0;Energy [channel];Counts", 256, 0, 4096)
-# 	rootana::gTail.sb.ecal[0]
-# CUT:
-# 	Greater(rootana::gTail.sb.ecal[0], 0)
+SUMMARY:
+	("dsssdE", "IC channel vs. anode;Anode [ch];Channel", 256, 0, 4096)
+	rootana::gTail.ic.anode
+	4
+
+TH1D:
+	("icSum", "IC anode sum;Sum [arb];Counts", 200, 0, 20000)
+	rootana::gTail.ic.sum
+
+TH2D:
+        ("ic0_1", "IC anode 0 vs. anode 1;Anode 0 [arb.];Anode 1 [arb.]", 256, 0, 4096, 256, 0, 4096)
+	rootana::gTail.ic.anode[0]
+	rootana::gTail.ic.anode[1]
+CUT:
+        Greater(rootana::gTail.ic.anode[0], 0) && Greater(rootana::gTail.ic.anode[1], 0)
+
+TH1D:
+	("icT", "IC time;TDC [arb.];Counts", 200, 0, 20000)
+	rootana::gTail.ic.tcal
+
+TH2D:
+        ("icSum_mcpTAC", "IC anode sum vs. MCP TAC", 256, 0, 4096, 200, 0, 20000)
+	rootana::gTail.mcp.tac
+	rootana::gTail.ic.sum
+CUT:
+        Greater(rootana::gTail.mcp.tac, 0) && Greater(rootana::gTail.ic.sum, 0)
+
+
+## MCP SINGLES ##
+DIR:
+histos/event/hion/mcp
+
+TH1D:
+        ("mcpEsum", "Sum of MCP anodes;Esum [arb.];Counts", 250, 0, 50000)
+	rootana::gTail.mcp.esum
+CUT:
+        Greater(rootana::gTail.mcp.esum, 0)
+
+SUMMARY:
+        ("mcpAnode", "MCP channel vs. anode signal;Anode [channel];Channel", 256, 0, 4096)
+	rootana::gTail.mcp.anode
+	4
+
+TH2D:
+        ("mcpXY", "MCP x vs. y;xpos [arb.];ypos [arb.]", 60,-30,30,60,-30,30)
+	rootana::gTail.mcp.x
+	rootana::gTail.mcp.y
+
+CUT:
+        NotEqual(rootana::gTail.mcp.x, -1) && NotEqual(rootana::gTail.mcp.y, -1)
+
+TH1D:
+        ("mcpTOF", "MCP TAC signal;TAC [channel];Counts", 256, 0, 4096)
+	rootana::gTail.mcp.tac
+CUT:
+        Greater(rootana::gTail.mcp.tac, 0)
+
+
+## SURFACE BARRIER SINGLES ##
+DIR:
+histos/event/hion/sb
+
+TH1D:
+        ("sbE0", "Surface barrier energy, ch. 0;Energy [channel];Counts", 256, 0, 4096)
+	rootana::gTail.sb.ecal[0]
+CUT:
+	Greater(rootana::gTail.sb.ecal[0], 0)
 	
-# TH1D:
-#         ("sbE1", "Surface barrier energy, ch. 1;Energy [channel];Counts", 256, 0, 4096)
-# 	rootana::gTail.sb.ecal[1]
-# CUT:
-# 	Greater(rootana::gTail.sb.ecal[1], 0)
+TH1D:
+        ("sbE1", "Surface barrier energy, ch. 1;Energy [channel];Counts", 256, 0, 4096)
+	rootana::gTail.sb.ecal[1]
+CUT:
+	Greater(rootana::gTail.sb.ecal[1], 0)
 
 
-# ## NAI SINGLES ##
-# DIR:
-# histos/event/hion/nai
+## NAI SINGLES ##
+DIR:
+histos/event/hion/nai
 
-# TH1D:
-#         ("naiE0", "NaI energy, ch. 0;Energy [channel];Counts", 256, 0, 4096)
-# 	rootana::gTail.nai.ecal[0]
-# CUT:
-# 	Greater(rootana::gTail.nai.ecal[0], 0)
+TH1D:
+        ("naiE0", "NaI energy, ch. 0;Energy [channel];Counts", 256, 0, 4096)
+	rootana::gTail.nai.ecal[0]
+CUT:
+	Greater(rootana::gTail.nai.ecal[0], 0)
 	
-# TH1D:
-#         ("naiE1", "NaI energy, ch. 1;Energy [channel];Counts", 256, 0, 4096)
-# 	rootana::gTail.nai.ecal[1]
-# CUT:
-# 	Greater(rootana::gTail.nai.ecal[1], 0)
+TH1D:
+        ("naiE1", "NaI energy, ch. 1;Energy [channel];Counts", 256, 0, 4096)
+	rootana::gTail.nai.ecal[1]
+CUT:
+	Greater(rootana::gTail.nai.ecal[1], 0)
 
 
-# ## GE SINGLES ##
-# DIR:
-# histos/event/hion/ge
+## GE SINGLES ##
+DIR:
+histos/event/hion/ge
 
-# TH1D:
-#         ("geE", "HPGe energy;Energy [channel];Counts", 256, 0, 4096)
-# 	rootana::gTail.ge.ecal
-# CUT:
-# 	Greater(rootana::gTail.ge.ecal, 0)
+TH1D:
+        ("geE", "HPGe energy;Energy [channel];Counts", 256, 0, 4096)
+	rootana::gTail.ge.ecal
+CUT:
+	Greater(rootana::gTail.ge.ecal, 0)
+
+
+
+## BGO COINC ##
+DIR:
+histos/event/coinc/bgo
+
+TH1D:
+	("bgoZ", "Bgo Z position;z0 [mm];Counts",100, -200, 200)
+	rootana::gCoinc.head.bgo.z0
+
+SUMMARY:
+ 	("bgoE", "Bgo chan vs. Energy;Energy [keV/10];Detector Number", 256, 0, 4096)
+ 	rootana::gCoinc.head.bgo.ecal
+	30
+
+TH1D:
+	("bgo0", "BGO_{0} Channel;BGO;Counts", 30, 0, 30)
+	rootana::gCoinc.head.bgo.hit0
+CUT:
+	Greater(rootana::gCoinc.head.bgo.hit0, 0)
+
+TH2D:
+	("bgoE0", "BGO_{0} Channel vs. Energy;Energy [keV/10];Detector Number", 256, 0, 4096, 30, 0, 30)
+	rootana::gCoinc.head.bgo.esort[0]
+	rootana::gCoinc.head.bgo.hit0
+CUT:
+	Greater(rootana::gCoinc.head.bgo.esort[0], 0)
+
+TH2D:
+	("bgoE0E1", "BGO_{1} vs. BGO_{0};E0 [keV/10];E1 [keV/10]", 256, 0, 4096, 256, 0, 4096)
+	rootana::gCoinc.head.bgo.esort[0]
+	rootana::gCoinc.head.bgo.esort[1]
+CUT:
+	Greater(rootana::gCoinc.head.bgo.esort[1], 0)
+
+
+## DSSSD COINC ##
+DIR:
+histos/event/coinc/dsssd
+
+SUMMARY:
+	("dsssdE", "DSSSD channel vs. Energy;Energy [keV];Channel", 200, 0, 20000)
+	rootana::gCoinc.tail.dsssd.ecal
+	32
+
+TH1D:
+	("dsssdT", "DSSSD time;TDC [arb.];Counts", 200, 0, 20000)
+	rootana::gCoinc.tail.dsssd.tcal
+
+TH2D:
+        ("dsssdEfront_mcpTAC", "DSSSD Efront vs. MCP TAC", 256, 0, 4096, 200, 0, 20000)
+	rootana::gCoinc.tail.mcp.tac
+	rootana::gCoinc.tail.dsssd.efront
+CUT:
+        Greater(rootana::gCoinc.tail.mcp.tac, 0) && Greater(rootana::gCoinc.tail.dsssd.efront, 0)
+
+TH2D:
+        ("dsssdEback_mcpTAC", "DSSSD Eback vs. MCP TAC", 256, 0, 4096, 200, 0, 20000)
+	rootana::gCoinc.tail.mcp.tac
+	rootana::gCoinc.tail.dsssd.eback
+CUT:
+	Greater(rootana::gCoinc.tail.mcp.tac, 0) && Greater(rootana::gCoinc.tail.dsssd.eback, 0)
+
+
+## IC COINC ##
+DIR:
+histos/event/coinc/ic
+
+SUMMARY:
+	("dsssdE", "IC channel vs. anode;Anode [ch];Channel", 256, 0, 4096)
+	rootana::gCoinc.tail.ic.anode
+	4
+
+TH1D:
+	("icSum", "IC anode sum;Sum [arb];Counts", 200, 0, 20000)
+	rootana::gCoinc.tail.ic.sum
+
+TH2D:
+        ("ic0_1", "IC anode 0 vs. anode 1;Anode 0 [arb.];Anode 1 [arb.]", 256, 0, 4096, 256, 0, 4096)
+	rootana::gCoinc.tail.ic.anode[0]
+	rootana::gCoinc.tail.ic.anode[1]
+CUT:
+        Greater(rootana::gCoinc.tail.ic.anode[0], 0) && Greater(rootana::gCoinc.tail.ic.anode[1], 0)
+
+TH1D:
+	("icT", "IC time;TDC [arb.];Counts", 200, 0, 20000)
+	rootana::gCoinc.tail.ic.tcal
+
+TH2D:
+        ("icSum_mcpTAC", "IC anode sum vs. MCP TAC", 256, 0, 4096, 200, 0, 20000)
+	rootana::gCoinc.tail.mcp.tac
+	rootana::gCoinc.tail.ic.sum
+CUT:
+        Greater(rootana::gCoinc.tail.mcp.tac, 0) && Greater(rootana::gCoinc.tail.ic.sum, 0)
+
+
+## MCP COINC ##
+DIR:
+histos/event/coinc/mcp
+
+TH1D:
+        ("mcpEsum", "Sum of MCP anodes;Esum [arb.];Counts", 250, 0, 50000)
+	rootana::gCoinc.tail.mcp.esum
+CUT:
+        Greater(rootana::gCoinc.tail.mcp.esum, 0)
+
+SUMMARY:
+        ("mcpAnode", "MCP channel vs. anode signal;Anode [channel];Channel", 256, 0, 4096)
+	rootana::gCoinc.tail.mcp.anode
+	4
+
+TH2D:
+        ("mcpXY", "MCP x vs. y;xpos [arb.];ypos [arb.]", 60,-30,30,60,-30,30)
+	rootana::gCoinc.tail.mcp.x
+	rootana::gCoinc.tail.mcp.y
+
+CUT:
+        NotEqual(rootana::gCoinc.tail.mcp.x, -1) && NotEqual(rootana::gCoinc.tail.mcp.y, -1)
+
+TH1D:
+        ("mcpTOF", "MCP TAC signal;TAC [channel];Counts", 256, 0, 4096)
+	rootana::gCoinc.tail.mcp.tac
+CUT:
+        Greater(rootana::gCoinc.tail.mcp.tac, 0)
+
+
+## SURFACE BARRIER COINC ##
+DIR:
+histos/event/coinc/sb
+
+TH1D:
+        ("sbE0", "Surface barrier energy, ch. 0;Energy [channel];Counts", 256, 0, 4096)
+	rootana::gCoinc.tail.sb.ecal[0]
+CUT:
+	Greater(rootana::gCoinc.tail.sb.ecal[0], 0)
+	
+TH1D:
+        ("sbE1", "Surface barrier energy, ch. 1;Energy [channel];Counts", 256, 0, 4096)
+	rootana::gCoinc.tail.sb.ecal[1]
+CUT:
+	Greater(rootana::gCoinc.tail.sb.ecal[1], 0)
+
+
+## NAI COINC ##
+DIR:
+histos/event/coinc/nai
+
+TH1D:
+        ("naiE0", "NaI energy, ch. 0;Energy [channel];Counts", 256, 0, 4096)
+	rootana::gCoinc.tail.nai.ecal[0]
+CUT:
+	Greater(rootana::gCoinc.tail.nai.ecal[0], 0)
+	
+TH1D:
+        ("naiE1", "NaI energy, ch. 1;Energy [channel];Counts", 256, 0, 4096)
+	rootana::gCoinc.tail.nai.ecal[1]
+CUT:
+	Greater(rootana::gCoinc.tail.nai.ecal[1], 0)
+
+
+## GE COINC ##
+DIR:
+histos/event/coinc/ge
+
+TH1D:
+        ("geE", "HPGe energy;Energy [channel];Counts", 256, 0, 4096)
+	rootana::gCoinc.tail.ge.ecal
+CUT:
+	Greater(rootana::gCoinc.tail.ge.ecal, 0)
+
+
+## Crossover TOF ##
+DIR:
+histos/event/xtof
+
+TH1D:
+        ("xtof_head", "Crossover TOF (bgo->tail trig., measured by head TDC);ToF [arb.];Counts", 500, 0, 10000)
+	rootana::gCoinc.head.tof.gamma_tail
+CUT:
+        NotEqual(rootana::gCoinc.head.tof.gamma_tail, -1)
+
+TH1D:
+        ("gamma_ic", "Crossover TOF (BGO->ic, measured by tail TDC);ToF [arb.];Counts", 500, 0, 10000)
+	rootana::gCoinc.tail.tof.gamma_ic
+CUT:
+        NotEqual(rootana::gCoinc.tail.tof.gamma_ic, -1)
+
+TH1D:
+        ("gamma_dsssd", "Crossover TOF (BGO->dsssd, measured by tail TDC);ToF [arb.];Counts", 500, 0, 10000)
+	rootana::gCoinc.tail.tof.gamma_dsssd
+CUT:
+        NotEqual(rootana::gCoinc.tail.tof.gamma_dsssd, -1)
