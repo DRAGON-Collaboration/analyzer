@@ -22,7 +22,7 @@ dragon::Mcp::Mcp()
 
 void dragon::Mcp::reset()
 {
-	utils::reset_data(tac, x, y);
+	utils::reset_data(esum, tac, x, y);
 	utils::reset_array(MAX_CHANNELS, anode);
 }
 
@@ -58,6 +58,8 @@ void dragon::Mcp::calculate()
 
 	utils::pedestal_subtract(tac, variables.tac_adc);
 	utils::linear_calibrate(tac, variables.tac_adc);
+
+	utils::calculate_sum(anode, anode + MAX_CHANNELS);
 
 	// Position calculation if we have all valid anode signals
 	if(utils::is_valid(anode, MAX_CHANNELS)) {

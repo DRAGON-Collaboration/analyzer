@@ -74,14 +74,17 @@ PRIVATE:
 	/// TDC signals
 	double tcal[NUM_DETECTORS]; //#
 
+	/// Sum of anode signals
+	double esum; //#
+
 	/// TAC signal (MCP_TOF).
-	double tac; //#
+	double tac;  //#
 
 	/// x-position
-	double x;  //#
+	double x;    //#
 
 	/// y-position
-	double y;  //#
+	double y;    //#
 
 public:
 	/// Constructor, initialize data
