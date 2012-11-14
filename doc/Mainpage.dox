@@ -537,7 +537,8 @@
 	\endcode
 
 	This has a number of practical advantages, such as allowing for loops and std::algorithms to handle the data,
-	and in general it makes life much easier in later analyses as well.
+	and in general it makes life much easier in later analyses as well. It also avoids any issues about whether to
+	start counting at one or zero, since arrays always start from zero.
 	
 
 	\subsection doc Documentation
