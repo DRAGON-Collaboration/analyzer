@@ -17,10 +17,7 @@ namespace dragon {
 class Coinc {
 
 // Class data //
-private:
-	/** @cond */
-PRIVATE:
-	/** @endcond */
+public:
 	/// Head (gamma-ray) part of the event
 	Head head;
 
