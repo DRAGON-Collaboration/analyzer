@@ -276,14 +276,15 @@ $(OBJ)/rootbeer/DragonRootbeer.o	\
 
 RB_HEADERS= $(SRC)/rootbeer/*.hxx
 
+RB_DEFS=-DRB_DRAGON_HOMEDIR=$(PWD)
 
 $(DRLIB)/libRBDragon.so: $(RB_OBJECTS) $(RB_HEADERS)
-	$(LINK)  $(RBINC) $(DYLIB) $(FPIC) -o $@ $(RB_OBJECTS) \
+	$(LINK) $(RB_DEFS) $(RBINC) $(DYLIB) $(FPIC) -o $@ $(RB_OBJECTS) \
 
 libRBDragon: $(DRLIB)/libRBDragon.so
 
 $(OBJ)/rootbeer/%.o: $(SRC)/rootbeer/%.cxx $(SRC)/rootbeer/*.hxx
-	$(CXX) $(RBINC) $(FPIC) -c \
+	$(CXX) $(RB_DEFS) $(RBINC) $(FPIC) -c \
 -o $@ $< \
 
 

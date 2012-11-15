@@ -1,17 +1,22 @@
-CMD:
-        TCutG cutg("cutTest",7);
-	cutg.SetVarX("");
-	cutg.SetVarY("");
-	cutg.SetTitle("Graph");
-	cutg.SetFillColor(1);
-	cutg.SetPoint(0,37.8544,70.113);
-	cutg.SetPoint(1,25.5939,41.5819);
-	cutg.SetPoint(2,54.9042,28.0226);
-	cutg.SetPoint(3,83.0651,35.3672);
-	cutg.SetPoint(4,81.5326,53.1638);
-	cutg.SetPoint(5,59.3103,79.1525);
-	cutg.SetPoint(6,37.8544,70.113);
-END:
+##
+## Standard DRAGON histograms for the rootana analyzer.
+##
+## EXAMPLE COMMAND ##
+## Creates a 2d polygon cut ##
+# CMD:
+#       TCutG cutg("cutTest",7);
+# 	cutg.SetVarX("");
+# 	cutg.SetVarY("");
+# 	cutg.SetTitle("Graph");
+# 	cutg.SetFillColor(1);
+# 	cutg.SetPoint(0,37.8544,70.113);
+# 	cutg.SetPoint(1,25.5939,41.5819);
+# 	cutg.SetPoint(2,54.9042,28.0226);
+# 	cutg.SetPoint(3,83.0651,35.3672);
+# 	cutg.SetPoint(4,81.5326,53.1638);
+# 	cutg.SetPoint(5,59.3103,79.1525);
+# 	cutg.SetPoint(6,37.8544,70.113);
+# END:
 
 ## BGO SINGLES ##
 DIR:

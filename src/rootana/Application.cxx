@@ -19,6 +19,7 @@
 #include "libNetDirectory/netDirectoryServer.h"
 
 #include "midas/Database.hxx"
+#include "utils/Stringify.h"
 #include "utils/TStamp.hxx"
 #include "Timer.hxx"
 #include "Histos.hxx"
@@ -58,9 +59,6 @@ private:
 
 // APPLICATION CLASS //
 
-#define ROOTANA_STRINGIFY_MACRO(S) ROOTANA_STRINGIFY (S)
-#define ROOTANA_STRINGIFY(S) #S
-
 rootana::App::App(const char* appClassName, Int_t* argc, char** argv):
 	TApplication (appClassName, argc, argv, 0, -1),
 	fRunNumber(0),
@@ -71,7 +69,7 @@ rootana::App::App(const char* appClassName, Int_t* argc, char** argv):
 	fFilename(""),
 	fHost(""),
 	fExpt(""),
-	fHistos( ROOTANA_STRINGIFY_MACRO(ROOTANA_DEFAULT_HISTOS) ),
+	fHistos( DRAGON_UTILS_STRINGIFY(ROOTANA_DEFAULT_HISTOS) ),
 	fHistosOnline(""),
 	fOutputFile(""),
 	fOnlineHists(),

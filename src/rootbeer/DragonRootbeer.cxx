@@ -8,6 +8,7 @@
 
 // DRAGON includes //
 #include "utils/definitions.h"
+#include "utils/Stringify.h"
 #include "MidasBuffer.hxx"
 #include "DragonEvents.hxx"
 #include "DragonRootbeer.hxx"
@@ -61,4 +62,9 @@ void rb::Rint::RegisterEvents()
 
 	/// - Tail Scalers [ rootbeer::TailScaler ]: "TailScaler"
 	RegisterEvent<rootbeer::TailScaler> (DRAGON_TAIL_SCALER, "TailScaler");
+
+	/// Also: expose macros in definitions.h to CINT
+	std::stringstream cmd;
+	cmd << "#include \"" << DRAGON_UTILS_STRINGIFY(RB_DRAGON_HOMEDIR) << "/src/utils/definitions.h\"";
+	gROOT->ProcessLine(cmd.str().c_str());
 }

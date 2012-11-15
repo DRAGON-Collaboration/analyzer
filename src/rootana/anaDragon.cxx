@@ -8,17 +8,13 @@
 #include <memory>
 #include <string>
 #include <iostream>
+#include "utils/Stringify.h"
 #include "Callbacks.hxx"
-
-#ifndef ROOTANA_STRINGIFY
-#define ROOTANA_STRINGIFY_MACRO(S) ROOTANA_STRINGIFY (S)
-#define ROOTANA_STRINGIFY(S) #S
-#endif
 
 
 bool check_public()
 {
-	std::string priv = ROOTANA_STRINGIFY_MACRO(PRIVATE);
+	std::string priv = DRAGON_UTILS_STRINGIFY(PRIVATE);
 	bool ret = true;
 
 	if(priv != "public") {
