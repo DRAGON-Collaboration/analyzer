@@ -11,6 +11,7 @@
 
 // DRAGON Globals //
 #include "dragon/Coinc.hxx"
+#include "dragon/Scaler.hxx"
 
 #ifndef G__DICTIONARY
 /// Provide 'extern' linkage except in CINT dictionary
@@ -29,6 +30,12 @@ EXTERN dragon::Tail gTail;
 
 /// Global coincidence event class
 EXTERN dragon::Coinc gCoinc;
+
+/// Global head scaler class
+EXTERN dragon::Scaler gHeadScaler;
+
+/// Global tail scaler class
+EXTERN dragon::Scaler gTailScaler;
 
 }
 

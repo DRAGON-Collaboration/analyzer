@@ -373,3 +373,438 @@ TH1D:
 	rootana::gCoinc.tail.tof.gamma_dsssd
 CUT:
         IsValid(rootana::gCoinc.tail.tof.gamma_dsssd)
+
+
+## Head Scalers ##
+DIR:
+histos/scaler/head
+
+# for i in count rate sum;
+# do for j in {0..16}; do
+# echo "SCALER:"
+# echo "        ((\"${i}_\" + gHeadScaler.channel_name(${j})).c_str(), (gHeadScaler.channel_name(${j})+ \" (${i})\").c_str(), 5000, 0, 5000)"
+# echo "        rootana::gHeadScaler.${i}[${j}]"
+# echo ""
+# done; done
+
+SCALER:
+        (("count_" + gHeadScaler.channel_name(0)).c_str(), (gHeadScaler.channel_name(0)+ " (count)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.count[0]
+
+SCALER:
+        (("count_" + gHeadScaler.channel_name(1)).c_str(), (gHeadScaler.channel_name(1)+ " (count)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.count[1]
+
+SCALER:
+        (("count_" + gHeadScaler.channel_name(2)).c_str(), (gHeadScaler.channel_name(2)+ " (count)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.count[2]
+
+SCALER:
+        (("count_" + gHeadScaler.channel_name(3)).c_str(), (gHeadScaler.channel_name(3)+ " (count)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.count[3]
+
+SCALER:
+        (("count_" + gHeadScaler.channel_name(4)).c_str(), (gHeadScaler.channel_name(4)+ " (count)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.count[4]
+
+SCALER:
+        (("count_" + gHeadScaler.channel_name(5)).c_str(), (gHeadScaler.channel_name(5)+ " (count)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.count[5]
+
+SCALER:
+        (("count_" + gHeadScaler.channel_name(6)).c_str(), (gHeadScaler.channel_name(6)+ " (count)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.count[6]
+
+SCALER:
+        (("count_" + gHeadScaler.channel_name(7)).c_str(), (gHeadScaler.channel_name(7)+ " (count)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.count[7]
+
+SCALER:
+        (("count_" + gHeadScaler.channel_name(8)).c_str(), (gHeadScaler.channel_name(8)+ " (count)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.count[8]
+
+SCALER:
+        (("count_" + gHeadScaler.channel_name(9)).c_str(), (gHeadScaler.channel_name(9)+ " (count)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.count[9]
+
+SCALER:
+        (("count_" + gHeadScaler.channel_name(10)).c_str(), (gHeadScaler.channel_name(10)+ " (count)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.count[10]
+
+SCALER:
+        (("count_" + gHeadScaler.channel_name(11)).c_str(), (gHeadScaler.channel_name(11)+ " (count)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.count[11]
+
+SCALER:
+        (("count_" + gHeadScaler.channel_name(12)).c_str(), (gHeadScaler.channel_name(12)+ " (count)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.count[12]
+
+SCALER:
+        (("count_" + gHeadScaler.channel_name(13)).c_str(), (gHeadScaler.channel_name(13)+ " (count)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.count[13]
+
+SCALER:
+        (("count_" + gHeadScaler.channel_name(14)).c_str(), (gHeadScaler.channel_name(14)+ " (count)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.count[14]
+
+SCALER:
+        (("count_" + gHeadScaler.channel_name(15)).c_str(), (gHeadScaler.channel_name(15)+ " (count)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.count[15]
+
+SCALER:
+        (("count_" + gHeadScaler.channel_name(16)).c_str(), (gHeadScaler.channel_name(16)+ " (count)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.count[16]
+
+SCALER:
+        (("rate_" + gHeadScaler.channel_name(0)).c_str(), (gHeadScaler.channel_name(0)+ " (rate)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.rate[0]
+
+SCALER:
+        (("rate_" + gHeadScaler.channel_name(1)).c_str(), (gHeadScaler.channel_name(1)+ " (rate)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.rate[1]
+
+SCALER:
+        (("rate_" + gHeadScaler.channel_name(2)).c_str(), (gHeadScaler.channel_name(2)+ " (rate)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.rate[2]
+
+SCALER:
+        (("rate_" + gHeadScaler.channel_name(3)).c_str(), (gHeadScaler.channel_name(3)+ " (rate)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.rate[3]
+
+SCALER:
+        (("rate_" + gHeadScaler.channel_name(4)).c_str(), (gHeadScaler.channel_name(4)+ " (rate)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.rate[4]
+
+SCALER:
+        (("rate_" + gHeadScaler.channel_name(5)).c_str(), (gHeadScaler.channel_name(5)+ " (rate)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.rate[5]
+
+SCALER:
+        (("rate_" + gHeadScaler.channel_name(6)).c_str(), (gHeadScaler.channel_name(6)+ " (rate)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.rate[6]
+
+SCALER:
+        (("rate_" + gHeadScaler.channel_name(7)).c_str(), (gHeadScaler.channel_name(7)+ " (rate)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.rate[7]
+
+SCALER:
+        (("rate_" + gHeadScaler.channel_name(8)).c_str(), (gHeadScaler.channel_name(8)+ " (rate)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.rate[8]
+
+SCALER:
+        (("rate_" + gHeadScaler.channel_name(9)).c_str(), (gHeadScaler.channel_name(9)+ " (rate)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.rate[9]
+
+SCALER:
+        (("rate_" + gHeadScaler.channel_name(10)).c_str(), (gHeadScaler.channel_name(10)+ " (rate)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.rate[10]
+
+SCALER:
+        (("rate_" + gHeadScaler.channel_name(11)).c_str(), (gHeadScaler.channel_name(11)+ " (rate)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.rate[11]
+
+SCALER:
+        (("rate_" + gHeadScaler.channel_name(12)).c_str(), (gHeadScaler.channel_name(12)+ " (rate)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.rate[12]
+
+SCALER:
+        (("rate_" + gHeadScaler.channel_name(13)).c_str(), (gHeadScaler.channel_name(13)+ " (rate)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.rate[13]
+
+SCALER:
+        (("rate_" + gHeadScaler.channel_name(14)).c_str(), (gHeadScaler.channel_name(14)+ " (rate)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.rate[14]
+
+SCALER:
+        (("rate_" + gHeadScaler.channel_name(15)).c_str(), (gHeadScaler.channel_name(15)+ " (rate)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.rate[15]
+
+SCALER:
+        (("rate_" + gHeadScaler.channel_name(16)).c_str(), (gHeadScaler.channel_name(16)+ " (rate)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.rate[16]
+
+SCALER:
+        (("sum_" + gHeadScaler.channel_name(0)).c_str(), (gHeadScaler.channel_name(0)+ " (sum)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.sum[0]
+
+SCALER:
+        (("sum_" + gHeadScaler.channel_name(1)).c_str(), (gHeadScaler.channel_name(1)+ " (sum)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.sum[1]
+
+SCALER:
+        (("sum_" + gHeadScaler.channel_name(2)).c_str(), (gHeadScaler.channel_name(2)+ " (sum)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.sum[2]
+
+SCALER:
+        (("sum_" + gHeadScaler.channel_name(3)).c_str(), (gHeadScaler.channel_name(3)+ " (sum)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.sum[3]
+
+SCALER:
+        (("sum_" + gHeadScaler.channel_name(4)).c_str(), (gHeadScaler.channel_name(4)+ " (sum)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.sum[4]
+
+SCALER:
+        (("sum_" + gHeadScaler.channel_name(5)).c_str(), (gHeadScaler.channel_name(5)+ " (sum)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.sum[5]
+
+SCALER:
+        (("sum_" + gHeadScaler.channel_name(6)).c_str(), (gHeadScaler.channel_name(6)+ " (sum)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.sum[6]
+
+SCALER:
+        (("sum_" + gHeadScaler.channel_name(7)).c_str(), (gHeadScaler.channel_name(7)+ " (sum)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.sum[7]
+
+SCALER:
+        (("sum_" + gHeadScaler.channel_name(8)).c_str(), (gHeadScaler.channel_name(8)+ " (sum)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.sum[8]
+
+SCALER:
+        (("sum_" + gHeadScaler.channel_name(9)).c_str(), (gHeadScaler.channel_name(9)+ " (sum)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.sum[9]
+
+SCALER:
+        (("sum_" + gHeadScaler.channel_name(10)).c_str(), (gHeadScaler.channel_name(10)+ " (sum)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.sum[10]
+
+SCALER:
+        (("sum_" + gHeadScaler.channel_name(11)).c_str(), (gHeadScaler.channel_name(11)+ " (sum)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.sum[11]
+
+SCALER:
+        (("sum_" + gHeadScaler.channel_name(12)).c_str(), (gHeadScaler.channel_name(12)+ " (sum)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.sum[12]
+
+SCALER:
+        (("sum_" + gHeadScaler.channel_name(13)).c_str(), (gHeadScaler.channel_name(13)+ " (sum)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.sum[13]
+
+SCALER:
+        (("sum_" + gHeadScaler.channel_name(14)).c_str(), (gHeadScaler.channel_name(14)+ " (sum)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.sum[14]
+
+SCALER:
+        (("sum_" + gHeadScaler.channel_name(15)).c_str(), (gHeadScaler.channel_name(15)+ " (sum)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.sum[15]
+
+SCALER:
+        (("sum_" + gHeadScaler.channel_name(16)).c_str(), (gHeadScaler.channel_name(16)+ " (sum)").c_str(), 5000, 0, 5000)
+        rootana::gHeadScaler.sum[16]
+
+
+## Tail Scalers ##
+DIR:
+histos/scaler/tail
+
+# for i in count rate sum;
+# do for j in {0..16}; do
+# echo "SCALER:"
+# echo "        ((\"${i}_\" + gTailScaler.channel_name(${j})).c_str(), (gTailScaler.channel_name(${j})+ \" (${i})\").c_str(), 5000, 0, 5000)"
+# echo "        rootana::gTailScaler.${i}[${j}]"
+# echo ""
+# done; done
+
+SCALER:
+        (("count_" + gTailScaler.channel_name(0)).c_str(), (gTailScaler.channel_name(0)+ " (count)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.count[0]
+
+SCALER:
+        (("count_" + gTailScaler.channel_name(1)).c_str(), (gTailScaler.channel_name(1)+ " (count)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.count[1]
+
+SCALER:
+        (("count_" + gTailScaler.channel_name(2)).c_str(), (gTailScaler.channel_name(2)+ " (count)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.count[2]
+
+SCALER:
+        (("count_" + gTailScaler.channel_name(3)).c_str(), (gTailScaler.channel_name(3)+ " (count)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.count[3]
+
+SCALER:
+        (("count_" + gTailScaler.channel_name(4)).c_str(), (gTailScaler.channel_name(4)+ " (count)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.count[4]
+
+SCALER:
+        (("count_" + gTailScaler.channel_name(5)).c_str(), (gTailScaler.channel_name(5)+ " (count)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.count[5]
+
+SCALER:
+        (("count_" + gTailScaler.channel_name(6)).c_str(), (gTailScaler.channel_name(6)+ " (count)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.count[6]
+
+SCALER:
+        (("count_" + gTailScaler.channel_name(7)).c_str(), (gTailScaler.channel_name(7)+ " (count)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.count[7]
+
+SCALER:
+        (("count_" + gTailScaler.channel_name(8)).c_str(), (gTailScaler.channel_name(8)+ " (count)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.count[8]
+
+SCALER:
+        (("count_" + gTailScaler.channel_name(9)).c_str(), (gTailScaler.channel_name(9)+ " (count)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.count[9]
+
+SCALER:
+        (("count_" + gTailScaler.channel_name(10)).c_str(), (gTailScaler.channel_name(10)+ " (count)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.count[10]
+
+SCALER:
+        (("count_" + gTailScaler.channel_name(11)).c_str(), (gTailScaler.channel_name(11)+ " (count)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.count[11]
+
+SCALER:
+        (("count_" + gTailScaler.channel_name(12)).c_str(), (gTailScaler.channel_name(12)+ " (count)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.count[12]
+
+SCALER:
+        (("count_" + gTailScaler.channel_name(13)).c_str(), (gTailScaler.channel_name(13)+ " (count)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.count[13]
+
+SCALER:
+        (("count_" + gTailScaler.channel_name(14)).c_str(), (gTailScaler.channel_name(14)+ " (count)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.count[14]
+
+SCALER:
+        (("count_" + gTailScaler.channel_name(15)).c_str(), (gTailScaler.channel_name(15)+ " (count)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.count[15]
+
+SCALER:
+        (("count_" + gTailScaler.channel_name(16)).c_str(), (gTailScaler.channel_name(16)+ " (count)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.count[16]
+
+SCALER:
+        (("rate_" + gTailScaler.channel_name(0)).c_str(), (gTailScaler.channel_name(0)+ " (rate)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.rate[0]
+
+SCALER:
+        (("rate_" + gTailScaler.channel_name(1)).c_str(), (gTailScaler.channel_name(1)+ " (rate)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.rate[1]
+
+SCALER:
+        (("rate_" + gTailScaler.channel_name(2)).c_str(), (gTailScaler.channel_name(2)+ " (rate)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.rate[2]
+
+SCALER:
+        (("rate_" + gTailScaler.channel_name(3)).c_str(), (gTailScaler.channel_name(3)+ " (rate)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.rate[3]
+
+SCALER:
+        (("rate_" + gTailScaler.channel_name(4)).c_str(), (gTailScaler.channel_name(4)+ " (rate)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.rate[4]
+
+SCALER:
+        (("rate_" + gTailScaler.channel_name(5)).c_str(), (gTailScaler.channel_name(5)+ " (rate)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.rate[5]
+
+SCALER:
+        (("rate_" + gTailScaler.channel_name(6)).c_str(), (gTailScaler.channel_name(6)+ " (rate)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.rate[6]
+
+SCALER:
+        (("rate_" + gTailScaler.channel_name(7)).c_str(), (gTailScaler.channel_name(7)+ " (rate)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.rate[7]
+
+SCALER:
+        (("rate_" + gTailScaler.channel_name(8)).c_str(), (gTailScaler.channel_name(8)+ " (rate)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.rate[8]
+
+SCALER:
+        (("rate_" + gTailScaler.channel_name(9)).c_str(), (gTailScaler.channel_name(9)+ " (rate)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.rate[9]
+
+SCALER:
+        (("rate_" + gTailScaler.channel_name(10)).c_str(), (gTailScaler.channel_name(10)+ " (rate)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.rate[10]
+
+SCALER:
+        (("rate_" + gTailScaler.channel_name(11)).c_str(), (gTailScaler.channel_name(11)+ " (rate)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.rate[11]
+
+SCALER:
+        (("rate_" + gTailScaler.channel_name(12)).c_str(), (gTailScaler.channel_name(12)+ " (rate)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.rate[12]
+
+SCALER:
+        (("rate_" + gTailScaler.channel_name(13)).c_str(), (gTailScaler.channel_name(13)+ " (rate)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.rate[13]
+
+SCALER:
+        (("rate_" + gTailScaler.channel_name(14)).c_str(), (gTailScaler.channel_name(14)+ " (rate)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.rate[14]
+
+SCALER:
+        (("rate_" + gTailScaler.channel_name(15)).c_str(), (gTailScaler.channel_name(15)+ " (rate)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.rate[15]
+
+SCALER:
+        (("rate_" + gTailScaler.channel_name(16)).c_str(), (gTailScaler.channel_name(16)+ " (rate)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.rate[16]
+
+SCALER:
+        (("sum_" + gTailScaler.channel_name(0)).c_str(), (gTailScaler.channel_name(0)+ " (sum)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.sum[0]
+
+SCALER:
+        (("sum_" + gTailScaler.channel_name(1)).c_str(), (gTailScaler.channel_name(1)+ " (sum)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.sum[1]
+
+SCALER:
+        (("sum_" + gTailScaler.channel_name(2)).c_str(), (gTailScaler.channel_name(2)+ " (sum)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.sum[2]
+
+SCALER:
+        (("sum_" + gTailScaler.channel_name(3)).c_str(), (gTailScaler.channel_name(3)+ " (sum)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.sum[3]
+
+SCALER:
+        (("sum_" + gTailScaler.channel_name(4)).c_str(), (gTailScaler.channel_name(4)+ " (sum)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.sum[4]
+
+SCALER:
+        (("sum_" + gTailScaler.channel_name(5)).c_str(), (gTailScaler.channel_name(5)+ " (sum)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.sum[5]
+
+SCALER:
+        (("sum_" + gTailScaler.channel_name(6)).c_str(), (gTailScaler.channel_name(6)+ " (sum)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.sum[6]
+
+SCALER:
+        (("sum_" + gTailScaler.channel_name(7)).c_str(), (gTailScaler.channel_name(7)+ " (sum)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.sum[7]
+
+SCALER:
+        (("sum_" + gTailScaler.channel_name(8)).c_str(), (gTailScaler.channel_name(8)+ " (sum)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.sum[8]
+
+SCALER:
+        (("sum_" + gTailScaler.channel_name(9)).c_str(), (gTailScaler.channel_name(9)+ " (sum)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.sum[9]
+
+SCALER:
+        (("sum_" + gTailScaler.channel_name(10)).c_str(), (gTailScaler.channel_name(10)+ " (sum)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.sum[10]
+
+SCALER:
+        (("sum_" + gTailScaler.channel_name(11)).c_str(), (gTailScaler.channel_name(11)+ " (sum)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.sum[11]
+
+SCALER:
+        (("sum_" + gTailScaler.channel_name(12)).c_str(), (gTailScaler.channel_name(12)+ " (sum)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.sum[12]
+
+SCALER:
+        (("sum_" + gTailScaler.channel_name(13)).c_str(), (gTailScaler.channel_name(13)+ " (sum)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.sum[13]
+
+SCALER:
+        (("sum_" + gTailScaler.channel_name(14)).c_str(), (gTailScaler.channel_name(14)+ " (sum)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.sum[14]
+
+SCALER:
+        (("sum_" + gTailScaler.channel_name(15)).c_str(), (gTailScaler.channel_name(15)+ " (sum)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.sum[15]
+
+SCALER:
+        (("sum_" + gTailScaler.channel_name(16)).c_str(), (gTailScaler.channel_name(16)+ " (sum)").c_str(), 5000, 0, 5000)
+        rootana::gTailScaler.sum[16]
+

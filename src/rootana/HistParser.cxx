@@ -32,6 +32,8 @@ inline Int_t get_type(const std::string& spar)
 	if      (contains(spar, "rootana::gHead"))  return DRAGON_HEAD_EVENT;
 	else if (contains(spar, "rootana::gTail"))  return DRAGON_TAIL_EVENT;
 	else if (contains(spar, "rootana::gCoinc")) return DRAGON_COINC_EVENT;
+	else if (contains(spar, "rootana::gHeadScaler")) return DRAGON_HEAD_SCALER;
+	else if (contains(spar, "rootana::gTailScaler")) return DRAGON_TAIL_SCALER;
 	else return -1;
 }
 
@@ -212,6 +214,38 @@ void rootana::HistParser::handle_hist(const char* type)
 	add_hist(h, type_code);
 }
 
+void rootana::HistParser::handle_scaler()
+{
+	unsigned lhst, lpar;
+	std::string shst, spar;
+	{
+		unsigned* lll[2] = { &lhst, &lpar };
+		std::string* lread[2] = { &shst, &spar };
+		for (int i=0; i< 2; ++i) {
+			read_line();
+			if(!IsGood()) throw_missing_arg("SCALER:", fLineNumber, fFilename);
+			*(lll[i])   = fLineNumber;
+			*(lread[i]) = fLine;
+		}
+	}
+
+	std::stringstream cmdData;
+	cmdData << "rootana::DataPointer::New(" << spar << ");";
+	rootana::DataPointer* data = (rootana::DataPointer*)gROOT->ProcessLineFast(cmdData.str().c_str());
+	if (!data) throw_bad_line(spar, lpar, fFilename);
+
+	std::stringstream cmdHist;
+	cmdHist << "new TH1D" << shst << ";";
+	TH1D* hst = (TH1D*)gROOT->ProcessLineFast(cmdHist.str().c_str());
+	if (!hst) throw_bad_line(shst, lhst, fFilename);
+
+	rootana::ScalerHist* h = new rootana::ScalerHist(hst, data);
+	assert(h);
+
+	Int_t type = get_type(spar);
+	add_hist(h, type);
+}
+
 void rootana::HistParser::handle_summary()
 {
 	unsigned lhst, lpar, lnum;
@@ -296,6 +330,7 @@ void rootana::HistParser::Run()
 			else if (contains(fLine, "TH2D:"))    handle_hist("TH2D");
 			else if (contains(fLine, "TH3D:"))    handle_hist("TH3D");
 			else if (contains(fLine, "SUMMARY:")) handle_summary();
+			else if (contains(fLine, "SCALER:"))  handle_scaler();
 			else continue;
 		} catch (std::exception& e) {
 			std::cerr << "\n*******\n";

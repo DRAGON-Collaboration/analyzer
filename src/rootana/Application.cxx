@@ -207,13 +207,11 @@ void rootana::App::Process(const midas::Event& event)
 			break;
 		}
 	case DRAGON_HEAD_SCALER: /// - DRAGON_HEAD_SCALER: \todo implement C. Stanford's scaler codes
-		// <...process...> //
-		doFill = false;
+		rootana::gHeadScaler.unpack(event);
 		break;
 
 	case DRAGON_TAIL_SCALER: /// - DRAGON_TAIL_SCALER: \todo implement C. Stanford's scaler codes
-		// <...process...> //
-		doFill = false;
+		rootana::gTailScaler.unpack(event);
 		break;
 
 	default: /// - Silently ignore other event types
@@ -412,6 +410,8 @@ void rootana::App::run_start(int runnum)
 	 *  Sets status flags, calls EventHandler::BeginRun(), opens output file.
 	 */
   fRunNumber = runnum;
+	rootana::gHeadScaler.reset();
+	rootana::gTailScaler.reset();
     
 	bool opened = fOutputFile.Open(runnum, fHistos.c_str());
 	if(!opened) Terminate(1);

@@ -79,6 +79,8 @@ private:
 	bool read_line();
 	/// Handle a directory flag in the file
 	void handle_dir();
+	/// Handle a scaler hist flag in the file
+	void handle_scaler();
 	/// Handle a summary hist flag in the file
 	void handle_summary();
 	/// Handle a hist flag in the file

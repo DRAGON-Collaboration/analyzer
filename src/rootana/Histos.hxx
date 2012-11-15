@@ -41,6 +41,8 @@ public:
 
 	/// Fills the histogram with appropriate data
 	virtual Int_t fill() = 0;
+	/// Draw the histogram
+	virtual void draw(Option_t* option = "") const = 0;
 	/// Writes the histogram to disk
 	virtual void write() = 0;
 	/// Clears the histogram
@@ -98,6 +100,9 @@ public:
 
 	/// Calls TH1::Fill using fParamx, fParamy, fParamz
 	virtual Int_t fill();
+	/// Calls TH1::Draw()
+	virtual void draw(Option_t* option = "") const
+		{ fHist->Draw(option); }
 	/// Calls TH1::Write()
 	virtual void write()
 		{ fHist->Write(); }
@@ -132,6 +137,28 @@ public:
 	virtual ~SummaryHist() { }
 	/// Override the fill() method to act appropriately for summary histograms
 	virtual Int_t fill();
+};
+
+
+/// Specialized case of TH1D to display scaler information
+/*!
+ * For scaler histograms, we put the "event" number on the x-axis and the number of
+ * counts in a given event on the y-axis
+ */
+class ScalerHist: public Hist<TH1D> {
+private:
+	/// Counter for the scaler event number
+	Int_t fEventNumber;
+public:
+	/// Calls Hist<TH1D> constructor; sets fEventNumber to zero
+	ScalerHist(TH1D* hist, const DataPointer* param);
+	/// Empty, Hist<TH1D> destructor handles everything
+	~ScalerHist() { }
+	/// Override fill() method to correspond to scaler display
+	virtual Int_t fill();
+private:
+	/// Extend the x-axis
+	void extend(double factor);
 };
 
 
@@ -236,6 +263,51 @@ inline Int_t rootana::Hist<TH3D>::fill()
 		return fHist->Fill (fParamx->get(), fParamy->get(), fParamz->get());
 	else return 0;
 }
+
+
+// Scaler Hist //
+
+inline rootana::ScalerHist::ScalerHist(TH1D* hist, const DataPointer* param):
+	rootana::Hist<TH1D>(hist, param), fEventNumber(0)
+{
+	/*!
+	 * \param hist Histogram defining x-axis binning
+	 * \param param DataPointer referencing the scaler parameter
+	 */
+}
+
+inline void rootana::ScalerHist::extend(double factor)
+{
+	/*!
+	 * Keeps bin width and minimum the same, but exends maximum
+	 * by oldMax * factor
+	 */
+	const double Max = fHist->GetBinLowEdge(fHist->GetNbinsX()+1);
+	const double Min = fHist->GetBinLowEdge(1);
+	const double binWidth = (Max - Min) / fHist->GetNbinsX();
+
+	const double newMax = Max*factor;
+	const Int_t newBins = (newMax - Min) / binWidth;
+
+	fHist->SetBins(newBins, Min, newMax);
+}
+
+inline Int_t rootana::ScalerHist::fill()
+{
+	/*!
+	 * Puts the number of counts on the y-axis, event number on the x.
+	 * If the current event number is greater than the width of the histogram,
+	 * the x-axis is lengthened (by a factor of 1.5) to accomodate more events.
+	 */
+	if (fEventNumber > fHist->GetNbinsX())
+		this->extend(1.5);
+
+	const double counts = fParamx->get();
+	fHist->SetBinContent(1 + fEventNumber++, counts);
+	return counts;
+}
+
+// Summary Hist //
 
 namespace {
 inline TH2D* get_summary_2d(TH1D* xaxis, const DataPointer* param)
