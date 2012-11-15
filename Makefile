@@ -36,19 +36,19 @@ DEFINITIONS+=-DPRIVATE=public  -DPROTECTED=public
 
 ### Set to YES (NO) to turn on (off) root [or rootbeer, or rootana, or ...] usage ###
 USE_ROOT=YES
-USE_ROOTANA=YES
-USE_ROOTBEER=NO
+USE_ROOTANA=NO
+USE_ROOTBEER=YES
 
 ### Set ROOTBEER home directory (ignore if USE_ROOTBEER=NO) ###
 RB_HOME=/Users/gchristian/soft/develop/rootbeer
 
 
 ### CHOOSE YOUR COMPILER IF YOU WANT ###
-CXX=g++ -Wall
-#CXX=clang++ -I/opt/local/include/
+#CXX=g++ -Wall
+CXX=clang++ -I/opt/local/include/
 
-CC=gcc -Wall
-#CC=clang -I/opt/local/include/
+#CC=gcc -Wall
+CC=clang -I/opt/local/include/
 
 
 #####################################
