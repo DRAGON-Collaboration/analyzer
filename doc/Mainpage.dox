@@ -219,8 +219,8 @@
 	Example:
 	\code
   SCALER:
-          ("rate_ch0", "Rate of scaler channel 0", 5000, 0, 5000);
-          rootana::gHeadScaler.rate[0]
+      ("rate_ch0", "Rate of scaler channel 0", 5000, 0, 5000);
+      rootana::gHeadScaler.rate[0]
 	\endcode
 	\n\n
 	-# SUMMARY: Create a "summary" histogram, that is a histogram which displays information on multiple channels
@@ -251,7 +251,7 @@
 	on how to define a cut, see the code documentation of the Cut.hxx source file and links therein.\n
 	As a simple example:
 	\code
-	TH1D:
+  TH1D:
       ("bgo_e0", "Bgo energy, ch 0 [singles]", 256, 0, 4096)
       rootana::gHead.bgo.ecal[0]
   CUT:
@@ -262,7 +262,7 @@
 	Note that you can also create/use 2d polygon cuts, either by specifying the parameters and (closed) polygon
 	points:
 	\code
-	CUT:
+  CUT:
       Cut2D(gHead.bgo.q[0], gHead.bgo.q[1], -2,-2, -2,2, 2,2, 2,-2, -2,-2)
   \endcode
 	This would create the following cut:\n\n
@@ -307,12 +307,22 @@
 	need in the online analyzer without ever having to touch the source code. A few more notes about histogram definition
 	files:
 
+	- There are five global instances of "top-level" classes which encapsulate all of the relevant data in
+	the experiment. Each class corresponds to a different event type, and is mapped to a different ROOT tree
+	in the output file. As you may have noticed in the examples, these will need to prefix any parameters to
+	be displayed in histograms. They are:
+	-# rootana::gHead - "Head" (gamma) singles event
+	-# rootana::gTail - "Tail" (heavy-ion( singles event
+	-# rootana::gCoinc - Coincidence event
+	-# rootana::gHeadScaler - "Head" (gamma) scaler event
+	-# rootana::gTailScaler - "Tail" (heavy-ion) scaler event
+
 	- White-space is ignored, though good indention improves readability immensely.
 	\n\n
 	- The \c # character denotes a comment, all characters on the same line coming after a \c # are ignored:
 	\code
-	# IGNORE THIS HEADER STATEMENT #
-	TH1D: #Ignore this descriptive comment also...
+  # IGNORE THIS HEADER STATEMENT #
+  TH1D: #Ignore this descriptive comment also...
 	\endcode
 	\n\n
 	- The run-time parsing is done using CINT via the \c gROOT->ProcessLine() and
