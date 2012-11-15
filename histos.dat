@@ -35,7 +35,7 @@ TH1D:
 	("bgo0", "BGO_{0} Channel;BGO;Counts", 30, 0, 30)
 	rootana::gHead.bgo.hit0
 CUT:
-	Greater(rootana::gHead.bgo.hit0, 0)
+	Greater(rootana::gHead.bgo.esort[0], 0)
 
 TH2D:
 	("bgoE0", "BGO_{0} Channel vs. Energy;Energy [keV/10];Detector Number", 256, 0, 4096, 30, 0, 30)
@@ -85,7 +85,7 @@ DIR:
 histos/event/hion/ic
 
 SUMMARY:
-	("dsssdE", "IC channel vs. anode;Anode [ch];Channel", 256, 0, 4096)
+	("icAnode", "IC channel vs. anode;Anode [ch];Channel", 256, 0, 4096)
 	rootana::gTail.ic.anode
 	4
 
@@ -117,7 +117,7 @@ DIR:
 histos/event/hion/mcp
 
 TH1D:
-        ("mcpEsum", "Sum of MCP anodes;Esum [arb.];Counts", 250, 0, 50000)
+        ("mcpSum", "Sum of MCP anodes;Esum [arb.];Counts", 250, 0, 50000)
 	rootana::gTail.mcp.esum
 CUT:
         Greater(rootana::gTail.mcp.esum, 0)
@@ -159,9 +159,9 @@ CUT:
 	Greater(rootana::gTail.sb.ecal[1], 0)
 
 
-## NAI SINGLES ##
+## NAI + GE SINGLES ##
 DIR:
-histos/event/hion/nai
+histos/event/hion/aux
 
 TH1D:
         ("naiE0", "NaI energy, ch. 0;Energy [channel];Counts", 256, 0, 4096)
@@ -174,11 +174,6 @@ TH1D:
 	rootana::gTail.nai.ecal[1]
 CUT:
 	Greater(rootana::gTail.nai.ecal[1], 0)
-
-
-## GE SINGLES ##
-DIR:
-histos/event/hion/ge
 
 TH1D:
         ("geE", "HPGe energy;Energy [channel];Counts", 256, 0, 4096)
