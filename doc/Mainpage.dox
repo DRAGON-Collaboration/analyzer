@@ -72,7 +72,7 @@
 	of the code as a .zip file, or if you are familiar with
 	git, you can clone it into a local repository (note that you want to be on the 'dev' branch):
 	\code
-	git clone git@github.com:gchristian321/dragon_analyzer.git
+  git clone git@github.com:gchristian321/dragon_analyzer.git
 	\endcode
 
 	Before compiling, you may need to customize the Makefile to work on your system. If you open the file,
@@ -81,7 +81,7 @@
 
 	One you have set up the makefile as appropriate for your system, compiling should be as simple as typing
 	\code
-	make
+  make
 	\endcode
 	at the command line.  This will install the generated binaries in your local directory (shared libraries in
 	$PWD/lib, binaries in $PWD). There is no "install" option, so you should either copy/link the binaries and
@@ -108,15 +108,15 @@
 	the core dragon library. To be able to use the extensions from any directory, add the following to your bash
 	startup script:
 	\code
-	export PYTHONPATH=${PYTHONPATH}:"/path/to/your/dragon/analyzer/py++/"
-	export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:"/path/to/your/dragon/analyzer/py++/"
+  export PYTHONPATH=${PYTHONPATH}:"/path/to/your/dragon/analyzer/py++/"
+  export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:"/path/to/your/dragon/analyzer/py++/"
 	\endcode
 	and re-start your bash session or re-source the startup script. Now from a python session or script, you
 	can load the generated modules:
 	\code
-	import midas
-	import vme
-	import dragon
+  import midas
+  import vme
+  import dragon
 	\endcode
 
 	You can use the python 'help' function (<tt>help dragon</tt>, etc) to see the classes and functions
@@ -146,7 +146,7 @@
 	is the location of the DRAGON analyzer package. However, you can alternatively specify a different histogram
 	definition file by invoking the \c -histos flag at program start:
 	\code
-	./anaDragon -histos my_histograms.dat
+  ./anaDragon -histos my_histograms.dat
 	\endcode
 
 	Note that the default histogram file (or the one specified with the \c -histos flag, creates histograms that
@@ -154,7 +154,7 @@
 	are also saved to a .root file at the end of the run. It is also possible to specify a separate set of histograms
 	for online viewing \e only. To do this, invoke the \c -histos0 flag:
 	\code
-	./anaDragon -histos0 histograms_i_only_care_to_see_online.dat
+  ./anaDragon -histos0 histograms_i_only_care_to_see_online.dat
 	\endcode
 
 	Now that you know how to specify what file to read the histogram definitions from, you should probably also
@@ -338,11 +338,11 @@
 	is coming in. To start roody, you will need to specify the host and port of the histogram server. Usually this
 	means, the following:
 	\code
-	roody -Plocalhost:9091
+  roody -Plocalhost:9091
 	\endcode
 	if running locally from the back-end host, or
 	\code
-	roody -Pdraco.triumf.ca:9091
+  roody -Pdraco.triumf.ca:9091
 	\endcode
 	if running remotely.
 
@@ -392,16 +392,16 @@
 	is that we can use ROOT's dictionary facility to create <tt>TTree</tt>s whose branches are defined by the structure
 	of our classes. For example we can just do:
 	\code
-	dragon::Coinc* coinc = new dragon::Coinc();
-	TTree tcoinc("tcoinc","Coincidence event");
-	tcoinc.Branch("coinc","dragon::Coinc",&coinc);
+  dragon::Coinc* coinc = new dragon::Coinc();
+  TTree tcoinc("tcoinc","Coincidence event");
+  tcoinc.Branch("coinc","dragon::Coinc",&coinc);
 	\endcode
 	
 	After just a few lines of code, we now have the ability to access any parameter in a DRAGON coincidence event through
 	the 'tcoinc' tree:
 	\code
-	tcoinc.Draw("coinc.head.bgo.ecal[0]>>hst_e0(400,0,4000)"); // Draws BGO energy, channel 0
-	tcoinc.Draw("coinc.tail.mcp.tac>>hst_tac(200,0,2000)"); // Draws MCP TOF
+  tcoinc.Draw("coinc.head.bgo.ecal[0]>>hst_e0(400,0,4000)"); // Draws BGO energy, channel 0
+  tcoinc.Draw("coinc.tail.mcp.tac>>hst_tac(200,0,2000)"); // Draws MCP TOF
 	\endcode
 
 	In writing the DRAGON classes, I haven't used any sort of inheritance, as there is really no compelling reason to
@@ -539,11 +539,11 @@
 	This has a practical advantage when we let ROOT parse our classes into a TTree: the brach names make sense and are
 	logical. I would much rather type:
 	\code
-	t->Draw("head.bgo.ecal[0]");
+  t->Draw("head.bgo.ecal[0]");
 	\endcode
 	than
 	\code
-	t->Draw("gHead.fBgo.fEnergy[0]"); // (following the ROOT / Taligent convention)
+  t->Draw("gHead.fBgo.fEnergy[0]"); // (following the ROOT / Taligent convention)
 	\endcode
 	\n
 	For classes that aren't intended to be made TTree branches, the ROOT/Taligent hungarian notation can be quite nice,
@@ -551,14 +551,14 @@
 
 	- Whenever appropriate, prefer arrays to separate variables. For example, bgo energies are defined as
 	\code
-	double ecal[MAX_CHANNELS];
+  double ecal[MAX_CHANNELS];
 	\endcode
 	instead of
 	\code
-	double ecal0;
-	double ecal1;
-	// ... //
-	double ecal29;
+  double ecal0;
+  double ecal1;
+  // ... //
+  double ecal29;
 	\endcode
 
 	This has a number of practical advantages, such as allowing for loops and std::algorithms to handle the data,
