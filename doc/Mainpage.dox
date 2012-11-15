@@ -586,6 +586,6 @@
 	trick to gain access to 	your class's internals, if you \e don't make all of your class data public you actually
 	end up generating code that's not within the C++ standard and, in theory at least, can lead to undefined behavior!
 	See, for example, <a href=http://www.gotw.ca/gotw/076.htm><b>this</b></a> link for more on this subject. So, if you
-	want to be as standard compliant as possible, you'll have to make all of your class members public.
+	want to be as standards compliant as possible, you'll have to make all of your class members public.
 
  */
