@@ -274,6 +274,7 @@ inline rootana::ScalerHist::ScalerHist(TH1D* hist, const DataPointer* param):
 	 * \param hist Histogram defining x-axis binning
 	 * \param param DataPointer referencing the scaler parameter
 	 */
+	fHist->SetFillColor(30);
 }
 
 inline void rootana::ScalerHist::extend(double factor)
