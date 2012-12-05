@@ -83,12 +83,18 @@ Bool_t rootbeer::MidasBuffer::UnpackBuffer()
 		gQueue.Push(midas::Event(rb::Event::Instance<rootbeer::HeavyIonEvent>()->TscBank(),
 														 fBuffer, evtHeader->fDataSize));
 		break;
-	case DRAGON_HEAD_SCALER: /// - DRAGON_HEAD_SCALER: Unpack event
-		rb::Event::Instance<rootbeer::HeadScaler>()->Process(fBuffer, 0);
-		break;
+	case DRAGON_HEAD_SCALER: /// - DRAGON_HEAD_SCALER: Unpack event \todo TEST!!!!
+		{
+			midas::Event event(0, fBuffer, evtHeader->fDataSize);
+			rb::Event::Instance<rootbeer::HeadScaler>()->Process(&event, 0);
+			break;
+		}
 	case DRAGON_TAIL_SCALER: /// - DRAGON_TAIL_SCALER: Unpack event
-		rb::Event::Instance<rootbeer::TailScaler>()->Process(fBuffer, 0);
-		break;
+		{
+			midas::Event event(0, fBuffer, evtHeader->fDataSize);
+			rb::Event::Instance<rootbeer::TailScaler>()->Process(&event, 0);
+			break;
+		}
 	default: /// - Silently ignore other event types
 		break;
 	}
