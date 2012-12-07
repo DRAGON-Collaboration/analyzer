@@ -11,7 +11,8 @@
 
 // ========== Class dragon::Scaler ========== //
 
-dragon::Scaler::Scaler()
+dragon::Scaler::Scaler(const char* name):
+	variables(name)
 {
 	/*! Calls reset() */
 	reset();
@@ -39,7 +40,7 @@ inline bool check_bank_len(int expected, int gotten, const char* bkname)
 	bool retval = true;
 	if (expected != gotten) {
 		utils::err::Error("dragon::Scaler::unpack")
-			<< "Enexpected length of bank \"" << bkname << "\": expected " << expected
+			<< "Unexpected length of bank \"" << bkname << "\": expected " << expected
 			<< ", got " << gotten << DRAGON_ERR_FILE_LINE;
 		retval = false;
 	}
@@ -62,7 +63,10 @@ void dragon::Scaler::unpack(const midas::Event& event)
 
 	double* prate = event.GetBankPointer<double>(variables.bank_names.rate, &bank_len, false, true);
 	if ( check_bank_len(MAX_CHANNELS, bank_len, variables.bank_names.rate) )
-		std::copy(rate, rate + bank_len, rate);
+		std::copy(prate, prate + bank_len, rate);
+
+	std::cout << rate[0] << "\n";
+	
 }
 
 const std::string& dragon::Scaler::channel_name(int ch) const
@@ -80,10 +84,15 @@ const std::string& dragon::Scaler::channel_name(int ch) const
 
 // ========== Class Scaler::Variables ========== //
 
-dragon::Scaler::Variables::Variables()
+dragon::Scaler::Variables::Variables(const char* name):
+	odb_path("/dragon/scaler/")
 {
-	/*! Calls reset(); */
+	/*!
+	 * Calls reset() and sets odb path to:
+	 * <tt>"/dragon/scaler/<name>"</tt>
+	 */
 	reset();
+	odb_path += name;
 }
 
 void dragon::Scaler::Variables::reset()
@@ -100,14 +109,18 @@ void dragon::Scaler::Variables::reset()
 void dragon::Scaler::Variables::set(const char* odb)
 {
 	midas::Database database(odb);
-	if(database.IsZombie()) return;
-		
-	database.ReadArray("/dragon/scaler/head/names", names, MAX_CHANNELS);
+	if(database.IsZombie()) {
+		utils::err::Error("Scaler::Variables::set")
+			<< "Zombie database" << DRAGON_ERR_FILE_LINE;
+		return;
+	}
+
+	database.ReadArray((odb_path + "/names").c_str(), names, MAX_CHANNELS);
 
 	std::string sCount, sSum, sRate;
-	database.ReadValue("/dragon/scaler/head/bank_names/count", sCount);
-	database.ReadValue("/dragon/scaler/head/bank_names/rate", sRate);
-	database.ReadValue("/dragon/scaler/head/bank_names/sum", sSum);
+	database.ReadValue((odb_path + "/bank_names/count").c_str(), sCount);
+	database.ReadValue((odb_path + "/bank_names/rate").c_str(), sRate);
+	database.ReadValue((odb_path + "/bank_names/sum").c_str(), sSum);
 	utils::Banks::Set(bank_names.count, sCount.c_str());
 	utils::Banks::Set(bank_names.rate,  sRate.c_str());
 	utils::Banks::Set(bank_names.sum ,  sSum.c_str());

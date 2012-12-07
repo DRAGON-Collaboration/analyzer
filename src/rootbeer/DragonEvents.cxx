@@ -1,6 +1,7 @@
 /// \file DragonEvents.cxx
 /// \author G. Christian
 /// \brief Implements DragonEvents.hxx
+#include <cassert>
 #include "utils/Error.hxx"
 #include "DragonEvents.hxx"
 
@@ -125,12 +126,12 @@ void rootbeer::CoincEvent::ReadOdb()
 	odb_read(fCoinc);
 }
 
-
 // ======== Class dragon::HeadScaler ======== //
 
 rootbeer::HeadScaler::HeadScaler():
-	fScaler("head_scaler", this, true, "")
+	fScaler("head_scaler", true, this, true, "\"head\"")
 {
+	assert(fScaler.Get());
 	fScaler->variables.set_bank_names("SCH");
 }
 
@@ -164,8 +165,9 @@ void rootbeer::HeadScaler::ReadOdb()
 // ======== Class dragon::TailScaler ======== //
 
 rootbeer::TailScaler::TailScaler():
-	fScaler("tail_scaler", this, true, "")
+	fScaler("tail_scaler", true, this, true, "\"tail\"")
 {
+	assert(fScaler.Get());
 	fScaler->variables.set_bank_names("SCT");
 }
 

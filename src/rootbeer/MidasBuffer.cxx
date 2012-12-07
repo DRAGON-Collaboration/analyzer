@@ -71,17 +71,16 @@ Bool_t rootbeer::MidasBuffer::UnpackBuffer()
 	 * Figures out the type of MIDAS event buffer received and sends onto the
 	 * appropriate event handler (see below):
 	 */
-
+	/// todo UNCOMMENT REAL EVENTS FOR NEW CLOCK SYSTEM!!!
 	midas::Event::Header* evtHeader = reinterpret_cast<midas::Event::Header*>(fBuffer);
-
 	switch (evtHeader->fEventId) {
 	case DRAGON_HEAD_EVENT:  /// - DRAGON_HEAD_EVENT: Insert into timestamp matching queue
-		gQueue.Push(midas::Event(rb::Event::Instance<rootbeer::GammaEvent>()->TscBank(),
-														 fBuffer, evtHeader->fDataSize));
+		// gQueue.Push(midas::Event(rb::Event::Instance<rootbeer::GammaEvent>()->TscBank(),
+		// 												 fBuffer, evtHeader->fDataSize));
 		break;
 	case DRAGON_TAIL_EVENT:  /// - DRAGON_TAIL_EVENT: Insert into timestamp matching queue
-		gQueue.Push(midas::Event(rb::Event::Instance<rootbeer::HeavyIonEvent>()->TscBank(),
-														 fBuffer, evtHeader->fDataSize));
+		// gQueue.Push(midas::Event(rb::Event::Instance<rootbeer::HeavyIonEvent>()->TscBank(),
+		// 												 fBuffer, evtHeader->fDataSize));
 		break;
 	case DRAGON_HEAD_SCALER: /// - DRAGON_HEAD_SCALER: Unpack event \todo TEST!!!!
 		{
@@ -118,7 +117,7 @@ Bool_t rootbeer::MidasBuffer::ConnectOnline(const char* host, const char* experi
 	 * See list below for what's specifically handled by this function.
 	 */
 	INT status;
-	char syncbuf[] = "SYNC";
+	char syncbuf[] = "SYSTEM";
 
 	/// - Connect to MIDAS experiment
 	status = cm_connect_experiment (host, experiment, "rootbeer", NULL);

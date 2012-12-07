@@ -35,10 +35,13 @@ public:
 		/// Frontend bank names
 		utils::ScalerBanks bank_names;
 
+		/// Base odb path
+		std::string odb_path; //!
+
 		// Class Methods //
  public:
     /// Constuctor
-    Variables();
+    Variables(const char* name);
 		/// Resets names to default values
 		void reset();
 		/// Set names from ODB
@@ -69,7 +72,7 @@ PRIVATE:
 
 public:  
   /// Initialize data
-  Scaler();
+  Scaler(const char* name = "");
   
   /// Reset all data to zero
   void reset();
