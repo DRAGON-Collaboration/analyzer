@@ -64,9 +64,6 @@ void dragon::Scaler::unpack(const midas::Event& event)
 	double* prate = event.GetBankPointer<double>(variables.bank_names.rate, &bank_len, false, true);
 	if ( check_bank_len(MAX_CHANNELS, bank_len, variables.bank_names.rate) )
 		std::copy(prate, prate + bank_len, rate);
-
-	std::cout << rate[0] << "\n";
-	
 }
 
 const std::string& dragon::Scaler::channel_name(int ch) const
