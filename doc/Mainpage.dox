@@ -63,7 +63,7 @@
 	\section daq DRAGON Data Acquisition (DAQ)
 
 	Before launching into a description of the analysis software, I'll first give an overview of how the DRAGON
-	data-acquisition is structured. This is intended to serve as documantation of the bit-packed structure of
+	data-acquisition is structured. This is intended to serve as documentation of the bit-packed structure of
 	DRAGON event data, as well as the trigger logic and related topics.
 
 
