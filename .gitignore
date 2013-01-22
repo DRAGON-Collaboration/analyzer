@@ -23,3 +23,5 @@ midas.log
 *.mid
 *.so
 *.dylib
+doc/.DS_Store
+.DS_Store
