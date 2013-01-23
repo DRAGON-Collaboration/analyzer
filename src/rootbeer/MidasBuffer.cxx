@@ -77,11 +77,21 @@ Bool_t rootbeer::MidasBuffer::UnpackBuffer()
 	case DRAGON_HEAD_EVENT:  /// - DRAGON_HEAD_EVENT: Insert into timestamp matching queue
 		// gQueue.Push(midas::Event(rb::Event::Instance<rootbeer::GammaEvent>()->TscBank(),
 		// 												 fBuffer, evtHeader->fDataSize));
-		break;
+
+		{
+			midas::Event event(0, fBuffer, evtHeader->fDataSize);
+			rb::Event::Instance<rootbeer::GammaEvent>()->Process(&event, 0);
+			break;
+		}
 	case DRAGON_TAIL_EVENT:  /// - DRAGON_TAIL_EVENT: Insert into timestamp matching queue
 		// gQueue.Push(midas::Event(rb::Event::Instance<rootbeer::HeavyIonEvent>()->TscBank(),
 		// 												 fBuffer, evtHeader->fDataSize));
-		break;
+
+		{
+			midas::Event event(0, fBuffer, evtHeader->fDataSize);
+			rb::Event::Instance<rootbeer::HeavyIonEvent>()->Process(&event, 0);
+			break;
+		}
 	case DRAGON_HEAD_SCALER: /// - DRAGON_HEAD_SCALER: Unpack event \todo TEST!!!!
 		{
 			midas::Event event(0, fBuffer, evtHeader->fDataSize);

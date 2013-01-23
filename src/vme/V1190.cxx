@@ -73,7 +73,7 @@ bool vme::V1190::unpack_data_buffer(const uint32_t* const pbuffer)
 
 
 	// error if over the hard coded hit maximum
-	bool over_max = (type == 0) ? (p_ch->nleading <= MAX_HITS) : (p_ch->ntrailing <= MAX_HITS);
+	bool over_max = (type == 0) ? (p_ch->nleading >= MAX_HITS) : (p_ch->ntrailing >= MAX_HITS);
 	if (over_max) {
 		const char* const which = (type == 0) ? "leading" : "trailing";
 		int n_hits_this = (type == 0) ? p_ch->nleading : p_ch->ntrailing;
