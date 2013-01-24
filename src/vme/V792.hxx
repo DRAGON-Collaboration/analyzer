@@ -42,7 +42,7 @@ public:
 	void reset();
 
 	/// Get a data value, with bounds checking
-	int16_t get_data(int16_t ch) const
+	int32_t get_data(int16_t ch) const
 		{
 			/*!
 			 * \param ch Channel number to get data from
