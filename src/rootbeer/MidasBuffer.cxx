@@ -202,7 +202,7 @@ Bool_t rootbeer::MidasBuffer::ReadBufferOnline()
 	 * See the list below for what is done in the request loop.
 	 */
 	bool have_event = false;
-	const int timeout = 0;
+	const int timeout = 10;
 	INT size, status;
 	do {
 		size = fBufferSize;
