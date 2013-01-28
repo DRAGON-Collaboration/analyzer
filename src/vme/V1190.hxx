@@ -29,13 +29,13 @@ public:
 	static const uint16_t MAX_HITS = DRAGON_TDC_MAX_HITS; //!< Maximum number of hits (head + tail) in a channel
 
 public:
-	/// Encloses measurement data for a single channel
-	struct Channel {
-		int32_t leading_edge[DRAGON_TDC_MAX_HITS];  ///< Array of leading-egde hit times
-		int32_t trailing_edge[DRAGON_TDC_MAX_HITS]; ///< Array of trailing-edge hit times
-		int16_t nleading;                           ///< Number of leading-edge hits
-		int16_t ntrailing;                          ///< Number of trailing-edge hits
-	};
+/// Encloses measurement data for a single v1190 TDC channel
+struct Channel {
+	int32_t leading_edge[DRAGON_TDC_MAX_HITS];  ///< Array of leading-egde hit times
+	int32_t trailing_edge[DRAGON_TDC_MAX_HITS]; ///< Array of trailing-edge hit times
+	int16_t nleading;                           ///< Number of leading-edge hits
+	int16_t ntrailing;                          ///< Number of trailing-edge hits
+};
 
 private:
 	/** @cond */
