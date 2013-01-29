@@ -82,7 +82,7 @@ inline void rootana::Timer::PeriodicAction()
 	 * manual shutdown via '!' on the command line.
 	 */
 	char c = ss_getchar(0);
-  if (!(TMidasOnline::instance()->poll(0)) || c == '!') {
+  if (!(TMidasOnline::instance()->poll(10)) || c == '!') {
 		ss_getchar(1);
     gSystem->ExitLoop();
 	}

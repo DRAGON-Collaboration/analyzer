@@ -29,6 +29,14 @@
 
 #include "Globals.h"
 
+namespace {
+template <class T, class E>
+inline void unpack_event(T& data, const E& buf)
+{
+	data.reset();
+	data.unpack(buf);
+	data.calculate();
+} }
 
 
 // RAII wrapper for TMidasOnline //
@@ -135,10 +143,18 @@ void rootana::App::handle_event(midas::Event& event)
 	 */
 	switch (event.GetEventId()) {
 	case DRAGON_HEAD_EVENT:  /// - DRAGON_HEAD_EVENT: Insert into timestamp matching queue
+#if 0
 		fQueue->Push(event);
+#else
+		Process(event);
+#endif
 		break;
 	case DRAGON_TAIL_EVENT:  /// - DRAGON_TAIL_EVENT: Insert into timestamp matching queue
+#if 0
 		fQueue->Push(event);
+#else
+		Process(event);
+#endif
 		break;
 	case DRAGON_HEAD_SCALER: /// - DRAGON_HEAD_SCALER: TODO: implement C. Stanford's scaler codes
 		// <...process...> //
@@ -151,22 +167,12 @@ void rootana::App::handle_event(midas::Event& event)
 	}
 }
 
-
-namespace {
 template <class IT>
 IT FindSerial(IT begin_, IT end_, uint32_t value)
 {
 	for(; begin_!=end_; ++begin_) if (value == begin_->header.fSerialNumber) break;
 	return begin_;
 }
-
-template <class T, class E>
-inline void unpack_event(T& data, const E& buf)
-{
-	data.reset();
-	data.unpack(buf);
-	data.calculate();
-} }
 
 void rootana::App::Process(const midas::Event& event)
 {
@@ -176,6 +182,7 @@ void rootana::App::Process(const midas::Event& event)
 
 	case DRAGON_HEAD_EVENT:  /// - DRAGON_HEAD_EVENT: Calculate head params & fill head histos
 		{
+#if 0
 			std::list<dragon::Head>::iterator it =
 				FindSerial(fHeadProcessed.begin(), fHeadProcessed.end(), event.GetSerialNumber());
 
@@ -186,11 +193,14 @@ void rootana::App::Process(const midas::Event& event)
 			else {
 				unpack_event(rootana::gHead, event);
 			}
-
+#else
+			unpack_event(rootana::gHead, event);
+#endif
 			break;
 		}
 	case DRAGON_TAIL_EVENT:  /// - DRAGON_TAIL_EVENT: Calculate tail params & fill tail histos
 		{
+#if 0
 			std::list<dragon::Tail>::iterator it =
 				FindSerial(fTailProcessed.begin(), fTailProcessed.end(), event.GetSerialNumber());
 
@@ -201,7 +211,9 @@ void rootana::App::Process(const midas::Event& event)
 			else {
 				unpack_event(rootana::gTail, event);
 			}
-
+#else
+			unpack_event(rootana::gTail, event);
+#endif
 			break;
 		}
 	case DRAGON_HEAD_SCALER: /// - DRAGON_HEAD_SCALER: \todo implement C. Stanford's scaler codes
@@ -323,7 +335,7 @@ int rootana::App::midas_online(const char* host, const char* experiment)
 
 	/*! -Register event requests */
 	(*fMidasOnline)->setEventHandler(rootana_handle_event);
-	(*fMidasOnline)->eventRequest("SYNC",-1,-1,(1<<1));
+	(*fMidasOnline)->eventRequest("SYSTEM",-1,-1,(1<<1));
 
 
 	/*! - Fill "present run" parameters */
@@ -346,6 +358,7 @@ int rootana::App::midas_online(const char* host, const char* experiment)
 	
 	printf("Startup: run %d\n",fRunNumber);
 	printf("Host: \"%s\", experiment: \"%s\"\n", host, experiment);
+	printf("Start a roody session: 'roody -Plocalhost:9091' to view histograms.\n");
 	printf("Enter \"!\" to exit.\n");
 
 

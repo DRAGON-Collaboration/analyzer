@@ -37,6 +37,10 @@ TH1D:
 CUT:
 	Greater(rootana::gHead.bgo.esort[0], 0)
 
+TH1D:
+("e0", "", 2000, 3000, 5000)
+rootana::gHead.bgo.ecal[0]
+
 TH2D:
 	("bgoE0", "BGO_{0} Channel vs. Energy;Energy [keV/10];Detector Number", 256, 0, 4096, 30, 0, 30)
 	rootana::gHead.bgo.esort[0]
