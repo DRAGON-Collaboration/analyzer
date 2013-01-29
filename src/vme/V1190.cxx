@@ -69,7 +69,7 @@ bool vme::V1190::unpack_data_buffer(const uint32_t* const pbuffer)
 
 
 	// p_ch points to the correct channel structure based on the read-out channel number
-	Channel* const p_ch = &(channel[ch]);
+	V1190::Channel* const p_ch = &(channel[ch]);
 
 
 	// error if over the hard coded hit maximum
