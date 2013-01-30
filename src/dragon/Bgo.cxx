@@ -3,7 +3,7 @@
 /// \brief Implements Bgo.hxx
 #include "midas/Database.hxx"
 #include "utils/Functions.hxx"
-#include "utils/Error.hxx"
+#include "utils/ErrorDragon.hxx"
 #include "vme/V1190.hxx"
 #include "vme/V792.hxx"
 #include "Channels.h"

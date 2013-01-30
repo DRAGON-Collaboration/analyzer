@@ -1,4 +1,4 @@
-//! \file Error.hxx
+//! \file ErrorDragon.hxx
 //! \author G. Christian
 //! \brief Defines C++ style error printing classes.
 #ifndef __MAKECINT__

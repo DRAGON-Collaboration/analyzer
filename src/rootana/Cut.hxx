@@ -37,7 +37,7 @@
 #include <algorithm>
 #include <vector>
 #include <TCutG.h>
-#include "utils/Error.hxx"
+#include "utils/ErrorDragon.hxx"
 #include "utils/Functions.hxx"
 
 /// Point-by-point arguments for use with rootana::Condition2D

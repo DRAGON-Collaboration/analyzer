@@ -13,7 +13,7 @@
 #include <typeinfo>
 #include "internal/TMidasFile.h"
 #include "internal/TMidasEvent.h"
-#include "utils/Error.hxx"
+#include "utils/ErrorDragon.hxx"
 
 
 /// Enclodes dragon-specific midas classes

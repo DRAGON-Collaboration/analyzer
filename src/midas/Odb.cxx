@@ -314,7 +314,7 @@ int midas::Odb::WriteString(const char*name, const char* string) { ERR_NO_MIDAS;
 #include <iostream>
 #include "Odb.hxx"
 #include "Database.hxx"
-#include "utils/Error.hxx"
+#include "utils/ErrorDragon.hxx"
 int main()
 {
 	using namespace std;

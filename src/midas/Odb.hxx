@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include <iostream>
 #include <string>
-#include "utils/Error.hxx"
+#include "utils/ErrorDragon.hxx"
 
 #ifdef MIDASSYS
 #ifdef __MAKECINT__

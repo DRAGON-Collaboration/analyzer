@@ -3,7 +3,7 @@
 /// \author G. Christian
 /// \brief Implements Scaler.hxx
 #include <iostream>
-#include "utils/Error.hxx"
+#include "utils/ErrorDragon.hxx"
 #include "midas/Database.hxx"
 #include "midas/Event.hxx"
 #include "Scaler.hxx"

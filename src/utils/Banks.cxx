@@ -4,7 +4,7 @@
 #include <cstring>
 #include <string>
 #include "midas/Database.hxx"
-#include "Error.hxx"
+#include "ErrorDragon.hxx"
 #include "Banks.hxx"
 
 

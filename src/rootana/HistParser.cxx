@@ -7,7 +7,7 @@
 #include <TROOT.h>
 #include <TDirectory.h>
 #include "utils/definitions.h"
-#include "utils/Error.hxx"
+#include "utils/ErrorDragon.hxx"
 #include "Histos.hxx"
 #include "Directory.hxx"
 #include "HistParser.hxx"
