@@ -12,7 +12,7 @@
 #include <TObjArray.h>
 #include <TObjString.h>
 #include <TDirectory.h>
-#include "utils/Error.hxx"
+#include "utils/ErrorDragon.hxx"
 #include "HistParser.hxx"
 #include "Histos.hxx"
 #include "Directory.hxx"

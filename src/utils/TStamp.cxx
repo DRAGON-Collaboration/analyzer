@@ -5,7 +5,7 @@
  */
 #include <ctime>
 #include "TStamp.hxx"
-#include "utils/Error.hxx"
+#include "utils/ErrorDragon.hxx"
 
 
 // ========= Class tstamp::Queue ========= //

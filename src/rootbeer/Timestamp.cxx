@@ -7,7 +7,7 @@
 
 // DRAGON includes //
 #include "utils/definitions.h"
-#include "utils/Error.hxx"
+#include "utils/ErrorDragon.hxx"
 #include "DragonEvents.hxx"
 #include "Timestamp.hxx"
 

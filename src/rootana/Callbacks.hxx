@@ -6,7 +6,7 @@
 #ifndef ROOTANA_CALLBACKS_HXX
 #define ROOTANA_CALLBACKS_HXX
 #include "utils/definitions.h"
-#include "utils/Error.hxx"
+#include "utils/ErrorDragon.hxx"
 #include "midas/Event.hxx"
 #include "Application.hxx"
 

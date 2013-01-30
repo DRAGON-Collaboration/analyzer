@@ -1,7 +1,7 @@
 //! \file Io32.cxx
 //! \author G. Christian
 //! \brief Implements Io32.hxx
-#include "utils/Error.hxx"
+#include "utils/ErrorDragon.hxx"
 #include "utils/Valid.hxx"
 #include "midas/Event.hxx"
 #include "Io32.hxx"

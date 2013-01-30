@@ -2,7 +2,7 @@
 /// \author G. Christian
 /// \brief Implements DragonEvents.hxx
 #include <cassert>
-#include "utils/Error.hxx"
+#include "utils/ErrorDragon.hxx"
 #include "DragonEvents.hxx"
 
 

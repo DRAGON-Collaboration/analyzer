@@ -4,7 +4,7 @@
 #ifndef  DRAGON_VME_ADC_HXX
 #define  DRAGON_VME_ADC_HXX
 #include <stdint.h>
-#include "utils/Error.hxx"
+#include "utils/ErrorDragon.hxx"
 #include "utils/Valid.hxx"
 
 namespace midas { class Event; }
