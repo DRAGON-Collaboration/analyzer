@@ -39,6 +39,13 @@ USE_ROOT=YES
 USE_ROOTANA=YES
 USE_ROOTBEER=YES
 
+## Automatically turn off rootana if on jabberwock
+THE_HOST := $(shell hostname)
+ifeq ($(THE_HOST),jabberwock.triumf.ca)
+USE_ROOTANA=NO
+endif
+
+
 ### Set ROOTBEER home directory (ignore if USE_ROOTBEER=NO) ###
 RB_HOME=$(HOME)/packages/rootbeer
 
