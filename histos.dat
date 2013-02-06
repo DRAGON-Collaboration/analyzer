@@ -18,6 +18,24 @@
 # 	cutg.SetPoint(6,37.8544,70.113);
 # END:
 
+
+## Head IO32
+DIR:
+histos/event/gamma/io32
+
+TH1D:
+       ("busy_time", "Head busy time; Busy time [ns/50];Counts", 1000, 0, 2e8)
+       rootana::gHead.io32.busy_time
+
+## Tail IO32
+DIR:
+histos/event/gamma/io32
+
+TH1D:
+       ("busy_time", "Tail busy time; Busy time [ns/50];Counts", 1000, 0, 2e8)
+       rootana::gTail.io32.busy_time
+
+
 ## BGO SINGLES ##
 DIR:
 histos/event/gamma/bgo
