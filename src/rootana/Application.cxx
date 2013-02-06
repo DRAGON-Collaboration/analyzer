@@ -421,9 +421,16 @@ void rootana::App::run_start(int runnum)
 	 *  Sets status flags, calls EventHandler::BeginRun(), opens output file.
 	 */
   fRunNumber = runnum;
+
+	/// Reset head and tail scalers (count -> zero)
 	rootana::gHeadScaler.reset();
 	rootana::gTailScaler.reset();
-    
+
+	/// Read variables from the ODB
+	rootana::gHead.set_variables("online");
+	rootana::gTail.set_variables("online");
+	rootana::gCoinc.set_variables("online");
+
 	bool opened = fOutputFile.Open(runnum, fHistos.c_str());
 	if(!opened) Terminate(1);
 

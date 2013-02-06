@@ -24,15 +24,15 @@ DIR:
 histos/event/gamma/io32
 
 TH1D:
-       ("busy_time", "Head busy time; Busy time [ns/50];Counts", 1000, 0, 2e8)
+       ("busy_time", "Head busy time; Busy time [ns/50];Counts", 1000, 0, 10000)
        rootana::gHead.io32.busy_time
 
 ## Tail IO32
 DIR:
-histos/event/gamma/io32
+histos/event/hion/io32
 
 TH1D:
-       ("busy_time", "Tail busy time; Busy time [ns/50];Counts", 1000, 0, 2e8)
+       ("busy_time", "Tail busy time; Busy time [ns/50];Counts", 1000, 0, 10000)
        rootana::gTail.io32.busy_time
 
 

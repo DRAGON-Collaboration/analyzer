@@ -4,6 +4,7 @@
 #ifndef DRAGON_MIDAS_DATABASE_HXX
 #define DRAGON_MIDAS_DATABASE_HXX
 #include <memory>
+#include "utils/ErrorDragon.hxx"
 #include "Odb.hxx"
 #include "Xml.hxx"
 
@@ -49,6 +50,10 @@ public:
 				fIsOnline = true;
 				if (Odb::GetHandle() == 0)
 					fIsZombie = true;
+			}
+			if (fIsZombie) {
+				utils::err::Error("midas::Database::Database")
+					<< "Failed opening the database: \"" << filename << "\"";
 			}
 		}
 
