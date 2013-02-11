@@ -26,3 +26,4 @@ midas.log
 doc/.DS_Store
 .DS_Store
 lib/*.dsym
+lib/.*
