@@ -45,8 +45,7 @@ public:
 	virtual ~MidasBuffer();
 
 	/// Opens an offline MIDAS file
-	virtual Bool_t OpenFile(const char* file_name, char** other = 0, int nother = 0)
-		{ return fFile.Open(file_name); }
+	virtual Bool_t OpenFile(const char* file_name, char** other = 0, int nother = 0);
 
 	/// Connects to an online MIDAS experiment
 	virtual Bool_t ConnectOnline(const char* host, const char* other_arg = "", char** other_args = 0, int n_others = 0);
@@ -64,7 +63,7 @@ public:
 	virtual void DisconnectOnline();
 
 	/// Closes on offline MIDAS file
-	virtual void CloseFile() { return fFile.Close(); }
+	virtual void CloseFile();
 
 private:
 	/// Disallow copy

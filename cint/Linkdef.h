@@ -34,6 +34,7 @@
 
 #pragma link C++ defined_in ../src/utils/VariableStructs.hxx;
 #pragma link C++ defined_in ../src/vme/V1190.hxx;
+#pragma link C++ defined_in ../src/vme/Io32.hxx;
 
 #pragma link C++ class dragon::Coinc+;
 #pragma link C++ class dragon::Tail+;
@@ -75,6 +76,9 @@ class TTree;
 
 #pragma link C++ class midas::Xml+;
 #pragma link C++ class midas::Odb+;
+
+#pragma link C++ class tstamp::Diagnostics+;
+#pragma link C++ defined_in ../src/utils/TStamp.hxx;
 
 /*
 	for j in Adc Tdc

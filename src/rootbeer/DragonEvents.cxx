@@ -25,7 +25,28 @@ inline void odb_read(rb::data::Wrapper<T>& data)
 } // namespace
 
 
-// ======== Class dragon::GammaEvent ======== //
+// ======== Class rootbeer::TStampDiagnostics ======== //
+
+rootbeer::TStampDiagnostics::TStampDiagnostics():
+	fDiagnostics("tstamp", this, false, "") { }
+
+void rootbeer::TStampDiagnostics::HandleBadEvent()
+{
+	utils::err::Error("TStampDiagnostics")
+		<< "Unknown error encountered during event processing";
+}
+
+tstamp::Diagnostics* rootbeer::TStampDiagnostics::GetDiagnostics()
+{
+	/*!
+	 * \warning Returns a pointer to an instance of data shared between threads!
+	 * Ensure this is only used in cases where protected by a mutex lock.
+	 */
+	return fDiagnostics.Get();
+}
+
+
+// ======== Class rootbeer::GammaEvent ======== //
 
 rootbeer::GammaEvent::GammaEvent():
 	fGamma("gamma", this, true, "") { }
@@ -49,6 +70,7 @@ Bool_t rootbeer::GammaEvent::DoProcess(const void* addr, Int_t nchar)
 	}
 
 	handle_event(fGamma, AsMidasEvent(addr));
+
 	return true;
 }
 
@@ -58,7 +80,7 @@ void rootbeer::GammaEvent::ReadOdb()
 }
 
 
-// ======== Class dragon::HeavyIonEvent ======== //
+// ======== Class rootbeer::HeavyIonEvent ======== //
 
 rootbeer::HeavyIonEvent::HeavyIonEvent():
 	fHeavyIon("hi", this, true, "") { }
@@ -91,7 +113,7 @@ void rootbeer::HeavyIonEvent::ReadOdb()
 }
 
 
-// ======== Class dragon::CoincEvent ======== //
+// ======== Class rootbeer::CoincEvent ======== //
 
 rootbeer::CoincEvent::CoincEvent():
 	fCoinc("coinc", this, false, "") { }
@@ -126,7 +148,7 @@ void rootbeer::CoincEvent::ReadOdb()
 	odb_read(fCoinc);
 }
 
-// ======== Class dragon::HeadScaler ======== //
+// ======== Class rootbeer::HeadScaler ======== //
 
 rootbeer::HeadScaler::HeadScaler():
 	fScaler("head_scaler", true, this, true, "\"head\"")
@@ -162,7 +184,7 @@ void rootbeer::HeadScaler::ReadOdb()
 }
 
 
-// ======== Class dragon::TailScaler ======== //
+// ======== Class rootbeer::TailScaler ======== //
 
 rootbeer::TailScaler::TailScaler():
 	fScaler("tail_scaler", true, this, true, "\"tail\"")

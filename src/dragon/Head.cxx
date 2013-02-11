@@ -66,6 +66,7 @@ void dragon::Head::unpack(const midas::Event& event)
 	 */
 	const bool report = false;
 	io32.unpack (event, banks.io32, report);
+	io32.unpack_tsc4 (event, "TSCH", report); //! \todo Don't hard code "TSCH" bank name
 	v792.unpack (event, banks.adc , report);
 	v1190.unpack(event, banks.tdc,  report);
 	event.CopyHeader(header);

@@ -14,6 +14,9 @@
 
 
 namespace {
+
+const double kDefaultFreq = 20.;
+
 inline uint64_t read_timestamp (uint64_t lower, uint64_t upper)
 {
 	return (lower & READ30) | (upper << 30);
@@ -63,16 +66,17 @@ void midas::Event::CopyDerived(const midas::Event& other)
 
 void midas::Event::PrintSingle(FILE* where) const
 {
-	fprintf (where, "Singles event: id, ser, trig: %i, %u, %.16f\n",
-					 GetEventId(), GetSerialNumber(), fTriggerTime);
+	fprintf (where, "Singles event: id, ser, trig, clock: %i, %u, %.16f, %lu\n",
+					 GetEventId(), GetSerialNumber(), fTriggerTime, fClock);
 }
 
 void midas::Event::PrintCoinc(const Event& other, FILE* where) const
 {
-	fprintf (where, "Coincidence event: id[0], ser[0], t[0], id[1], ser[1], t[1] | t[0]-t[1]: "
-					 "%i, %u, %.16f, %i, %u, %.16f, %.16f\n",
-					 GetEventId(), GetSerialNumber(), fTriggerTime,
-					 other.GetEventId(), other.GetSerialNumber(), other.fTriggerTime, TimeDiff(other));
+	fprintf (where, "Coincidence event: id[0], ser[0], t[0], clk[0], id[1], ser[1], t[1], clk[1] | t[0]-t[1]: "
+					 "%i, %u, %.16f, %lu, %i, %u, %.16f, %lu, %.16f\n",
+					 GetEventId(), GetSerialNumber(), fTriggerTime, fClock,
+					 other.GetEventId(), other.GetSerialNumber(), other.fTriggerTime, other.fClock,
+					 TimeDiff(other));
 }
 
 
@@ -83,11 +87,6 @@ void midas::Event::Init(const char* tsbank, const void* header, const void* addr
 	SetBankList();
 
 	if (tsbank != 0) {
-		int freqlength;
-		double* pfreq = GetBankPointer<double> ("FREQ", &freqlength, true, true);
-		if (!pfreq)	throw(std::invalid_argument("Missing \"FREQ\" bank."));
-		if (freqlength != 1) throw(std::invalid_argument("\"FREQ\" bank len != 1"));
-
 		int tsclength;
 		uint32_t* ptsc = GetBankPointer<uint32_t> (tsbank, &tsclength, true, true);
 		if (!ptsc) throw(std::invalid_argument(tsbank));
@@ -102,7 +101,7 @@ void midas::Event::Init(const char* tsbank, const void* header, const void* addr
 		if (0 && version && bkts && route && syncno) { }
 
 		// Check version
-		if (version == 0x1120809 || version == 0x1120810 || version == 0x1120910);
+		if (version == 0x1120809 || version == 0x1120810 || version == 0x1120910 || version == 0x01121212 || version == 0x01120925);
 		else {
 			utils::err::Warning("midas::Event::Init") <<
 				"Unknown TSC version 0x" << std::hex << version << std::dec << " (id, serial #: " << GetEventId() <<
@@ -121,11 +120,11 @@ void midas::Event::Init(const char* tsbank, const void* header, const void* addr
 			uint64_t lower = *ptsc++, upper = *ptsc++, ch = (lower>>30) & READ2;
 
 			switch (ch) {
-			case 0: // Cross timestamp
+			case 1: // Cross timestamp
 				fCrossClock.push_back( read_timestamp(lower, upper) );
 				break;
 
-			case 1: // Trigger timestamp
+			case 0: // Trigger timestamp
 				if (fClock != std::numeric_limits<uint64_t>::max()) {
 					utils::err::Warning("midas::Event::Init") <<
 						"duplicate trigger TS in fifo (okay if equivalent). Serial #: " << GetSerialNumber() <<
@@ -136,7 +135,6 @@ void midas::Event::Init(const char* tsbank, const void* header, const void* addr
 				}
 
 				fClock = read_timestamp(lower, upper);
-				fFreq  = *pfreq;
 				if (fFreq > 0.) fTriggerTime = fClock / fFreq;
 				else {
 					utils::err::Error("midas::Event::Init") << "Found a frequency <= 0: " << fFreq << DRAGON_ERR_FILE_LINE;
@@ -144,15 +142,11 @@ void midas::Event::Init(const char* tsbank, const void* header, const void* addr
 				}
 				break;
 
-			case 2:
-				// Sync value - skip
-				break;
-
 			default:
 				break;
 			}
 		}
-	}
+	} // if tsbank != 0
 }
 
 midas::CoincEvent::CoincEvent(const Event& event1, const Event& event2):

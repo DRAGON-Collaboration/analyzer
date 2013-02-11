@@ -63,6 +63,9 @@ void rb::Rint::RegisterEvents()
 	/// - Tail Scalers [ rootbeer::TailScaler ]: "TailScaler"
 	RegisterEvent<rootbeer::TailScaler> (DRAGON_TAIL_SCALER, "TailScaler");
 
+	/// - Timestamp Diagnostics [ rootbeer::TstampDiagnostics ]: "TstampDiagnostics"
+	RegisterEvent<rootbeer::TStampDiagnostics> (6, "TStampDiagnostics");
+
 	/// Also: expose macros in definitions.h to CINT
 	std::stringstream cmd;
 	cmd << "#include \"" << DRAGON_UTILS_STRINGIFY(RB_DRAGON_HOMEDIR) << "/src/utils/definitions.h\"";

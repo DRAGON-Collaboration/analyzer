@@ -9,6 +9,7 @@
 
 // DRAGON includes //
 #include "midas/Event.hxx"
+#include "utils/TStamp.hxx"
 #include "dragon/Head.hxx"
 #include "dragon/Tail.hxx"
 #include "dragon/Coinc.hxx"
@@ -16,6 +17,34 @@
 
 
 namespace rootbeer {
+
+/// Timestamp diagnostics event
+class TStampDiagnostics: public rb::Event
+{
+private:
+	/// Wrapper of tstamp::Diagnostics
+	rb::data::Wrapper<tstamp::Diagnostics> fDiagnostics;
+
+public:
+	/// Initializes fDiagnostics
+	TStampDiagnostics();
+
+	/// Empty
+	~TStampDiagnostics() {}
+
+	/// Returns pointer to fDiagnostics.Get()
+	tstamp::Diagnostics* GetDiagnostics();
+
+	/// Reset diagnostics
+	void Reset() { fDiagnostics->reset(); }
+
+private:
+	/// Nothing to do - queue fills data automatically
+	Bool_t DoProcess(const void*, Int_t) { return true; }
+	
+	/// What to do in case of an error in event processing
+	void HandleBadEvent();
+};
 
 /// Singles head (gamma-ray) event
 class GammaEvent: public rb::Event
@@ -130,6 +159,9 @@ public:
 	/// Read variables from ODB
 	void ReadOdb();
 
+	/// Reset scalers
+	void Reset() { fScaler->reset(); }
+
 private:
 	/// Casts from const void* to const midas::Event*
 	const midas::Event* AsMidasEvent(const void* addr)
@@ -158,6 +190,9 @@ public:
 
 	/// Read variables from ODB
 	void ReadOdb();
+
+	/// Reset scalers
+	void Reset() { fScaler->reset(); }
 
 private:
 	/// Casts from const void* to const midas::Event*

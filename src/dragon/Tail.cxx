@@ -78,6 +78,7 @@ void dragon::Tail::unpack(const midas::Event& event)
 	 */
 	const bool report = false;
 	io32.unpack (event, banks.io32, report);
+	io32.unpack_tsc4 (event, "TSCT", report); //! \todo Don't hard code "TSCT" bank name
 	for (int i=0; i< NUM_ADC; ++i) {
 		v785[i].unpack(event, banks.adc[i], report);
 	}

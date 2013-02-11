@@ -239,6 +239,7 @@ $(ROOTANA)/libNetDirectory/netDirectoryServer.o
 
 ROOTANA_OBJS=					\
 $(OBJ)/rootana/Application.o			\
+$(OBJ)/rootana/Callbacks.o			\
 $(OBJ)/rootana/HistParser.o			\
 $(OBJ)/rootana/Directory.o
 
@@ -290,7 +291,7 @@ $(DRLIB)/libRBDragon.so: $(RB_OBJECTS) $(RB_HEADERS)
 
 libRBDragon: $(DRLIB)/libRBDragon.so
 
-$(OBJ)/rootbeer/%.o: $(SRC)/rootbeer/%.cxx $(SRC)/rootbeer/*.hxx
+$(OBJ)/rootbeer/%.o: $(SRC)/rootbeer/%.cxx $(SRC)/rootbeer/*.hxx $(DR_DICT_DEP)
 	$(CXX) $(RB_DEFS) $(RBINC) $(FPIC) -c \
 -o $@ $< \
 

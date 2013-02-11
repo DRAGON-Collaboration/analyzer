@@ -194,6 +194,7 @@ void rootana::App::Process(const midas::Event& event)
 				unpack_event(rootana::gHead, event);
 			}
 #else
+			event.PrintSingle();
 			unpack_event(rootana::gHead, event);
 #endif
 			break;
@@ -212,6 +213,7 @@ void rootana::App::Process(const midas::Event& event)
 				unpack_event(rootana::gTail, event);
 			}
 #else
+			event.PrintSingle();
 			unpack_event(rootana::gTail, event);
 #endif
 			break;

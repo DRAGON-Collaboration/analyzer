@@ -24,11 +24,17 @@ inline void Malloc(T*& buf, size_t size)
 {
 	buf = static_cast<T*>(malloc(size));
 	assert(buf);
+} 
+inline void reset_scalers()
+{
+	rb::Event::Instance<rootbeer::HeadScaler>()->Reset();
+	rb::Event::Instance<rootbeer::TailScaler>()->Reset();
+	rb::Event::Instance<rootbeer::TStampDiagnostics>()->Reset();
 } }
 
 rootbeer::MidasBuffer::MidasBuffer(size_t size):
-	fIsTruncated(false),
-	fBufferSize(size)
+	fBufferSize(size),
+	fIsTruncated(false)
 {
 	/*!
 	 * \param size Size of the internal buffer in bytes. This should be larger than the
@@ -46,20 +52,23 @@ Bool_t rootbeer::MidasBuffer::ReadBufferOffline()
 {
 	/*!
 	 * Reads event data into fBuffer
+	 * \todo Could be made more efficient (no copy)??
 	 */
 	TMidasEvent temp;
-	temp.SetData(fBufferSize, fBuffer);
-	temp.Clear();
-
 	Bool_t have_event = fFile.Read(&temp);
-	if ( have_event &&
-			 temp.GetDataSize() + sizeof(midas::Event::Header) > fBufferSize ) {
-		utils::err::Warning("rootbeer::MidasBuffer::ReadBufferOffline")
-			<< "Received a truncated event: event size = "
-			<< ( temp.GetDataSize() + sizeof(midas::Event::Header) )
-			<< ", max size = " << fBufferSize << " (Id, serial = "
-			<< temp.GetEventId() << ", " << temp.GetSerialNumber() << ")";
-		fIsTruncated = true;
+
+	if(have_event) {
+		memcpy (fBuffer, temp.GetEventHeader(), sizeof(midas::Event::Header));
+		memcpy (fBuffer + sizeof(midas::Event::Header), temp.GetData(), temp.GetDataSize());
+
+		if ( temp.GetDataSize() + sizeof(midas::Event::Header) > fBufferSize ) {
+			utils::err::Warning("rootbeer::MidasBuffer::ReadBufferOffline")
+				<< "Received a truncated event: event size = "
+				<< ( temp.GetDataSize() + sizeof(midas::Event::Header) )
+				<< ", max size = " << fBufferSize << " (Id, serial = "
+				<< temp.GetEventId() << ", " << temp.GetSerialNumber() << ")";
+			fIsTruncated = true;
+		}
 	}
 
 	return have_event;
@@ -71,27 +80,38 @@ Bool_t rootbeer::MidasBuffer::UnpackBuffer()
 	 * Figures out the type of MIDAS event buffer received and sends onto the
 	 * appropriate event handler (see below):
 	 */
-	/// todo UNCOMMENT REAL EVENTS FOR NEW CLOCK SYSTEM!!!
+   /// \todo UNCOMMENT REAL EVENTS FOR NEW CLOCK SYSTEM!!!
+	 /// \todo "Singles only" option
 	midas::Event::Header* evtHeader = reinterpret_cast<midas::Event::Header*>(fBuffer);
 	switch (evtHeader->fEventId) {
 	case DRAGON_HEAD_EVENT:  /// - DRAGON_HEAD_EVENT: Insert into timestamp matching queue
-		// gQueue.Push(midas::Event(rb::Event::Instance<rootbeer::GammaEvent>()->TscBank(),
-		// 												 fBuffer, evtHeader->fDataSize));
-
+#if 1
 		{
-			midas::Event event(0, fBuffer, evtHeader->fDataSize);
+			midas::Event evt(rb::Event::Instance<rootbeer::GammaEvent>()->TscBank(), fBuffer, evtHeader->fDataSize);
+			gQueue.Push(evt, rb::Event::Instance<rootbeer::TStampDiagnostics>()->GetDiagnostics());
+			break;
+		}
+#else
+		{
+			midas::Event event("TSCH", fBuffer, evtHeader->fDataSize);
 			rb::Event::Instance<rootbeer::GammaEvent>()->Process(&event, 0);
 			break;
 		}
+#endif
 	case DRAGON_TAIL_EVENT:  /// - DRAGON_TAIL_EVENT: Insert into timestamp matching queue
-		// gQueue.Push(midas::Event(rb::Event::Instance<rootbeer::HeavyIonEvent>()->TscBank(),
-		// 												 fBuffer, evtHeader->fDataSize));
-
+#if 1
 		{
-			midas::Event event(0, fBuffer, evtHeader->fDataSize);
+			midas::Event evt(rb::Event::Instance<rootbeer::HeavyIonEvent>()->TscBank(), fBuffer, evtHeader->fDataSize);
+			gQueue.Push(evt, rb::Event::Instance<rootbeer::TStampDiagnostics>()->GetDiagnostics());
+			break;
+		}
+#else
+		{
+			midas::Event event("TSCT", fBuffer, evtHeader->fDataSize);
 			rb::Event::Instance<rootbeer::HeavyIonEvent>()->Process(&event, 0);
 			break;
 		}
+#endif
 	case DRAGON_HEAD_SCALER: /// - DRAGON_HEAD_SCALER: Unpack event \todo TEST!!!!
 		{
 			midas::Event event(0, fBuffer, evtHeader->fDataSize);
@@ -158,6 +178,9 @@ Bool_t rootbeer::MidasBuffer::ConnectOnline(const char* host, const char* experi
 		M_ONLINE_BAIL_OUT;
 	}
 
+	/// - Reset scalers and diagnostics
+	reset_scalers();
+
 	/// - Register transition handlers
 	/// \note Stop transition needs to have a 'late' (>700) priority to receive
 	///  events flushed from the "SYNC" buffer at the end of the run
@@ -172,14 +195,33 @@ Bool_t rootbeer::MidasBuffer::ConnectOnline(const char* host, const char* experi
 	return true;
 }
 
+Bool_t rootbeer::MidasBuffer::OpenFile(const char* file_name, char** other, int nother)
+{
+	/*!
+	 * Reset scalers, diagnostics, open MIDAS file w/ TMidasFile::Open()
+	 */
+	reset_scalers();
+	return fFile.Open(file_name);
+}
+
 void rootbeer::MidasBuffer::DisconnectOnline()
 {
 	/*! Calls cm_disconnect_experiment() and flushes queue */
 	cm_disconnect_experiment();
-	gQueue.Flush(FLUSH_TIME);
+	gQueue.Flush(FLUSH_TIME, rb::Event::Instance<rootbeer::TStampDiagnostics>()->GetDiagnostics());
 	utils::err::Info("rootbeer::MidasBuffer::DisconnectOnline")
 		<< "Disconnecting from experiment";
 }
+
+void rootbeer::MidasBuffer::CloseFile()
+{
+	/*! Close file, flush queue */
+	utils::err::Info("rootbeer::MidasBuffer::CloseFile")
+		<< "Closing MIDAS file: \"" << fFile.GetFilename() << "\"";
+	fFile.Close();
+	gQueue.Flush(FLUSH_TIME, rb::Event::Instance<rootbeer::TStampDiagnostics>()->GetDiagnostics());
+}
+
 
 void rootbeer::MidasBuffer::ReadOdb()
 {
@@ -283,7 +325,7 @@ Bool_t rootbeer::MidasBuffer::ReadBufferOnline()
 
 INT rootbeer_run_stop(INT runnum, char* err)
 {
-	gQueue.Flush(FLUSH_TIME);
+	gQueue.Flush(FLUSH_TIME, rb::Event::Instance<rootbeer::TStampDiagnostics>()->GetDiagnostics());
 	utils::err::Info("rb::Midas") << "Stopping run number " << runnum;
 	return CM_SUCCESS;
 }
@@ -291,6 +333,7 @@ INT rootbeer_run_stop(INT runnum, char* err)
 INT rootbeer_run_start(INT runnum, char* err)
 {
 	utils::err::Info("rb::Midas") << "Starting run number " << runnum;
+	reset_scalers();
 	return CM_SUCCESS;
 }
 

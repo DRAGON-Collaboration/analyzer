@@ -3,7 +3,7 @@
 #ifndef DRAGON_VME_IO32_HXX
 #define DRAGON_VME_IO32_HXX
 #include <stdint.h>
-
+#include <vector>
 
 namespace midas { class Event; }
 
@@ -12,6 +12,20 @@ namespace vme {
 
 /// IO32 FPGA
 class Io32 {
+
+public:
+	/// Encloses TSC4 data
+	struct Tsc4 {
+		/// Number of events in each FIFO channel
+		int n_fifo[4];
+
+		/// TSC FIFO data
+		std::vector<uint64_t> fifo[4]; //!
+
+		/// Trigger time in usec
+		double trig_time;
+	};
+
 private:
 	/** @cond */
 PRIVATE:
@@ -44,9 +58,15 @@ PRIVATE:
 	/*! Bitmask defining which signal generated the trigger */
 	uint32_t trigger_latch;
 
+	/// TSC4 data
+	Tsc4 tsc4;
+
 public:
-	/// Unpack all data from the io32
+	/// Unpack all data from the io32 main bank
 	bool unpack(const midas::Event& event, const char* bankName, bool reportMissing = false);
+
+	/// Unpack all data from the io32 tsc4 bank
+	bool unpack_tsc4(const midas::Event& event, const char* bankName, bool reportMissing = false);
 
 	/// Set all data fields to default values (== 0).
 	void reset();

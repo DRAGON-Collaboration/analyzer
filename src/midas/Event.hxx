@@ -60,9 +60,6 @@ public:
 	typedef EventHeader_t Header;
 
 private:
-	/// Default ('master') clock frequency in MHz
-	double kDefaultFreq;
-
 	/// Coincidence window (in us)
 	double fCoincWindow;
 

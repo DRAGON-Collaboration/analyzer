@@ -13,6 +13,8 @@
 /// Encloses timestamp matching classes.
 namespace tstamp {
 
+class Diagnostics;
+
 /// Class to manage coincidence/singles ID.
 /*!
  * The basic idea is to buffer events in a queue for long enough to ensure that any possible
@@ -78,13 +80,13 @@ public:
 	virtual ~Queue() { }
 
 	/// Insert an element into the queue
-	void Push(const midas::Event&);
+	virtual void Push(const midas::Event&, tstamp::Diagnostics* diagnostics = 0);
 
-	/// Erase the earliest event in the queue.
-	void Pop();
+	/// Erase the earliest event in the queue, first searching for coincidences.
+	virtual void Pop(int32_t& singles_id, bool& found_coinc);
  
 	/// Flush all events from the queue.
-	void Flush(int max_time = -1);
+	virtual void Flush(int max_time = -1, tstamp::Diagnostics* diagnostics = 0);
 
 	/// Returns total number of entries in the queue
 	size_t Size() const { return fEvents.size(); }
@@ -100,12 +102,18 @@ protected:
 			return fEvents.rbegin()->TimeDiff(*fEvents.begin());
 		}
 
+	/// Fill diagnostic information after a push.
+	void FillDiagnostics(tstamp::Diagnostics* d, double tdiff, bool have_coinc, int32_t singles_id);
+
 private:
 	/// What to do in case of a coincidence event
 	virtual void HandleCoinc(const midas::Event& e1, const midas::Event& e2) const;
 
 	/// What to do in case of a singles event
 	virtual void HandleSingle(const midas::Event& event) const;
+
+	/// What to do with a diagnostics event
+	virtual void HandleDiagnostics(tstamp::Diagnostics* diagnostics) const;
 	
 	/// Prints a message telling that Flush() timeout has been reached
 	virtual void FlushTimeoutMessage(int max_time) const;
@@ -158,6 +166,58 @@ inline OwnedQueue<T>* NewOwnedQueue(double maxDelta, T* owner)
 	 */
 	return new OwnedQueue<T> (maxDelta, owner);
 }
+
+
+/// Class to store diagnostic information about coincidence matching
+class Diagnostics {
+/*!
+ * Information in this class is updated every time an event is inserted
+ * into the queue. Typically, one passes an instance of this class to a
+ * queue which will handle the updating of diagnostic inforamtion
+ * automatically whenever a new event is pushed into the queue.
+ *
+ * \note When tstamp::Queue handles the updating of this class's fields,
+ * the updates happen at the \e end of a Push(). This means that anything
+ * resulting from a push, be it a new coincidence match or singles event
+ * processed will be reflected in the state of the Diagnostics instance.
+ * Information is also updated when flushing from the queue, but here
+ * tims_diff is set to zero since no new events are incoming.
+ */
+public:
+	/// Maximum number of event types (ids) allowable
+	static const int32_t MAX_TYPES = 10;
+
+	/// Size of the queue
+	uint64_t size;
+
+	/// Number of processed coincidence events
+	uint64_t n_coinc;
+
+	/// Number of processed singles events
+	/*! Array where the inde corresponds midas event id */
+	uint64_t n_singles[MAX_TYPES];
+
+	/// Tells the time difference between the most recently inserted
+	/// event and the earliest event.
+	/*! This gives an idea of how close we are getting to the maximum
+	 *  time difference specified for the queue. */
+	double time_diff;
+
+public:
+	/// Set all data to defaults
+	Diagnostics();
+
+	/// Nothing to do
+	~Diagnostics();
+
+	/// Reset data to default (BOR values)
+	void reset();
+
+	/// tstamp::Queue needs to fill diagnostic information
+	/*!Yes the data are public so this isn't actually necessary, but
+	 * I think it is good to design as if they were private */
+	friend class tstamp::Queue;
+};
 
 } // namespace tstamp
 

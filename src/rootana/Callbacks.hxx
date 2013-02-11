@@ -67,22 +67,5 @@ inline void rootana_run_resume(int transition, int run, int time)
 	utils::err::Info("rootana") << "Resuming run " << run;
 }
 
-inline void rootana_handle_event(const void* pheader, const void* pdata, int size)
-{
-	/*!
-	 * Figure out the TSC bank name from event id, then pass on the work to
-	 * rootana::App::handle_event().
-	 */
-	const midas::Event::Header* head = reinterpret_cast<const midas::Event::Header*>(pheader);
-	char tscBk[5];
-	if (head->fEventId == DRAGON_TAIL_EVENT)
-		strcpy(tscBk, "TSCT");
-	else 
-		strcpy(tscBk, "TSCH");
-
-	midas::Event e(0 /*tscBk*/, pheader, pdata, head->fDataSize);
-	rootana::App::instance()->handle_event(e);
-}
-
 
 #endif

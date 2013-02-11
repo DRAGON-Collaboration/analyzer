@@ -49,3 +49,11 @@ void rootbeer::TSQueue::HandleCoinc(const midas::Event& event1, const midas::Eve
 
 	rb::Event::Instance<rootbeer::CoincEvent>()->Process(&coincEvent, 0);
 }
+
+void rootbeer::TSQueue::HandleDiagnostics(tstamp::Diagnostics*) const
+{
+	/*!
+	 * Call Process() on the diagnostics events
+	 */
+	rb::Event::Instance<rootbeer::TStampDiagnostics>()->Process(0, 0);
+}
