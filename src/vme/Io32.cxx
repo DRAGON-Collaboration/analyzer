@@ -49,6 +49,15 @@ bool vme::Io32::unpack(const midas::Event& event, const char* bankName, bool rep
 		*(data_fields[i]) = *pdata32++;
 	}
 
+	bool haveLatch = false;
+	for (uint32_t i=0; i< 8; ++i) {
+		if (trigger_latch == (1<<i)) {
+			if(haveLatch)	utils::err::Warning("unpack_tsc") << "Duplicate trigger latch" << DRAGON_ERR_FILE_LINE;
+			trigger_latch = i;
+			haveLatch = true;
+		}
+	}
+
   return true;
 }
 
@@ -68,10 +77,9 @@ bool vme::Io32::unpack_tsc4(const midas::Event& event, const char* bankName, boo
 	uint32_t version = *ptsc++;
 	uint32_t bkts    = *ptsc++;
 	uint32_t route   = *ptsc++;
-	uint32_t syncno  = *ptsc++;
 
 	// Suppress compiler warning about unused values
-	if (0 && version && bkts && route && syncno) { }
+	if (0 && version && bkts && route) { }
 
 	// Get TSC4 info
 	uint32_t ctrl = *ptsc++, nch = ctrl & READ15;
@@ -90,7 +98,8 @@ bool vme::Io32::unpack_tsc4(const midas::Event& event, const char* bankName, boo
 
 void vme::Io32::reset()
 {
-	utils::reset_data(header, trig_count, tstamp, start, end, latency, read_time, busy_time, trigger_latch, tsc4.trig_time);
+	utils::reset_data(header, trig_count, tstamp, start, end, latency, read_time,
+										busy_time, trigger_latch, which_trigger, tsc4.trig_time);
 	for(int i=0; i< 4; ++i) {
 		tsc4.n_fifo[i] = 0;
 		tsc4.fifo[i].clear();

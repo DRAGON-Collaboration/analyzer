@@ -39,7 +39,7 @@ TH1D:
        rootana::gHead.io32.which_trigger
        
 SCALER:
-        ("trig time", "tsc4 trigger time;Event; time [us]", 5000, 0, 5000)
+        ("trig_time", "tsc4 trigger time;Event; time [us]", 5000, 0, 5000)
         rootana::gHead.io32.tsc4.trig_time;
 
 

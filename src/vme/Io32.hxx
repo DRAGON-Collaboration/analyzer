@@ -58,6 +58,10 @@ PRIVATE:
 	/*! Bitmask defining which signal generated the trigger */
 	uint32_t trigger_latch;
 
+	/// Which ECL input made the trigger?
+	/*! Integer version of trigger_latch */
+	uint32_t which_trigger;
+
 	/// TSC4 data
 	Tsc4 tsc4;
 
