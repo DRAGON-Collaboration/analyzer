@@ -15,7 +15,7 @@
 class TFile;
 class TDirectory;
 namespace midas  { class Event; class Database; }
-namespace tstamp { class Queue; }
+namespace tstamp { class Queue; class Diagnostics; }
 
 namespace rootana {
 
@@ -77,6 +77,9 @@ public:
 	/// Tells how to handle a coincidence event from the beginning of fQueue
 	void Process(const midas::Event& event1, const midas::Event& event2);
 
+	/// Tells how to handle a timstamtp diagnostics event
+	void Process(tstamp::Diagnostics* diagnostics);
+
 	/// Process an offline MIDAS file
 	int midas_file(const char* fname);
 
@@ -95,6 +98,9 @@ private:
 
 	/// Handles cleanup for destructor or Terminate()
 	void do_exit();
+
+	/// Fills all histos w/ a specific event ID
+	void fill_hists(uint16_t eid);
 
 	ClassDef (rootana::App, 0);
 };

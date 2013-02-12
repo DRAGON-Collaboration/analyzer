@@ -30,6 +30,9 @@
 #include "Globals.h"
 
 namespace {
+
+const uint32_t TS_DIAGNOSTICS_EVENT = 6;
+
 template <class T, class E>
 inline void unpack_event(T& data, const E& buf)
 {
@@ -141,29 +144,15 @@ void rootana::App::handle_event(midas::Event& event)
 	/*!
 	 * Handles various types of events in the following ways:
 	 */
-	switch (event.GetEventId()) {
-	case DRAGON_HEAD_EVENT:  /// - DRAGON_HEAD_EVENT: Insert into timestamp matching queue
-#if 0
-		fQueue->Push(event);
-#else
+	const uint16_t EID = event.GetEventId();
+	if (EID == DRAGON_HEAD_EVENT || EID == DRAGON_TAIL_EVENT) {
+		/// - Head and tail events: insert into queue; call to Process() is delayed
+		///   until it's at the front of the queue.
+		fQueue->Push(event, &gDiagnostics);
+	}
+	else {
+		/// - All others: call Process() directly.
 		Process(event);
-#endif
-		break;
-	case DRAGON_TAIL_EVENT:  /// - DRAGON_TAIL_EVENT: Insert into timestamp matching queue
-#if 0
-		fQueue->Push(event);
-#else
-		Process(event);
-#endif
-		break;
-	case DRAGON_HEAD_SCALER: /// - DRAGON_HEAD_SCALER: TODO: implement C. Stanford's scaler codes
-		// <...process...> //
-		break;
-	case DRAGON_TAIL_SCALER: /// - DRAGON_TAIL_SCALER: TODO: implement C. Stanford's scaler codes
-		// <...process...> //
-		break;
-	default: /// - Silently ignore other event types
-		break;
 	}
 }
 
@@ -176,7 +165,6 @@ IT FindSerial(IT begin_, IT end_, uint32_t value)
 
 void rootana::App::Process(const midas::Event& event)
 {
-	bool doFill = true;
 	const uint16_t EID = event.GetEventId();
 	switch (EID) {
 
@@ -194,11 +182,12 @@ void rootana::App::Process(const midas::Event& event)
 				unpack_event(rootana::gHead, event);
 			}
 #else
-			event.PrintSingle();
 			unpack_event(rootana::gHead, event);
+			fill_hists(EID);
 #endif
 			break;
 		}
+
 	case DRAGON_TAIL_EVENT:  /// - DRAGON_TAIL_EVENT: Calculate tail params & fill tail histos
 		{
 #if 0
@@ -213,28 +202,27 @@ void rootana::App::Process(const midas::Event& event)
 				unpack_event(rootana::gTail, event);
 			}
 #else
-			event.PrintSingle();
 			unpack_event(rootana::gTail, event);
+			fill_hists(EID);
 #endif
 			break;
 		}
-	case DRAGON_HEAD_SCALER: /// - DRAGON_HEAD_SCALER: \todo implement C. Stanford's scaler codes
+
+	case DRAGON_HEAD_SCALER: /// - DRAGON_HEAD_SCALER:
 		rootana::gHeadScaler.unpack(event);
+		fill_hists(EID);
 		break;
 
-	case DRAGON_TAIL_SCALER: /// - DRAGON_TAIL_SCALER: \todo implement C. Stanford's scaler codes
+	case DRAGON_TAIL_SCALER: /// - DRAGON_TAIL_SCALER:
 		rootana::gTailScaler.unpack(event);
+		fill_hists(EID);
 		break;
 
 	default: /// - Silently ignore other event types
-		doFill = false;
+		utils::err::Warning("Process") << "Unknown event id: " << EID << ", skipping";
 		break;
 	}
 
-	if (doFill) {
-		fOutputFile.CallForAll( &rootana::HistBase::fill, EID );
-		fOnlineHists.CallForAll( &rootana::HistBase::fill, EID );
-	}
 }
 
 void rootana::App::Process(const midas::Event& event1, const midas::Event& event2)
@@ -248,10 +236,15 @@ void rootana::App::Process(const midas::Event& event1, const midas::Event& event
 	}
 
 	unpack_event(rootana::gCoinc, coincEvent);
-	fOutputFile.CallForAll( &rootana::HistBase::fill, DRAGON_COINC_EVENT );
+	fill_hists(DRAGON_COINC_EVENT);
 
 	fHeadProcessed.push_back(rootana::gCoinc.head);
 	fTailProcessed.push_back(rootana::gCoinc.tail);
+}
+
+void rootana::App::Process(tstamp::Diagnostics* d)
+{
+	fill_hists(TS_DIAGNOSTICS_EVENT);
 }
 
 int rootana::App::midas_file(const char* fname)
@@ -427,6 +420,7 @@ void rootana::App::run_start(int runnum)
 	/// Reset head and tail scalers (count -> zero)
 	rootana::gHeadScaler.reset();
 	rootana::gTailScaler.reset();
+	rootana::gDiagnostics.reset();
 
 	/// Read variables from the ODB
 	rootana::gHead.set_variables("online");
@@ -446,11 +440,16 @@ void rootana::App::run_stop(int runnum)
 	 *  save histograms, closes output root file.
 	 */
   fRunNumber = runnum;
-	fQueue->Flush(30);
+	fQueue->Flush(30, &gDiagnostics);
 	fOutputFile.Close();
 	utils::err::Info("rootana") << "End of run " << runnum;
 }
 
+void rootana::App::fill_hists(uint16_t eid)
+{
+	fOutputFile.CallForAll(&rootana::HistBase::fill, eid);
+	fOnlineHists.CallForAll(&rootana::HistBase::fill, eid);
+}
 
 void rootana::App::help()
 {

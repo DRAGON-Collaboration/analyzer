@@ -19,6 +19,13 @@
 # END:
 
 
+DIR:
+histos/tstamp/diagnostics
+
+SCALER:
+	("time_diff", "trig_time - earliest in queue [us]", 5000, 0, 5000)
+	rootana::gDiagnostics.time_diff;
+	
 ## Head IO32
 DIR:
 histos/event/gamma/io32
@@ -26,7 +33,11 @@ histos/event/gamma/io32
 TH1D:
        ("busy_time", "Head busy time;Busy time [ns/50];Counts", 1000, 0, 10000)
        rootana::gHead.io32.busy_time
-
+       
+TH1D:
+       ("trigger_channel", "Head trigger channel;Channel;Counts", 8, 0, 8)
+       rootana::gHead.io32.which_trigger
+       
 SCALER:
         ("trig time", "tsc4 trigger time;Event; time [us]", 5000, 0, 5000)
         rootana::gHead.io32.tsc4.trig_time;
@@ -39,6 +50,25 @@ histos/event/hion/io32
 TH1D:
        ("busy_time", "Tail busy time; Busy time [ns/50];Counts", 1000, 0, 10000)
        rootana::gTail.io32.busy_time
+
+TH1D:
+       ("trigger_channel", "Tail trigger channel;Channel;Counts", 8, 0, 8)
+       rootana::gTail.io32.which_trigger
+
+
+## Coinc IO32
+DIR:
+histos/event/coinc/gamma/io32
+
+TH1D:
+       ("trigger_channel", "Head trigger channel;Channel;Counts", 8, 0, 8)
+       rootana::gHead.io32.which_trigger
+
+histos/event/coinc/hion/io32
+TH1D:
+       ("trigger_channel", "Tail trigger channel;Channel;Counts", 8, 0, 8)
+       rootana::gTail.io32.which_trigger
+
 
 
 ## BGO SINGLES ##

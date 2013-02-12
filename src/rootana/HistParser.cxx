@@ -6,6 +6,7 @@
 #include <sstream>
 #include <TROOT.h>
 #include <TDirectory.h>
+#include "midas.h"
 #include "utils/definitions.h"
 #include "utils/ErrorDragon.hxx"
 #include "Histos.hxx"
@@ -34,6 +35,7 @@ inline Int_t get_type(const std::string& spar)
 	else if (contains(spar, "rootana::gCoinc")) return DRAGON_COINC_EVENT;
 	else if (contains(spar, "rootana::gHeadScaler")) return DRAGON_HEAD_SCALER;
 	else if (contains(spar, "rootana::gTailScaler")) return DRAGON_TAIL_SCALER;
+	else if (contains(spar, "rootana::gDiagnostics")) return 6; // timestamp diagnostics
 	else return -1;
 }
 
@@ -333,9 +335,10 @@ void rootana::HistParser::Run()
 			else if (contains(fLine, "SCALER:"))  handle_scaler();
 			else continue;
 		} catch (std::exception& e) {
-			std::cerr << "\n*******\n";
-			utils::err::Error("HistParser")
-				<< e.what() << "\nAttempting to continue...\n*******\n\n";
+			cm_msg(MERROR, "anaDragon::HistParser::Run", "%s. Attempting to continue...", e.what());
+			// std::cerr << "\n*******\n";
+			// utils::err::Error("HistParser")
+			// 	<< e.what() << "\nAttempting to continue...\n*******\n\n";
 		}
 	}
 	std::cout << "\n";

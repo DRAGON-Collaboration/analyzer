@@ -12,6 +12,7 @@
 // DRAGON Globals //
 #include "dragon/Coinc.hxx"
 #include "dragon/Scaler.hxx"
+#include "utils/TStamp.hxx"
 
 #ifndef G__DICTIONARY
 /// Provide 'extern' linkage except in CINT dictionary
@@ -21,6 +22,9 @@
 #endif
 
 namespace rootana {
+
+/// Global timestamp diagnostics class
+EXTERN tstamp::Diagnostics gDiagnostics;
 
 /// Gloal gamma event class
 EXTERN dragon::Head gHead;
