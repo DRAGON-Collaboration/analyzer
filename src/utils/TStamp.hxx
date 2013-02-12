@@ -154,6 +154,10 @@ private:
 	/// Calls <tt> fOwner.Process(const midas::Event&, const midas::Event&); </tt>
 	void HandleCoinc(const midas::Event& event1, const midas::Event& event2) const
 		{ fOwner.Process(event1, event2); }
+
+	/// Calls <tt> fOwner.Process(tstamp::Diagnostics*); </tt>
+	void HandleDiagnostics(tstamp::Diagnostics* diagnostics) const
+		{ fOwner.Process(diagnostics); }
 };
 
 /// "Creation" function for OwnedQueue<T>
