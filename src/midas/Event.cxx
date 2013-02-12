@@ -95,10 +95,9 @@ void midas::Event::Init(const char* tsbank, const void* header, const void* addr
 		uint32_t version = *ptsc++;
 		uint32_t bkts    = *ptsc++;
 		uint32_t route   = *ptsc++;
-		uint32_t syncno  = *ptsc++;
 
 		// Suppress compiler warning about unused values
-		if (0 && version && bkts && route && syncno) { }
+		if (0 && version && bkts && route) { }
 
 		// Check version
 		if (version == 0x1120809 || version == 0x1120810 || version == 0x1120910 || version == 0x01121212 || version == 0x01120925);
