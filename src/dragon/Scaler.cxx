@@ -52,16 +52,17 @@ void dragon::Scaler::unpack(const midas::Event& event)
 	/*!
 	 * Unpacks scaler data directly into the various array structures.
 	 */
+	bool report = true;
 	int bank_len;
-	uint32_t* pcount = event.GetBankPointer<uint32_t>(variables.bank_names.count, &bank_len, false, true);
+	uint32_t* pcount = event.GetBankPointer<uint32_t>(variables.bank_names.count, &bank_len, report, true);
 	if ( check_bank_len(MAX_CHANNELS, bank_len, variables.bank_names.count) )
 		std::copy(pcount, pcount + bank_len, count);
 
-	uint32_t* psum = event.GetBankPointer<uint32_t>(variables.bank_names.sum, &bank_len, false, true);
+	uint32_t* psum = event.GetBankPointer<uint32_t>(variables.bank_names.sum, &bank_len, report, true);
 	if ( check_bank_len(MAX_CHANNELS, bank_len, variables.bank_names.sum) )
 		std::copy(psum, psum + bank_len, sum);
 
-	double* prate = event.GetBankPointer<double>(variables.bank_names.rate, &bank_len, false, true);
+	double* prate = event.GetBankPointer<double>(variables.bank_names.rate, &bank_len, report, true);
 	if ( check_bank_len(MAX_CHANNELS, bank_len, variables.bank_names.rate) )
 		std::copy(prate, prate + bank_len, rate);
 }
@@ -90,6 +91,13 @@ dragon::Scaler::Variables::Variables(const char* name):
 	 */
 	reset();
 	odb_path += name;
+
+	if(std::string(name) != "head" && std::string(name) != "tail") {
+		utils::err::Warning("Scaler::Variables")
+			<< "Invalid name specification: \"" << name << "\". "
+			<< "Synchronization with the ODB will not work as a result!"
+			<< DRAGON_ERR_FILE_LINE;
+	}
 }
 
 void dragon::Scaler::Variables::reset()
@@ -114,13 +122,17 @@ void dragon::Scaler::Variables::set(const char* odb)
 
 	database.ReadArray((odb_path + "/names").c_str(), names, MAX_CHANNELS);
 
-	std::string sCount, sSum, sRate;
-	database.ReadValue((odb_path + "/bank_names/count").c_str(), sCount);
-	database.ReadValue((odb_path + "/bank_names/rate").c_str(), sRate);
-	database.ReadValue((odb_path + "/bank_names/sum").c_str(), sSum);
-	utils::Banks::Set(bank_names.count, sCount.c_str());
-	utils::Banks::Set(bank_names.rate,  sRate.c_str());
-	utils::Banks::Set(bank_names.sum ,  sSum.c_str());
+	// std::string sCount, sSum, sRate;
+	// database.ReadValue((odb_path + "/bank_names/count").c_str(), sCount);
+	// database.ReadValue((odb_path + "/bank_names/rate").c_str(), sRate);
+	// database.ReadValue((odb_path + "/bank_names/sum").c_str(), sSum);
+	// utils::Banks::Set(bank_names.count, sCount.c_str());
+	// utils::Banks::Set(bank_names.rate,  sRate.c_str());
+	// utils::Banks::Set(bank_names.sum ,  sSum.c_str());
+
+	utils::Banks::OdbSet(bank_names.count, database, (odb_path + "/bank_names/count").c_str());
+	utils::Banks::OdbSet(bank_names.rate, database, (odb_path + "/bank_names/rate").c_str());
+	utils::Banks::OdbSet(bank_names.sum, database, (odb_path + "/bank_names/sum").c_str());
 }
 
 void dragon::Scaler::Variables::set_bank_names(const char* base)

@@ -29,7 +29,7 @@ dragon::Tail::Tail() :
 #endif
 	tof(this)
 {
-	utils::Banks::Set(banks.io32,   "TLIO");
+	utils::Banks::Set(banks.io32,   "VTRT");
 	utils::Banks::Set(banks.adc[0], "TLQ0");
 	utils::Banks::Set(banks.adc[1], "TLQ1");
 	utils::Banks::Set(banks.tdc,    "TLT0");

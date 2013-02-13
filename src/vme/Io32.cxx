@@ -29,7 +29,7 @@ bool vme::Io32::unpack(const midas::Event& event, const char* bankName, bool rep
 	* \returns True if the event was successfully unpacked, false otherwise
 	*/
 	int bank_len;
-	static const int expected_bank_len = 9;
+	const int expected_bank_len = 9;
 	uint32_t* pdata32 =
 		event.GetBankPointer<uint32_t>(bankName, &bank_len, reportMissing, true);
 
@@ -49,14 +49,21 @@ bool vme::Io32::unpack(const midas::Event& event, const char* bankName, bool rep
 		*(data_fields[i]) = *pdata32++;
 	}
 
+#if 0
 	bool haveLatch = false;
 	for (uint32_t i=0; i< 8; ++i) {
-		if (trigger_latch == (1<<i)) {
-			if(haveLatch)	utils::err::Warning("unpack_tsc") << "Duplicate trigger latch" << DRAGON_ERR_FILE_LINE;
-			trigger_latch = i;
+		if(trigger_latch & (1<<i)) {
+			if(haveLatch)
+				utils::err::Warning("unpack_tsc")
+					<< "Duplicate trigger latch (bank = \"" << bankName << "\")"
+					<< DRAGON_ERR_FILE_LINE;
+			which_trigger = i;
 			haveLatch = true;
 		}
 	}
+
+	printf("TRIGGER [%s]:: 0x%x (ch %u)\n", bankName, trigger_latch, which_trigger);
+#endif
 
   return true;
 }

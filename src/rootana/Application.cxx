@@ -426,6 +426,8 @@ void rootana::App::run_start(int runnum)
 	rootana::gHead.set_variables("online");
 	rootana::gTail.set_variables("online");
 	rootana::gCoinc.set_variables("online");
+	rootana::gHeadScaler.set_variables("online");
+	rootana::gTailScaler.set_variables("online");
 
 	bool opened = fOutputFile.Open(runnum, fHistos.c_str());
 	if(!opened) Terminate(1);

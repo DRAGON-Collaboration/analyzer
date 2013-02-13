@@ -12,7 +12,7 @@
 dragon::Head::Head() :
 	header(), io32(), v792(), v1190(), bgo(), tof(this)
 {
-	utils::Banks::Set(banks.io32, "VRTH");
+	utils::Banks::Set(banks.io32, "VTRH");
 	utils::Banks::Set(banks.adc,  "ADC0");
 	utils::Banks::Set(banks.tdc,  "TDC0");
 	utils::Banks::Set(banks.tsc,  "TSCH");
@@ -64,7 +64,7 @@ void dragon::Head::unpack(const midas::Event& event)
 	 * \note Recompile with <c> report = true </c> to print warning messages
 	 *  for missing banks
 	 */
-	const bool report = false;
+	const bool report = true;
 	io32.unpack (event, banks.io32, report);
 	io32.unpack_tsc4 (event, "TSCH", report); //! \todo Don't hard code "TSCH" bank name
 	v792.unpack (event, banks.adc , report);
