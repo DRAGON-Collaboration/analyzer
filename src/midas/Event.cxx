@@ -5,6 +5,7 @@
 #include <cmath>
 #include <limits>
 #include <cassert>
+#include <sstream>
 #include <iostream>
 #include <algorithm>
 #include <stdexcept>
@@ -16,20 +17,17 @@
 
 namespace {
 
-inline uint64_t read_timestamp64 (uint64_t lower, uint64_t upper)
-{
-	return (lower & READ30) | (upper << 30);
-} }
+const double COINC_WINDOW = 10.;
+
+}
 
 
 // ========= Class midas::Event ========= //
 
 midas::Event::Event(const char* tsbank, const void* header, const void* data, int size):
-	fCoincWindow(10.),
-	fClock (std::numeric_limits<uint64_t>::max()),
-	fTriggerTime(0.),
-	fFreq(DRAGON_TSC_FREQ),
-	fClock30(0)
+	fCoincWindow(COINC_WINDOW),
+	fClock (std::numeric_limits<uint32_t>::max()),
+	fTriggerTime(0.)
 {
 	/*!
 	 * \throws std::invalid_argument If \e tsbank is not found
@@ -40,10 +38,9 @@ midas::Event::Event(const char* tsbank, const void* header, const void* data, in
 }
 
 midas::Event::Event(const char* tsbank, char* buf, int size):
-	fCoincWindow(10.),
- 	fClock (std::numeric_limits<uint64_t>::max()),
-	fTriggerTime(0.),
-	fFreq(DRAGON_TSC_FREQ)
+	fCoincWindow(COINC_WINDOW),
+ 	fClock (std::numeric_limits<uint32_t>::max()),
+	fTriggerTime(0.)
 {
 	/*!
 	 * \throws std::invalid_argument If \e tsbank is not found
@@ -57,28 +54,29 @@ void midas::Event::CopyDerived(const midas::Event& other)
 	/*!
 	 * Copies all data fields and calls TMidasEvent::Copy().
 	 */
-	fFreq        = other.fFreq;
 	fClock       = other.fClock;
 	fCrossClock  = other.fCrossClock;
 	fTriggerTime = other.fTriggerTime;
 	fCoincWindow = other.fCoincWindow;
-	fClock30     = other.fClock30;
 	TMidasEvent::Copy(other);
 }
 
 void midas::Event::PrintSingle(FILE* where) const
 {
-	fprintf (where, "Singles event: id, ser, trig, clock: %i, %u, %.16f, %lu\n",
-					 GetEventId(), GetSerialNumber(), fTriggerTime, fClock);
+	std::stringstream sstr;
+	sstr << "Singles event: id, ser, trig, clock: "
+			 << GetEventId() << ", " <<  GetSerialNumber() << ", " <<  fTriggerTime << ", " <<  fClock;
+	fprintf (where, "%s\n", sstr.str().c_str());
 }
 
 void midas::Event::PrintCoinc(const Event& other, FILE* where) const
 {
-	fprintf (where, "Coincidence event: id[0], ser[0], t[0], clk[0], id[1], ser[1], t[1], clk[1] | t[0]-t[1]: "
-					 "%i, %u, %.16f, %lu, %i, %u, %.16f, %lu, %.16f\n",
-					 GetEventId(), GetSerialNumber(), fTriggerTime, fClock,
-					 other.GetEventId(), other.GetSerialNumber(), other.fTriggerTime, other.fClock,
-					 TimeDiff(other));
+	std::stringstream sstr;
+	sstr << "Coincidence event: id[0], ser[0], t[0], clk[0], id[1], ser[1], t[1], clk[1] | t[0]-t[1]: "
+			 << GetEventId() << ", " <<  GetSerialNumber() << ", " <<  fTriggerTime << ", " <<  fClock << ", "
+			 << other.GetEventId() << ", " <<  other.GetSerialNumber() << ", " <<  other.fTriggerTime << ", "
+			 <<  other.fClock << ", " << TimeDiff(other);
+	fprintf (where, "%s\n", sstr.str().c_str());
 }
 
 
@@ -121,29 +119,20 @@ void midas::Event::Init(const char* tsbank, const void* header, const void* addr
 			uint64_t lower = *ptsc++, upper = *ptsc++, ch = (lower>>30) & READ2;
 
 			switch (ch) {
-			case 1: // Cross timestamp
-				fCrossClock.push_back( read_timestamp64(lower, upper) );
-				break;
 
 			case 0: // Trigger timestamp
-				if (fClock != std::numeric_limits<uint64_t>::max()) {
+				if (fClock != std::numeric_limits<uint32_t>::max()) {
 					utils::err::Warning("midas::Event::Init") <<
 						"duplicate trigger TS in fifo. Serial #: " << GetSerialNumber() <<
-						", tsc[1][0] = " << fClock << ", tsc[1][1] = " << read_timestamp64(lower, upper) << "\n";
-					// if (fClock != read_timestamp64(lower, upper)) {
-					// 	throw (std::invalid_argument("Non-equivalent duplicate trigger ts"));
-					// }
+						", tsc[1][0] = " << fClock << ", tsc[1][1] = " << lower << "\n";
 				}
 
-				fClock = read_timestamp64(lower, upper);
-				if (fFreq > 0.) fTriggerTime = fClock / fFreq;
-				else {
-					utils::err::Error("midas::Event::Init") << "Found a frequency <= 0: " << fFreq << DRAGON_ERR_FILE_LINE;
-					throw (std::invalid_argument("Read invalid frequency."));
-				}
+				fClock = lower & 0x3fffffff; // lower 30 bits
+				fTriggerTime = fClock / DRAGON_TSC_FREQ;
+				break;
 
-				fClock30 = lower & 0x3fffffff; // lower 30 bits
-
+			case 1: // Cross timestamp
+				fCrossClock.push_back(lower & 0x3fffffff);
 				break;
 
 			default:
@@ -153,10 +142,14 @@ void midas::Event::Init(const char* tsbank, const void* header, const void* addr
 	} // if tsbank != 0
 }
 
-double midas::Event::TimeDiff2(const Event& other) const
+double midas::Event::TimeDiff(const Event& other) const
 {
-	int32_t clockDiff = utils::time_diff30(fClock30, other.fClock30);
-	return clockDiff / fFreq;
+	/*!
+	 * Takes into account rollover by checking that the abslute difference is < 0x1fffffff
+	 * \note 'this' - 'other'
+	 */
+	int32_t clockDiff = utils::time_diff30(fClock, other.fClock);
+	return clockDiff / DRAGON_TSC_FREQ;
 }
 
 midas::CoincEvent::CoincEvent(const Event& event1, const Event& event2):
@@ -177,6 +170,6 @@ midas::CoincEvent::CoincEvent(const Event& event1, const Event& event2):
 			<< ". Setting fGamma and fHeavyIon to NULL...\n";
 	}
 	if(fGamma && fHeavyIon) {
-		xtrig = fHeavyIon->TimeDiff2(*fGamma);
+		xtrig = fHeavyIon->TimeDiff(*fGamma);
 	}
 }

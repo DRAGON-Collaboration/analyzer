@@ -26,7 +26,7 @@ class TMidasEvent
 
   TMidasEvent(); ///< default constructor
   TMidasEvent(const TMidasEvent &); ///< copy constructor
-  ~TMidasEvent(); ///< destructor
+  virtual ~TMidasEvent(); ///< destructor
   TMidasEvent& operator=(const TMidasEvent &); ///< assignement operator
   void Clear(); ///< clear event for reuse
   void Copy(const TMidasEvent &); ///< copy helper

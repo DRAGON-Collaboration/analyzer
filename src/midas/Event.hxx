@@ -28,23 +28,9 @@ namespace midas {
  * interface (private inheritance due to the non-virtual destructor of
  * TMidasEvent).
  */
-class Event: private TMidasEvent {
+class Event: public TMidasEvent {
 
 public:
-	// Reproduce parts of TMidasEvent interface
-  using TMidasEvent::GetEventId;
-  using TMidasEvent::GetTriggerMask;
-  using TMidasEvent::GetSerialNumber;
-  using TMidasEvent::GetTimeStamp;
-  using TMidasEvent::GetDataSize;
-  using TMidasEvent::Print;
-	using TMidasEvent::GetBankList;
-	using TMidasEvent::FindBank;
-	using TMidasEvent::LocateBank;
-	using TMidasEvent::IsBank32;
-	using TMidasEvent::IterateBank;
-	using TMidasEvent::IterateBank32;
-
 	/// Provide typdef for EventHeader_t
 	/*!
 	 * \code
@@ -64,19 +50,15 @@ private:
 	double fCoincWindow;
 
 	/// Timestamp value in clock cycles since BOR
-	uint64_t fClock;
+	/*! \note Only lower 30 bits are significant */
+	uint32_t fClock;
 
 	/// Crossed timestamp clock value(s)
-	std::vector<uint64_t> fCrossClock;
+	std::vector<uint32_t> fCrossClock;
 
 	/// Timestamp value in uSec
+	/*! \note Does not account for rollover */
 	double fTriggerTime;
-
-	/// Clock frequency
-	double  fFreq;
-
-	/// "Raw" (30-bit) TSC trigger clock time
-	uint32_t fClock30;
 
 public:
 	/// Empty constructor
@@ -117,7 +99,7 @@ public:
 	bool operator< (const Event& rhs) const
 		{
 			if (IsCoinc(rhs)) return false;
-			return TimeDiff(rhs) < 0.; // fTriggerTime < rhs.fTriggerTime;
+			return TimeDiff(rhs) < 0.;
 		}
 
 	/// Prints timestamp information for a singles event
@@ -127,13 +109,7 @@ public:
 	void PrintCoinc(const Event& other, FILE* where = stdout) const;
 
 	/// Calculates difference of timestamps
-	/*! \note 'this' - 'other' */
-	double TimeDiff(const Event& other) const
-		{ return TimeDiff2(other); } // fTriggerTime - other.fTriggerTime; }
-
-	/// Calculates difference of timestamps
-	/*! \note 'this' - 'other' */
-	double TimeDiff2(const Event& other) const;
+	double TimeDiff(const Event& other) const;
 
 	/// Destructor, empty
 	virtual ~Event() { }
@@ -206,11 +182,14 @@ public:
 		/// Parenthesis operator
 		bool operator() (const Event& lhs, const Event& rhs) const
 			{
-				/*! \returns false if the two event's trigger times are within
+				/*!
+				 * \returns false if the two event's trigger times are within
 				 * the coincidence window; otherwise returns true if the trigger
-				 * time of lhs is less than the trigger time of rhs */
+				 * time of lhs is less than the trigger time of rhs
+				 * \note Same thing as <tt>lhs < rhs</tt>
+				 */
 				if (lhs.IsCoinc(rhs)) return false;
-				return lhs.TriggerTime() < rhs.TriggerTime();
+				return lhs.TimeDiff(rhs) < 0.; // fTriggerTime < rhs.fTriggerTime;
 			}
 	};
 
@@ -223,7 +202,7 @@ struct CoincEvent {
 
 	const Event* fHeavyIon; ///< Pointer to the tail (heavy-ion) event.
 
-	double xtrig; ///< tail - head trigger times (in microseconds).
+	double xtrig; ///< Tail - Head trigger times (in microseconds), including rollover.
 
 	/// Sets event pointers
 	CoincEvent (const Event& event1, const Event& event2);
