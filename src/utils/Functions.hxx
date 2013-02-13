@@ -3,7 +3,9 @@
 /// \brief Defines some functions commonly used in processing data
 #ifndef DRAGON_UTILS_FUNCTIONS_HXX
 #define DRAGON_UTILS_FUNCTIONS_HXX
+#include <stdint.h>
 #include <functional>
+#include "Bits.hxx"
 #include "Valid.hxx"
 
 
@@ -540,6 +542,29 @@ inline void polynomial_calibrate(int order, T& value, const V& variables)
 			value += variables.coeff[j] * pow(value0, j);
 		}
 	}
+}
+
+/// Calculate the signed difference between two 30-bit numbers, including rollover
+inline int32_t time_diff30(uint32_t t1, uint32_t t0)
+{
+	/*!
+	 * 
+	 */
+	bool roll = false;
+	int sign = 1;
+	t0 &= READ30;
+	t1 &= READ30;
+	
+	int32_t diff = (int32_t)t1 - (int32_t)t0;
+	uint32_t absDiff = abs(diff);
+	if(absDiff > READ29) roll = true;
+	if(diff < 0) sign = -1;
+
+	if(roll) {
+		absDiff = (~absDiff & READ30) + 1;
+		sign *= -1;
+	}
+	return (int32_t)absDiff * sign;
 }
 
 } // namespace utils

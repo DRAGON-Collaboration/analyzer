@@ -75,6 +75,9 @@ private:
 	/// Clock frequency
 	double  fFreq;
 
+	/// "Raw" (30-bit) TSC trigger clock time
+	uint32_t fClock30;
+
 public:
 	/// Empty constructor
 	Event(): TMidasEvent() { }
@@ -127,6 +130,10 @@ public:
 	/*! \note 'this' - 'other' */
 	double TimeDiff(const Event& other) const
 		{ return fTriggerTime - other.fTriggerTime; }
+
+	/// Calculates difference of timestamps
+	/*! \note 'this' - 'other' */
+	double TimeDiff2(const Event& other) const;
 
 	/// Destructor, empty
 	virtual ~Event() { }
@@ -215,6 +222,8 @@ struct CoincEvent {
 	const Event* fGamma; ///< Pointer to the head (gamma) event.
 
 	const Event* fHeavyIon; ///< Pointer to the tail (heavy-ion) event.
+
+	double xtrig; ///< tail - head trigger times (in microseconds).
 
 	/// Sets event pointers
 	CoincEvent (const Event& event1, const Event& event2);

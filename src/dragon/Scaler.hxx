@@ -72,7 +72,7 @@ PRIVATE:
 
 public:  
   /// Initialize data
-  Scaler(const char* name);
+  Scaler(const char* name = "head");
   
   /// Reset all data to zero
   void reset();

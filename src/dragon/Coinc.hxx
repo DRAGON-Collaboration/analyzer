@@ -24,6 +24,9 @@ public:
 	/// Tail (heavy-ion) part of the event
 	Tail tail;
 
+	/// (tail - head) trigger times (usec)
+	double xtrig;
+
 // Methods //
 public:
 	/// Empty
