@@ -16,9 +16,7 @@
 
 namespace {
 
-const double kDefaultFreq = 20.;
-
-inline uint64_t read_timestamp (uint64_t lower, uint64_t upper)
+inline uint64_t read_timestamp64 (uint64_t lower, uint64_t upper)
 {
 	return (lower & READ30) | (upper << 30);
 } }
@@ -30,7 +28,7 @@ midas::Event::Event(const char* tsbank, const void* header, const void* data, in
 	fCoincWindow(10.),
 	fClock (std::numeric_limits<uint64_t>::max()),
 	fTriggerTime(0.),
-	fFreq(kDefaultFreq),
+	fFreq(DRAGON_TSC_FREQ),
 	fClock30(0)
 {
 	/*!
@@ -45,7 +43,7 @@ midas::Event::Event(const char* tsbank, char* buf, int size):
 	fCoincWindow(10.),
  	fClock (std::numeric_limits<uint64_t>::max()),
 	fTriggerTime(0.),
-	fFreq(kDefaultFreq)
+	fFreq(DRAGON_TSC_FREQ)
 {
 	/*!
 	 * \throws std::invalid_argument If \e tsbank is not found
@@ -124,20 +122,20 @@ void midas::Event::Init(const char* tsbank, const void* header, const void* addr
 
 			switch (ch) {
 			case 1: // Cross timestamp
-				fCrossClock.push_back( read_timestamp(lower, upper) );
+				fCrossClock.push_back( read_timestamp64(lower, upper) );
 				break;
 
 			case 0: // Trigger timestamp
 				if (fClock != std::numeric_limits<uint64_t>::max()) {
 					utils::err::Warning("midas::Event::Init") <<
 						"duplicate trigger TS in fifo. Serial #: " << GetSerialNumber() <<
-						", tsc[1][0] = " << fClock << ", tsc[1][1] = " << read_timestamp(lower, upper) << "\n";
-					// if (fClock != read_timestamp(lower, upper)) {
+						", tsc[1][0] = " << fClock << ", tsc[1][1] = " << read_timestamp64(lower, upper) << "\n";
+					// if (fClock != read_timestamp64(lower, upper)) {
 					// 	throw (std::invalid_argument("Non-equivalent duplicate trigger ts"));
 					// }
 				}
 
-				fClock = read_timestamp(lower, upper);
+				fClock = read_timestamp64(lower, upper);
 				if (fFreq > 0.) fTriggerTime = fClock / fFreq;
 				else {
 					utils::err::Error("midas::Event::Init") << "Found a frequency <= 0: " << fFreq << DRAGON_ERR_FILE_LINE;

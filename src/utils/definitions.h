@@ -26,6 +26,7 @@
 #define DRAGON_HEAD_PULSER_PERIOD 10000 /*!< Pulser (ch 7) period */
 #define DRAGON_CLOCK_SYNC_PERIOD  15000 /*!< Synch redout period */
 
+#define DRAGON_TSC_FREQ 20.                        /*!< TSC clock frequency in MHz */
 
 #define HEAD_FRONTEND_NAME            "fe_head"    /*!< frontend_name for dragon head */
 #define HEAD_EQUIPMENT_NAME           "HeadVME"    /*!< MIDAS equipment name for dragon head */

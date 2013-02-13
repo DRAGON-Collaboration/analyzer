@@ -3,6 +3,7 @@
 /// \author G. Christian
 /// \brief Implements Coinc.hxx
 ///
+#include "utils/definitions.h"
 #include "utils/ErrorDragon.hxx"
 #include "utils/Valid.hxx"
 #include "utils/Functions.hxx"
@@ -51,7 +52,7 @@ void dragon::Coinc::compose_event(const dragon::Head& head_, const dragon::Tail&
 	try {
 		uint32_t tTail = tail.io32.tsc4.fifo[0].at(0) & 0x3fffffff;
 		uint32_t tHead = head.io32.tsc4.fifo[0].at(0) & 0x3fffffff;
-		xtrig = utils::time_diff30(tTail, tHead) / 20.;
+		xtrig = utils::time_diff30(tTail, tHead) / DRAGON_TSC_FREQ;
 	} catch (std::exception& e) {
 		std::cerr << "Problem: " << e.what() << " at: " << DRAGON_ERR_FILE_LINE;
 		throw (e);

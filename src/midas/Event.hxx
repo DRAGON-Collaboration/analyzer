@@ -117,7 +117,7 @@ public:
 	bool operator< (const Event& rhs) const
 		{
 			if (IsCoinc(rhs)) return false;
-			return fTriggerTime < rhs.fTriggerTime;
+			return TimeDiff(rhs) < 0.; // fTriggerTime < rhs.fTriggerTime;
 		}
 
 	/// Prints timestamp information for a singles event
@@ -129,7 +129,7 @@ public:
 	/// Calculates difference of timestamps
 	/*! \note 'this' - 'other' */
 	double TimeDiff(const Event& other) const
-		{ return fTriggerTime - other.fTriggerTime; }
+		{ return TimeDiff2(other); } // fTriggerTime - other.fTriggerTime; }
 
 	/// Calculates difference of timestamps
 	/*! \note 'this' - 'other' */
