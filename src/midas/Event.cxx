@@ -116,18 +116,12 @@ void midas::Event::Init(const char* tsbank, const void* header, const void* addr
 		}
 
 		for(uint32_t i=0; i< nch; ++i) {
-			uint64_t lower = *ptsc++, upper = *ptsc++, ch = (lower>>30) & READ2;
+			uint32_t lower = *ptsc++, upper = *ptsc++, ch = (lower>>30) & READ2;
 
 			switch (ch) {
 
 			case 0: // Trigger timestamp
-				if (fClock != std::numeric_limits<uint32_t>::max()) {
-					utils::err::Warning("midas::Event::Init") <<
-						"duplicate trigger TS in fifo. Serial #: " << GetSerialNumber() <<
-						", tsc[1][0] = " << fClock << ", tsc[1][1] = " << lower << "\n";
-				}
-
-				fClock = lower & 0x3fffffff; // lower 30 bits
+				fClock = std::min(fClock, lower & 0x3fffffff);
 				fTriggerTime = fClock / DRAGON_TSC_FREQ;
 				break;
 

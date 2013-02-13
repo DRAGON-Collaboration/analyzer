@@ -240,6 +240,8 @@ void rootana::App::Process(const midas::Event& event1, const midas::Event& event
 
 	fHeadProcessed.push_back(rootana::gCoinc.head);
 	fTailProcessed.push_back(rootana::gCoinc.tail);
+
+	if(1) event1.PrintCoinc(event2);
 }
 
 void rootana::App::Process(tstamp::Diagnostics* d)
