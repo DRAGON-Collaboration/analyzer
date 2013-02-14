@@ -11,7 +11,9 @@
 
 namespace {
 
-const int FLUSH_TIME = 5;
+const int MIDAS_BOR  = 0x8000;
+const int MIDAS_EOR  = 0x8001;
+const int FLUSH_TIME = 60;
 const double QUEUE_TIME = 10e6;
 
 rootbeer::TSQueue gQueue (QUEUE_TIME);
@@ -93,7 +95,7 @@ Bool_t rootbeer::MidasBuffer::UnpackBuffer()
 		}
 #else
 		{
-			midas::Event event("TSCH", fBuffer, evtHeader->fDataSize);
+			midas::Event event(rb::Event::Instance<rootbeer::GammaEvent>()->TscBank(), fBuffer, evtHeader->fDataSize);
 			rb::Event::Instance<rootbeer::GammaEvent>()->Process(&event, 0);
 			break;
 		}
@@ -107,12 +109,12 @@ Bool_t rootbeer::MidasBuffer::UnpackBuffer()
 		}
 #else
 		{
-			midas::Event event("TSCT", fBuffer, evtHeader->fDataSize);
+			midas::Event event(rb::Event::Instance<rootbeer::HeavyIonEvent>()->TscBank(), fBuffer, evtHeader->fDataSize);
 			rb::Event::Instance<rootbeer::HeavyIonEvent>()->Process(&event, 0);
 			break;
 		}
 #endif
-	case DRAGON_HEAD_SCALER: /// - DRAGON_HEAD_SCALER: Unpack event \todo TEST!!!!
+	case DRAGON_HEAD_SCALER: /// - DRAGON_HEAD_SCALER: Unpack event
 		{
 			midas::Event event(0, fBuffer, evtHeader->fDataSize);
 			rb::Event::Instance<rootbeer::HeadScaler>()->Process(&event, 0);
@@ -124,8 +126,19 @@ Bool_t rootbeer::MidasBuffer::UnpackBuffer()
 			rb::Event::Instance<rootbeer::TailScaler>()->Process(&event, 0);
 			break;
 		}
-	default: /// - Silently ignore other event types
-		break;
+	case MIDAS_BOR: ///  - Begin-of-run: Ignore
+		{
+			break;
+		}
+	case MIDAS_EOR: ///  - End-of-run: Ignore
+		{
+			break;
+		}
+	default:        /// - Warn about unknown event types
+		{
+			err::Warning("UnpackBuffer") << "Unkonwn event ID: " << evtHeader->fEventId;
+			break;
+		}
 	}
 
 	return true;

@@ -30,10 +30,10 @@ public:
  PRIVATE:
 		/** @endcond */
 		/// Name of a given channel
-		std::string names[MAX_CHANNELS];
+		std::string names[MAX_CHANNELS]; //!
 
 		/// Frontend bank names
-		utils::ScalerBanks bank_names;
+		utils::ScalerBanks bank_names; //!
 
 		/// Base odb path
 		std::string odb_path; //!

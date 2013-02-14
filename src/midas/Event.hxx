@@ -88,6 +88,9 @@ public:
 	/// Returns trigger time in uSec
 	double TriggerTime() const { return fTriggerTime; }
 
+	/// Returns the trigger time in clock cycles
+	uint32_t ClockTime() const { return fClock; }
+
 	/// Checks if two events are coincident
 	bool IsCoinc(const Event& other) const
 		{ return fabs(TimeDiff(other)) < fCoincWindow; }
