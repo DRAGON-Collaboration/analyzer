@@ -16,7 +16,7 @@ void tstamp::Queue::HandleCoinc(const midas::Event& event1,
 																const midas::Event& event2) const
 {
 	/*!
-	 * In the base class, simply prints information abouut both events together.
+	 * In the base class, simply prints information about both events together.
 	 * \param event1 Reference to the first coincident event.
 	 * \param event2 Reference to the second coincident event.
 	 */
@@ -95,7 +95,6 @@ void tstamp::Queue::Push(const midas::Event& event, tstamp::Diagnostics* diagnos
 	bool haveCoinc = false;
 	int32_t singlesId = -1;
 	double tdiff = event.TimeDiff(*fEvents.begin());
-
 	if (IsFull()) Pop(singlesId, haveCoinc);
 
 	/// Update diagnostic info in diagnostics != NULL
