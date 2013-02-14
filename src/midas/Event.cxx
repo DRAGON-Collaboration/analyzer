@@ -161,6 +161,7 @@ midas::CoincEvent::CoincEvent(const Event& event1, const Event& event2):
 		utils::err::Warning("CoincMidasEvent::CoincMidasEvent")
 			<< DRAGON_ERR_FILE_LINE << "Don't know how to handle the passed events: "
 			<< "Id1 = " << event1.GetEventId() << ", Id2 = " << event2.GetEventId()
+			<< ", Sys time 1 = " << event1.GetTimeStamp() << ", Sys time 2 = " << event2.GetTimeStamp()
 			<< ", trig1 = " << event1.ClockTime() << ", trig2 = " << event2.ClockTime()
 			<< ", time diff = " << event1.TimeDiff(event2)
 			<< ". Setting fGamma and fHeavyIon to NULL...\n";
