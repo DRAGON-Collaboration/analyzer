@@ -50,14 +50,12 @@ private:
 	double fCoincWindow;
 
 	/// Timestamp value in clock cycles since BOR
-	/*! \note Only lower 30 bits are significant */
-	uint32_t fClock;
+	uint64_t fClock;
 
 	/// Crossed timestamp clock value(s)
-	std::vector<uint32_t> fCrossClock;
+	std::vector<uint64_t> fCrossClock;
 
 	/// Timestamp value in uSec
-	/*! \note Does not account for rollover */
 	double fTriggerTime;
 
 public:
@@ -89,7 +87,7 @@ public:
 	double TriggerTime() const { return fTriggerTime; }
 
 	/// Returns the trigger time in clock cycles
-	uint32_t ClockTime() const { return fClock; }
+	uint64_t ClockTime() const { return fClock; }
 
 	/// Checks if two events are coincident
 	bool IsCoinc(const Event& other) const

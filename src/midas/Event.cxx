@@ -19,14 +19,18 @@ namespace {
 
 const double COINC_WINDOW = 10.;
 
-}
+inline uint64_t read_timestamp (uint32_t lower, uint32_t upper)
+{
+	return ( (uint64_t)lower & READ30) | ( (uint64_t)upper << 30 );
+} }
+
 
 
 // ========= Class midas::Event ========= //
 
 midas::Event::Event(const char* tsbank, const void* header, const void* data, int size):
 	fCoincWindow(COINC_WINDOW),
-	fClock (std::numeric_limits<uint32_t>::max()),
+	fClock (std::numeric_limits<uint64_t>::max()),
 	fTriggerTime(0.)
 {
 	/*!
@@ -39,7 +43,7 @@ midas::Event::Event(const char* tsbank, const void* header, const void* data, in
 
 midas::Event::Event(const char* tsbank, char* buf, int size):
 	fCoincWindow(COINC_WINDOW),
- 	fClock (std::numeric_limits<uint32_t>::max()),
+ 	fClock (std::numeric_limits<uint64_t>::max()),
 	fTriggerTime(0.)
 {
 	/*!
@@ -121,7 +125,7 @@ void midas::Event::Init(const char* tsbank, const void* header, const void* addr
 			switch (ch) {
 
 			case 0: // Trigger timestamp
-				fClock = std::min(fClock, lower & 0x3fffffff);
+				fClock = read_timestamp(lower, upper);
 				fTriggerTime = fClock / DRAGON_TSC_FREQ;
 				break;
 
@@ -142,8 +146,7 @@ double midas::Event::TimeDiff(const Event& other) const
 	 * Takes into account rollover by checking that the abslute difference is < 0x1fffffff
 	 * \note 'this' - 'other'
 	 */
-	int32_t clockDiff = utils::time_diff30(fClock, other.fClock);
-	return clockDiff / DRAGON_TSC_FREQ;
+	return fTriggerTime - other.fTriggerTime;
 }
 
 midas::CoincEvent::CoincEvent(const Event& event1, const Event& event2):
