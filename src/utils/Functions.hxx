@@ -544,5 +544,8 @@ inline void polynomial_calibrate(int order, T& value, const V& variables)
 	}
 }
 
+} // namespace utils
+
+
 
 #endif
