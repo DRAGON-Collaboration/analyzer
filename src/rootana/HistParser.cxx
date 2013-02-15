@@ -30,11 +30,12 @@ inline bool contains(const std::string& s, const char* arg)
 
 inline Int_t get_type(const std::string& spar)
 {
-	if      (contains(spar, "rootana::gHead"))  return DRAGON_HEAD_EVENT;
-	else if (contains(spar, "rootana::gTail"))  return DRAGON_TAIL_EVENT;
-	else if (contains(spar, "rootana::gCoinc")) return DRAGON_COINC_EVENT;
-	else if (contains(spar, "rootana::gHeadScaler")) return DRAGON_HEAD_SCALER;
-	else if (contains(spar, "rootana::gTailScaler")) return DRAGON_TAIL_SCALER;
+	if(0){}
+	else if (contains(spar, "rootana::gHeadScaler"))  return DRAGON_HEAD_SCALER;
+	else if (contains(spar, "rootana::gTailScaler"))  return DRAGON_TAIL_SCALER;
+	else if (contains(spar, "rootana::gHead"))        return DRAGON_HEAD_EVENT;
+	else if (contains(spar, "rootana::gTail"))        return DRAGON_TAIL_EVENT;
+	else if (contains(spar, "rootana::gCoinc"))       return DRAGON_COINC_EVENT;
 	else if (contains(spar, "rootana::gDiagnostics")) return 6; // timestamp diagnostics
 	else return -1;
 }
@@ -317,7 +318,7 @@ void rootana::HistParser::add_hist(rootana::HistBase* hst, Int_t type)
 
 	std::cout << "\t";
 	utils::err::Info("HistParser", false)
-		<< "Adding histogram " << histInfo.fName << " to directory " << fDir;
+		<< "Adding histogram " << histInfo.fName << " to directory " << fDir << ", EID = " << type;
 }
 
 void rootana::HistParser::Run()
