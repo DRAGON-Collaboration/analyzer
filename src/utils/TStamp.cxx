@@ -64,7 +64,6 @@ void tstamp::Queue::Push(const midas::Event& event, tstamp::Diagnostics* diagnos
 	 */
 
 	try { // insert event into the queue
-
 		fEvents.insert(event);
 	}
 	catch (std::exception& e) { // try to handle exception gracefully
@@ -99,7 +98,7 @@ void tstamp::Queue::Push(const midas::Event& event, tstamp::Diagnostics* diagnos
 
 	/// Update diagnostic info in diagnostics != NULL
 	if(diagnostics) {
-		FillDiagnostics(diagnostics, tdiff, haveCoinc, singlesId);
+		FillDiagnostics(diagnostics, tdiff, haveCoinc, singlesId, event.GetTimeStamp());
 		HandleDiagnostics(diagnostics);
 	}
 }
@@ -152,11 +151,12 @@ void tstamp::Queue::Flush(int max_time, tstamp::Diagnostics* diagnostics)
 		if (max_time > 0 && difftime(time(0), t_begin) < max_time) {
 			int32_t singlesId = -1;
 			bool haveCoinc = false;
+			uint32_t tfirst = fEvents.rbegin()->GetTimeStamp();
 			Pop(singlesId, haveCoinc);
 
 			/// Update diagnostic info in diagnostics != NULL
 			if(diagnostics) {
-				FillDiagnostics(diagnostics, 0., haveCoinc, singlesId);
+				FillDiagnostics(diagnostics, 0., haveCoinc, singlesId, tfirst);
 				HandleDiagnostics(diagnostics);
 			}
 		}
@@ -180,7 +180,8 @@ void tstamp::Queue::FlushTimeoutMessage(int max_time) const
 		<< fEvents.size() << " events...).";
 }
 
-void tstamp::Queue::FillDiagnostics(tstamp::Diagnostics* d, double tdiff, bool have_coinc, int32_t singles_id)
+void tstamp::Queue::FillDiagnostics(tstamp::Diagnostics* d, double tdiff, bool have_coinc,
+																		int32_t singles_id, uint32_t evt_time)
 {
 	if(!d) return;
 	d->size = Size();
@@ -193,6 +194,19 @@ void tstamp::Queue::FillDiagnostics(tstamp::Diagnostics* d, double tdiff, bool h
 		utils::err::Warning("Queue::FillDiagnostics")
 			<< "Singles id >= Diagnostics::MAX_TYPES, id = " << singles_id
 			<< ", types = " << Diagnostics::MAX_TYPES << DRAGON_ERR_FILE_LINE;
+	}
+
+	// rates
+	if(d->fTime0 == 0)	d->fTime0 = evt_time;
+	uint32_t time = evt_time - d->fTime0;
+	if(time > 0) {
+		d->coinc_rate = d->n_coinc / (double)time;
+		for(int i=0; i< Diagnostics::MAX_TYPES; ++i)
+			d->singles_rate[i] = d->n_singles[i] / time;
+	}
+	else { 
+		d->coinc_rate = 0.;
+		std::fill(d->singles_rate, d->singles_rate + Diagnostics::MAX_TYPES, 0.);
 	}
 }
 
@@ -214,8 +228,11 @@ tstamp::Diagnostics::~Diagnostics()
 void tstamp::Diagnostics::reset()
 {
 	/*! All parameters -> zero. */
+	fTime0 = 0;
 	size = 0;
 	n_coinc = 0;
 	time_diff = 0.;
+	coinc_rate = 0.;
 	std::fill(n_singles, n_singles + MAX_TYPES, 0);
+	std::fill(singles_rate, singles_rate + MAX_TYPES, 0.);
 }

@@ -20,11 +20,15 @@
 
 
 DIR:
-histos/tstamp/diagnostics
+histos/event/tstamp/diagnostics
 
 SCALER:
 	("time_diff", "trig_time - earliest in queue [us]", 5000, 0, 5000)
 	rootana::gDiagnostics.time_diff;
+
+TH1D:
+	("coinc_rate", "Coincidence Rate;rate [/sec];Counts", 500, 0, 1000)
+	rootana::gDiagnostics.coinc_rate
 	
 ## Head IO32
 DIR:

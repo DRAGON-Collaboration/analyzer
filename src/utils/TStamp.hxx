@@ -103,7 +103,7 @@ protected:
 		}
 
 	/// Fill diagnostic information after a push.
-	void FillDiagnostics(tstamp::Diagnostics* d, double tdiff, bool have_coinc, int32_t singles_id);
+	void FillDiagnostics(tstamp::Diagnostics* d, double tdiff, bool have_coinc, int32_t singles_id, uint32_t evt_time);
 
 private:
 	/// What to do in case of a coincidence event
@@ -188,6 +188,9 @@ class Diagnostics {
  * tims_diff is set to zero since no new events are incoming.
  */
 public:
+	/// Initial event time (begin of run)
+	uint32_t fTime0; //!
+
 	/// Maximum number of event types (ids) allowable
 	static const int32_t MAX_TYPES = 10;
 
@@ -197,9 +200,15 @@ public:
 	/// Number of processed coincidence events
 	uint64_t n_coinc;
 
+	/// Rate of coincidence events
+	double coinc_rate;
+
 	/// Number of processed singles events
 	/*! Array where the inde corresponds midas event id */
 	uint64_t n_singles[MAX_TYPES];
+
+	/// Rate of each singles event
+	double singles_rate[MAX_TYPES];
 
 	/// Tells the time difference between the most recently inserted
 	/// event and the earliest event.
@@ -218,7 +227,7 @@ public:
 	void reset();
 
 	/// tstamp::Queue needs to fill diagnostic information
-	/*!Yes the data are public so this isn't actually necessary, but
+	/*! Yes the data are public so this isn't actually necessary, but
 	 * I think it is good to design as if they were private */
 	friend class tstamp::Queue;
 };
