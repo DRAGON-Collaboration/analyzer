@@ -245,6 +245,11 @@ DIR:
 histos/event/coinc/bgo
 
 TH1D:
+	("e0", "", 500, 0, 5000)
+	rootana::gCoinc.head.bgo.ecal[0]
+
+
+TH1D:
 	("bgoZ", "Bgo Z position;z0 [mm];Counts",100, -200, 200)
 	rootana::gCoinc.head.bgo.z0
 

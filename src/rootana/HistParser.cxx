@@ -139,7 +139,7 @@ void rootana::HistParser::handle_dir()
 	if(!IsGood()) throw_missing_arg("DIR:", fLineNumber, fFilename);
 	fDir = fLine;
 	std::cout << "\n";
-	utils::err::Info("HistParser")	<< "New directory: " << fDir;
+	utils::err::Info("HistParser", false)	<< "New directory: " << fDir;
 }
 
 namespace {
@@ -301,7 +301,7 @@ void rootana::HistParser::handle_cut()
 	pInfo->fHist->set_cut( rootana::Cut(condition) );
 
 	std::cout << "\t\t";
-	utils::err::Info("HistParser")
+	utils::err::Info("HistParser", false)
 		<< "Applying cut: " << fLine << " to histogram " << pInfo->fName;
 }
 
@@ -316,7 +316,7 @@ void rootana::HistParser::add_hist(rootana::HistBase* hst, Int_t type)
 	hst->set_name(tempName.str().c_str());
 
 	std::cout << "\t";
-	utils::err::Info("HistParser")
+	utils::err::Info("HistParser", false)
 		<< "Adding histogram " << histInfo.fName << " to directory " << fDir;
 }
 
