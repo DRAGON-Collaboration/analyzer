@@ -32,7 +32,7 @@ private:
 
 public:
 	/// Determines online or offline mode
-	Database (const char* filename): fXml(0), fIsZombie(false)
+	Database (const char* filename): fXml(0), fIsOnline(false), fIsZombie(false)
 		{
 			/*!
 			 * \param filename Name of the XML (or .mid) file from which to read
