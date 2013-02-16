@@ -93,16 +93,10 @@ public:
 				if(success) *success = false;
 				return;
 			}
-			if(typeid(T) != typeid(bool)) {
-				std::stringstream val;
-				val << node->value;
-				val >> value;
-			}
-			else {
-				value = (!strcmp("y", node->value)) ? true : false;
-			}
+			value = ConvertNode<T>(node);
 		}
-	
+
+public:
 	///  Get the values of an array of key elements
 	template <typename T> std::vector<T> GetArray(const char* path, bool* success = 0)
 		{
@@ -240,7 +234,31 @@ private:
 
 	/// Disable assign
 	Xml& operator= (const Xml& other) { return *this; }
+
+	/// Convert node->value into template class
+	template <typename T> T ConvertNode(Node& node)
+		{	
+			T value;
+			std::stringstream val;
+			val << node->value;
+			val >> value;
+			return value;
+		}
 };
+
+/// Template specialization for bool
+template <>
+inline bool Xml::ConvertNode<bool>(Node& node)
+{
+	return (!strcmp("y", node->value)) ? true : false;
+}
+
+/// Template specialization for std::string
+template <>
+inline std::string Xml::ConvertNode<std::string>(Node& node)
+{
+	return node->value;
+}
 
 } // namespace midas
 

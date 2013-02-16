@@ -346,6 +346,12 @@ Head.o:           $(OBJ)/dragon/Head.o
 Tail.o:           $(OBJ)/dragon/Tail.o
 Scaler.o:         $(OBJ)/dragon/Scaler.o
 
+test/%: test/%.cxx $(DRLIB)/libDragon.so
+	$(LINK) \
+$< -o $@ \
+-DMIDASSYS -lDragon -L$(DRLIB) $(MIDASLIBS) -DODB_TEST -I$(PWD)/src
+
+
 odbtest: $(DRLIB)/libDragon.so
 	$(LINK) src/midas/Odb.cxx -o test/odbtest -DMIDASSYS -lDragon -L$(DRLIB) $(MIDASLIBS) -DODB_TEST -I$(PWD)/src
 
