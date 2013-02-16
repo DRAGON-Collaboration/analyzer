@@ -147,7 +147,8 @@ inline std::vector<std::string> path_tokenize(const char* path) {
 	return nodes;
 }
 std::string get_xml_path(const char* path, const char* node_type) {
-	std::vector<std::string> nodes = path_tokenize(path);
+	const char* pPath = path[0] == '/' ? &path[1] : &path[0];
+	std::vector<std::string> nodes = path_tokenize(pPath);
 	std::stringstream xmlPath;
 	for(std::vector<std::string>::iterator it = nodes.begin(); it != nodes.end(); ++it) {
 		if(it != nodes.end() - 1) xmlPath << "/dir[@name=" << *it << "]";
