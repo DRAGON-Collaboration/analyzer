@@ -49,53 +49,17 @@ bool vme::Io32::unpack(const midas::Event& event, const char* bankName, bool rep
 		*(data_fields[i]) = *pdata32++;
 	}
 
-#if 0
-	bool haveLatch = false;
-	for (uint32_t i=0; i< 8; ++i) {
-		if(trigger_latch & (1<<i)) {
-			if(haveLatch)
-				utils::err::Warning("unpack_tsc")
-					<< "Duplicate trigger latch (bank = \"" << bankName << "\")"
-					<< DRAGON_ERR_FILE_LINE;
-			which_trigger = i;
-			haveLatch = true;
-		}
-	}
-
-	printf("TRIGGER [%s]:: 0x%x (ch %u)\n", bankName, trigger_latch, which_trigger);
-#endif
-
   return true;
 }
 
 bool vme::Io32::unpack_tsc4(const midas::Event& event, const char* bankName, bool reportMissing)
 {
 	/*!
-	 * 
+	 * Read TSC4 data from the midas event. All relevant information is already
+	 * acquired, so just copy it usint midas::Event utility functions.
 	 */
-	tsc4.trig_time = event.TriggerTime(); // trigger time already calculated in midas::Event init
-
-	int tsclength;
-	uint32_t* ptsc = event.GetBankPointer<uint32_t> (bankName, &tsclength, reportMissing, true);
-
-	if (!ptsc) return false;
-
-	// Read: firmware revision, write timestamp, routing, sync number
-	uint32_t version = *ptsc++;
-	uint32_t bkts    = *ptsc++;
-	uint32_t route   = *ptsc++;
-
-	// Suppress compiler warning about unused values
-	if (0 && version && bkts && route) { }
-
-	// Get TSC4 info
-	uint32_t ctrl = *ptsc++, nch = ctrl & READ15;
-
-	for(uint32_t i=0; i< nch; ++i) {
-		uint64_t lower = *ptsc++, upper = *ptsc++, ch = (lower>>30) & READ2;
-		assert(ch < 4);
-		tsc4.fifo[ch].push_back((lower & READ30) | (upper << 30));
-	}
+	tsc4.trig_time = event.TriggerTime();
+	event.CopyFifo(tsc4.fifo);
 	for(int j=0; j< 4; ++j)
 		tsc4.n_fifo[j] = tsc4.fifo[j].size();
 	return true;

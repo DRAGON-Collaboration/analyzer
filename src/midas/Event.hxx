@@ -45,6 +45,12 @@ public:
 	 */
 	typedef EventHeader_t Header;
 
+	/// Number of fifo channels
+	static const uint32_t MAX_FIFO = 4;
+
+	/// FIFO channel w/ the trigger as input
+	static const uint32_t TRIGGER_CHANNEL = 0;
+
 private:
 	/// Coincidence window (in us)
 	double fCoincWindow;
@@ -52,8 +58,8 @@ private:
 	/// Timestamp value in clock cycles since BOR
 	uint64_t fClock;
 
-	/// Crossed timestamp clock value(s)
-	std::vector<uint64_t> fCrossClock;
+	/// TSC4 fifo values
+	std::vector<uint64_t> fFifo[MAX_FIFO];
 
 	/// Timestamp value in uSec
 	double fTriggerTime;
@@ -63,13 +69,13 @@ public:
 	Event(): TMidasEvent() { }
 
 	/// Construct from event callback parameters
-	Event(const char* tsbank, const void* header, const void* data, int size);
+	Event(const void* header, const void* data, int size, const char* tsbank = 0, double coinc_window = 10.);
 
 	/// Construct from direct polling parameters
-	Event(const char* tsbank, char* buf, int size);
+	Event(char* buf, int size, const char* tsbank = 0, double coinc_window = 10.);
 
 	/// Copy constructor
-	Event(const Event& other): TMidasEvent(other) { CopyDerived(other); }
+	Event(const Event& other) { CopyDerived(other); }
 
 	/// Assignment operator
 	Event& operator= (const Event& other)
@@ -88,6 +94,9 @@ public:
 
 	/// Returns the trigger time in clock cycles
 	uint64_t ClockTime() const { return fClock; }
+
+	/// Copy fifo values to an external vector array
+	void CopyFifo(std::vector<uint64_t>* pfifo) const;
 
 	/// Checks if two events are coincident
 	bool IsCoinc(const Event& other) const

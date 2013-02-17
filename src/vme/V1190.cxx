@@ -31,7 +31,7 @@ namespace {
 template<typename T1, typename T2, typename T3>
 inline void report_max_hits(T1 ch, T2 nhits, T3 max, const char* which)
 {
-	utils::err::Warning("vme::V1190::unpack_data_buffer") 
+	utils::err::Warning("vme::V1190::unpack_data_buffer", false) 
 		<< "Number of " << which << " edge hits received for TDC channel " << ch << " (=="
 		<< nhits << ") is greater than the maximum allowed in the analyzer (== "
 		<< max << "). Ignoring all subsequent hits for this channel... "

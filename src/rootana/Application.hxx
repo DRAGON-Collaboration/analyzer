@@ -33,6 +33,7 @@ private:
 	int fCutoff;    ///< Event cutoff (offline only)
 	int fReturn;    ///< Return value
 	int fTcp;       ///< TCP port value
+	double fCoincWindow;        ///< Coincidence window for timestamping
 	std::string fFilename;      ///< Offline file name
 	std::string fHost;          ///< Online host name
 	std::string fExpt;          ///< Online experiment name
@@ -79,6 +80,9 @@ public:
 
 	/// Tells how to handle a timstamtp diagnostics event
 	void Process(tstamp::Diagnostics* diagnostics);
+
+	/// Returns coincidence window
+	double GetCoincWindow() { return fCoincWindow; }
 
 	/// Process an offline MIDAS file
 	int midas_file(const char* fname);

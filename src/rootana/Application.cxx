@@ -77,6 +77,7 @@ rootana::App::App(const char* appClassName, Int_t* argc, char** argv):
 	fCutoff(0),
 	fReturn(0),
 	fTcp(9091),
+	fCoincWindow(10.),
 	fFilename(""),
 	fHost(""),
 	fExpt(""),
@@ -124,8 +125,10 @@ void rootana::App::process_argv(int argc, char** argv)
 			fHost = iarg->substr(2);
 		else if ( iarg->compare(0, 2, "-E") == 0 )
 			fExpt = iarg->substr(2);
-		else if ( iarg->compare(0, 2, "-Q") == 0 )
-			fQueue.reset(tstamp::NewOwnedQueue( atof(iarg->substr(2).c_str()), this ));
+		else if ( iarg->compare(0, 6, "-Qtime") == 0 )
+			fQueue.reset(tstamp::NewOwnedQueue( atof(iarg->substr(6).c_str()), this ));
+		else if ( iarg->compare(0, 6, "-Ctime") == 0 )
+			fCoincWindow = atof(iarg->substr(6).c_str());
 		else if ( iarg->compare("-histos")  == 0 )
 			fHistos = *(++iarg);
 		else if ( iarg->compare("-histos0")  == 0 )
@@ -458,7 +461,7 @@ void rootana::App::fill_hists(uint16_t eid)
 void rootana::App::help()
 {
   printf("\nUsage:\n");
-  printf("\n./anaDragon [-h] [-histos <histogram file>] [-histos0 <histogram file>] [-Qtime] [-Hhostname] [-Eexptname] [-eMaxEvents] [-P9091] [file1 file2 ...]\n");
+  printf("\n./anaDragon [-h] [-histos <histogram file>] [-histos0 <histogram file>] [-Qtime] [-Ctime] [-Hhostname] [-Eexptname] [-eMaxEvents] [-P9091] [file1 file2 ...]\n");
   printf("\n");
   printf("\t-h: print this help message\n");
   printf("\t-T: test mode - start and serve a test histogram\n");
@@ -467,6 +470,7 @@ void rootana::App::help()
   printf("\t-Hhostname: connect to MIDAS experiment on given host\n");
   printf("\t-Eexptname: connect to this MIDAS experiment\n");
 	printf("\t-Qtime: Set timestamp matching queue time in microseconds (default: 10e6)\n");
+	printf("\t-Ctime: Set coincidence matching window in microseconds (default: 10.0)\n");
   printf("\t-P: Start the TNetDirectory server on specified tcp port (for use with roody -Plocalhost:9091)\n");
   printf("\t-e: Number of events to read from input data files\n");
   printf("\n");

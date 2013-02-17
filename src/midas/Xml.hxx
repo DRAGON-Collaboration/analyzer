@@ -246,19 +246,23 @@ private:
 		}
 };
 
+#ifndef __MAKECINT__
+
 /// Template specialization for bool
 template <>
-inline bool Xml::ConvertNode<bool>(Node& node)
+inline bool midas::Xml::ConvertNode<bool>(Node& node)
 {
 	return (!strcmp("y", node->value)) ? true : false;
 }
 
 /// Template specialization for std::string
 template <>
-inline std::string Xml::ConvertNode<std::string>(Node& node)
+inline std::string midas::Xml::ConvertNode<std::string>(Node& node)
 {
 	return node->value;
 }
+
+#endif
 
 } // namespace midas
 

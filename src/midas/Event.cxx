@@ -16,9 +16,6 @@
 
 
 namespace {
-
-const double COINC_WINDOW = 10.;
-
 inline uint64_t read_timestamp (uint32_t lower, uint32_t upper)
 {
 	return ( (uint64_t)lower & READ30) | ( (uint64_t)upper << 30 );
@@ -28,27 +25,31 @@ inline uint64_t read_timestamp (uint32_t lower, uint32_t upper)
 
 // ========= Class midas::Event ========= //
 
-midas::Event::Event(const char* tsbank, const void* header, const void* data, int size):
-	fCoincWindow(COINC_WINDOW),
+midas::Event::Event(const void* header, const void* data, int size, const char* tsbank, double coinc_window):
+	fCoincWindow(coinc_window),
 	fClock (std::numeric_limits<uint64_t>::max()),
 	fTriggerTime(0.)
 {
 	/*!
-	 * \throws std::invalid_argument If \e tsbank is not found
-	 * \todo Stop hard coding coincidence window
-	 * \attention Passing NULL (0) for \e tsbank ignores timestamp features
+	 * \param header Pointer to event header (midas::Event::Header struct)
+	 * \param data Pointer to the data portion of an event
+	 * \param size Size in bytes of the data portion of the event
+	 * \param tsbank Bank name of the TSC4 data; if NULL, tsc features are ignored
+	 * \param coinc_window Desired window to be considered a coincidence match w/ another event.
 	 */
 	Init(tsbank, header, data, size);
 }
 
-midas::Event::Event(const char* tsbank, char* buf, int size):
-	fCoincWindow(COINC_WINDOW),
+midas::Event::Event(char* buf, int size, const char* tsbank, double coinc_window):
+	fCoincWindow(coinc_window),
  	fClock (std::numeric_limits<uint64_t>::max()),
 	fTriggerTime(0.)
 {
 	/*!
-	 * \throws std::invalid_argument If \e tsbank is not found
-	 * \attention Passing NULL (0) for \e tsbank ignores timestamp features
+	 * \param buf Buffer containing the entirity of the event data (header + actual data)
+	 * \param size Size of the data portion of the event (not including the header)
+	 * \param tsbank Bank name of the TSC4 data; if NULL, tsc features are ignored
+	 * \param coinc_window Desired window to be considered a coincidence match w/ another event.
 	 */
 	Init(tsbank, buf, buf+sizeof(EventHeader_t), size);
 }
@@ -59,10 +60,22 @@ void midas::Event::CopyDerived(const midas::Event& other)
 	 * Copies all data fields and calls TMidasEvent::Copy().
 	 */
 	fClock       = other.fClock;
-	fCrossClock  = other.fCrossClock;
 	fTriggerTime = other.fTriggerTime;
 	fCoincWindow = other.fCoincWindow;
+	other.CopyFifo(fFifo);
 	TMidasEvent::Copy(other);
+}
+
+void midas::Event::CopyFifo(std::vector<uint64_t>* pfifo) const
+{
+	/*!
+	 * \attention Input pointer must point to an array w/ length >= 4.
+	 */
+	for(uint32_t i=0; i< MAX_FIFO; ++i) {
+		(pfifo+i)->clear();
+		(pfifo+i)->resize(fFifo[i].size());
+		std::copy(fFifo[i].begin(), fFifo[i].end(), pfifo[i].begin());
+	}
 }
 
 void midas::Event::PrintSingle(FILE* where) const
@@ -104,8 +117,14 @@ void midas::Event::Init(const char* tsbank, const void* header, const void* addr
 		if (0 && version && bkts && route) { }
 
 		// Check version
-		if (version == 0x1120809 || version == 0x1120810 || version == 0x1120910 || version == 0x01121212 || version == 0x01120925);
-		else {
+		uint32_t versions[] =
+			{ 0x01130215, 0x01121212, 0x01120925, 0x01120809, 0x01120810, 0x01120910 };
+
+		bool okVersion = false;
+		for(uint32_t v=0; v< sizeof(versions)/sizeof(uint32_t); ++v) {
+			if(version == versions[v]) { okVersion = true; break; }
+		}
+		if(okVersion == false) {
 			utils::err::Warning("midas::Event::Init") <<
 				"Unknown TSC version 0x" << std::hex << version << std::dec << " (id, serial #: " << GetEventId() <<
 				", " << GetSerialNumber() << ")" << DRAGON_ERR_FILE_LINE;
@@ -113,6 +132,7 @@ void midas::Event::Init(const char* tsbank, const void* header, const void* addr
 
 		// Get TSC4 info
 		uint32_t ctrl = *ptsc++, nch = ctrl & READ15;
+
 		bool overflow = (ctrl>>15) & READ1;
 		if (overflow) {
 			utils::err::Warning("midas::Event::Init") <<
@@ -121,20 +141,12 @@ void midas::Event::Init(const char* tsbank, const void* header, const void* addr
 
 		for(uint32_t i=0; i< nch; ++i) {
 			uint32_t lower = *ptsc++, upper = *ptsc++, ch = (lower>>30) & READ2;
-
-			switch (ch) {
-
-			case 0: // Trigger timestamp
+			assert(ch< MAX_FIFO);
+		
+			fFifo[ch].push_back(read_timestamp(lower, upper));
+			if(ch == TRIGGER_CHANNEL && fClock == std::numeric_limits<uint64_t>::max()) {
 				fClock = read_timestamp(lower, upper);
 				fTriggerTime = fClock / DRAGON_TSC_FREQ;
-				break;
-
-			case 1: // Cross timestamp
-				fCrossClock.push_back(lower & 0x3fffffff);
-				break;
-
-			default:
-				break;
 			}
 		}
 	} // if tsbank != 0

@@ -23,7 +23,7 @@ void rootana_handle_event(const void* pheader, const void* pdata, int size)
 	else
 		ptsc = 0;
 	
-	midas::Event e(ptsc, pheader, pdata, head->fDataSize);
+	midas::Event e(pheader, pdata, head->fDataSize, ptsc, rootana::App::instance()->GetCoincWindow());
 	rootana::App::instance()->handle_event(e);
 }
 

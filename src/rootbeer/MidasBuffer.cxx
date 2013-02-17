@@ -15,6 +15,7 @@ const int MIDAS_BOR  = 0x8000;
 const int MIDAS_EOR  = 0x8001;
 const int FLUSH_TIME = 60;
 const double QUEUE_TIME = 4e6;
+const double COINC_WINDOW = 10.;
 
 rootbeer::TSQueue gQueue (QUEUE_TIME);
 
@@ -82,47 +83,39 @@ Bool_t rootbeer::MidasBuffer::UnpackBuffer()
 	 * Figures out the type of MIDAS event buffer received and sends onto the
 	 * appropriate event handler (see below):
 	 */
-   /// \todo UNCOMMENT REAL EVENTS FOR NEW CLOCK SYSTEM!!!
-	 /// \todo "Singles only" option
+	const bool coincMatch = true;
 	midas::Event::Header* evtHeader = reinterpret_cast<midas::Event::Header*>(fBuffer);
+
 	switch (evtHeader->fEventId) {
 	case DRAGON_HEAD_EVENT:  /// - DRAGON_HEAD_EVENT: Insert into timestamp matching queue
-#if 1
 		{
-			midas::Event evt(rb::Event::Instance<rootbeer::GammaEvent>()->TscBank(), fBuffer, evtHeader->fDataSize);
-			gQueue.Push(evt, rb::Event::Instance<rootbeer::TStampDiagnostics>()->GetDiagnostics());
+			const char* const tscbank = rb::Event::Instance<rootbeer::GammaEvent>()->TscBank();
+			midas::Event event(fBuffer, evtHeader->fDataSize, tscbank, COINC_WINDOW);
+			if(coincMatch) 
+				gQueue.Push(event, rb::Event::Instance<rootbeer::TStampDiagnostics>()->GetDiagnostics());
+			else
+				rb::Event::Instance<rootbeer::GammaEvent>()->Process(&event, 0);
 			break;
 		}
-#else
-		{
-			midas::Event event(rb::Event::Instance<rootbeer::GammaEvent>()->TscBank(), fBuffer, evtHeader->fDataSize);
-			rb::Event::Instance<rootbeer::GammaEvent>()->Process(&event, 0);
-			break;
-		}
-#endif
 	case DRAGON_TAIL_EVENT:  /// - DRAGON_TAIL_EVENT: Insert into timestamp matching queue
-#if 1
 		{
-			midas::Event evt(rb::Event::Instance<rootbeer::HeavyIonEvent>()->TscBank(), fBuffer, evtHeader->fDataSize);
-			gQueue.Push(evt, rb::Event::Instance<rootbeer::TStampDiagnostics>()->GetDiagnostics());
+			const char* const tscbank = rb::Event::Instance<rootbeer::HeavyIonEvent>()->TscBank();
+			midas::Event event(fBuffer, evtHeader->fDataSize, tscbank, COINC_WINDOW);
+			if(coincMatch)
+				gQueue.Push(event, rb::Event::Instance<rootbeer::TStampDiagnostics>()->GetDiagnostics());
+			else
+				rb::Event::Instance<rootbeer::HeavyIonEvent>()->Process(&event, 0);
 			break;
 		}
-#else
-		{
-			midas::Event event(rb::Event::Instance<rootbeer::HeavyIonEvent>()->TscBank(), fBuffer, evtHeader->fDataSize);
-			rb::Event::Instance<rootbeer::HeavyIonEvent>()->Process(&event, 0);
-			break;
-		}
-#endif
 	case DRAGON_HEAD_SCALER: /// - DRAGON_HEAD_SCALER: Unpack event
 		{
-			midas::Event event(0, fBuffer, evtHeader->fDataSize);
+			midas::Event event(fBuffer, evtHeader->fDataSize, 0);
 			rb::Event::Instance<rootbeer::HeadScaler>()->Process(&event, 0);
 			break;
 		}
 	case DRAGON_TAIL_SCALER: /// - DRAGON_TAIL_SCALER: Unpack event
 		{
-			midas::Event event(0, fBuffer, evtHeader->fDataSize);
+			midas::Event event(fBuffer, evtHeader->fDataSize, 0);
 			rb::Event::Instance<rootbeer::TailScaler>()->Process(&event, 0);
 			break;
 		}
@@ -134,7 +127,7 @@ Bool_t rootbeer::MidasBuffer::UnpackBuffer()
 		{
 			break;
 		}
-	default:        /// - Warn about unknown event types
+	default:        ///  - Warn about unknown event types
 		{
 			err::Warning("UnpackBuffer") << "Unkonwn event ID: " << evtHeader->fEventId;
 			break;
@@ -142,9 +135,6 @@ Bool_t rootbeer::MidasBuffer::UnpackBuffer()
 	}
 
 	return true;
-
-	/// \todo Explicitly add case (even if empty) for any other expected types (EPICS), and have default
-	/// print an error message
 }
 
 #ifdef MIDASSYS
