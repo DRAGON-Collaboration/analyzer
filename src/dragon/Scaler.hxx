@@ -18,7 +18,7 @@ class Scaler {
 	// Static const data //
 public:
 	/// Number of scaler channels
-	static const int MAX_CHANNELS = 32; //!
+	static const int MAX_CHANNELS = 17; //!
 
 	// Sub classes //
 public:
