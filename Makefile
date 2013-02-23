@@ -144,10 +144,7 @@ $(OBJ)/midas/Event.o                	\
 $(OBJ)/utils/Banks.o			\
 $(OBJ)/utils/TStamp.o              	\
 					\
-$(OBJ)/vme/V792.o             	      	\
-$(OBJ)/vme/V1190.o             	     	\
-$(OBJ)/vme/Io32.o              	     	\
-					\
+$(OBJ)/Vme.o				\
 $(OBJ)/Dragon.o					
 ## END OBJECTS ##
 
@@ -157,7 +154,6 @@ $(SRC)/midas/*.hxx	        	\
 $(SRC)/midas/internal/*.h       	\
 $(SRC)/utils/*.hxx        		\
 $(SRC)/utils/*.h          		\
-$(SRC)/vme/*.hxx          		\
 $(SRC)/*.hxx
 
 

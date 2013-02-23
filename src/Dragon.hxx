@@ -14,9 +14,7 @@
 #include "utils/VariableStructs.hxx"
 #include "utils/Banks.hxx"
 #include "midas/Event.hxx"
-#include "vme/V1190.hxx"
-#include "vme/V792.hxx"
-#include "vme/Io32.hxx"
+#include "Vme.hxx"
 
 // Forward declare midas coincidence event //
 namespace midas { struct CoincEvent; }

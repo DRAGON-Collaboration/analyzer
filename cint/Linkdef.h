@@ -32,47 +32,14 @@
 #pragma link C++ class dragon+;
 #pragma link C++ class vme+;
 
-#pragma link C++ defined_in ../src/utils/VariableStructs.hxx;
-#pragma link C++ defined_in ../src/vme/V1190.hxx;
-#pragma link C++ defined_in ../src/vme/Io32.hxx;
-
+#pragma link C++ defined_in ../src/Vme.hxx;
 #pragma link C++ defined_in ../src/Dragon.hxx;
-
-/* #pragma link C++ class dragon::Coinc+; */
-/* #pragma link C++ class dragon::Tail+; */
-
-/* #pragma link C++ class dragon::Mcp+; */
-/* #pragma link C++ class dragon::Mcp::Variables+; */
-/* #pragma link C++ class dragon::Dsssd+; */
-/* #pragma link C++ class dragon::Dsssd::Variables+; */
-/* #pragma link C++ class dragon::IonChamber+; */
-/* #pragma link C++ class dragon::IonChamber::Variables+; */
-/* #pragma link C++ class dragon::SurfaceBarrier+; */
-/* #pragma link C++ class dragon::SurfaceBarrier::Variables+; */
-/* #pragma link C++ class dragon::NaI+; */
-/* #pragma link C++ class dragon::NaI::Variables+; */
-/* #pragma link C++ class dragon::Ge+; */
-/* #pragma link C++ class dragon::Ge::Variables+; */
-
-/* #pragma link C++ class dragon::Head+; */
-/* #pragma link C++ class dragon::Bgo+; */
-/* #pragma link C++ class dragon::Bgo::Variables+; */
-
-/* #pragma link C++ class dragon::Tail::Tof+; */
-/* #pragma link C++ class dragon::Tail::Tof::Variables+; */
-/* #pragma link C++ class dragon::Head::Tof+; */
-/* #pragma link C++ class dragon::Head::Tof::Variables+; */
-
-/* #pragma link C++ defined_in ../src/dragon/Scaler.hxx; */
 #pragma link C++ defined_in ../src/utils/Banks.hxx;
+#pragma link C++ defined_in ../src/utils/VariableStructs.hxx;
 
 class TTree;
 #pragma link C++ function dragon::Scaler::set_aliases(TTree*, const char*);
 
-#pragma link C++ class vme::V792+;
-#pragma link C++ class vme::V785+;
-#pragma link C++ class vme::V1190+;
-#pragma link C++ class vme::Io32+;
 
 #pragma link C++ class midas::Event::Header+;
 
