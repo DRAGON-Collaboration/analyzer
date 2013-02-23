@@ -28,12 +28,6 @@ DEFINITIONS+=-DDISPLAY_MODULES
 #    else choose public;
 # }
 
-### Uncomment for 'public' option
-DEFINITIONS+=-DPRIVATE=public  -DPROTECTED=public
-
-### Uncomment for 'private' option
-#DEFINITIONS+=-DPRIVATE=private -DPROTECTED=protected
-
 ### Set to YES (NO) to turn on (off) root [or rootbeer, or rootana, or ...] usage ###
 USE_ROOT=YES
 USE_ROOTANA=YES
@@ -179,19 +173,11 @@ $(OBJECTS) $(DR_DICT) \
 
 ### OBJECT FILES ###
 
-$(OBJ)/%.o: $(SRC)/%.cxx $(DR_DICT_DEP)
-	$(CXX) $(FPIC) -c \
--o $@ $< \
-
-$(OBJ)/dragon/%.o: $(SRC)/dragon/%.cxx $(DR_DICT_DEP)
-	$(CXX) $(FPIC) -c \
+$(OBJ)/rootbeer/%.o: $(SRC)/rootbeer/%.cxx $(SRC)/rootbeer/*.hxx $(DR_DICT_DEP)
+	$(CXX) $(RB_DEFS) $(RBINC) $(FPIC) -c \
 -o $@ $< \
 
 $(OBJ)/utils/%.o: $(SRC)/utils/%.cxx $(DR_DICT_DEP)
-	$(CXX) $(FPIC) -c \
--o $@ $< \
-
-$(OBJ)/vme/%.o: $(SRC)/vme/%.cxx $(DR_DICT_DEP)
 	$(CXX) $(FPIC) -c \
 -o $@ $< \
 
@@ -204,6 +190,15 @@ $(OBJ)/midas/internal/%.o: $(SRC)/midas/internal/%.cxx $(DR_DICT_DEP)
 -o $@ $< \
 
 $(OBJ)/midas/%.o: $(SRC)/midas/%.cxx $(DR_DICT_DEP)
+	$(CXX) $(FPIC) -c \
+-o $@ $< \
+
+$(OBJ)/rootana/%.o: $(SRC)/rootana/%.cxx $(CINT)/rootana/Dict.cxx
+	$(CXX) $(ROOTANA_FLAGS) $(ROOTANA_DEFS) -c $(FPIC) \
+-o $@ $< $(ROOTLIBS) \
+
+## Must be last object rule!!
+$(OBJ)/%.o: $(SRC)/%.cxx $(DR_DICT_DEP)
 	$(CXX) $(FPIC) -c \
 -o $@ $< \
 
@@ -246,10 +241,6 @@ $(DRLIB)/libRootanaCut.so: $(CINT)/rootana/CutDict.cxx
 	$(LINK)  $(DYLIB) $(FPIC) $(RBINC) $(ROOTANA_FLAGS) $(ROOTANA_DEFS)  \
 -o $@ $< \
 
-$(OBJ)/rootana/%.o: $(SRC)/rootana/%.cxx $(CINT)/rootana/Dict.cxx
-	$(CXX) $(ROOTANA_FLAGS) $(ROOTANA_DEFS) -c $(FPIC) \
--o $@ $< $(ROOTLIBS) \
-
 libRootanaDragon.so: $(DRLIB)/libDragon.so $(CINT)/rootana/Dict.cxx $(DRLIB)/libRootanaCut.so $(ROOTANA_OBJS)
 	$(LINK)  $(DYLIB) $(FPIC) $(RBINC) $(ROOTANA_FLAGS) $(ROOTANA_DEFS)  \
 -o $@ $< $(CINT)/rootana/Dict.cxx $(ROOTANA_OBJS) -lDragon -lRootanaCut -L$(DRLIB) \
@@ -280,9 +271,6 @@ $(DRLIB)/libRBDragon.so: $(RB_OBJECTS) $(RB_HEADERS)
 
 libRBDragon: $(DRLIB)/libRBDragon.so
 
-$(OBJ)/rootbeer/%.o: $(SRC)/rootbeer/%.cxx $(SRC)/rootbeer/*.hxx $(DR_DICT_DEP)
-	$(CXX) $(RB_DEFS) $(RBINC) $(FPIC) -c \
--o $@ $< \
 
 
 Timestamp: $(OBJ)/rootbeer/Timestamp.o

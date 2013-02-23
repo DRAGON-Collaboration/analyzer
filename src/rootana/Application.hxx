@@ -8,7 +8,7 @@
 #include <list>
 #include <memory>
 #include <TApplication.h>
-#include "dragon/Coinc.hxx"
+#include "Dragon.hxx"
 #include "Directory.hxx"
 
 

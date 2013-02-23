@@ -3,7 +3,7 @@
 /// \brief Defines a child class of tstamp::Queue for use in ROOTBEER
 #ifndef DRAGON_RB_TIMESTAMP_HXX
 #define DRAGON_RB_TIMESTAMP_HXX
-#include "utils/TStamp.hxx"
+#include "TStamp.hxx"
 
 
 namespace rootbeer {

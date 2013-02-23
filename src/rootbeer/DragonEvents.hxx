@@ -9,11 +9,8 @@
 
 // DRAGON includes //
 #include "midas/Event.hxx"
-#include "utils/TStamp.hxx"
-#include "dragon/Head.hxx"
-#include "dragon/Tail.hxx"
-#include "dragon/Coinc.hxx"
-#include "dragon/Scaler.hxx"
+#include "TStamp.hxx"
+#include "Dragon.hxx"
 
 
 namespace rootbeer {

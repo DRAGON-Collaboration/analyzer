@@ -1,4 +1,0 @@
-# Ignoreobject files
-*.o
-# Except this file
-!.gitignore

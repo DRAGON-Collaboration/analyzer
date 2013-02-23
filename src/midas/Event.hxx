@@ -23,10 +23,6 @@ namespace midas {
 /*!
  * Stores timestamp values as fields for easy access. Also provides
  * constructors to set an event from the addresses returned by polling.
- *
- * Inherits privately from TMidasEvent and reproduces much of its public
- * interface (private inheritance due to the non-virtual destructor of
- * TMidasEvent).
  */
 class Event: public TMidasEvent {
 

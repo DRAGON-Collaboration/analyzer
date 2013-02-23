@@ -10,9 +10,8 @@
 #define ROOTANA_GLOBALS_H
 
 // DRAGON Globals //
-#include "dragon/Coinc.hxx"
-#include "dragon/Scaler.hxx"
-#include "utils/TStamp.hxx"
+#include "Dragon.hxx"
+#include "TStamp.hxx"
 
 #ifndef G__DICTIONARY
 /// Provide 'extern' linkage except in CINT dictionary

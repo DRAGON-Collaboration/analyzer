@@ -20,7 +20,6 @@
 
 #include "midas/Database.hxx"
 #include "utils/Stringify.h"
-#include "utils/TStamp.hxx"
 #include "Timer.hxx"
 #include "Histos.hxx"
 #include "HistParser.hxx"
