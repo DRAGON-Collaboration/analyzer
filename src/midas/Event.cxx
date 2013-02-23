@@ -16,11 +16,25 @@
 
 
 namespace {
-inline uint64_t read_timestamp (uint32_t lower, uint32_t upper)
-{
-	return ( (uint64_t)lower & READ30) | ( (uint64_t)upper << 30 );
-} }
 
+// Helper function to calculate full timestamp values
+inline uint64_t read_timestamp (uint32_t tscl, uint32_t tsch)
+{
+	// tscl: lower bits 29..0 bits, tsch: upper bits 35..28
+	uint64_t tscfull = tscl & 0x1fffffff; // bits 28..0
+
+	// check for match in overlap bit 29
+	int bit29h = (tsch>>1) & 0x1, bit29l = (tscl>>29) & 0x1;
+	if (bit29h != bit29l) { // adjust upper bits to account for difference
+		if (bit29l < bit29h) ++tsch;
+		else --tsch;
+	}
+	// append bits > 29
+	tscfull |= ((uint64_t)(tsch>>1) << (uint64_t)29);
+	return tscfull;
+}
+
+}
 
 
 // ========= Class midas::Event ========= //
@@ -131,21 +145,25 @@ void midas::Event::Init(const char* tsbank, const void* header, const void* addr
 		}
 
 		// Get TSC4 info
-		uint32_t ctrl = *ptsc++, nch = ctrl & READ15;
+		uint32_t ctrl = *ptsc++, roll = *ptsc++;
+		uint32_t nch  = ctrl & READ14; // number of channels
+		bool overflow = (ctrl>>15) & READ1; // overflow flag
+		uint32_t tsch = (ctrl>>16) & READ8; // upper tsc bits 35..28
 
-		bool overflow = (ctrl>>15) & READ1;
 		if (overflow) {
 			utils::err::Warning("midas::Event::Init") <<
 				"IO32 TSC in overflow condition. Event Serial #, Id: " << GetSerialNumber() << ", " << GetEventId() << "\n";
 		}
 
 		for(uint32_t i=0; i< nch; ++i) {
-			uint32_t lower = *ptsc++, upper = *ptsc++, ch = (lower>>30) & READ2;
+			uint32_t tscl = *ptsc++, ch = (tscl>>30) & READ2;
 			assert(ch< MAX_FIFO);
-		
-			fFifo[ch].push_back(read_timestamp(lower, upper));
+
+			uint64_t tscfull = read_timestamp(tscl, tsch | (roll<<8));
+			fFifo[ch].push_back(tscfull);
+
 			if(ch == TRIGGER_CHANNEL && fClock == std::numeric_limits<uint64_t>::max()) {
-				fClock = read_timestamp(lower, upper);
+				fClock = tscfull;
 				fTriggerTime = fClock / DRAGON_TSC_FREQ;
 			}
 		}
@@ -173,24 +191,13 @@ midas::CoincEvent::CoincEvent(const Event& event1, const Event& event2):
 		fHeavyIon = &event1;
 	}
 	else {
-#if 0
 		utils::err::Warning("CoincMidasEvent::CoincMidasEvent")
-			<< DRAGON_ERR_FILE_LINE << "Don't know how to handle the passed events: "
+			<< "Don't know how to handle the passed events: "
 			<< "Id1 = " << event1.GetEventId() << ", Id2 = " << event2.GetEventId()
 			<< ", Sys time 1 = " << event1.GetTimeStamp() << ", Sys time 2 = " << event2.GetTimeStamp()
 			<< ", trig1 = " << event1.ClockTime() << ", trig2 = " << event2.ClockTime()
 			<< ", time diff = " << event1.TimeDiff(event2)
 			<< ". Setting fGamma and fHeavyIon to NULL...\n";
-#else
-		std::stringstream sstr;
-		sstr << "Don't know how to handle the passed events: "
-				 << "Id1 = " << event1.GetEventId() << ", Id2 = " << event2.GetEventId()
-				 << ", Sys time 1 = " << event1.GetTimeStamp() << ", Sys time 2 = " << event2.GetTimeStamp()
-				 << ", trig1 = " << event1.ClockTime() << ", trig2 = " << event2.ClockTime()
-				 << ", time diff = " << event1.TimeDiff(event2)
-				 << ". Setting fGamma and fHeavyIon to NULL...";
-		cm_msg(MERROR, "anaDragon", "%s", sstr.str().c_str());
-#endif
 	}
 	if(fGamma && fHeavyIon) {
 		xtrig = fHeavyIon->TimeDiff(*fGamma);
