@@ -148,18 +148,7 @@ $(OBJ)/vme/V792.o             	      	\
 $(OBJ)/vme/V1190.o             	     	\
 $(OBJ)/vme/Io32.o              	     	\
 					\
-$(OBJ)/dragon/Bgo.o                 	\
-$(OBJ)/dragon/Mcp.o                 	\
-$(OBJ)/dragon/Dsssd.o               	\
-$(OBJ)/dragon/Auxillary.o           	\
-$(OBJ)/dragon/IonChamber.o          	\
-$(OBJ)/dragon/SurfaceBarrier.o      	\
-					\
-$(OBJ)/dragon/Head.o                	\
-$(OBJ)/dragon/Tail.o                	\
-$(OBJ)/dragon/Scaler.o			\
-					\
-$(OBJ)/dragon/Coinc.o
+$(OBJ)/Dragon.o					
 ## END OBJECTS ##
 
 
@@ -169,7 +158,7 @@ $(SRC)/midas/internal/*.h       	\
 $(SRC)/utils/*.hxx        		\
 $(SRC)/utils/*.h          		\
 $(SRC)/vme/*.hxx          		\
-$(SRC)/dragon/*.hxx
+$(SRC)/*.hxx
 
 
 ### DRAGON LIBRARY ###
@@ -193,6 +182,10 @@ $(OBJECTS) $(DR_DICT) \
 -o $@
 
 ### OBJECT FILES ###
+
+$(OBJ)/%.o: $(SRC)/%.cxx $(DR_DICT_DEP)
+	$(CXX) $(FPIC) -c \
+-o $@ $< \
 
 $(OBJ)/dragon/%.o: $(SRC)/dragon/%.cxx $(DR_DICT_DEP)
 	$(CXX) $(FPIC) -c \

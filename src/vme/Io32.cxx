@@ -49,22 +49,14 @@ bool vme::Io32::unpack(const midas::Event& event, const char* bankName, bool rep
 		*(data_fields[i]) = *pdata32++;
 	}
 
-  return true;
-}
-
-bool vme::Io32::unpack_tsc4(const midas::Event& event, const char* bankName, bool reportMissing)
-{
-	/*!
-	 * Read TSC4 data from the midas event. All relevant information is already
-	 * acquired, so just copy it usint midas::Event utility functions.
-	 */
+	// Unpck TSC4 from midas::Event storage
 	tsc4.trig_time = event.TriggerTime();
 	event.CopyFifo(tsc4.fifo);
 	for(int j=0; j< 4; ++j)
 		tsc4.n_fifo[j] = tsc4.fifo[j].size();
-	return true;
-}
 
+  return true;
+}
 
 
 void vme::Io32::reset()

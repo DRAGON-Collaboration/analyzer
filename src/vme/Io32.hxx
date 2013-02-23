@@ -69,9 +69,6 @@ public:
 	/// Unpack all data from the io32 main bank
 	bool unpack(const midas::Event& event, const char* bankName, bool reportMissing = false);
 
-	/// Unpack all data from the io32 tsc4 bank
-	bool unpack_tsc4(const midas::Event& event, const char* bankName, bool reportMissing = false);
-
 	/// Set all data fields to default values (== 0).
 	void reset();
 
