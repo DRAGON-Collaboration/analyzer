@@ -15,6 +15,28 @@
 
 namespace rootbeer {
 
+/// Global run parameters
+class RunParameters: public rb::Event
+{
+private:
+	/// Wrapper of dragon::RunParameters
+	rb::data::Wrapper<dragon::RunParameters> fParameters;
+
+public:
+	/// Initializes fParameters
+	RunParameters();
+
+	/// Reset fParameters
+	void Reset() { fParameters->reset(); }
+
+private:
+	/// Read parameters from the ODB (or .mid file)
+	Bool_t DoProcess(const void*, Int_t);
+
+	/// What to do in case of an error in event processing
+	void HandleBadEvent();	
+};
+
 /// Timestamp diagnostics event
 class TStampDiagnostics: public rb::Event
 {

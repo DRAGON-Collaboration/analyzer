@@ -17,7 +17,7 @@
 #include "Vme.hxx"
 
 // Forward declare midas coincidence event //
-namespace midas { struct CoincEvent; }
+namespace midas { struct CoincEvent; class Database; }
 
 // Forward declare vme classes //
 namespace vme {
@@ -35,6 +35,37 @@ class Tail; // forward declaration
 
 
 // ======= Class definitions ======== //
+
+
+///
+/// Global run parameters
+///
+class RunParameters {
+public: // Constants
+	static const int MAX_FRONTENDS = 2; //!
+public: // Methods
+	/// Constructor, calls reset()
+	RunParameters();
+	/// Sets all data to defaults
+	void reset();
+	/// Reads data from the ODB or a midas file
+	void read_data(const midas::Database& db);
+
+public: // Data
+	/// Run start time from the tsc
+	/*! [0]: head, [1]: tail */
+	double run_start[MAX_FRONTENDS];
+	/// Run stop time from the tsc
+	/*! [0]: head, [1]: tail */
+	double run_stop[MAX_FRONTENDS];
+	/// Trigger start time from the tsc
+	/*! [0]: head, [1]: tail */
+	double trigger_start[MAX_FRONTENDS];
+	/// Trigger stop time from the tsc
+	/*! [0]: head, [1]: tail */
+	double trigger_stop[MAX_FRONTENDS];
+};
+
 
 ///
 /// The BGO array

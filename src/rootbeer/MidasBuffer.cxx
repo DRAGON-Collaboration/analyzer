@@ -4,6 +4,7 @@
 #include <cassert>
 #include "rootbeer/Timestamp.hxx"
 #include "utils/definitions.h"
+#include "midas/Database.hxx"
 #include "midas/Event.hxx"
 #include "DragonEvents.hxx"
 #include "MidasBuffer.hxx"
@@ -37,7 +38,8 @@ inline void reset_scalers()
 
 rootbeer::MidasBuffer::MidasBuffer(size_t size):
 	fBufferSize(size),
-	fIsTruncated(false)
+	fIsTruncated(false),
+	fType(MidasBuffer::NONE)
 {
 	/*!
 	 * \param size Size of the internal buffer in bytes. This should be larger than the
@@ -123,8 +125,15 @@ Bool_t rootbeer::MidasBuffer::UnpackBuffer()
 		{
 			break;
 		}
-	case MIDAS_EOR: ///  - End-of-run: Ignore
+	case MIDAS_EOR: ///  - End-of-run: read global parameters from the ODB
 		{
+			std::string dbname;
+			if (fType == MidasBuffer::ONLINE) dbname = "odb";
+			else if (fType == MidasBuffer::OFFLINE) dbname = fFile.GetFilename();
+			else break;
+
+			midas::Database db(dbname.c_str());
+			rb::Event::Instance<rootbeer::RunParameters>()->Process(&db, 0);
 			break;
 		}
 	default:        ///  - Warn about unknown event types
@@ -195,6 +204,7 @@ Bool_t rootbeer::MidasBuffer::ConnectOnline(const char* host, const char* experi
 	/// - Update variables from ODB
 	this->ReadOdb();
 
+	fType = MidasBuffer::ONLINE;
 	return true;
 }
 
@@ -205,6 +215,7 @@ Bool_t rootbeer::MidasBuffer::OpenFile(const char* file_name, char** other, int 
 	 */
 	reset_scalers();
 	return fFile.Open(file_name);
+	fType = MidasBuffer::OFFLINE;
 }
 
 void rootbeer::MidasBuffer::DisconnectOnline()
@@ -214,6 +225,7 @@ void rootbeer::MidasBuffer::DisconnectOnline()
 	gQueue.Flush(FLUSH_TIME, rb::Event::Instance<rootbeer::TStampDiagnostics>()->GetDiagnostics());
 	utils::err::Info("rootbeer::MidasBuffer::DisconnectOnline")
 		<< "Disconnecting from experiment";
+	fType = MidasBuffer::NONE;
 }
 
 void rootbeer::MidasBuffer::CloseFile()
@@ -223,6 +235,7 @@ void rootbeer::MidasBuffer::CloseFile()
 		<< "Closing MIDAS file: \"" << fFile.GetFilename() << "\"";
 	fFile.Close();
 	gQueue.Flush(FLUSH_TIME, rb::Event::Instance<rootbeer::TStampDiagnostics>()->GetDiagnostics());
+	fType = MidasBuffer::NONE;
 }
 
 

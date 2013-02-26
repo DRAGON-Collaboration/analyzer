@@ -136,8 +136,8 @@ $(OBJ)/midas/internal/TMidasEvent.o 	\
 $(OBJ)/midas/Event.o                	\
 					\
 $(OBJ)/utils/Banks.o			\
-$(OBJ)/utils/TStamp.o              	\
 					\
+$(OBJ)/TStamp.o		              	\
 $(OBJ)/Vme.o				\
 $(OBJ)/Dragon.o					
 ## END OBJECTS ##

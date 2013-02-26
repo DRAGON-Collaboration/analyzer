@@ -3,6 +3,7 @@
 /// \brief Implements DragonEvents.hxx
 #include <cassert>
 #include "utils/ErrorDragon.hxx"
+#include "midas/Database.hxx"
 #include "DragonEvents.hxx"
 
 
@@ -23,6 +24,25 @@ inline void odb_read(rb::data::Wrapper<T>& data)
 }
 
 } // namespace
+
+
+// ======== Class rootbeer::RunParameters ======== //
+
+rootbeer::RunParameters::RunParameters():
+	fParameters("runpar", this, false, "") { }
+
+Bool_t rootbeer::RunParameters::DoProcess(const void* addr, Int_t)
+{
+	const midas::Database* pdb = reinterpret_cast<const midas::Database*> (addr);
+	fParameters->read_data(*pdb);
+	return kTRUE;
+}
+
+void rootbeer::RunParameters::HandleBadEvent()
+{
+	utils::err::Error("RunParameters")
+		<< "Unknown error encountered during event processing";
+}
 
 
 // ======== Class rootbeer::TStampDiagnostics ======== //

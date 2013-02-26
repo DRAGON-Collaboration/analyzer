@@ -18,6 +18,8 @@ namespace rootbeer {
 
 class MidasBuffer: public rb::BufferSource
 {
+public:
+	enum Etype { ONLINE, OFFLINE, NONE };
 private:
 	/// Return code for online event requests.
 	INT fRequestId;
@@ -36,6 +38,9 @@ private:
 	
 	/// Offline MIDAS file.
 	TMidasFile fFile;
+
+	/// Type code (online or offline)
+	Int_t fType;
 
 public:
 	/// Sets fIsTruncated to false, and allocates the internal buffer

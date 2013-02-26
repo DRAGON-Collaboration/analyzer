@@ -58,10 +58,10 @@ public:
 		}
 
 	/// Tell the public if a zombie or not
-	bool IsZombie() { return fIsZombie; }
+	bool IsZombie() const { return fIsZombie; }
 
 	/// Read a single value
-	template <typename T> bool ReadValue(const char* path, T& value)
+	template <typename T> bool ReadValue(const char* path, T& value) const
 		{
 			/*!
 			 * \param [in] path Path ODB directory path of what is to be read
@@ -79,8 +79,7 @@ public:
 			else return false;
 		}
 
-	/// Read an array of values
-	template <typename T> int ReadArray(const char* path, T* array, int length)
+	template <typename T> int ReadArray(const char* path, T* array, int length) const
 		{
 			/*!
 			 * \param [in] path Path ODB directory path of what is to be read

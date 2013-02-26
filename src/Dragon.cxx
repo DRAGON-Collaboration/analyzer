@@ -15,6 +15,43 @@
 
 
 
+
+// ==================== Class dragon::RunParameters ==================== //
+
+
+
+dragon::RunParameters::RunParameters()
+{
+	reset();
+}
+
+void dragon::RunParameters::reset()
+{
+	double* parrays[4] = { run_start, run_stop, trigger_start, trigger_stop };
+	for(int i=0; i< 4; ++i) {
+		std::fill(parrays[i], parrays[i] + MAX_FRONTENDS, 0.);
+	}
+}
+
+void dragon::RunParameters::read_data(const midas::Database& db)
+{
+	if(db.IsZombie()) {
+		utils::err::Error("dragon::RunParameters::read_data") << "Zombie database";
+		return;
+	}
+
+	bool success;
+	success = db.ReadArray("/Experiment/Run Parameters/TSC_RunStart", run_start, MAX_FRONTENDS);
+	success = db.ReadArray("/Experiment/Run Parameters/TSC_RunStop", run_stop, MAX_FRONTENDS);
+	success = db.ReadArray("/Experiment/Run Parameters/TSC_TriggerStart", trigger_start, MAX_FRONTENDS);
+	success = db.ReadArray("/Experiment/Run Parameters/TSC_TriggerStop", trigger_stop, MAX_FRONTENDS);
+
+	if(!success) {
+		utils::err::Error("dragon::RunParameters::read_data") << "Failed reading one of the ODB parameters.";
+	}
+}
+
+
 // ==================== Class dragon::Bgo ==================== //
 
 dragon::Bgo::Bgo():

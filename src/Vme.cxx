@@ -40,7 +40,7 @@ bool vme::Io32::unpack(const midas::Event& event, const char* bankName, bool rep
 	* *pdata32++ = start_time-trig_time; // 5 - trigger latency (trigger time - start of readout time)
 	* *pdata32++ = end_time-start_time;  // 6 - readout elapsed time
 	* *pdata32++ = end_time-trig_time;   // 7 - busy elapsed time
-	* *pdata32++ = // trigger_latch //   // 8 - dragon trigger latch
+	* *pdata32++ = trigger_latch         // 8 - dragon trigger latch
 	* \endcode
 	*
 	* The TSC4 bank is already unpacked in a midas::Event, so we can just copy the data over
