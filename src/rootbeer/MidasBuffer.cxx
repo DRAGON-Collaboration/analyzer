@@ -33,6 +33,7 @@ inline void reset_scalers()
 {
 	rb::Event::Instance<rootbeer::HeadScaler>()->Reset();
 	rb::Event::Instance<rootbeer::TailScaler>()->Reset();
+	rb::Event::Instance<rootbeer::RunParameters>()->Reset();
 	rb::Event::Instance<rootbeer::TStampDiagnostics>()->Reset();
 } }
 
@@ -123,16 +124,23 @@ Bool_t rootbeer::MidasBuffer::UnpackBuffer()
 		}
 	case MIDAS_BOR: ///  - Begin-of-run: Ignore
 		{
+			const char* tmpfile = "/tmp/odbBOR.xml";
+			std::ofstream ofs(tmpfile);
+			char *p = fBuffer + sizeof(midas::Event::Header);
+			ofs << p << std::endl;
+
+			midas::Database db(tmpfile);
+			rb::Event::Instance<rootbeer::RunParameters>()->Process(&db, 0);
 			break;
 		}
 	case MIDAS_EOR: ///  - End-of-run: read global parameters from the ODB
 		{
-			std::string dbname;
-			if (fType == MidasBuffer::ONLINE) dbname = "odb";
-			else if (fType == MidasBuffer::OFFLINE) dbname = fFile.GetFilename();
-			else break;
+			const char* tmpfile = "/tmp/odbBOR.xml"; ///\todo No temp files (better XML parser!)
+			std::ofstream ofs(tmpfile);
+			char *p = fBuffer + sizeof(midas::Event::Header);
+			ofs << p << std::endl;
 
-			midas::Database db(dbname.c_str());
+			midas::Database db(tmpfile);
 			rb::Event::Instance<rootbeer::RunParameters>()->Process(&db, 0);
 			break;
 		}
@@ -214,8 +222,8 @@ Bool_t rootbeer::MidasBuffer::OpenFile(const char* file_name, char** other, int 
 	 * Reset scalers, diagnostics, open MIDAS file w/ TMidasFile::Open()
 	 */
 	reset_scalers();
-	return fFile.Open(file_name);
 	fType = MidasBuffer::OFFLINE;
+	return fFile.Open(file_name);
 }
 
 void rootbeer::MidasBuffer::DisconnectOnline()

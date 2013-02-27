@@ -101,5 +101,29 @@ public:
 
 }
 
+#ifdef __MAKECINT__
+#pragma link C++ function midas::Database::ReadValue (const char*, Char_t&);
+#pragma link C++ function midas::Database::ReadValue (const char*, Short_t&);
+#pragma link C++ function midas::Database::ReadValue (const char*, Int_t&);
+#pragma link C++ function midas::Database::ReadValue (const char*, Long64_t&);
+#pragma link C++ function midas::Database::ReadValue (const char*, UChar_t&);
+#pragma link C++ function midas::Database::ReadValue (const char*, UShort_t&);
+#pragma link C++ function midas::Database::ReadValue (const char*, UInt_t&);
+#pragma link C++ function midas::Database::ReadValue (const char*, ULong64_t&);
+#pragma link C++ function midas::Database::ReadValue (const char*, Float_t);
+#pragma link C++ function midas::Database::ReadValue (const char*, Double_t&);
+
+#pragma link C++ function midas::Database::ReadArray (const char*, Char_t*, int);
+#pragma link C++ function midas::Database::ReadArray (const char*, Short_t*, int);
+#pragma link C++ function midas::Database::ReadArray (const char*, Int_t*, int);
+#pragma link C++ function midas::Database::ReadArray (const char*, Long64_t*, int);
+#pragma link C++ function midas::Database::ReadArray (const char*, UChar_t*, int);
+#pragma link C++ function midas::Database::ReadArray (const char*, UShort_t*, int);
+#pragma link C++ function midas::Database::ReadArray (const char*, UInt_t*, int);
+#pragma link C++ function midas::Database::ReadArray (const char*, ULong64_t*, int);
+#pragma link C++ function midas::Database::ReadArray (const char*, Float_t*, int);
+#pragma link C++ function midas::Database::ReadArray (const char*, Double_t*, int);
+#endif
+
 
 #endif

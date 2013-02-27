@@ -66,6 +66,9 @@ void rb::Rint::RegisterEvents()
 	/// - Timestamp Diagnostics [ rootbeer::TstampDiagnostics ]: "TstampDiagnostics"
 	RegisterEvent<rootbeer::TStampDiagnostics> (6, "TStampDiagnostics");
 
+	/// - Run parameters [ rootbeer::RunParameters ]: "RunParameters"
+	RegisterEvent<rootbeer::RunParameters> (7, "RunParameters");
+
 	/// Also: expose macros in definitions.h to CINT
 	std::stringstream cmd;
 	cmd << "#include \"" << DRAGON_UTILS_STRINGIFY(RB_DRAGON_HOMEDIR) << "/src/utils/definitions.h\"";

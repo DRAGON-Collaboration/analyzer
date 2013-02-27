@@ -87,14 +87,15 @@ namespace utils { namespace err {
 class Info: public AStrm {
 public:
 	Info(const char* where, bool printMidas = true):
-		fWhere("anaDragon::"), kMidas(printMidas)
+		fWhere("anaDragon::"), fUseMidas(printMidas)
 		{
+			fUseMidas = false; ///\todo Fix midas option - we don't always link in the library w/ libDragon.
 			fWhere += where;
 			fStream = new std::stringstream();
 		}
 	~Info()
 		{
-			if(kMidas) {
+			if(fUseMidas) {
 				cm_msg(MINFO, fWhere.c_str(), "%s",
 							 static_cast<std::stringstream*>(fStream)->str().c_str());
 			} else {
@@ -104,21 +105,22 @@ public:
 		}
 private:
 	std::string fWhere;
-	const bool kMidas;
+	bool fUseMidas;
 };
 
 /// Specialized err::Strm class to print error messages
 class Error: public AStrm {
 public:
 	Error(const char* where, bool printMidas = true):
-		fWhere("anaDragon::"), kMidas(printMidas)
+		fWhere("anaDragon::"), fUseMidas(printMidas)
 		{
+			fUseMidas = false; ///\todo Fix midas option
 			fWhere += where;
 			fStream = new std::stringstream();
 		}
 	~Error()
 		{
-			if(kMidas) {
+			if(fUseMidas) {
 				cm_msg(MERROR, fWhere.c_str(), "%s",
 							 static_cast<std::stringstream*>(fStream)->str().c_str());
 			} else {
@@ -128,21 +130,22 @@ public:
 		}
 private:
 	std::string fWhere;
-	const bool kMidas;
+	bool fUseMidas;
 };
 
 /// Specialized err::Strm class to print warning messages
 class Warning: public AStrm {
 public:
 	Warning(const char* where, bool printMidas = true):
-		fWhere("anaDragon::"), kMidas(printMidas)
+		fWhere("anaDragon::"), fUseMidas(printMidas)
 		{
+			fUseMidas = false; ///\todo Fix MIDAS option.
 			fWhere += where;
 			fStream = new std::stringstream();
 		}
 	~Warning()
 		{
-			if(kMidas) {
+			if(fUseMidas) {
 				cm_msg(MERROR, fWhere.c_str(), "(Warning): %s",
 							 static_cast<std::stringstream*>(fStream)->str().c_str());
 			} else {
@@ -152,7 +155,7 @@ public:
 		}
 private:
 	std::string fWhere;
-	const bool kMidas;
+	bool fUseMidas;
 };
 
 } } // namespace utils namespace err
