@@ -44,6 +44,9 @@ public:
 	/// simply refer to memory locations relative to fTree.
 	Xml(const char* filename);
 
+	/// \brief Read data from a buffer w/ XML data
+	Xml(char* buf, int length);
+
 	/// Frees resources allocated to fTree
 	~Xml();
 
@@ -218,13 +221,15 @@ public:
 
 
 private:
-	/// \brief Helper initialization function called by the constructor.
-	bool Init(const char* filename);
-
 	/// \brief Helper function to parse a file containing XML data and set fTree and fObd
 	/// \note Most of the implementation was a paraphrase of mxml_parse_file() in midas.c,
 	/// extended to handle files that contain the XML data only as a subset (i.e. MIDAS files).
 	Node ParseFile(const char* file_name, char *error, int error_size, int *error_line);
+
+	/// \brief Helper function to parse a buffer containing XML data and set fTree and fObd
+	/// \note Most of the implementation was a paraphrase of mxml_parse_file() in midas.c,
+	/// extended to handle files that contain the XML data only as a subset (i.e. MIDAS files).
+	Node ParseBuffer(char* buf, int length, char *error, int error_size, int *error_line);
 
 	/// \brief Check if fTree and fOdb are non-null
 	bool Check();

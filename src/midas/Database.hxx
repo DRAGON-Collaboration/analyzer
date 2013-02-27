@@ -57,6 +57,24 @@ public:
 			}
 		}
 
+	/// Read from buffered XML data
+	Database (char* buf, int length): fXml(0), fIsOnline(false), fIsZombie(false)
+		{
+			/*!
+			 * \param buf Buffer containing xml data.
+			 * \param length Size of the buffer in bytes
+			 */
+			fXml.reset(new Xml(buf, length));
+			if (fXml->IsZombie()) {
+				fXml.reset(0);
+				fIsZombie = true;
+			}
+			if (fIsZombie) {
+				utils::err::Error("midas::Database::Database")
+					<< "Failed parsing the XML data.";
+			}
+		}
+
 	/// Tell the public if a zombie or not
 	bool IsZombie() const { return fIsZombie; }
 

@@ -124,23 +124,15 @@ Bool_t rootbeer::MidasBuffer::UnpackBuffer()
 		}
 	case MIDAS_BOR: ///  - Begin-of-run: Ignore
 		{
-			const char* tmpfile = "/tmp/odbBOR.xml";
-			std::ofstream ofs(tmpfile);
-			char *p = fBuffer + sizeof(midas::Event::Header);
-			ofs << p << std::endl;
-
-			midas::Database db(tmpfile);
+			char *pxml = fBuffer + sizeof(midas::Event::Header);
+			midas::Database db(pxml, evtHeader->fDataSize);
 			rb::Event::Instance<rootbeer::RunParameters>()->Process(&db, 0);
 			break;
 		}
 	case MIDAS_EOR: ///  - End-of-run: read global parameters from the ODB
 		{
-			const char* tmpfile = "/tmp/odbBOR.xml"; ///\todo No temp files (better XML parser!)
-			std::ofstream ofs(tmpfile);
-			char *p = fBuffer + sizeof(midas::Event::Header);
-			ofs << p << std::endl;
-
-			midas::Database db(tmpfile);
+			char *pxml = fBuffer + sizeof(midas::Event::Header);
+			midas::Database db(pxml, evtHeader->fDataSize);
 			rb::Event::Instance<rootbeer::RunParameters>()->Process(&db, 0);
 			break;
 		}

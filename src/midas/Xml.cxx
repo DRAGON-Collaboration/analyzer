@@ -13,9 +13,41 @@
 #include "Xml.hxx"
 
 midas::Xml::Xml(const char* filename):
-	fTree(0), fOdb(0)
+	fTree(0), fOdb(0), fIsZombie(false)
 {
-	fIsZombie = !Init(filename);
+	char err[256]; int err_line;
+	fTree = ParseFile(filename, err, sizeof(err), &err_line);
+	if(!fTree) {
+		std::cerr << "Error: Bad XML file: " << filename << ", error message: " <<
+			 err << ", error line: " << err_line << "\n";
+		fIsZombie = true;
+		return;
+	}
+	fOdb = mxml_find_node(fTree, "/odb");
+	if(!fOdb) {
+		std::cerr << "Error: no odb tag found in xml file: " << filename << ".\n";
+		fIsZombie = true;
+		return;
+	}
+}
+
+midas::Xml::Xml(char* buf, int length):
+	fTree(0), fOdb(0), fIsZombie(false)
+{
+	char err[256]; int err_line;
+	fTree = ParseBuffer(buf, length, err, sizeof(err), &err_line);
+	if(!fTree) {
+		std::cerr << "Error: Bad XML bufer, error message: " <<
+			 err << ", error line: " << err_line << "\n";
+		fIsZombie = true;
+		return;
+	}
+	fOdb = mxml_find_node(fTree, "/odb");
+	if(!fOdb) {
+		std::cerr << "Error: no odb tag found in xml buffer.\n";
+		fIsZombie = true;
+		return;
+	}
 }
 
 midas::Xml::~Xml()
@@ -23,22 +55,6 @@ midas::Xml::~Xml()
 	if(fTree) mxml_free_tree(fTree);
 }
 
-bool midas::Xml::Init(const char* filename)
-{
-	char err[256]; int err_line;
-	fTree = ParseFile(filename, err, sizeof(err), &err_line);
-	if(!fTree) {
-		std::cerr << "Error: Bad XML file: " << filename << ", error message: " <<
-			 err << ", error line: " << err_line << "\n";
-		return false;
-	}
-	fOdb = mxml_find_node(fTree, "/odb");
-	if(!fOdb) {
-		std::cerr << "Error: no odb tag found in xml file: " << filename << ".\n";
-		return false;
-	}
-	return true;
-}
 
 midas::Xml::Node midas::Xml::ParseFile(const char* file_name, char *error, int error_size, int *error_line)
 {
@@ -122,6 +138,35 @@ midas::Xml::Node midas::Xml::ParseFile(const char* file_name, char *error, int e
 
 	return root;
 
+}
+
+midas::Xml::Node midas::Xml::ParseBuffer(char* buf, int length, char *error, int error_size, int *error_line)
+{
+	PMXML_NODE root;
+
+	if (error)
+		 error[0] = 0;
+
+	int startPos = 0, lodb = (int)strlen("<odb");
+	while(startPos < length + lodb) {
+		if(!memcmp(&buf[startPos], "<odb", strlen("<odb")))
+			break;
+		++startPos;
+	}
+	if(startPos == length + lodb) {
+		sprintf(error, "Could not find \"<odb\"");
+		*error_line = __LINE__;
+		return NULL;
+	}
+
+	char* pxml = &buf[startPos];
+	if (mxml_parse_entity(&pxml, "", error, error_size, error_line) != 0) {
+		return NULL;
+	}
+
+	root = mxml_parse_buffer(pxml, error, error_size, error_line);
+
+	return root;
 }
 
 
