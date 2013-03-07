@@ -3,6 +3,7 @@
 /// \brief Implementation of rb::BufferSource::New() and rb::Rint::RegisterEvents()
 
 // ROOTBEER includes //
+#include "Main.hxx"
 #include "Rint.hxx"
 #include "Buffer.hxx"
 
@@ -13,6 +14,15 @@
 #include "DragonEvents.hxx"
 #include "DragonRootbeer.hxx"
 
+
+rb::Main* rb::GetMain()
+{
+	/*!
+	 * Required function to return an instance of rb::Main(). Here we just use the default
+	 * implementation by returning a value of the base class rb::Main.
+	 */
+	return new rb::Main();
+}
 
 rb::BufferSource* rb::BufferSource::New()
 {
