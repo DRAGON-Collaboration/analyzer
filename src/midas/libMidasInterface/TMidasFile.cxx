@@ -26,12 +26,16 @@ TMidasFile::TMidasFile()
   fPoFile = NULL;
   fLastErrno = 0;
 
+  fOutFile = -1;
+  fOutGzFile = NULL;
+
   fDoByteSwap = *(char*)(&endian) != 0x78;
 }
 
 TMidasFile::~TMidasFile()
 {
   Close();
+  OutClose();
 }
 
 static int hasSuffix(const char*name,const char*suffix)
@@ -186,6 +190,68 @@ bool TMidasFile::Open(const char *filename)
   return true;
 }
 
+bool TMidasFile::OutOpen(const char *filename)
+{
+  /// Open a midas .mid file for OUTPUT with given file name.
+  ///
+  /// Remote files not yet implemented
+  ///
+  /// \param [in] filename The file to open.
+  /// \returns "true" for succes, "false" for error, use GetLastError() to see why
+
+  if (fOutFile > 0)
+    OutClose();
+  
+  fOutFilename = filename;
+  
+  printf ("Attempting normal open of file %s\n", filename);
+  //fOutFile = open(filename, O_CREAT |  O_WRONLY | O_LARGEFILE , S_IRUSR| S_IWUSR | S_IRGRP | S_IROTH );
+  //fOutFile = open(filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY | O_LARGEFILE, 0644);
+  fOutFile = open (filename, O_WRONLY | O_CREAT | O_TRUNC | O_LARGEFILE, 0644);
+  
+  if (fOutFile <= 0)
+    {
+      fLastErrno = errno;
+      fLastError = strerror(errno);
+      return false;
+    }
+  
+  printf("Opened output file %s ; return fOutFile is %i\n",filename,fOutFile);
+
+  if (hasSuffix(filename, ".gz"))
+    // (hasSuffix(filename, ".dummy"))
+    {
+      // this is a compressed file
+#ifdef HAVE_ZLIB
+      fOutGzFile = new gzFile;
+      *(gzFile*)fOutGzFile = gzdopen(fOutFile,"wb");
+      if ((*(gzFile*)fOutGzFile) == NULL)
+	{
+	  fLastErrno = -1;
+	  fLastError = "zlib gzdopen() error";
+	  return false;
+	}
+      printf("Opened gz file successfully\n");
+      if (1) 
+	{
+	  if (gzsetparams(*(gzFile*)fOutGzFile, 1, Z_DEFAULT_STRATEGY) != Z_OK) {
+	    printf("Cannot set gzparams\n");
+	    fLastErrno = -1;
+	    fLastError = "zlib gzsetparams() error";
+	    return false;
+	  }
+	  printf("setparams for gz file successfully\n");  
+	}
+#else
+      fLastErrno = -1;
+      fLastError = "Do not know how to write compressed MIDAS files";
+      return false;
+#endif
+    }
+  return true;
+}
+
+
 static int readpipe(int fd, char* buf, int length)
 {
   int count = 0;
@@ -221,12 +287,12 @@ bool TMidasFile::Read(TMidasEvent *midasEvent)
 
   if (fGzFile)
 #ifdef HAVE_ZLIB
-    rd = gzread(*(gzFile*)fGzFile, (char*)midasEvent->GetEventHeader(), sizeof(EventHeader_t));
+    rd = gzread(*(gzFile*)fGzFile, (char*)midasEvent->GetEventHeader(), sizeof(TMidas_EVENT_HEADER));
 #else
     assert(!"Cannot get here");
 #endif
   else
-    rd = readpipe(fFile, (char*)midasEvent->GetEventHeader(), sizeof(EventHeader_t));
+    rd = readpipe(fFile, (char*)midasEvent->GetEventHeader(), sizeof(TMidas_EVENT_HEADER));
 
   if (rd == 0)
     {
@@ -234,7 +300,7 @@ bool TMidasFile::Read(TMidasEvent *midasEvent)
       fLastError = "EOF";
       return false;
     }
-  else if (rd != sizeof(EventHeader_t))
+  else if (rd != sizeof(TMidas_EVENT_HEADER))
     {
       fLastErrno = errno;
       fLastError = strerror(errno);
@@ -272,6 +338,39 @@ bool TMidasFile::Read(TMidasEvent *midasEvent)
   return true;
 }
 
+bool TMidasFile::Write(TMidasEvent *midasEvent)
+{
+  int wr = -2;
+
+  if (fOutGzFile)
+#ifdef HAVE_ZLIB
+    wr = gzwrite(*(gzFile*)fOutGzFile, (char*)midasEvent->GetEventHeader(), sizeof(TMidas_EVENT_HEADER));
+#else
+    assert(!"Cannot get here");
+#endif
+  else
+    wr = write(fOutFile, (char*)midasEvent->GetEventHeader(), sizeof(TMidas_EVENT_HEADER));
+
+  if(wr !=  sizeof(TMidas_EVENT_HEADER)){
+    printf("TMidasFile: error on write event header, return %i, size requested %lu\n",wr,sizeof(TMidas_EVENT_HEADER));
+    return false;
+  }
+
+  printf("Written event header to outfile , return is %i\n",wr);
+
+  if (fOutGzFile)
+#ifdef HAVE_ZLIB
+    wr = gzwrite(*(gzFile*)fOutGzFile, (char*)midasEvent->GetData(), midasEvent->GetDataSize());
+#else
+    assert(!"Cannot get here");
+#endif
+  else
+    wr = write(fOutFile, (char*)midasEvent->GetData(), midasEvent->GetDataSize());
+  printf("Written event to outfile , return is %d\n",wr);
+
+  return wr;
+}
+
 void TMidasFile::Close()
 {
   if (fPoFile)
@@ -286,6 +385,21 @@ void TMidasFile::Close()
     close(fFile);
   fFile = -1;
   fFilename = "";
+}
+
+void TMidasFile::OutClose()
+{
+#ifdef HAVE_ZLIB
+  if (fOutGzFile) {
+    gzflush(*(gzFile*)fOutGzFile, Z_FULL_FLUSH);
+    gzclose(*(gzFile*)fOutGzFile);
+  }
+  fOutGzFile = NULL;
+#endif
+  if (fOutFile > 0)
+    close(fOutFile);
+  fOutFile = -1;
+  fOutFilename = "";
 }
 
 // end

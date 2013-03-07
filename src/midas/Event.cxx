@@ -65,7 +65,7 @@ midas::Event::Event(char* buf, int size, const char* tsbank, double coinc_window
 	 * \param tsbank Bank name of the TSC4 data; if NULL, tsc features are ignored
 	 * \param coinc_window Desired window to be considered a coincidence match w/ another event.
 	 */
-	Init(tsbank, buf, buf+sizeof(EventHeader_t), size);
+	Init(tsbank, buf, buf+sizeof(midas::Event::Header), size);
 }
 
 void midas::Event::CopyDerived(const midas::Event& other)
@@ -113,7 +113,7 @@ void midas::Event::PrintCoinc(const Event& other, FILE* where) const
 
 void midas::Event::Init(const char* tsbank, const void* header, const void* addr, int size)
 {
-	memcpy(GetEventHeader(), header, sizeof(EventHeader_t));
+	memcpy(GetEventHeader(), header, sizeof(midas::Event::Header));
 	memcpy(GetData(), addr, GetDataSize());
 	SetBankList();
 

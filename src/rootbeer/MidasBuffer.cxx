@@ -138,7 +138,7 @@ Bool_t rootbeer::MidasBuffer::UnpackBuffer()
 		}
 	default:        ///  - Warn about unknown event types
 		{
-			err::Warning("UnpackBuffer") << "Unkonwn event ID: " << evtHeader->fEventId;
+			utils::err::Warning("UnpackBuffer") << "Unkonwn event ID: " << evtHeader->fEventId;
 			break;
 		}
 	}

@@ -11,8 +11,8 @@
 #include <cassert>
 #include <cstring>
 #include <typeinfo>
-#include "internal/TMidasFile.h"
-#include "internal/TMidasEvent.h"
+#include "midas/libMidasInterface/TMidasFile.h"
+#include "midas/libMidasInterface/TMidasEvent.h"
 #include "utils/ErrorDragon.hxx"
 
 
@@ -39,7 +39,7 @@ public:
 	 *  };
 	 * \endcode
 	 */
-	typedef EventHeader_t Header;
+	typedef TMidas_EVENT_HEADER Header;
 
 	/// Number of fifo channels
 	static const uint32_t MAX_FIFO = 4;

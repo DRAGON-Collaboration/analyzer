@@ -4,7 +4,7 @@
 #ifndef ROOTANA_TMIDAS_ONLINE__INCLUDE_GUARD
 #define ROOTANA_TMIDAS_ONLINE__INCLUDE_GUARD
 
-#include <TMidasOnline.h>
+#include "midas/libMidasInterface/TMidasOnline.h"
 
 
 #endif

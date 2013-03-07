@@ -5,7 +5,7 @@
 #ifndef TMIDASEVENT_H
 #define TMIDASEVENT_H
 
-#include "TMidasBanks.h"
+#include "TMidasStructs.h"
 
 ///
 /// C++ class representing one midas event.
@@ -47,12 +47,12 @@ class TMidasEvent
   int LocateBank(const void *unused, const char* bankName, void **bankPtr) const;
 
   bool IsBank32() const; ///< returns "true" if event uses 32-bit banks
-  int IterateBank(Bank_t **, char **pdata) const; ///< iterate through 16-bit data banks
-  int IterateBank32(Bank32_t **, char **pdata) const; ///< iterate through 32-bit data banks
+  int IterateBank(TMidas_BANK **, char **pdata) const; ///< iterate through 16-bit data banks
+  int IterateBank32(TMidas_BANK32 **, char **pdata) const; ///< iterate through 32-bit data banks
 
   // helpers for event creation
 
-  EventHeader_t* GetEventHeader(); ///< return pointer to the event header
+  TMidas_EVENT_HEADER* GetEventHeader(); ///< return pointer to the event header
   char* GetData(); ///< return pointer to the data buffer
 
   void AllocateData(); ///< allocate data buffer using the existing event header
@@ -66,7 +66,7 @@ class TMidasEvent
 
 protected:
 
-  EventHeader_t fEventHeader; ///< event header
+  TMidas_EVENT_HEADER fEventHeader; ///< event header
   char* fData;     ///< event data buffer
   int  fBanksN;    ///< number of banks in this event
   char* fBankList; ///< list of bank names in this event

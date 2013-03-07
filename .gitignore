@@ -28,3 +28,4 @@ doc/.DS_Store
 lib/*.dsym
 lib/.*
 .nfs*
+bin

@@ -3,7 +3,7 @@
 /// \brief Implementation of rb::BufferSource for DRAGON timestamped experiments
 #ifndef DRAGON_RB_MIDASBUFFER_HXX
 #define DRAGON_RB_MIDASBUFFER_HXX
-#include "midas/TMidasFile.h"
+#include "midas/libMidasInterface/TMidasFile.h"
 #include "Buffer.hxx"
 
 #ifdef MIDASSYS

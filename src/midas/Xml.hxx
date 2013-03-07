@@ -9,8 +9,8 @@
 #include <sstream>
 #include <typeinfo>
 #include <iostream>
-#include "internal/mxml.h"
-#include "internal/strlcpy.h"
+#include "mxml.h"
+#include "strlcpy.h"
 
 namespace midas {
 
