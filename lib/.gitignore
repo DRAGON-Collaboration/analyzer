@@ -1,0 +1,4 @@
+# Ignore object files
+*.so
+# Except this file
+!.gitignore
