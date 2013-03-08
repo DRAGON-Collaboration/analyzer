@@ -84,7 +84,7 @@ public:
 		{ return fGamma->banks.tsc; }
 
 	/// Read variables from ODB
-	void ReadOdb();
+	void ReadVariables(const char* dbname);
 
 private:
 	/// Casts from const void* to const midas::Event*
@@ -118,7 +118,7 @@ public:
 		{ return fHeavyIon->banks.tsc; }
 
 	/// Read variables from ODB
-	void ReadOdb();
+	void ReadVariables(const char* dbname);
 
 private:
 	/// Casts from const void* to const midas::Event*
@@ -147,7 +147,7 @@ public:
 	~CoincEvent() {}
 
 	/// Read variables from ODB
-	void ReadOdb();
+	void ReadVariables(const char* dbname);
 
 private:
 	/// Casts from const void* to const midas::CoincEvent*
@@ -176,7 +176,7 @@ public:
 	~HeadScaler() {}
 
 	/// Read variables from ODB
-	void ReadOdb();
+	void ReadVariables(const char* dbname);
 
 	/// Reset scalers
 	void Reset() { fScaler->reset(); }
@@ -208,7 +208,7 @@ public:
 	~TailScaler() {}
 
 	/// Read variables from ODB
-	void ReadOdb();
+	void ReadVariables(const char* dbname);
 
 	/// Reset scalers
 	void Reset() { fScaler->reset(); }

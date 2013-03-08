@@ -202,7 +202,7 @@ Bool_t rootbeer::MidasBuffer::ConnectOnline(const char* host, const char* experi
 	cm_register_transition (TR_RESUME, rootbeer_run_resume, 500);
 
 	/// - Update variables from ODB
-	this->ReadOdb();
+	this->ReadVariables("online");
 
 	fType = MidasBuffer::ONLINE;
 	return true;
@@ -211,11 +211,14 @@ Bool_t rootbeer::MidasBuffer::ConnectOnline(const char* host, const char* experi
 Bool_t rootbeer::MidasBuffer::OpenFile(const char* file_name, char** other, int nother)
 {
 	/*!
-	 * Reset scalers, diagnostics, open MIDAS file w/ TMidasFile::Open()
+	 * Reset scalers, diagnostics, open MIDAS file w/ TMidasFile::Open(),
+	 * read ODB values from the file.
 	 */
 	reset_scalers();
 	fType = MidasBuffer::OFFLINE;
-	return fFile.Open(file_name);
+	bool status = fFile.Open(file_name);
+	if (status == true) ReadVariables(file_name);
+	return status;
 }
 
 void rootbeer::MidasBuffer::DisconnectOnline()
@@ -239,16 +242,23 @@ void rootbeer::MidasBuffer::CloseFile()
 }
 
 
-void rootbeer::MidasBuffer::ReadOdb()
+void rootbeer::MidasBuffer::ReadVariables(const char* dbname)
 {
+	std::string dbMessage = dbname;
+	if (dbMessage == "online")
+		dbMessage = "the online database";
+	else if (dbMessage.rfind("/") < dbMessage.size())
+		dbMessage = dbMessage.substr(dbMessage.rfind("/")+1);
+	else
+		;
 	utils::err::Info("rootbeer::MidasBuffer")
-		<< "Synching variable values with the MIDAS ODB.";
+		<< "Synching variable values with " << dbMessage;
 
-	rb::Event::Instance<rootbeer::GammaEvent>()->ReadOdb();
-	rb::Event::Instance<rootbeer::HeavyIonEvent>()->ReadOdb();
-	rb::Event::Instance<rootbeer::CoincEvent>()->ReadOdb();
-	rb::Event::Instance<rootbeer::HeadScaler>()->ReadOdb();
-	rb::Event::Instance<rootbeer::TailScaler>()->ReadOdb();
+	rb::Event::Instance<rootbeer::GammaEvent>()->ReadVariables(dbname);
+	rb::Event::Instance<rootbeer::HeavyIonEvent>()->ReadVariables(dbname);
+	rb::Event::Instance<rootbeer::CoincEvent>()->ReadVariables(dbname);
+	rb::Event::Instance<rootbeer::HeadScaler>()->ReadVariables(dbname);
+	rb::Event::Instance<rootbeer::TailScaler>()->ReadVariables(dbname);
 }
 
 Bool_t rootbeer::MidasBuffer::ReadBufferOnline()

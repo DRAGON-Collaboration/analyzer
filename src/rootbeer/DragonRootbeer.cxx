@@ -1,6 +1,9 @@
+///
 /// \file DragonRootbeer.cxx
 /// \author G. Christian
 /// \brief Implementation of rb::BufferSource::New() and rb::Rint::RegisterEvents()
+///
+#include <cassert>
 
 // ROOTBEER includes //
 #include "Main.hxx"
@@ -10,9 +13,64 @@
 // DRAGON includes //
 #include "utils/definitions.h"
 #include "utils/Stringify.h"
+#include "midas/Database.hxx"
 #include "MidasBuffer.hxx"
 #include "DragonEvents.hxx"
 #include "DragonRootbeer.hxx"
+
+
+namespace rootbeer {
+
+/// Class to implement a custom main() function
+class DragonMain: public rb::Main {
+	public:
+	/// Overrides the default rb::Main::Run()
+	virtual int Run(int argc, char** argv); 
+};
+
+int rootbeer::DragonMain::Run(int argc, char** argv)
+{
+	assert(!"Not implemented yet!");
+#if 0
+ if (argc > 1 && !strcmp(argv[1], "--unpack")) { // 'rbunpack'
+
+	 std::string fin;
+	 handle_args(argc, argv, fin);
+	 int argc2 = argc + 1;
+	 char** argv2 = (char**)malloc(argc2*sizeof(char*));
+	 for(int i=0; i< argc; ++i) {
+		 argv2[i] = (char*)malloc(strlen(argv[i]+1));
+		 strcpy(argv2[i], argv[i]);
+	 }
+	 argv2[argc] = (char*)malloc(4);
+	 strcpy(argv2[argc], "-ng");
+
+	 rb::Rint rbApp("Rbunpack", &argc2, argv2, 0, 0, true);
+	 rbApp.StartSave(false);
+	 rb::AttachFile(fin.c_str());
+	 gSystem->Sleep(1e2);
+	 while(TThread::GetThread("AttachFile"));
+	 rbApp.Terminate(0);
+	 for(int i=0; i< argc2; ++i)
+		 free(argv2[i]);
+	 free(argv2);
+	 return 0;
+
+ } else { // Standard ROOTBEER
+
+	 std::set<std::string> args(argv, argv+argc);
+	 Bool_t lite = args.count("-l");
+	 rb::Rint rbApp("Rootbeer", &argc, argv, 0, 0, lite);
+	 gROOT->ProcessLine("gStyle->SetOptTitle(kTRUE)");
+	 gROOT->ProcessLine("gStyle->SetOptStat(kTRUE)");
+	 rbApp.Run();
+	 return 0;
+
+ }
+#endif
+}
+
+} // namespace rootbeer
 
 
 rb::Main* rb::GetMain()
@@ -42,7 +100,7 @@ rb::BufferSource* rb::BufferSource::New()
 	 * In this specific instance, we return a pointer to a \c new rootbeer::MidasBuffer
 	 */ 
 	
-  return new rootbeer::MidasBuffer(1024*100);
+  return new rootbeer::MidasBuffer(1024*1024);
 }
 
 void rb::Rint::RegisterEvents()

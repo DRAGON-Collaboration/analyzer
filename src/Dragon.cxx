@@ -964,8 +964,7 @@ void dragon::Tail::set_variables(const char* odb)
 	if(database.IsZombie()) return;
 
 	utils::Banks::OdbSet(banks.io32,   database, "dragon/tail/bank_names/io32");
-	utils::Banks::OdbSet(banks.adc[0], database, "dragon/tail/bank_names/adc[0]");
-	utils::Banks::OdbSet(banks.adc[1], database, "dragon/tail/bank_names/adc[1]");
+	utils::Banks::OdbSetArray(banks.adc, 2, database, "dragon/tail/bank_names/adc");
 	utils::Banks::OdbSet(banks.tdc,    database, "dragon/tail/bank_names/tdc");
 	utils::Banks::OdbSet(banks.tsc,    database, "dragon/tail/bank_names/tsc");
 }

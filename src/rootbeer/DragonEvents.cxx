@@ -18,9 +18,9 @@ inline void handle_event(rb::data::Wrapper<T>& data, const E* buf)
 }
 
 template <class T>
-inline void odb_read(rb::data::Wrapper<T>& data)
+inline void db_read(const char* dbname, rb::data::Wrapper<T>& data)
 {
-	data->set_variables("online");
+	data->set_variables(dbname);
 }
 
 } // namespace
@@ -94,9 +94,9 @@ Bool_t rootbeer::GammaEvent::DoProcess(const void* addr, Int_t nchar)
 	return true;
 }
 
-void rootbeer::GammaEvent::ReadOdb()
+void rootbeer::GammaEvent::ReadVariables(const char* dbname)
 {
-	odb_read(fGamma);
+	db_read(dbname, fGamma);
 }
 
 
@@ -127,9 +127,9 @@ Bool_t rootbeer::HeavyIonEvent::DoProcess(const void* addr, Int_t nchar)
 	return true;
 }
 
-void rootbeer::HeavyIonEvent::ReadOdb()
+void rootbeer::HeavyIonEvent::ReadVariables(const char* dbname)
 {
-	odb_read(fHeavyIon);
+	db_read(dbname, fHeavyIon);
 }
 
 
@@ -163,9 +163,9 @@ Bool_t rootbeer::CoincEvent::DoProcess(const void* addr, Int_t nchar)
 	return true;
 }
 
-void rootbeer::CoincEvent::ReadOdb()
+void rootbeer::CoincEvent::ReadVariables(const char* dbname)
 {
-	odb_read(fCoinc);
+	db_read(dbname, fCoinc);
 }
 
 // ======== Class rootbeer::HeadScaler ======== //
@@ -198,9 +198,9 @@ Bool_t rootbeer::HeadScaler::DoProcess(const void* addr, Int_t nchar)
 	return true;
 }
 
-void rootbeer::HeadScaler::ReadOdb()
+void rootbeer::HeadScaler::ReadVariables(const char* dbname)
 {
-	odb_read(fScaler);
+	db_read(dbname, fScaler);
 }
 
 
@@ -234,7 +234,7 @@ Bool_t rootbeer::TailScaler::DoProcess(const void* addr, Int_t nchar)
 	return true;
 }
 
-void rootbeer::TailScaler::ReadOdb()
+void rootbeer::TailScaler::ReadVariables(const char* dbname)
 {
-	odb_read(fScaler);
+	db_read(dbname, fScaler);
 }
