@@ -360,8 +360,7 @@ inline void transform(T& output, TR transform)
 
 /// Perform pedestal subtraction on an array
 /*!
- * Values below the pedestal are set to vme::NONE; values above the pedestal are
- * shifted downward by the pedestal value.
+ * Shifts adc channels down by the pedestal value.
  *
  * \tparam T type of the values in the array
  * \tparam L type of the array length identifier
@@ -381,19 +380,13 @@ template <class T, class L, class V>
 inline void pedestal_subtract(T* array, L length, const V& variables)
 {
 	for (L i=0; i< length; ++i) {
-		if (array[i] < variables.pedestal[i]) {
-			array[i]  = dragon::NO_DATA; // suppress
-		}
-		else {
-			array[i] -= variables.pedestal[i]; // shift
-		}
+		array[i] -= variables.pedestal[i]; // shift
 	}
 }
 
 /// Perform pedestal subtraction on a single value
 /*!
- * Values below the pedestal are set to vme::NONE; values above the pedestal are
- * shifted downward by the pedestal value.
+ * Shifts adc channels down by the pedestal value.
  *
  * \tparam T type of the values in the array
  * \tparam V variables class, must have public \c pedestal field
@@ -412,10 +405,7 @@ inline void pedestal_subtract(T* array, L length, const V& variables)
 template <class T, class V>
 inline void pedestal_subtract(T& value, const V& variables)
 {
-	if (value < variables.pedestal)
-		value  = dragon::NO_DATA; // suppress
-	else
-		value -= variables.pedestal; // shift
+	value -= variables.pedestal; // shift
 }
 
 
