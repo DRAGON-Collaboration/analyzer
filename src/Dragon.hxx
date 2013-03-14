@@ -120,11 +120,11 @@ public: // Subclasses
 
  public: // Data
 		/// Adc variables
-		utils::AdcVariables<MAX_CHANNELS> adc;
+		dragon::utils::AdcVariables<MAX_CHANNELS> adc;
 		/// Tdc variables
-		utils::TdcVariables<MAX_CHANNELS> tdc;
+		dragon::utils::TdcVariables<MAX_CHANNELS> tdc;
 		/// Detector positions in space
-		utils::PositionVariables<MAX_CHANNELS> pos;
+		dragon::utils::PositionVariables<MAX_CHANNELS> pos;
 	};
 
 public: // Subclass instances
@@ -180,9 +180,9 @@ public: // Subclasses
 
  public: // Data
 		/// Adc variables for the energy signals
-		utils::AdcVariables<32> adc;
+		dragon::utils::AdcVariables<32> adc;
 		/// Tdc variables
-		utils::TdcVariables<1> tdc;
+		dragon::utils::TdcVariables<1> tdc;
 	};
 
 public: // Subclass instances
@@ -231,9 +231,9 @@ public: // Subclasses
 
  public: // Data
 		/// Anode variables
-		utils::AdcVariables<MAX_CHANNELS> adc;
+		dragon::utils::AdcVariables<MAX_CHANNELS> adc;
 		/// Tdc variables
-		utils::TdcVariables<1> tdc;
+		dragon::utils::TdcVariables<1> tdc;
 	};
 
 public: // Subclass instances
@@ -291,11 +291,11 @@ public: // Subclasses
 
  public: // Data
 		/// Adc variables for the anode signals
-		utils::AdcVariables<MAX_CHANNELS> adc;
+		dragon::utils::AdcVariables<MAX_CHANNELS> adc;
 		/// Adc variables for the TAC signal
-		utils::AdcVariables<1> tac_adc;
+		dragon::utils::AdcVariables<1> tac_adc;
 		/// Tdc variables
-		utils::TdcVariables<NUM_DETECTORS> tdc;
+		dragon::utils::TdcVariables<NUM_DETECTORS> tdc;
 	};
 
 public: // Subclass instances
@@ -327,7 +327,7 @@ public: // Subclasses
 
  public: // Data
 		/// Adc variables
-		utils::AdcVariables<MAX_CHANNELS> adc;
+		dragon::utils::AdcVariables<MAX_CHANNELS> adc;
 	};
 
 public: // Methods
@@ -385,7 +385,7 @@ public: // Subclasses
 
  public: // Data
 		/// Adc variables
-		utils::AdcVariables<MAX_CHANNELS> adc;
+		dragon::utils::AdcVariables<MAX_CHANNELS> adc;
 	};
 
 public: // Subclass instances
@@ -427,7 +427,7 @@ public: // Subclasses
 
  public: // Data
 		/// ADC variables
-		utils::AdcVariables<1> adc;
+		dragon::utils::AdcVariables<1> adc;
 	};
 
 public: // Subclass instances
@@ -481,7 +481,7 @@ public: // Methods
 
 public: // Data
 	/// Bank names
-	utils::EventBanks<1, 1> banks; //!
+	dragon::utils::EventBanks<1, 1> banks; //!
 	/// Midas event header
 	midas::Event::Header header; //#
 
@@ -513,7 +513,7 @@ public: // Subclasses
 	class Variables {
  public: // Data
 		/// Crossover TDC channel variables
-		utils::TdcVariables<1> xtdc;
+		dragon::utils::TdcVariables<1> xtdc;
  public: // Methods
 		/// Sets data to defaults
 		Variables();
@@ -551,7 +551,7 @@ public: // Methods
 
 public: // Class data
 	/// Bank names
-	utils::EventBanks<2, 1> banks; //!
+	dragon::utils::EventBanks<2, 1> banks; //!
 	/// Midas event header
 	midas::Event::Header header;   //#
 	// Vme modules (write to TTree)
@@ -607,7 +607,7 @@ public: // Subclasses
 		void set(const char* odb);
  public: // Data
 		/// Crossover TDC channel variables
-		utils::TdcVariables<1> xtdc;
+		dragon::utils::TdcVariables<1> xtdc;
 	};
 
 public: // Subclass instances
@@ -700,7 +700,7 @@ public: // Subclasses
 		/// Name of a given channel
 		std::string names[MAX_CHANNELS]; //!
 		/// Frontend bank names
-		utils::ScalerBanks bank_names; //!
+		dragon::utils::ScalerBanks bank_names; //!
 		/// Base odb path
 		std::string odb_path; //!
   };

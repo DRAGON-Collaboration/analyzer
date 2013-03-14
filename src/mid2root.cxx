@@ -268,6 +268,21 @@ int main(int argc, char** argv)
 	} // if (options.fOut.empty())
 
 	//
+	// Handle odb variables file
+	if (options.fOdb.empty()) {
+		options.fOdb = out.Data(); // No file specified, use ODB dump in midas file
+	}
+	else { // Check if it exists
+		FileStat_t dummy;
+		if(gSystem->GetPathInfo(options.fOdb.c_str(), dummy) != 0) { // no file
+			m2r::cerr
+				<< "Error: The specified variables file \'" << options.fOdb
+				<< "\' does not exist.\n";
+			return 1;
+		}
+	}
+
+	//
 	// Open output TFile
 	if (options.fOverwrite == false) {
 		FileStat_t dummy;
@@ -294,9 +309,10 @@ int main(int argc, char** argv)
 							<< "\' for writing.\n";
 		return 1;
 	}
-
+	
 	//
 	// Create TTrees
+	
 	
 //	TTree* tree = new TTree 
 }

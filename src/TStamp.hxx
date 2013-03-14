@@ -57,7 +57,7 @@ public:
 
 private:
 	/// Maximum allowable time interval between the first and last event stored in the queue.
-	const double fMaxDelta;
+	double fMaxDelta;
 	
 	/// Internal container of events waiting to be matched
 	MultiSet_t fEvents;
@@ -90,6 +90,12 @@ public:
 
 	/// Returns total number of entries in the queue
 	size_t Size() const { return fEvents.size(); }
+
+	/// Set the maximum queue time to a new value
+	void SetMaxDelta(double delta) { fMaxDelta = delta; }
+
+	/// Check the maximum queue time
+	double GetMaxDelta() const { return fMaxDelta; }
 
 protected:
 	/// Check whether the maximum size has been reached
@@ -129,6 +135,7 @@ private:
  * 
  * - <tt> void Process(const midas::Event&); </tt>
  * - <tt> void Process(const midas::Event&, cont midas::Event&); </tt>
+ * - <tt> void Process(tstamp::Diagnostics*); </tt>
  * 
  * to handle singles and coincidence events, respectively.
  */

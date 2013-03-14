@@ -12,8 +12,6 @@
 
 namespace {
 
-const int MIDAS_BOR  = 0x8000;
-const int MIDAS_EOR  = 0x8001;
 const int FLUSH_TIME = 60;
 const double QUEUE_TIME = 4e6;
 const double COINC_WINDOW = 10.;

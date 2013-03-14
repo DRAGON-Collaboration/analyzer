@@ -29,6 +29,7 @@
 #pragma link off all functions;
 #pragma link C++ nestedclasses;
 
+#pragma link C++ class dragon::utils+;
 #pragma link C++ class dragon+;
 #pragma link C++ class vme+;
 
