@@ -85,7 +85,7 @@ void dragon::Bgo::calculate()
 	 * Does the following:
 	 */
 	/// - Pedestal subtract and calibrate energy values
-	utils::pedestal_subtract(ecal, MAX_CHANNELS, variables.adc);
+	utils::pedestal_subtract(ecal, MAX_CHANNELS, variables.adc, 10);
 	utils::linear_calibrate(ecal, MAX_CHANNELS, variables.adc);
 
 	/// - Calibrate time values

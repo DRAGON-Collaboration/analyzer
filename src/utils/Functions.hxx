@@ -358,6 +358,33 @@ inline void transform(T& output, TR transform)
 	transform(output, 0);
 }
 
+/// Perform pedestal subtraction on a single value
+/*!
+ * Shifts adc channels down by the pedestal value, then "suppresses"
+ * all values below an optional offset.
+ *
+ * \tparam T type of the values in the array
+ * \tparam V variables class, must have public \c pedestal field
+ *
+ * Usage example:
+ * \code
+ * dragon::AdcVariables<1> vars;
+ * vars.pedestal = 32.;
+ * double value1 = 100., value2 = 31.;
+ * utils::pedestal_subtract(value1, vars);
+ * utils::pedestal_subtract(value2, vars);
+ * // value1 = 100., value2 = -1.
+ * // n.b. dragon::NO_DATA == -1.
+ * \endcode
+ */
+template <class T, class V>
+inline void pedestal_subtract(T& value, const V& variables, int suppress = 0)
+{
+	if(is_valid(value) == false) return;		
+	value -= variables.pedestal; // shift
+	if(value < suppress) value = 0; // suppress
+}
+
 /// Perform pedestal subtraction on an array
 /*!
  * Shifts adc channels down by the pedestal value.
@@ -377,37 +404,14 @@ inline void transform(T& output, TR transform)
  * \endcode
  */
 template <class T, class L, class V>
-inline void pedestal_subtract(T* array, L length, const V& variables)
+inline void pedestal_subtract(T* array, L length, const V& variables, int suppress = 0)
 {
 	for (L i=0; i< length; ++i) {
+		if(is_valid(array[i]) == false) continue;
 		array[i] -= variables.pedestal[i]; // shift
+		if(array[i] < suppress) array[i] = 0; // suppress
 	}
 }
-
-/// Perform pedestal subtraction on a single value
-/*!
- * Shifts adc channels down by the pedestal value.
- *
- * \tparam T type of the values in the array
- * \tparam V variables class, must have public \c pedestal field
- *
- * Usage example:
- * \code
- * dragon::AdcVariables<1> vars;
- * vars.pedestal = 32.;
- * double value1 = 100., value2 = 31.;
- * utils::pedestal_subtract(value1, vars);
- * utils::pedestal_subtract(value2, vars);
- * // value1 = 100., value2 = -1.
- * // n.b. dragon::NO_DATA == -1.
- * \endcode
- */
-template <class T, class V>
-inline void pedestal_subtract(T& value, const V& variables)
-{
-	value -= variables.pedestal; // shift
-}
-
 
 /// Perform linear calibration on an array
 /*!
