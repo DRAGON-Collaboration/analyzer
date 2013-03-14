@@ -37,7 +37,7 @@ void tstamp::Queue::HandleDiagnostics(tstamp::Diagnostics* d) const
 	/*!
 	 * In the base class, prints diagnostic fields.
 	 */
-	utils::err::Info("tstamp::Queue")
+	dragon::utils::err::Info("tstamp::Queue")
 		<< "Diagnostics event: size = " << d->size << ", n_coinc = "
 		<< d->n_coinc << ", time_diff = " << d->time_diff << ", n_singles[]: ";
 	for (int i=0; i< tstamp::Diagnostics::MAX_TYPES; ++i) {
@@ -67,7 +67,7 @@ void tstamp::Queue::Push(const midas::Event& event, tstamp::Diagnostics* diagnos
 		fEvents.insert(event);
 	}
 	catch (std::exception& e) { // try to handle exception gracefully
-		utils::err::Error("tstamp::Queue::Push")
+		dragon::utils::err::Error("tstamp::Queue::Push")
 			<< "Caught an exception from std::multiset::insert: " << e.what()
 			<< " (note: size = " << Size() << ", max size = " << fEvents.max_size()
 			<< "). Clearing the Queue and trying again... WARNING: that this could cause "
@@ -80,7 +80,7 @@ void tstamp::Queue::Push(const midas::Event& event, tstamp::Diagnostics* diagnos
 			fEvents.insert(event);
 		}
 		catch (std::exception& e) { // give up
-			utils::err::Error("tstamp::Queue::Push")
+			dragon::utils::err::Error("tstamp::Queue::Push")
 				<< "Caught a second exception from std::multiset::insert: " << e.what()
 				<< ". Not sure what to do: rethrowing (likely fatal!)" << DRAGON_ERR_FILE_LINE;
 			throw (e);
@@ -175,7 +175,7 @@ void tstamp::Queue::FlushTimeoutMessage(int max_time) const
 	 *
 	 * \param max_time Length of max Flush() timeout in seconds
 	 */
-	utils::err::Info("tstamp::Queue::Flush()")
+	dragon::utils::err::Info("tstamp::Queue::Flush()")
 		<< "Maximum timeout of " << max_time << " seconds reached. Clearing event queue (skipping "
 		<< fEvents.size() << " events...).";
 }
@@ -191,7 +191,7 @@ void tstamp::Queue::FillDiagnostics(tstamp::Diagnostics* d, double tdiff, bool h
 		d->n_singles[singles_id] += 1;
 	}
 	else if(singles_id > 0) { // Id >= MAX_TYPES
-		utils::err::Warning("Queue::FillDiagnostics")
+		dragon::utils::err::Warning("Queue::FillDiagnostics")
 			<< "Singles id >= Diagnostics::MAX_TYPES, id = " << singles_id
 			<< ", types = " << Diagnostics::MAX_TYPES << DRAGON_ERR_FILE_LINE;
 	}

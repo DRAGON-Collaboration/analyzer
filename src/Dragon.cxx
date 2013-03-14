@@ -14,11 +14,13 @@
 #include "Dragon.hxx"
 
 
+#ifndef USE_ROOT
+int gErrorIgnoreLevel; // Global error ignore
+#endif
+
 
 
 // ==================== Class dragon::RunParameters ==================== //
-
-
 
 dragon::RunParameters::RunParameters()
 {
@@ -1024,7 +1026,7 @@ inline bool check_bank_len(int expected, int gotten, const char* bkname)
 {
 	bool retval = true;
 	if (expected != gotten) {
-		utils::err::Error("dragon::Scaler::unpack")
+		dragon::utils::err::Error("dragon::Scaler::unpack")
 			<< "Unexpected length of bank \"" << bkname << "\": expected " << expected
 			<< ", got " << gotten << DRAGON_ERR_FILE_LINE;
 		retval = false;

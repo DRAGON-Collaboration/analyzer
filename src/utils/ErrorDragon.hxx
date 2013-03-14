@@ -8,8 +8,15 @@
 #include <string>
 #include <stdexcept>
 
+#ifdef USE_ROOT
+#include <TError.h> // for gErrorIgnoreLevel
+#else
+extern int gErrorIgnoreLevel;
+#endif
 
-namespace utils {
+namespace { std::ostream NullStream(0); }
+
+namespace dragon { namespace utils {
 
 /// Encloses message reporting classes.
 namespace err {
@@ -60,28 +67,31 @@ public:
 	virtual ~Strm() { std::endl(*fStream); }
 };
 
-} } // namespace utils, namespace err
+} } } // namespace utils, namespace err, namespace dragon
 
 #ifndef MIDASSYS
 
-namespace utils { namespace err {
+namespace dragon { namespace utils { namespace err {
 
 /// Specialized err::Strm class to print informational messages
-struct Info: public Strm { Info(const char* where, bool = true) : Strm("Info", where, std::cout) {} };
+struct Info: public Strm { Info(const char* where, bool = true) :
+	Strm("Info", where, std::cout)  { if(gErrorIgnoreLevel > 1000) fStrm = &NullStream; } };
 
 /// Specialized err::Strm class to print error messages
-struct Error: public Strm { Error(const char* where, bool = true) : Strm("Error", where, std::cerr) {} };
+struct Error: public Strm { Error(const char* where, bool = true) :
+	Strm("Error", where, std::cerr) { if(gErrorIgnoreLevel > 3000) fStrm = &NullStream; } };
 
 /// Specialized err::Strm class to print warning messages
-struct Warning: public Strm { Warning(const char* where, bool = true) : Strm("Warning", where, std::cerr) {} };
+struct Warning: public Strm { Warning(const char* where, bool = true) :
+	Strm("Warning", where, std::cerr) { if(gErrorIgnoreLevel > 2000) fStrm = &NullStream; } } };
 
-} } // namespace utils, namespace err
+} } } // namespace utils, namespace err, namespace dragon
 
 #else
 #include <sstream>
 #include "midas.h"
 
-namespace utils { namespace err {
+namespace dragon { namespace utils { namespace err {
 
 /// Specialized err::Strm class to print informational messages
 class Info: public AStrm {
@@ -99,7 +109,8 @@ public:
 				cm_msg(MINFO, fWhere.c_str(), "%s",
 							 static_cast<std::stringstream*>(fStream)->str().c_str());
 			} else {
-				std::cout << "Info in <" << fWhere << ">: " << static_cast<std::stringstream*>(fStream)->str() << "\n";
+				std::ostream& rstrm = gErrorIgnoreLevel > 1000 ? std::cout : NullStream;
+				rstrm << "Info in <" << fWhere << ">: " << static_cast<std::stringstream*>(fStream)->str() << "\n";
 			}
 			delete fStream;
 		}
@@ -124,7 +135,8 @@ public:
 				cm_msg(MERROR, fWhere.c_str(), "%s",
 							 static_cast<std::stringstream*>(fStream)->str().c_str());
 			} else {
-				std::cerr << "Error in <" << fWhere << ">: " << static_cast<std::stringstream*>(fStream)->str() << "\n";
+				std::ostream& rstrm = gErrorIgnoreLevel > 3000 ? std::cerr : NullStream;
+				rstrm << "Error in <" << fWhere << ">: " << static_cast<std::stringstream*>(fStream)->str() << "\n";
 			}
 			delete fStream;
 		}
@@ -149,7 +161,8 @@ public:
 				cm_msg(MERROR, fWhere.c_str(), "(Warning): %s",
 							 static_cast<std::stringstream*>(fStream)->str().c_str());
 			} else {
-				std::cerr << "Warning in <" << fWhere << ">: " << static_cast<std::stringstream*>(fStream)->str() << "\n";
+				std::ostream& rstrm = gErrorIgnoreLevel > 2000 ? std::cerr : NullStream;
+				rstrm << "Warning in <" << fWhere << ">: " << static_cast<std::stringstream*>(fStream)->str() << "\n";
 			}
 		delete fStream;
 		}
@@ -158,7 +171,7 @@ private:
 	bool fUseMidas;
 };
 
-} } // namespace utils namespace err
+} } }  // namespace dragon namespace utils namespace err
 
 #endif // #ifndef MIDASSYS
 

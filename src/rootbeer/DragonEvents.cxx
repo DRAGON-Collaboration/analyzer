@@ -40,7 +40,7 @@ Bool_t rootbeer::RunParameters::DoProcess(const void* addr, Int_t)
 
 void rootbeer::RunParameters::HandleBadEvent()
 {
-	utils::err::Error("RunParameters")
+	dragon::utils::err::Error("RunParameters")
 		<< "Unknown error encountered during event processing";
 }
 
@@ -52,7 +52,7 @@ rootbeer::TStampDiagnostics::TStampDiagnostics():
 
 void rootbeer::TStampDiagnostics::HandleBadEvent()
 {
-	utils::err::Error("TStampDiagnostics")
+	dragon::utils::err::Error("TStampDiagnostics")
 		<< "Unknown error encountered during event processing";
 }
 
@@ -73,7 +73,7 @@ rootbeer::GammaEvent::GammaEvent():
 
 void rootbeer::GammaEvent::HandleBadEvent()
 {
-	utils::err::Error("GammaEvent")
+	dragon::utils::err::Error("GammaEvent")
 		<< "Unknown error encountered during event processing";
 }
 
@@ -85,7 +85,7 @@ Bool_t rootbeer::GammaEvent::DoProcess(const void* addr, Int_t nchar)
 	 * parameters.
 	 */
 	if(!addr) {
-		utils::err::Error("rootbeer::GammaEvent::DoProcess") << "Received NULL event address";
+		dragon::utils::err::Error("rootbeer::GammaEvent::DoProcess") << "Received NULL event address";
 		return false;
 	}
 
@@ -107,7 +107,7 @@ rootbeer::HeavyIonEvent::HeavyIonEvent():
 
 void rootbeer::HeavyIonEvent::HandleBadEvent()
 {
-	utils::err::Error("HeavyIonEvent")
+	dragon::utils::err::Error("HeavyIonEvent")
 		<< "Unknown error encountered during event processing";
 }
 
@@ -119,7 +119,7 @@ Bool_t rootbeer::HeavyIonEvent::DoProcess(const void* addr, Int_t nchar)
 	 * parameters.
 	 */
 	if(!addr) {
-		utils::err::Error("rootbeer::HeavyIonEvent::DoProcess") << "Received NULL event address";
+		dragon::utils::err::Error("rootbeer::HeavyIonEvent::DoProcess") << "Received NULL event address";
 		return false;
 	}
 
@@ -140,7 +140,7 @@ rootbeer::CoincEvent::CoincEvent():
 
 void rootbeer::CoincEvent::HandleBadEvent()
 {
-	utils::err::Error("CoincEvent")
+	dragon::utils::err::Error("CoincEvent")
 		<< "Unknown error encountered during event processing";
 }
 
@@ -155,7 +155,7 @@ Bool_t rootbeer::CoincEvent::DoProcess(const void* addr, Int_t nchar)
 	 * then copy the already-unpacked head and tail structures directly.
 	 */
 	if(!addr) {
-		utils::err::Error("rootbeer::CoincEvent::DoProcess") << "Received NULL event address";
+		dragon::utils::err::Error("rootbeer::CoincEvent::DoProcess") << "Received NULL event address";
 		return false;
 	}
 
@@ -179,7 +179,7 @@ rootbeer::HeadScaler::HeadScaler():
 
 void rootbeer::HeadScaler::HandleBadEvent()
 {
-	utils::err::Error("HeadScaler")
+	dragon::utils::err::Error("HeadScaler")
 		<< "Unknown error encountered during event processing";
 }
 
@@ -190,7 +190,7 @@ Bool_t rootbeer::HeadScaler::DoProcess(const void* addr, Int_t nchar)
 	 * \returns true is given a valid \d addr input, false otherwise
 	 */
 	if(!addr) {
-		utils::err::Error("rootbeer::HeadScaler::DoProcess") << "Received NULL event address";
+		dragon::utils::err::Error("rootbeer::HeadScaler::DoProcess") << "Received NULL event address";
 		return false;
 	}
 
@@ -215,7 +215,7 @@ rootbeer::TailScaler::TailScaler():
 
 void rootbeer::TailScaler::HandleBadEvent()
 {
-	utils::err::Error("TailScaler")
+	dragon::utils::err::Error("TailScaler")
 		<< "Unknown error encountered during event processing";
 }
 
@@ -226,7 +226,7 @@ Bool_t rootbeer::TailScaler::DoProcess(const void* addr, Int_t nchar)
 	 * \returns true is given a valid \d addr input, false otherwise
 	 */
 	if(!addr) {
-		utils::err::Error("rootbeer::TailScaler::DoProcess") << "Received NULL event address";
+		dragon::utils::err::Error("rootbeer::TailScaler::DoProcess") << "Received NULL event address";
 		return false;
 	}
 

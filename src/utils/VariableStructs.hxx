@@ -5,7 +5,7 @@
 #define DRAGON_VARIABLE_STRUCTS_HXX
 
 
-namespace utils {
+namespace dragon { namespace utils {
 
 /// Defines position in a cartesian system
 /*! \tparam N Number of channels */
@@ -303,7 +303,7 @@ struct TdcVariablesN<1, Order> {
 
 };
 
-} // namespace dragon
+} } // namespace dragon namespace utils
 
 
 #endif

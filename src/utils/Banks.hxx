@@ -7,7 +7,7 @@
 
 namespace midas { class Database; }
 
-namespace utils {
+namespace dragon { namespace utils {
 
 /// Helper class to manage bank name setting (guarantee right length, etc.)
 class Banks {
@@ -92,13 +92,13 @@ struct EventBanks<1, 1> {
 	Banks::Name_t tdc;
 };
 
-} // namespace dragon
+} } // namespace dragon, namespace utils
 
 
 
 #ifdef __MAKECINT__
-#pragma link C++ class utils::EventBanks<2, 1>+;
-#pragma link C++ class utils::EventBanks<1, 1>+;
+#pragma link C++ class dragon::utils::EventBanks<2, 1>+;
+#pragma link C++ class dragon::utils::EventBanks<1, 1>+;
 #endif
 
 #endif

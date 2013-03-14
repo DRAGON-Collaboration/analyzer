@@ -9,7 +9,7 @@
 #include "Banks.hxx"
 
 
-void utils::Banks::Set(utils::Banks::Name_t bkName, const char* from)
+void dragon::utils::Banks::Set(dragon::utils::Banks::Name_t bkName, const char* from)
 {
 	/*!
 	 * Sets a new bank name, checking to make sure the length is correct.
@@ -21,7 +21,7 @@ void utils::Banks::Set(utils::Banks::Name_t bkName, const char* from)
 		strncpy(bkName, from, 4);
 		bkName[4] = '\0';
 		if (fromLen > 4) {
-			utils::err::Warning("utils::Banks::Set")
+			dragon::utils::err::Warning("dragon::utils::Banks::Set")
 				<< "Source string longer than 4: truncating bank name to " << bkName
 				<< DRAGON_ERR_FILE_LINE;
 		}
@@ -30,27 +30,27 @@ void utils::Banks::Set(utils::Banks::Name_t bkName, const char* from)
 		strncpy(bkName, from, fromLen);
 		for(int i= fromLen; i < 4; ++i) bkName[i] = '0';
 		bkName[4] = '\0';
-		utils::err::Warning("utils::Banks::Set")
+		dragon::utils::err::Warning("dragon::utils::Banks::Set")
 			<< "Source string shorter than 4: extending bank name to " << bkName
 			<< DRAGON_ERR_FILE_LINE;
 	}
 }
 
-void utils::Banks::OdbSet(utils::Banks::Name_t bkName, midas::Database& odb, const char* path)
+void dragon::utils::Banks::OdbSet(dragon::utils::Banks::Name_t bkName, midas::Database& odb, const char* path)
 {
 	std::string temp;
 	odb.ReadValue(path, temp);
-	utils::Banks::Set(bkName, temp.c_str());
+	dragon::utils::Banks::Set(bkName, temp.c_str());
 }
 
-void utils::Banks::OdbSetArray(utils::Banks::Name_t* bkName, int length, midas::Database& odb, const char* path)
+void dragon::utils::Banks::OdbSetArray(dragon::utils::Banks::Name_t* bkName, int length, midas::Database& odb, const char* path)
 {
 	// template <typename T> int ReadArray(const char* path, T* array, int length) const
 
 	std::vector<std::string> temp(length);
 	odb.ReadArray(path, &temp[0], length);
 	for(int i=0; i< length; ++i) {
-		utils::Banks::Set(bkName[i], temp[i].c_str());
+		dragon::utils::Banks::Set(bkName[i], temp[i].c_str());
 	}
 }
 

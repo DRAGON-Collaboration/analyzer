@@ -763,20 +763,20 @@ inline void dragon::Scaler::set_aliases(T* t, const char* branchName) const
 
 #ifdef __MAKECINT__
 // Create CINT links to template classes //
-#pragma link C++ class utils::AdcVariables<dragon::Bgo::MAX_CHANNELS>;
-#pragma link C++ class utils::TdcVariables<dragon::Bgo::MAX_CHANNELS>;
-#pragma link C++ class utils::PositionVariables<dragon::Bgo::MAX_CHANNELS>;
+#pragma link C++ class dragon::utils::AdcVariables<dragon::Bgo::MAX_CHANNELS>;
+#pragma link C++ class dragon::utils::TdcVariables<dragon::Bgo::MAX_CHANNELS>;
+#pragma link C++ class dragon::utils::PositionVariables<dragon::Bgo::MAX_CHANNELS>;
 
-#pragma link C++ class utils::AdcVariables<dragon::Dsssd::MAX_CHANNELS>+;
-#pragma link C++ class utils::TdcVariables<1>+;
+#pragma link C++ class dragon::utils::AdcVariables<dragon::Dsssd::MAX_CHANNELS>+;
+#pragma link C++ class dragon::utils::TdcVariables<1>+;
 
-#pragma link C++ class utils::AdcVariables<dragon::IonChamber::MAX_CHANNELS>+;
-#pragma link C++ class utils::TdcVariables<1>+;
+#pragma link C++ class dragon::utils::AdcVariables<dragon::IonChamber::MAX_CHANNELS>+;
+#pragma link C++ class dragon::utils::TdcVariables<1>+;
 
-#pragma link C++ class utils::AdcVariables<dragon::SurfaceBarrier::MAX_CHANNELS>+;
+#pragma link C++ class dragon::utils::AdcVariables<dragon::SurfaceBarrier::MAX_CHANNELS>+;
 
-#pragma link C++ class utils::AdcVariables<dragon::NaI::MAX_CHANNELS>+;
-#pragma link C++ class utils::AdcVariables<1>+;
+#pragma link C++ class dragon::utils::AdcVariables<dragon::NaI::MAX_CHANNELS>+;
+#pragma link C++ class dragon::utils::AdcVariables<1>+;
 #endif
 
 

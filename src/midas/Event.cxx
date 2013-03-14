@@ -139,7 +139,7 @@ void midas::Event::Init(const char* tsbank, const void* header, const void* addr
 			if(version == versions[v]) { okVersion = true; break; }
 		}
 		if(okVersion == false) {
-			utils::err::Warning("midas::Event::Init") <<
+			dragon::utils::err::Warning("midas::Event::Init") <<
 				"Unknown TSC version 0x" << std::hex << version << std::dec << " (id, serial #: " << GetEventId() <<
 				", " << GetSerialNumber() << ")" << DRAGON_ERR_FILE_LINE;
 		}
@@ -151,7 +151,7 @@ void midas::Event::Init(const char* tsbank, const void* header, const void* addr
 		uint32_t tsch = (ctrl>>16) & READ8; // upper tsc bits 35..28
 
 		if (overflow) {
-			utils::err::Warning("midas::Event::Init") <<
+			dragon::utils::err::Warning("midas::Event::Init") <<
 				"IO32 TSC in overflow condition. Event Serial #, Id: " << GetSerialNumber() << ", " << GetEventId() << "\n";
 		}
 
@@ -191,7 +191,7 @@ midas::CoincEvent::CoincEvent(const Event& event1, const Event& event2):
 		fHeavyIon = &event1;
 	}
 	else {
-		utils::err::Warning("CoincMidasEvent::CoincMidasEvent")
+		dragon::utils::err::Warning("CoincMidasEvent::CoincMidasEvent")
 			<< "Don't know how to handle the passed events: "
 			<< "Id1 = " << event1.GetEventId() << ", Id2 = " << event2.GetEventId()
 			<< ", Sys time 1 = " << event1.GetTimeStamp() << ", Sys time 2 = " << event2.GetTimeStamp()

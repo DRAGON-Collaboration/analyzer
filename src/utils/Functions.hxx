@@ -9,6 +9,8 @@
 #include "Valid.hxx"
 
 
+namespace dragon {
+
 /// Encloses various 'utility' functions
 namespace utils {
 
@@ -546,6 +548,8 @@ inline void polynomial_calibrate(int order, T& value, const V& variables)
 }
 
 } // namespace utils
+
+} // namespace dragon
 
 
 

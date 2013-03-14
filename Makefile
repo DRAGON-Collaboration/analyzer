@@ -69,6 +69,8 @@ CXXFLAGS += -I$(ROOTSYS)/include
 else
 ROOTLIBS= - $(shell $(ROOTSYS)/bin/root-config --cflags --libs --glibs) -lXMLParser -lThread -lTreePlayer
 endif
+else
+USE_ROOTBEER=NO
 endif
 
 ifdef MIDASSYS
@@ -127,6 +129,7 @@ $(OBJ)/midas/libMidasInterface/TMidasOnline.o 	\
 $(OBJ)/midas/Event.o                	\
 					\
 $(OBJ)/utils/Banks.o			\
+$(OBJ)/utils/Unpack.o			\
 					\
 $(OBJ)/TStamp.o		              	\
 $(OBJ)/Vme.o				\
@@ -143,7 +146,7 @@ $(SRC)/*.hxx
 
 
 ### DRAGON LIBRARY ###
-MAKE_ALL=$(DRLIB)/libDragon.so
+MAKE_ALL=$(DRLIB)/libDragon.so $(PWD)/bin/mid2root
 ifeq ($(USE_ROOTBEER),YES)
 MAKE_ALL+=$(PWD)/bin/rbdragon
 ## MAKE_ALL+=$(DRLIB)/libRBDragon.so
@@ -161,7 +164,12 @@ $(DRLIB)/libDragon.so: $(DR_DICT_DEP) $(OBJECTS)
 \
 $(OBJECTS) $(DR_DICT) \
 \
--o $@
+-o $@ \
+
+$(PWD)/bin/mid2root: src/mid2root.cxx $(DRLIB)/libDragon.so
+	$(LINK) -lDragon $< \
+-o $@ \
+
 
 ### OBJECT FILES ###
 
