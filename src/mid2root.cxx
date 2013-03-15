@@ -338,7 +338,7 @@ int main(int argc, char** argv)
 	if (options.fOverwrite == false) {
 		FileStat_t dummy;
 		if(gSystem->GetPathInfo(out.Data(), dummy) == 0) { // file exists
-			m2r::cerr << "\nThe file " << out.Data() << " already exists. Overwrite (y/[n])?\n";
+			m2r::cerr << "\noverwrite " << out.Data() << "? (y/n [n])\n";
 			std::string answer;
 			answer = std::cin.get();
 			if (answer.substr(0, 1) == "y" || answer.substr(0, 1) == "Y")
@@ -505,12 +505,16 @@ int main(int argc, char** argv)
 	m2r::cout << "\nDone!\n\n";
 
 	//
-	// Write file, cleanup
+	// Write trees, variables to file, cleanup
 	for (int i=0; i< nIds; ++i) {
-		trees[i]->Write(); ///todo Finally figure out how the AutoSave / Write stuff works...
+		trees[i]->GetCurrentFile();
+		trees[i]->AutoSave();
 		trees[i]->ResetBranchAddresses();
 	}
-	///\todo Figure out how to write XML variables into the TFile.
+
+	midas::Database db(options.fOdb.c_str());
+	db.Write("variables");
+
 	fout.Close();
 }
 
