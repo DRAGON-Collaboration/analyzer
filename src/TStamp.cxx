@@ -149,21 +149,41 @@ void tstamp::Queue::Flush(int max_time, tstamp::Diagnostics* diagnostics)
 	time_t t_begin = time(0);
 	while (!fEvents.empty()) {
 		if (max_time > 0 && difftime(time(0), t_begin) < max_time) {
-			int32_t singlesId = -1;
-			bool haveCoinc = false;
-			uint32_t tfirst = fEvents.rbegin()->GetTimeStamp();
-			Pop(singlesId, haveCoinc);
-
-			/// Update diagnostic info in diagnostics != NULL
-			if(diagnostics) {
-				FillDiagnostics(diagnostics, 0., haveCoinc, singlesId, tfirst);
-				HandleDiagnostics(diagnostics);
-			}
+			DoFlushEvent(diagnostics);
 		}
 		else {
 			FlushTimeoutMessage(max_time);
 			fEvents.clear();
 		}
+	}
+}
+
+size_t tstamp::Queue::FlushIterative(tstamp::Diagnostics* diagnostics)
+{
+	/*!
+	 * "Iterative" or step-by-step flushing methos for users who perfer to flush
+	 *  the queue using their own external loop.
+	 * \param [in] diagnostics Optional pointer to a Diagnostics class instance,
+	 *  to be filled with information from the flushed event
+	 * \returns The size of the internal queue \e before performing a flush.
+	 */
+	size_t qsize = fEvents.size();
+	if(qsize > 0) DoFlushEvent(diagnostics);
+	return qsize;
+}
+
+void tstamp::Queue::DoFlushEvent(tstamp::Diagnostics* diagnostics)
+{
+	/// Call Pop() on the front event
+	int32_t singlesId = -1;
+	bool haveCoinc = false;
+	uint32_t tfirst = fEvents.rbegin()->GetTimeStamp();
+	Pop(singlesId, haveCoinc);
+
+	/// Update diagnostic info if diagnostics != NULL
+	if(diagnostics) {
+		FillDiagnostics(diagnostics, 0., haveCoinc, singlesId, tfirst);
+		HandleDiagnostics(diagnostics);
 	}
 }
 

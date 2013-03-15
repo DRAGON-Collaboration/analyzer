@@ -88,6 +88,9 @@ public:
 	/// Flush all events from the queue.
 	virtual void Flush(int max_time = -1, tstamp::Diagnostics* diagnostics = 0);
 
+	/// Flush a single event from the queue.
+	virtual size_t FlushIterative(tstamp::Diagnostics* diagnostics = 0);
+
 	/// Returns total number of entries in the queue
 	size_t Size() const { return fEvents.size(); }
 
@@ -123,6 +126,9 @@ private:
 	
 	/// Prints a message telling that Flush() timeout has been reached
 	virtual void FlushTimeoutMessage(int max_time) const;
+
+	/// Internal helper function for flushing routines
+	void DoFlushEvent(tstamp::Diagnostics*);
 };
 
 
