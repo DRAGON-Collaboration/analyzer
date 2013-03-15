@@ -139,6 +139,7 @@ $(OBJ)/Dragon.o
 
 HEADERS=	                	\
 $(SRC)/midas/*.hxx	        	\
+$(SRC)/midas/*.h			\
 $(SRC)/midas/libMidasInterface/*.h     	\
 $(SRC)/utils/*.hxx        		\
 $(SRC)/utils/*.h          		\
@@ -251,6 +252,8 @@ $(PWD)/bin/anaDragon: $(SRC)/rootana/anaDragon.cxx $(DRLIB)/libDragon.so $(CINT)
 
 rootana_clean:
 	rm -f $(ROOTANA_OBJS) anaDragon libRootanaDragon.so $(CINT)/rootana/* $(DRLIB)/libRootanaCut.so
+
+Dragon: $(OBJ)/Dragon.o
 
 
 ### FOR ROOTBEER ###
