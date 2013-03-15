@@ -171,10 +171,10 @@ midas::Xml::Node midas::Xml::ParseFile(const char* file_name, char *error, int e
 	fBuffer[length] = 0;
 	fclose(f);
 
-	if (mxml_parse_entity(&fBuffer, file_name, error, error_size, error_line) != 0) {
-		// delete[] fBuffer;
-		return NULL;
-	}
+	// if (mxml_parse_entity(&fBuffer, file_name, error, error_size, error_line) != 0) {
+	// 	// delete[] fBuffer;
+	// 	return NULL;
+	// }
 
 	root = mxml_parse_buffer(fBuffer, error, error_size, error_line);
 
@@ -206,9 +206,9 @@ midas::Xml::Node midas::Xml::ParseBuffer(char* buf, int length, char *error, int
 	}
 
 	char* pxml = &fBuffer[startPos];
-	if (mxml_parse_entity(&pxml, "", error, error_size, error_line) != 0) {
-		return NULL;
-	}
+	// if (mxml_parse_entity(&pxml, "", error, error_size, error_line) != 0) {
+	// 	return NULL;
+	// }
 
 	root = mxml_parse_buffer(pxml, error, error_size, error_line);
 
