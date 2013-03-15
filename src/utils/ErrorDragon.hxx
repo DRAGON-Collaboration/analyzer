@@ -75,15 +75,15 @@ namespace dragon { namespace utils { namespace err {
 
 /// Specialized err::Strm class to print informational messages
 struct Info: public Strm { Info(const char* where, bool = true) :
-	Strm("Info", where, std::cout)  { if(gErrorIgnoreLevel > 1000) fStrm = &NullStream; } };
+	Strm("Info", where, std::cout)  { if(gErrorIgnoreLevel > 1000) fStream = &NullStream; } };
 
 /// Specialized err::Strm class to print error messages
 struct Error: public Strm { Error(const char* where, bool = true) :
-	Strm("Error", where, std::cerr) { if(gErrorIgnoreLevel > 3000) fStrm = &NullStream; } };
+	Strm("Error", where, std::cerr) { if(gErrorIgnoreLevel > 3000) fStream = &NullStream; } };
 
 /// Specialized err::Strm class to print warning messages
 struct Warning: public Strm { Warning(const char* where, bool = true) :
-	Strm("Warning", where, std::cerr) { if(gErrorIgnoreLevel > 2000) fStrm = &NullStream; } } };
+	Strm("Warning", where, std::cerr) { if(gErrorIgnoreLevel > 2000) fStream = &NullStream; } };
 
 } } } // namespace utils, namespace err, namespace dragon
 
@@ -97,7 +97,7 @@ namespace dragon { namespace utils { namespace err {
 class Info: public AStrm {
 public:
 	Info(const char* where, bool printMidas = true):
-		fWhere("anaDragon::"), fUseMidas(printMidas)
+		fWhere(""), fUseMidas(printMidas)
 		{
 			fUseMidas = false; ///\todo Fix midas option - we don't always link in the library w/ libDragon.
 			fWhere += where;
@@ -109,7 +109,7 @@ public:
 				cm_msg(MINFO, fWhere.c_str(), "%s",
 							 static_cast<std::stringstream*>(fStream)->str().c_str());
 			} else {
-				std::ostream& rstrm = gErrorIgnoreLevel > 1000 ? std::cout : NullStream;
+				std::ostream& rstrm = gErrorIgnoreLevel > 1000 ? NullStream : std::cout;
 				rstrm << "Info in <" << fWhere << ">: " << static_cast<std::stringstream*>(fStream)->str() << "\n";
 			}
 			delete fStream;
@@ -123,7 +123,7 @@ private:
 class Error: public AStrm {
 public:
 	Error(const char* where, bool printMidas = true):
-		fWhere("anaDragon::"), fUseMidas(printMidas)
+		fWhere(""), fUseMidas(printMidas)
 		{
 			fUseMidas = false; ///\todo Fix midas option
 			fWhere += where;
@@ -135,7 +135,7 @@ public:
 				cm_msg(MERROR, fWhere.c_str(), "%s",
 							 static_cast<std::stringstream*>(fStream)->str().c_str());
 			} else {
-				std::ostream& rstrm = gErrorIgnoreLevel > 3000 ? std::cerr : NullStream;
+				std::ostream& rstrm = gErrorIgnoreLevel > 3000 ? NullStream : std::cerr;
 				rstrm << "Error in <" << fWhere << ">: " << static_cast<std::stringstream*>(fStream)->str() << "\n";
 			}
 			delete fStream;
@@ -149,7 +149,7 @@ private:
 class Warning: public AStrm {
 public:
 	Warning(const char* where, bool printMidas = true):
-		fWhere("anaDragon::"), fUseMidas(printMidas)
+		fWhere(""), fUseMidas(printMidas)
 		{
 			fUseMidas = false; ///\todo Fix MIDAS option.
 			fWhere += where;
@@ -161,7 +161,7 @@ public:
 				cm_msg(MERROR, fWhere.c_str(), "(Warning): %s",
 							 static_cast<std::stringstream*>(fStream)->str().c_str());
 			} else {
-				std::ostream& rstrm = gErrorIgnoreLevel > 2000 ? std::cerr : NullStream;
+				std::ostream& rstrm = gErrorIgnoreLevel > 2000 ? NullStream : std::cerr;
 				rstrm << "Warning in <" << fWhere << ">: " << static_cast<std::stringstream*>(fStream)->str() << "\n";
 			}
 		delete fStream;

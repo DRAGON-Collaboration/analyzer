@@ -4,6 +4,7 @@
 /// \brief Implements Dragon.hxx
 ///
 #include <string>
+#include <sstream>
 #include <iostream>
 #include "midas/Database.hxx"
 #include "utils/Functions.hxx"
@@ -26,7 +27,11 @@ template <class T>
 bool do_setv(T* t, const char* dbfile)
 {
 	midas::Database db(dbfile);
-	if(db.IsZombie()) return false;
+	if(db.IsZombie()) {
+		dragon::utils::err::Error("")
+			<< "Zombie database: " << dbfile;
+		return false;
+	}
 	return t->set(&db);
 }
 //
@@ -35,24 +40,49 @@ template <>
 bool do_setv(dragon::Head* t, const char* dbfile)
 {
 	midas::Database db(dbfile);
-	if(db.IsZombie()) return false;
+	if(db.IsZombie())	{
+		dragon::utils::err::Error("")
+			<< "Zombie database: " << dbfile;
+		return false;
+	}
 	return t->set_variables(&db);	
 }
 template <>
 bool do_setv(dragon::Tail* t, const char* dbfile)
 {
 	midas::Database db(dbfile);
-	if(db.IsZombie()) return false;
+	if(db.IsZombie()) {
+		dragon::utils::err::Error("")
+			<< "Zombie database: " << dbfile;
+		return false;
+	}
 	return t->set_variables(&db);	
 }
 template <>
 bool do_setv(dragon::Coinc* t, const char* dbfile)
 {
 	midas::Database db(dbfile);
-	if(db.IsZombie()) return false;
+	if(db.IsZombie())	{
+		dragon::utils::err::Error("")
+			<< "Zombie database: " << dbfile;
+		return false;
+	}
 	return t->set_variables(&db);	
 }
+bool check_db(const midas::Database* db, const char* cl)
+{
+	bool success = db && !db->IsZombie();
+	if(!success) {
+		std::stringstream zmsg, where;
+		where << cl << "::Variables::set";
+		if(db) zmsg << ", IsZombie() " << db->IsZombie();
+		dragon::utils::err::Error(where.str().c_str())
+			<< "Invalid database: 0x" << db << zmsg.str();
+	}
+	return success;
 }
+
+} // namespace
 
 
 // ==================== Class dragon::RunParameters ==================== //
@@ -77,7 +107,7 @@ bool dragon::RunParameters::read_data(const midas::Database* db)
 		return false;
 	}
 
-	bool success;
+	bool success = true;
 	if(success) success = db->ReadArray("/Experiment/Run Parameters/TSC_RunStart", run_start, MAX_FRONTENDS);
 	if(success) success = db->ReadArray("/Experiment/Run Parameters/TSC_RunStop", run_stop, MAX_FRONTENDS);
 	if(success) success = db->ReadArray("/Experiment/Run Parameters/TSC_TriggerStart", trigger_start, MAX_FRONTENDS);
@@ -188,7 +218,7 @@ bool dragon::Bgo::Variables::set(const midas::Database* db)
 	/*!
 	 * \param [in] Pointer to a constructed database.
 	 */
-	bool success = db && !db->IsZombie();
+	bool success = check_db(db, "dragon::Bgo");
 
 	if(success) success = db->ReadArray("/dragon/bgo/variables/adc/channel",  adc.channel,  MAX_CHANNELS);
 	if(success) success = db->ReadArray("/dragon/bgo/variables/adc/pedestal", adc.pedestal, MAX_CHANNELS);
@@ -295,7 +325,7 @@ bool dragon::Dsssd::Variables::set(const midas::Database* db)
 	/*!
 	 * \param [in] Pointer to a constructed database.
 	 */
-	bool success = db && !db->IsZombie();
+	bool success = check_db(db, "dragon::Dsssd");
 
 	if(success) success = db->ReadArray("/dragon/dsssd/variables/adc/module",   adc.module,   MAX_CHANNELS);
 	if(success) success = db->ReadArray("/dragon/dsssd/variables/adc/channel",  adc.channel,  MAX_CHANNELS);
@@ -387,7 +417,7 @@ bool dragon::IonChamber::Variables::set(const midas::Database* db)
 	/*!
 	 * \param [in] db Pointer to a constructed database.
 	 */
-	bool success = db && !db->IsZombie();
+	bool success = check_db(db, "dragon::IonChamber");
 
 	if(success) success = db->ReadArray("/dragon/ic/variables/adc/module",   adc.module,   MAX_CHANNELS);
 	if(success) success = db->ReadArray("/dragon/ic/variables/adc/channel",  adc.channel,  MAX_CHANNELS);
@@ -509,7 +539,7 @@ bool dragon::Mcp::Variables::set(const midas::Database* db)
 	/*!
 	 * \param [in] db Pointer to a constructed database.
 	 */
-	bool success = db && !db->IsZombie();
+	bool success = check_db(db, "dragon::Mcp");
 
 	if(success) success = db->ReadArray("/dragon/mcp/variables/adc/channel",  adc.channel,  MAX_CHANNELS);
 	if(success) success = db->ReadArray("/dragon/mcp/variables/adc/module",   adc.module,   MAX_CHANNELS);
@@ -598,7 +628,7 @@ bool dragon::SurfaceBarrier::Variables::set(const midas::Database* db)
   /*!
 	 * \param [in] db Pointer to a constructed database.
 	 */
-	bool success = db && !db->IsZombie();
+	bool success = check_db(db, "dragon::SurfaceBarrier");
 
 	if(success) success = db->ReadArray("/dragon/sb/variables/adc/module",   adc.module,   MAX_CHANNELS);
 	if(success) success = db->ReadArray("/dragon/sb/variables/adc/channel",  adc.channel,  MAX_CHANNELS);
@@ -671,7 +701,7 @@ bool dragon::NaI::Variables::set(const midas::Database* db)
   /*!
 	 * \param [in] db Pointer to a constructed database.
 	 */
-	bool success = db && !db->IsZombie();
+	bool success = check_db(db, "dragon::NaI");
 
 	if(success) success = db->ReadArray("/dragon/nai/variables/adc/module",   adc.module,   MAX_CHANNELS);
 	if(success) success = db->ReadArray("/dragon/nai/variables/adc/channel",  adc.channel,  MAX_CHANNELS);
@@ -747,7 +777,7 @@ bool dragon::Ge::Variables::set(const midas::Database*db)
 	/*!
 	 * \param [in] db Pointer to a constructed database.
 	 */
-	bool success = db && !db->IsZombie();
+	bool success = check_db(db, "dragon::Ge");
 
 	if(success) success = db->ReadValue("/dragon/ge/variables/adc/module",   adc.module);
 	if(success) success = db->ReadValue("/dragon/ge/variables/adc/channel",  adc.channel);
@@ -839,7 +869,7 @@ bool dragon::Head::set_variables(const midas::Database* db)
 	/*!
 	 * \param [in] odb_file Pointer to the database from which to read the variables.
 	 */
-	bool success = db && !db->IsZombie();
+	bool success = check_db(db, "dragon::Head::set_variables");
 
 	if(success) success = bgo.variables.set(db);
 	if(success) success = this->variables.set(db);
@@ -921,7 +951,7 @@ bool dragon::Head::Variables::set(const midas::Database* db)
 	/*!
 	 * \param [in] db Pointer to a constructed database.
 	 */
-	bool success = db && !db->IsZombie();
+	bool success = check_db(db, "dragon::Head");
 
 	if(success) success = db->ReadValue("/dragon/head/variables/xtdc/channel", xtdc.channel);
 	if(success) success = db->ReadValue("/dragon/head/variables/xtdc/slope",   xtdc.slope);
@@ -1067,7 +1097,7 @@ bool dragon::Tail::set_variables(const midas::Database* db)
 	/*!
 	 * \param [in] Pointer to a constructed database.
 	 */
-	bool success = db && !db->IsZombie();
+	bool success = check_db(db, "dragon::Tail::set_variables");
 
 #ifndef DRAGON_OMIT_DSSSD
 	if(success) success = dsssd.variables.set(db);
@@ -1121,7 +1151,7 @@ bool dragon::Tail::Variables::set(const midas::Database* db)
 	/*!
 	 * \param [in] db Pointer to a constructed database.
 	 */
-	bool success = db && !db->IsZombie();
+	bool success = check_db(db, "dragon::Tail");
 
 	if(success) success = db->ReadValue("/dragon/tail/variables/xtdc/channel", xtdc.channel);
 	if(success) success = db->ReadValue("/dragon/tail/variables/xtdc/slope",   xtdc.slope);
@@ -1251,7 +1281,7 @@ bool dragon::Scaler::Variables::set(const char* dbfile)
 
 bool dragon::Scaler::Variables::set(const midas::Database* db)
 {
-	bool success = db && !db->IsZombie();
+	bool success = check_db(db, "dragon::Scaler");
 
 	if(success) success = db->ReadArray((odb_path + "/names").c_str(), names, MAX_CHANNELS);
 
@@ -1311,7 +1341,7 @@ bool dragon::Coinc::set_variables(const midas::Database* db)
 	/*!
 	 * \param [in] db Pointer to a constructed database from which to read the variables.
 	 */
-	bool success = db && !db->IsZombie();
+	bool success = check_db(db, "dragon::Coinc::set_varibles");
 	if(success) success = head.set_variables(db);
 	if(success) success = tail.set_variables(db);
 	if(success) success = variables.set(db);
@@ -1377,7 +1407,7 @@ bool dragon::Coinc::Variables::set(const char* dbfile)
 
 bool dragon::Coinc::Variables::set(const midas::Database* db)
 {
-	bool success = db && !db->IsZombie();
+	bool success = check_db(db, "dragon::Coinc");
 
 	if(success) success = db->ReadValue("/dragon/coinc/variables/window", window);
 	if(success) success = db->ReadValue("/dragon/coinc/variables/buffer_time", buffer_time);
