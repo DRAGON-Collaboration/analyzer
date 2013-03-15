@@ -346,13 +346,12 @@ int main(int argc, char** argv)
 		<< "\nConverting MIDAS file\n\t\'" << options.fIn << "\'\n"
 		<< "into ROOT file\n\t\'" << out.Data() << "\'\n";
 
-	TFile fout (out.Data(), "RECREATE");
+	TFile fout (out.Data(), "RECREATE", ftitle.c_str());
 	if (fout.IsZombie()) {
 		m2r::cerr << "Error: Couldn't open the file \'" << out.Data()
 							<< "\' for writing.\n\n";
 		return 1;
 	}
-	fout.SetTitle(ftitle.c_str());
 	
 	//
 	// Create TTrees, set branches, etc.
@@ -424,9 +423,20 @@ int main(int argc, char** argv)
 	dragon::utils::Unpacker
 		unpack (&head, &tail, &coinc, &head_scaler, &tail_scaler, &runpar, &tsdiag, singlesMode);
 	
-	///\todo User settable coinc window and queue times
-	// unpack.SetCoincWindow(...);
-	// unpack.SetQueueTime(...)
+	//
+	// Set coincidence variables
+	bool coincSuccess;
+	double coincWindow, queueTime;
+	{
+		midas::Database db (options.fOdb.c_str());
+		coincSuccess = db.ReadValue("/dragon/coinc/variables/window", coincWindow);
+		if (coincSuccess)
+			coincSuccess = db.ReadValue("/dragon/coinc/variables/buffer_time", queueTime);
+	}
+	if (coincSuccess) {
+		unpack.SetCoincWindow(coincWindow);
+		unpack.SetQueueTime(queueTime);
+	}
 
 	m2r::cout
 		<< "\nUnpacker parameters: coincidence window = " << unpack.GetCoincWindow() << " usec., "

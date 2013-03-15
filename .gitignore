@@ -29,3 +29,4 @@ lib/*.dsym
 lib/.*
 .nfs*
 bin
+test.xml
