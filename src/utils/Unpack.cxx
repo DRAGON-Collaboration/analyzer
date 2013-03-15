@@ -48,6 +48,12 @@ void dutils::Unpacker::FlushQueue(int flushTime)
 	fQueue->Flush(flushTime, fDiag);
 }
 
+size_t dutils::Unpacker::FlushQueueIterative()
+{
+	/// \returns The size of the queue after removing the front event
+	return fQueue->FlushIterative(fDiag);
+}
+
 void dutils::Unpacker::HandleBor(const char* dbname)
 {
 	/// - Reset head, tail scalers; run parameters; and timestamp diagnostics.

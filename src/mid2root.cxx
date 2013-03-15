@@ -27,7 +27,7 @@
 namespace {
 bool arg_return = false;
 const char* const msg_use = 
-	"usage: mid2root <input file> [-o <output file>] [-v <xml odb>] [--overwrite] [--quiet <n>] [--help]\n";
+	"usage: mid2root <input file> [-o <output file>] [-v <xml odb>] [--singles] [--overwrite] [--quiet <n>] [--help]\n";
 }
 
 //
@@ -106,7 +106,8 @@ struct Options_t {
 	std::string fOut;
 	std::string fOdb;
 	bool fOverwrite;
-	Options_t(): fOverwrite(false) {}
+	bool fSingles;
+	Options_t(): fOverwrite(false), fSingles(false) {}
 };
 
 
@@ -166,6 +167,10 @@ int help()
 		"\t                  ODB dump of the input MIDAS file (i.e. variables will reflect the state of the ODB\n"
 		"\t                  when the run was taken).\n"
 		"\n"
+		"\t--singles:        Unpack in singles mode. This means that every head and tail event is analyzed as a singles\n"
+		"                    event only. In this mode, the buffering in a queue and timestamp matching routines are\n"
+		"                    skipped completely.\n"
+		"\n"
 		"\t--overwrite:      Overwrite any existing output files without asking the user.\n"
 		"\n"
 		"\t--quiet <n>:      Suppress program output messages. Followed by a numeral specifying the level of\n"
@@ -213,6 +218,9 @@ int process_args(int argc, char** argv, Options_t* options)
 		else if (*iarg == "-v") { // Variables file
 			if (++iarg == args.end()) return usage("variables file not specified");
 			options->fOdb = *iarg;
+		}
+		else if (*iarg == "--singles") { // Singles mode
+			options->fSingles = true;
 		}
 		else if (*iarg == "--overwrite") { // Overwrite flag
 			options->fOverwrite = true;
@@ -414,33 +422,40 @@ int main(int argc, char** argv)
 	TTree* trees[nIds];
 	for(int i=0; i< nIds; ++i) {
 		char buf[256];
-		sprintf (buf, "t%d", i); // n.b. TTree cleanup handled by TFile destructor
+		sprintf (buf, "t%d", eventIds[i]); // n.b. TTree cleanup handled by TFile destructor
 		trees[i] = new TTree(buf, eventTitles[i].c_str());
 		trees[i]->Branch(branchNames[i].c_str(), classNames[i].c_str(), &(addr[i]));
 	}
 
-	bool singlesMode = false; ///\todo User-settable singles mode
 	dragon::utils::Unpacker
-		unpack (&head, &tail, &coinc, &head_scaler, &tail_scaler, &runpar, &tsdiag, singlesMode);
+		unpack (&head, &tail, &coinc, &head_scaler, &tail_scaler, &runpar, &tsdiag, options.fSingles);
 	
 	//
 	// Set coincidence variables
-	bool coincSuccess;
-	double coincWindow, queueTime;
-	{
-		midas::Database db (options.fOdb.c_str());
-		coincSuccess = db.ReadValue("/dragon/coinc/variables/window", coincWindow);
-		if (coincSuccess)
-			coincSuccess = db.ReadValue("/dragon/coinc/variables/buffer_time", queueTime);
+	if(!options.fSingles) {
+		bool coincSuccess;
+		double coincWindow, queueTime;
+		{
+			midas::Database db (options.fOdb.c_str());
+			coincSuccess = db.ReadValue("/dragon/coinc/variables/window", coincWindow);
+			if (coincSuccess)
+				coincSuccess = db.ReadValue("/dragon/coinc/variables/buffer_time", queueTime);
+		}
+		if (coincSuccess) {
+			unpack.SetCoincWindow(coincWindow);
+			unpack.SetQueueTime(queueTime);
+		}
+		m2r::cout
+			<< "\nUnpacker parameters: coincidence window = " << unpack.GetCoincWindow() << " usec., "
+			<< "queue time = " << unpack.GetQueueTime() << " sec.\n\n";
 	}
-	if (coincSuccess) {
-		unpack.SetCoincWindow(coincWindow);
-		unpack.SetQueueTime(queueTime);
+	else {
+		m2r::cout << "\nRunning in singles mode.\n\n";
 	}
-
-	m2r::cout
-		<< "\nUnpacker parameters: coincidence window = " << unpack.GetCoincWindow() << " usec., "
-		<< "queue time = " << unpack.GetQueueTime() << " sec.\n\n";
+	
+	//
+	// Begin-of-run initialization
+	unpack.HandleBor(options.fOdb.c_str());
 
 	//
 	// Loop over events in the midas file
@@ -453,7 +468,7 @@ int main(int argc, char** argv)
 		if (!success) break;
 
 		//
-		// Unpack into out classes
+		// Unpack into our classes
 		std::vector<Int_t> which =
 			unpack.UnpackMidasEvent(temp.GetEventHeader(), temp.GetData());
 
@@ -465,24 +480,39 @@ int main(int argc, char** argv)
 			if(it != which.end())
 				trees[i]->Fill();
 		}
-		// if(!nnn) std::cout << "Events: \n";
-		// else if (nnn%1000) std::cout << nnn << " "; std::flush(std::cout);
-		// ++nnn;
 		m2r::static_counter (nnn++, 1000, false);
 	} // while (1) {
 
 	m2r::static_counter (nnn, 1000, true);
+
+	if(!options.fSingles) { // Flush the queue
+		size_t qsize;
+		while (1) {
+			qsize = unpack.FlushQueueIterative(); // Fills classes implicitly
+			if (qsize == 0) break;
+			
+			// Explicitly fill TTrees
+			std::vector<Int_t> which = unpack.GetUnpackedCodes();
+			for (int i=0; i< nIds; ++i) {
+				std::vector<Int_t>::iterator it =
+					std::find(which.begin(), which.end(), eventIds[i]);
+				if(it != which.end())
+					trees[i]->Fill();
+			}			
+		} 
+	}
+
 	m2r::cout << "\nDone!\n\n";
 
 	//
 	// Write file, cleanup
 	for (int i=0; i< nIds; ++i) {
-		trees[i]->Write();
+		trees[i]->Write(); ///todo Finally figure out how the AutoSave / Write stuff works...
 		trees[i]->ResetBranchAddresses();
 	}
+	///\todo Figure out how to write XML variables into the TFile.
 	fout.Close();
 }
-
 
 
 

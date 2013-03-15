@@ -40,7 +40,10 @@ public:
 	~Unpacker();
 	///
 	/// Flush the timestamp queue
-	void FlushQueue(int flushTime = 60);
+	void FlushQueue(int flushTime = -1);
+	///
+	/// Flush the timestamp queue, for only a single event
+	size_t FlushQueueIterative();
 	///
 	/// Returns true if we are in singles mode
 	bool IsSinglesMode() const;
@@ -73,7 +76,7 @@ public:
 	void SetCoincWindow(double window);
 	///
 	/// Put the unpacker in singles mode
-	void SetSinglesMode(int qFlush = 60);
+	void SetSinglesMode(int qFlush = -1);
 	///
 	/// Set the queue buffering time
 	void SetQueueTime(double t);
@@ -163,8 +166,9 @@ inline void dragon::utils::Unpacker::SetSinglesMode(int qFlush)
 	/// Any incoming events after this call are processed as singles only.
 	/// If there are events in the queue, they are first flushed.
 	/// \param qFlush Maximum flush time for events in the queue. Specifying a
-	///  value <= 0 skips flushing entirely and throws away any events in the queue.
-	if(qFlush > 0) FlushQueue(qFlush);
+	///  0 skips flushing entirely and throws away any events in the queue. Negative
+	///  numbers cause the entire queue to be flushed.
+	if(qFlush) FlushQueue(qFlush);
 	fQueue.reset(0);
 }
 
