@@ -36,22 +36,30 @@ void dragon::utils::Banks::Set(dragon::utils::Banks::Name_t bkName, const char* 
 	}
 }
 
-void dragon::utils::Banks::OdbSet(dragon::utils::Banks::Name_t bkName, midas::Database& odb, const char* path)
+bool dragon::utils::Banks::OdbSet(dragon::utils::Banks::Name_t bkName, const midas::Database& odb, const char* path)
 {
 	std::string temp;
-	odb.ReadValue(path, temp);
-	dragon::utils::Banks::Set(bkName, temp.c_str());
+	bool success = !odb.IsZombie();
+	if(success) success = odb.ReadValue(path, temp);
+	if(success) dragon::utils::Banks::Set(bkName, temp.c_str());
+	
+	return success;
 }
 
-void dragon::utils::Banks::OdbSetArray(dragon::utils::Banks::Name_t* bkName, int length, midas::Database& odb, const char* path)
+bool dragon::utils::Banks::OdbSetArray(dragon::utils::Banks::Name_t* bkName, int length,
+																			 const midas::Database& odb, const char* path)
 {
-	// template <typename T> int ReadArray(const char* path, T* array, int length) const
-
 	std::vector<std::string> temp(length);
-	odb.ReadArray(path, &temp[0], length);
-	for(int i=0; i< length; ++i) {
-		dragon::utils::Banks::Set(bkName[i], temp[i].c_str());
+	bool success = !odb.IsZombie();
+
+	if(success) success = odb.ReadArray(path, &temp[0], length);
+	if(success) {
+		for(int i=0; i< length; ++i) {
+			dragon::utils::Banks::Set(bkName[i], temp[i].c_str());
+		}
 	}
+
+	return success;
 }
 
 		

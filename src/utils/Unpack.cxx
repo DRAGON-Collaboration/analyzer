@@ -110,7 +110,7 @@ void dutils::Unpacker::UnpackTailScaler(const midas::Event& event)
 
 void dutils::Unpacker::UnpackRunParameters(const midas::Database& db)
 {
-	fRunpar->read_data(db); /// - Calculate run parameters from an ODB dump event
+	fRunpar->read_data(&db); /// - Calculate run parameters from an ODB dump event
 	fUnpacked.push_back(DRAGON_RUN_PARAMETERS);
 }
 

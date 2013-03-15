@@ -19,6 +19,41 @@ int gErrorIgnoreLevel; // Global error ignore
 #endif
 
 
+namespace {
+// 
+// Helper function for ::variables::set(const char*)
+template <class T>
+bool do_setv(T* t, const char* dbfile)
+{
+	midas::Database db(dbfile);
+	if(db.IsZombie()) return false;
+	return t->set(&db);
+}
+//
+// Special function implementations for classes whose method is "set_variables"
+template <>
+bool do_setv(dragon::Head* t, const char* dbfile)
+{
+	midas::Database db(dbfile);
+	if(db.IsZombie()) return false;
+	return t->set_variables(&db);	
+}
+template <>
+bool do_setv(dragon::Tail* t, const char* dbfile)
+{
+	midas::Database db(dbfile);
+	if(db.IsZombie()) return false;
+	return t->set_variables(&db);	
+}
+template <>
+bool do_setv(dragon::Coinc* t, const char* dbfile)
+{
+	midas::Database db(dbfile);
+	if(db.IsZombie()) return false;
+	return t->set_variables(&db);	
+}
+}
+
 
 // ==================== Class dragon::RunParameters ==================== //
 
@@ -35,22 +70,24 @@ void dragon::RunParameters::reset()
 	}
 }
 
-void dragon::RunParameters::read_data(const midas::Database& db)
+bool dragon::RunParameters::read_data(const midas::Database* db)
 {
-	if(db.IsZombie()) {
+	if(db == 0 || db->IsZombie()) {
 		utils::err::Error("dragon::RunParameters::read_data") << "Zombie database";
-		return;
+		return false;
 	}
 
 	bool success;
-	success = db.ReadArray("/Experiment/Run Parameters/TSC_RunStart", run_start, MAX_FRONTENDS);
-	success = db.ReadArray("/Experiment/Run Parameters/TSC_RunStop", run_stop, MAX_FRONTENDS);
-	success = db.ReadArray("/Experiment/Run Parameters/TSC_TriggerStart", trigger_start, MAX_FRONTENDS);
-	success = db.ReadArray("/Experiment/Run Parameters/TSC_TriggerStop", trigger_stop, MAX_FRONTENDS);
+	if(success) success = db->ReadArray("/Experiment/Run Parameters/TSC_RunStart", run_start, MAX_FRONTENDS);
+	if(success) success = db->ReadArray("/Experiment/Run Parameters/TSC_RunStop", run_stop, MAX_FRONTENDS);
+	if(success) success = db->ReadArray("/Experiment/Run Parameters/TSC_TriggerStart", trigger_start, MAX_FRONTENDS);
+	if(success) success = db->ReadArray("/Experiment/Run Parameters/TSC_TriggerStop", trigger_stop, MAX_FRONTENDS);
 
 	if(!success) {
 		utils::err::Error("dragon::RunParameters::read_data") << "Failed reading one of the ODB parameters.";
 	}
+
+	return success;
 }
 
 
@@ -138,26 +175,35 @@ void dragon::Bgo::Variables::reset()
 	}
 }
 
-void dragon::Bgo::Variables::set(const char* odb)
+bool dragon::Bgo::Variables::set(const char* dbfile)
 {
 	/*!
-	 * \param [in] odb_file Path of the odb file from which you are extracting variable values
+	 * \param [in] dbfile Path of the XML file from which you are extracting variable values
 	 */
-	midas::Database database(odb);
-	if(database.IsZombie()) return;
+	return do_setv(this, dbfile);
+}
 
-	database.ReadArray("/dragon/bgo/variables/adc/channel",  adc.channel,  MAX_CHANNELS);
-	database.ReadArray("/dragon/bgo/variables/adc/pedestal", adc.pedestal, MAX_CHANNELS);
-	database.ReadArray("/dragon/bgo/variables/adc/slope",    adc.slope,    MAX_CHANNELS);
-	database.ReadArray("/dragon/bgo/variables/adc/offset",   adc.offset,   MAX_CHANNELS);
+bool dragon::Bgo::Variables::set(const midas::Database* db)
+{
+	/*!
+	 * \param [in] Pointer to a constructed database.
+	 */
+	bool success = db && !db->IsZombie();
 
-	database.ReadArray("/dragon/bgo/variables/tdc/channel", tdc.channel, MAX_CHANNELS);
-	database.ReadArray("/dragon/bgo/variables/tdc/slope",   tdc.slope,   MAX_CHANNELS);
-	database.ReadArray("/dragon/bgo/variables/tdc/offset",  tdc.offset,  MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/bgo/variables/adc/channel",  adc.channel,  MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/bgo/variables/adc/pedestal", adc.pedestal, MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/bgo/variables/adc/slope",    adc.slope,    MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/bgo/variables/adc/offset",   adc.offset,   MAX_CHANNELS);
 
-	database.ReadArray("/dragon/bgo/variables/position/x",  pos.x, MAX_CHANNELS);
-	database.ReadArray("/dragon/bgo/variables/position/y",  pos.y, MAX_CHANNELS);
-	database.ReadArray("/dragon/bgo/variables/position/z",  pos.z, MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/bgo/variables/tdc/channel", tdc.channel, MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/bgo/variables/tdc/slope",   tdc.slope,   MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/bgo/variables/tdc/offset",  tdc.offset,  MAX_CHANNELS);
+
+	if(success) success = db->ReadArray("/dragon/bgo/variables/position/x",  pos.x, MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/bgo/variables/position/y",  pos.y, MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/bgo/variables/position/z",  pos.z, MAX_CHANNELS);
+
+	return success;
 }
 
 
@@ -236,23 +282,32 @@ void dragon::Dsssd::Variables::reset()
 	tdc.offset  = 0.;
 }
 
-void dragon::Dsssd::Variables::set(const char* odb)
+bool dragon::Dsssd::Variables::set(const char* dbfile)
 {
 	/*!
-	 * \param [in] odb_file Path of the odb file from which you are extracting variable values
+	 * \param [in] dbfile Path of the odb file from which you are extracting variable values
 	 */
-	midas::Database database(odb);
-	if(database.IsZombie()) return;
+	return do_setv(this, dbfile);
+}
 
-	database.ReadArray("/dragon/dsssd/variables/adc/module",   adc.module,   MAX_CHANNELS);
-	database.ReadArray("/dragon/dsssd/variables/adc/channel",  adc.channel,  MAX_CHANNELS);
-	database.ReadArray("/dragon/dsssd/variables/adc/pedestal", adc.pedestal, MAX_CHANNELS);
-	database.ReadArray("/dragon/dsssd/variables/adc/slope",    adc.slope,    MAX_CHANNELS);
-	database.ReadArray("/dragon/dsssd/variables/adc/offset",   adc.offset,   MAX_CHANNELS);
+bool dragon::Dsssd::Variables::set(const midas::Database* db)
+{
+	/*!
+	 * \param [in] Pointer to a constructed database.
+	 */
+	bool success = db && !db->IsZombie();
 
-	database.ReadValue("/dragon/dsssd/variables/tdc/channel", tdc.channel);
-	database.ReadValue("/dragon/dsssd/variables/tdc/slope",   tdc.slope);
-	database.ReadValue("/dragon/dsssd/variables/tdc/offset",  tdc.offset);
+	if(success) success = db->ReadArray("/dragon/dsssd/variables/adc/module",   adc.module,   MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/dsssd/variables/adc/channel",  adc.channel,  MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/dsssd/variables/adc/pedestal", adc.pedestal, MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/dsssd/variables/adc/slope",    adc.slope,    MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/dsssd/variables/adc/offset",   adc.offset,   MAX_CHANNELS);
+
+	if(success) success = db->ReadValue("/dragon/dsssd/variables/tdc/channel", tdc.channel);
+	if(success) success = db->ReadValue("/dragon/dsssd/variables/tdc/slope",   tdc.slope);
+	if(success) success = db->ReadValue("/dragon/dsssd/variables/tdc/offset",  tdc.offset);
+
+	return success;
 }
 
 
@@ -319,23 +374,32 @@ void dragon::IonChamber::Variables::reset()
 	tdc.slope = 1.;
 }
 
-void dragon::IonChamber::Variables::set(const char* odb)
+bool dragon::IonChamber::Variables::set(const char* dbfile)
 {
 	/*!
-	 * \param [in] odb_file Path of the odb file from which you are extracting variable values
+	 * \param [in] dbfile Path of the odb file from which you are extracting variable values
 	 */
-	midas::Database database(odb);
-	if(database.IsZombie()) return;
+	return do_setv(this, dbfile);
+}
 
-	database.ReadArray("/dragon/ic/variables/adc/module",   adc.module,   MAX_CHANNELS);
-	database.ReadArray("/dragon/ic/variables/adc/channel",  adc.channel,  MAX_CHANNELS);
-	database.ReadArray("/dragon/ic/variables/adc/pedestal", adc.pedestal, MAX_CHANNELS);
-	database.ReadArray("/dragon/ic/variables/adc/slope",    adc.slope,    MAX_CHANNELS);
-	database.ReadArray("/dragon/ic/variables/adc/offset",   adc.offset,   MAX_CHANNELS);
+bool dragon::IonChamber::Variables::set(const midas::Database* db)
+{
+	/*!
+	 * \param [in] db Pointer to a constructed database.
+	 */
+	bool success = db && !db->IsZombie();
 
-	database.ReadValue("/dragon/ic/variables/tdc/channel",  tdc.channel);
-	database.ReadValue("/dragon/ic/variables/tdc/slope",    tdc.slope);
-	database.ReadValue("/dragon/ic/variables/tdc/offset",   tdc.offset);
+	if(success) success = db->ReadArray("/dragon/ic/variables/adc/module",   adc.module,   MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/ic/variables/adc/channel",  adc.channel,  MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/ic/variables/adc/pedestal", adc.pedestal, MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/ic/variables/adc/slope",    adc.slope,    MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/ic/variables/adc/offset",   adc.offset,   MAX_CHANNELS);
+
+	if(success) success = db->ReadValue("/dragon/ic/variables/tdc/channel",  tdc.channel);
+	if(success) success = db->ReadValue("/dragon/ic/variables/tdc/slope",    tdc.slope);
+	if(success) success = db->ReadValue("/dragon/ic/variables/tdc/offset",   tdc.offset);
+
+	return success;
 }
 
 
@@ -432,29 +496,38 @@ void dragon::Mcp::Variables::reset()
 	std::fill(tdc.slope, tdc.slope + NUM_DETECTORS, 1.);
 }
 
-void dragon::Mcp::Variables::set(const char* odb)
+bool dragon::Mcp::Variables::set(const char* dbfile)
 {
 	/*!
-	 * \param [in] odb_file Path of the odb file from which you are extracting variable values
+	 * \param [in] dbfile Path of the odb file from which you are extracting variable values
 	 */
-	midas::Database database(odb);
-	if(database.IsZombie()) return;
+	return do_setv(this, dbfile);
+}
 
-	database.ReadArray("/dragon/mcp/variables/adc/channel",  adc.channel,  MAX_CHANNELS);
-	database.ReadArray("/dragon/mcp/variables/adc/module",   adc.module,   MAX_CHANNELS);
-	database.ReadArray("/dragon/mcp/variables/adc/pedestal", adc.pedestal, MAX_CHANNELS);
-	database.ReadArray("/dragon/mcp/variables/adc/slope",    adc.slope,    MAX_CHANNELS);
-	database.ReadArray("/dragon/mcp/variables/adc/offset",   adc.offset,   MAX_CHANNELS);
+bool dragon::Mcp::Variables::set(const midas::Database* db)
+{
+	/*!
+	 * \param [in] db Pointer to a constructed database.
+	 */
+	bool success = db && !db->IsZombie();
 
-	database.ReadValue("/dragon/mcp/variables/tac_adc/channel",  tac_adc.channel);
-	database.ReadValue("/dragon/mcp/variables/tac_adc/module",   tac_adc.module);
-	database.ReadValue("/dragon/mcp/variables/tac_adc/pedestal", tac_adc.pedestal);
-	database.ReadValue("/dragon/mcp/variables/tac_adc/slope",    tac_adc.slope);
-	database.ReadValue("/dragon/mcp/variables/tac_adc/offset",   tac_adc.offset);
+	if(success) success = db->ReadArray("/dragon/mcp/variables/adc/channel",  adc.channel,  MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/mcp/variables/adc/module",   adc.module,   MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/mcp/variables/adc/pedestal", adc.pedestal, MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/mcp/variables/adc/slope",    adc.slope,    MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/mcp/variables/adc/offset",   adc.offset,   MAX_CHANNELS);
+
+	if(success) success = db->ReadValue("/dragon/mcp/variables/tac_adc/channel",  tac_adc.channel);
+	if(success) success = db->ReadValue("/dragon/mcp/variables/tac_adc/module",   tac_adc.module);
+	if(success) success = db->ReadValue("/dragon/mcp/variables/tac_adc/pedestal", tac_adc.pedestal);
+	if(success) success = db->ReadValue("/dragon/mcp/variables/tac_adc/slope",    tac_adc.slope);
+	if(success) success = db->ReadValue("/dragon/mcp/variables/tac_adc/offset",   tac_adc.offset);
 	
-	database.ReadArray("/dragon/mcp/variables/tdc/channel", tdc.channel, NUM_DETECTORS);
-	database.ReadArray("/dragon/mcp/variables/tdc/slope",   tdc.slope,   NUM_DETECTORS);
-	database.ReadArray("/dragon/mcp/variables/tdc/offset",  tdc.offset,  NUM_DETECTORS);
+	if(success) success = db->ReadArray("/dragon/mcp/variables/tdc/channel", tdc.channel, NUM_DETECTORS);
+	if(success) success = db->ReadArray("/dragon/mcp/variables/tdc/slope",   tdc.slope,   NUM_DETECTORS);
+	if(success) success = db->ReadArray("/dragon/mcp/variables/tdc/offset",  tdc.offset,  NUM_DETECTORS);
+
+	return success;
 }
 
 
@@ -512,19 +585,28 @@ void dragon::SurfaceBarrier::Variables::reset()
 	std::fill(adc.slope, adc.slope + MAX_CHANNELS, 1.);
 }
 
-void dragon::SurfaceBarrier::Variables::set(const char* odb)
-{
+bool dragon::SurfaceBarrier::Variables::set(const char* dbfile)
+{	
 	/*!
-	 * \param [in] odb_file Path of the odb file from which you are extracting variable values
+	 * \param [in] dbfile Path of the odb file from which you are extracting variable values
 	 */
-	midas::Database database(odb);
-	if(database.IsZombie()) return;
+	return do_setv(this, dbfile);
+}
 
-	database.ReadArray("/dragon/sb/variables/adc/module",   adc.module,   MAX_CHANNELS);
-	database.ReadArray("/dragon/sb/variables/adc/channel",  adc.channel,  MAX_CHANNELS);
-	database.ReadArray("/dragon/sb/variables/adc/pedestal", adc.pedestal, MAX_CHANNELS);
-	database.ReadArray("/dragon/sb/variables/adc/slope",    adc.slope,    MAX_CHANNELS);
-	database.ReadArray("/dragon/sb/variables/adc/offset",   adc.offset,   MAX_CHANNELS);
+bool dragon::SurfaceBarrier::Variables::set(const midas::Database* db)
+{
+  /*!
+	 * \param [in] db Pointer to a constructed database.
+	 */
+	bool success = db && !db->IsZombie();
+
+	if(success) success = db->ReadArray("/dragon/sb/variables/adc/module",   adc.module,   MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/sb/variables/adc/channel",  adc.channel,  MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/sb/variables/adc/pedestal", adc.pedestal, MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/sb/variables/adc/slope",    adc.slope,    MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/sb/variables/adc/offset",   adc.offset,   MAX_CHANNELS);
+
+	return success;
 }
 
 
@@ -576,19 +658,28 @@ void dragon::NaI::Variables::reset()
 	std::fill(adc.slope, adc.slope + MAX_CHANNELS, 1.);
 }
 
-void dragon::NaI::Variables::set(const char* odb)
+bool dragon::NaI::Variables::set(const char* dbfile)
 {
 	/*!
-	 * \param [in] odb_file Path of the odb file from which you are extracting variable values
+	 * \param [in] dbfile Path of the odb file from which you are extracting variable values
 	 */
-	midas::Database database(odb);
-	if(database.IsZombie()) return;
+	return do_setv(this, dbfile);
+}
 
-	database.ReadArray("/dragon/nai/variables/adc/module",   adc.module,   MAX_CHANNELS);
-	database.ReadArray("/dragon/nai/variables/adc/channel",  adc.channel,  MAX_CHANNELS);
-	database.ReadArray("/dragon/nai/variables/adc/pedestal", adc.pedestal, MAX_CHANNELS);
-	database.ReadArray("/dragon/nai/variables/adc/slope",    adc.slope,    MAX_CHANNELS);
-	database.ReadArray("/dragon/nai/variables/adc/offset",   adc.offset,   MAX_CHANNELS);
+bool dragon::NaI::Variables::set(const midas::Database* db)
+{
+  /*!
+	 * \param [in] db Pointer to a constructed database.
+	 */
+	bool success = db && !db->IsZombie();
+
+	if(success) success = db->ReadArray("/dragon/nai/variables/adc/module",   adc.module,   MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/nai/variables/adc/channel",  adc.channel,  MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/nai/variables/adc/pedestal", adc.pedestal, MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/nai/variables/adc/slope",    adc.slope,    MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/nai/variables/adc/offset",   adc.offset,   MAX_CHANNELS);
+
+	return success;
 }
 
 
@@ -643,18 +734,28 @@ void dragon::Ge::Variables::reset()
 	adc.slope = 1.;
 }
 
-void dragon::Ge::Variables::set(const char* odb)
+bool dragon::Ge::Variables::set(const char* dbfile)
 {
 	/*!
-	 * \param [in] odb_file Path of the odb file from which you are extracting variable values
+	 * \param [in] dbfile Path of the odb file from which you are extracting variable values
 	 */
-	midas::Database database(odb);
+	return do_setv(this, dbfile);
+}
 
-	database.ReadValue("/dragon/ge/variables/adc/module",   adc.module);
-	database.ReadValue("/dragon/ge/variables/adc/channel",  adc.channel);
-	database.ReadValue("/dragon/ge/variables/adc/pedestal", adc.pedestal);
-	database.ReadValue("/dragon/ge/variables/adc/slope",    adc.slope);
-	database.ReadValue("/dragon/ge/variables/adc/offset",   adc.offset);
+bool dragon::Ge::Variables::set(const midas::Database*db)
+{
+	/*!
+	 * \param [in] db Pointer to a constructed database.
+	 */
+	bool success = db && !db->IsZombie();
+
+	if(success) success = db->ReadValue("/dragon/ge/variables/adc/module",   adc.module);
+	if(success) success = db->ReadValue("/dragon/ge/variables/adc/channel",  adc.channel);
+	if(success) success = db->ReadValue("/dragon/ge/variables/adc/pedestal", adc.pedestal);
+	if(success) success = db->ReadValue("/dragon/ge/variables/adc/slope",    adc.slope);
+	if(success) success = db->ReadValue("/dragon/ge/variables/adc/offset",   adc.offset);
+
+	return success;
 }
 
 
@@ -724,23 +825,32 @@ void dragon::Head::reset()
 	utils::reset_data(tcalx, tcal0);
 }
 
-void dragon::Head::set_variables(const char* odb)
+bool dragon::Head::set_variables(const char* dbfile)
 {
 	/*!
-	 * \param [in] odb_file Name of the ODB file
+	 * \param [in] dbfile Name of the XML database file
 	 * \note Passing \c "online" looks at the online ODB.
 	 */
-	bgo.variables.set(odb);
-	this->variables.set(odb);
+	return do_setv(this, dbfile);
+}
+
+bool dragon::Head::set_variables(const midas::Database* db)
+{
+	/*!
+	 * \param [in] odb_file Pointer to the database from which to read the variables.
+	 */
+	bool success = db && !db->IsZombie();
+
+	if(success) success = bgo.variables.set(db);
+	if(success) success = this->variables.set(db);
 
 	// Set bank names
-	midas::Database database(odb);
-	if(database.IsZombie()) return;
+	if(success) success = utils::Banks::OdbSet(banks.io32, *db, "dragon/head/bank_names/io32");
+	if(success) success = utils::Banks::OdbSet(banks.adc,  *db, "dragon/head/bank_names/adc");
+	if(success) success = utils::Banks::OdbSet(banks.tdc,  *db, "dragon/head/bank_names/tdc");
+	if(success) success = utils::Banks::OdbSet(banks.tsc,  *db, "dragon/head/bank_names/tsc");
 
-	utils::Banks::OdbSet(banks.io32, database, "dragon/head/bank_names/io32");
-	utils::Banks::OdbSet(banks.adc,  database, "dragon/head/bank_names/adc");
-	utils::Banks::OdbSet(banks.tdc,  database, "dragon/head/bank_names/tdc");
-	utils::Banks::OdbSet(banks.tsc,  database, "dragon/head/bank_names/tsc");
+	return success;
 }
 
 void dragon::Head::unpack(const midas::Event& event)
@@ -798,14 +908,26 @@ void dragon::Head::Variables::reset()
 	xtdc.offset = 0.;
 }
 
-void dragon::Head::Variables::set(const char* odb)
+bool dragon::Head::Variables::set(const char* dbfile)
 {
-	midas::Database database(odb);
-	if(database.IsZombie()) return;
+	/*!
+	 * \param [in] dbfile Name of the database file from which to read variables ("online" for the ODB).
+	 */
+	return do_setv(this, dbfile);
+}
 
-	database.ReadValue("/dragon/head/variables/xtdc/channel", xtdc.channel);
-	database.ReadValue("/dragon/head/variables/xtdc/slope",   xtdc.slope);
-	database.ReadValue("/dragon/head/variables/xtdc/offset",  xtdc.offset);
+bool dragon::Head::Variables::set(const midas::Database* db)
+{
+	/*!
+	 * \param [in] db Pointer to a constructed database.
+	 */
+	bool success = db && !db->IsZombie();
+
+	if(success) success = db->ReadValue("/dragon/head/variables/xtdc/channel", xtdc.channel);
+	if(success) success = db->ReadValue("/dragon/head/variables/xtdc/slope",   xtdc.slope);
+	if(success) success = db->ReadValue("/dragon/head/variables/xtdc/offset",  xtdc.offset);
+
+	return success;
 }
 
 
@@ -931,36 +1053,45 @@ void dragon::Tail::calculate()
 #endif
 }
 
-void dragon::Tail::set_variables(const char* odb)
+bool dragon::Tail::set_variables(const char* dbfile)
 {
 	/*!
-	 * \param [in] odb_file Name of the ODB file
+	 * \param [in] dbfile Name of the XML database file
 	 * \note Passing \c "online" looks at the online ODB.
 	 */
+	return do_setv(this, dbfile);
+}
+
+bool dragon::Tail::set_variables(const midas::Database* db)
+{
+	/*!
+	 * \param [in] Pointer to a constructed database.
+	 */
+	bool success = db && !db->IsZombie();
+
 #ifndef DRAGON_OMIT_DSSSD
-	dsssd.variables.set(odb);
+	if(success) success = dsssd.variables.set(db);
 #endif
 #ifndef DRAGON_OMIT_IC
-	ic.variables.set(odb);
+	if(success) success = ic.variables.set(db);
 #endif
-	mcp.variables.set(odb);
-	sb.variables.set(odb);
+	if(success) success = mcp.variables.set(db);
+	if(success) success = sb.variables.set(db);
 #ifndef DRAGON_OMIT_NAI
-	nai.variables.set(odb);
+	if(success) success = nai.variables.set(db);
 #endif
 #ifndef DRAGON_OMIT_GE
-	ge.variables.set(odb);
+	if(success) success = ge.variables.set(db);
 #endif
-	this->variables.set(odb);
-
+	if(success) success = this->variables.set(db);
+	
 	// Set bank names
-	midas::Database database(odb);
-	if(database.IsZombie()) return;
+	if(success) success = utils::Banks::OdbSet(banks.io32,*db, "dragon/tail/bank_names/io32");
+	if(success) success = utils::Banks::OdbSet(banks.tsc, *db, "dragon/tail/bank_names/tsc");
+	if(success) success = utils::Banks::OdbSet(banks.tdc, *db, "dragon/tail/bank_names/tdc");
+	if(success) success = utils::Banks::OdbSetArray(banks.adc, 2, *db, "dragon/tail/bank_names/adc");
 
-	utils::Banks::OdbSet(banks.io32,   database, "dragon/tail/bank_names/io32");
-	utils::Banks::OdbSetArray(banks.adc, 2, database, "dragon/tail/bank_names/adc");
-	utils::Banks::OdbSet(banks.tdc,    database, "dragon/tail/bank_names/tdc");
-	utils::Banks::OdbSet(banks.tsc,    database, "dragon/tail/bank_names/tsc");
+	return success;
 }
 
 // ================ Class dragon::Tail::Variables ================ //
@@ -977,14 +1108,26 @@ void dragon::Tail::Variables::reset()
 	xtdc.offset = 0.;
 }
 
-void dragon::Tail::Variables::set(const char* odb)
+bool dragon::Tail::Variables::set(const char* dbfile)
 {
-	midas::Database database(odb);
-	if(database.IsZombie()) return;
+	/*!
+	 * \param [in] dbfile Name of the database file from which to read variables ("online" for the ODB).
+	 */
+	return do_setv(this, dbfile);
+}
 
-	database.ReadValue("/dragon/tail/variables/xtdc/channel", xtdc.channel);
-	database.ReadValue("/dragon/tail/variables/xtdc/slope",   xtdc.slope);
-	database.ReadValue("/dragon/tail/variables/xtdc/offset",  xtdc.offset);
+bool dragon::Tail::Variables::set(const midas::Database* db)
+{
+	/*!
+	 * \param [in] db Pointer to a constructed database.
+	 */
+	bool success = db && !db->IsZombie();
+
+	if(success) success = db->ReadValue("/dragon/tail/variables/xtdc/channel", xtdc.channel);
+	if(success) success = db->ReadValue("/dragon/tail/variables/xtdc/slope",   xtdc.slope);
+	if(success) success = db->ReadValue("/dragon/tail/variables/xtdc/offset",  xtdc.offset);
+
+	return success;
 }
 
 
@@ -1005,12 +1148,20 @@ void dragon::Scaler::reset()
 	std::fill(rate, rate + MAX_CHANNELS, 0.);
 }
 
-void dragon::Scaler::set_variables(const char* odb)
+bool dragon::Scaler::set_variables(const char* dbfile)
 {
 	/*!
 	 * Delegates to dragon::Scaler::Variables::Set()
 	 */
-	variables.set(odb);
+	return variables.set(dbfile);
+}
+
+bool dragon::Scaler::set_variables(const midas::Database* db)
+{
+	/*!
+	 * Delegates to dragon::Scaler::Variables::Set()
+	 */
+	return variables.set(db);
 }
 
 namespace {
@@ -1090,28 +1241,25 @@ void dragon::Scaler::Variables::reset()
 	set_bank_names("SCH");
 }
 
-void dragon::Scaler::Variables::set(const char* odb)
+bool dragon::Scaler::Variables::set(const char* dbfile)
 {
-	midas::Database database(odb);
-	if(database.IsZombie()) {
-		utils::err::Error("Scaler::Variables::set")
-			<< "Zombie database" << DRAGON_ERR_FILE_LINE;
-		return;
-	}
+	/*!
+	 * \param [in] dbfile Name of the database file from which to read variables ("online" for the ODB).
+	 */
+	return do_setv(this, dbfile);
+}
 
-	database.ReadArray((odb_path + "/names").c_str(), names, MAX_CHANNELS);
+bool dragon::Scaler::Variables::set(const midas::Database* db)
+{
+	bool success = db && !db->IsZombie();
 
-	// std::string sCount, sSum, sRate;
-	// database.ReadValue((odb_path + "/bank_names/count").c_str(), sCount);
-	// database.ReadValue((odb_path + "/bank_names/rate").c_str(), sRate);
-	// database.ReadValue((odb_path + "/bank_names/sum").c_str(), sSum);
-	// utils::Banks::Set(bank_names.count, sCount.c_str());
-	// utils::Banks::Set(bank_names.rate,  sRate.c_str());
-	// utils::Banks::Set(bank_names.sum ,  sSum.c_str());
+	if(success) success = db->ReadArray((odb_path + "/names").c_str(), names, MAX_CHANNELS);
 
-	utils::Banks::OdbSet(bank_names.count, database, (odb_path + "/bank_names/count").c_str());
-	utils::Banks::OdbSet(bank_names.rate, database, (odb_path + "/bank_names/rate").c_str());
-	utils::Banks::OdbSet(bank_names.sum, database, (odb_path + "/bank_names/sum").c_str());
+	if(success) success = utils::Banks::OdbSet(bank_names.count, *db, (odb_path + "/bank_names/count").c_str());
+	if(success) success = utils::Banks::OdbSet(bank_names.rate, *db, (odb_path + "/bank_names/rate").c_str());
+	if(success) success = utils::Banks::OdbSet(bank_names.sum, *db, (odb_path + "/bank_names/sum").c_str());
+
+	return success;
 }
 
 void dragon::Scaler::Variables::set_bank_names(const char* base)
@@ -1149,15 +1297,26 @@ void dragon::Coinc::reset()
 	utils::reset_data(xtrig, xtofh, xtoft);
 }
 
-void dragon::Coinc::set_variables(const char* odb)
+bool dragon::Coinc::set_variables(const char* dbfile)
 {
 	/*!
-	 * \param [in] odb_file Name of the ODB file (*.xml or *.mid) from which to read
+	 * \param [in] dbfile Name of the ODB file (*.xml or *.mid) from which to read
 	 * \note Passing \c "online" looks at the experiment's ODB, if connected
 	 */
-	head.set_variables(odb);
-	tail.set_variables(odb);
-	variables.set(odb);
+	return do_setv(this, dbfile);
+}
+
+bool dragon::Coinc::set_variables(const midas::Database* db)
+{
+	/*!
+	 * \param [in] db Pointer to a constructed database from which to read the variables.
+	 */
+	bool success = db && !db->IsZombie();
+	if(success) success = head.set_variables(db);
+	if(success) success = tail.set_variables(db);
+	if(success) success = variables.set(db);
+
+	return success;
 }
 
 void dragon::Coinc::compose_event(const dragon::Head& head_, const dragon::Tail& tail_)
@@ -1208,11 +1367,20 @@ void dragon::Coinc::Variables::reset()
 	buffer_time = DRAGON_DEFAULT_COINC_BUFFER_TIME;
 }
 
-void dragon::Coinc::Variables::set(const char* odb)
+bool dragon::Coinc::Variables::set(const char* dbfile)
 {
-	midas::Database database(odb);
-	if(database.IsZombie()) return;
+	/*!
+	 * \param [in] dbfile Name of the database file from which to read variables ("online" for the ODB).
+	 */
+	return do_setv(this, dbfile);
+}
 
-	database.ReadValue("/dragon/coinc/variables/window", window);
-	database.ReadValue("/dragon/coinc/variables/buffer_time", buffer_time);
+bool dragon::Coinc::Variables::set(const midas::Database* db)
+{
+	bool success = db && !db->IsZombie();
+
+	if(success) success = db->ReadValue("/dragon/coinc/variables/window", window);
+	if(success) success = db->ReadValue("/dragon/coinc/variables/buffer_time", buffer_time);
+
+	return success;
 }

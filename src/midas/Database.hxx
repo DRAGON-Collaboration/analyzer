@@ -8,6 +8,13 @@
 #include "Odb.hxx"
 #include "Xml.hxx"
 
+#ifdef USE_ROOT
+#define DRAGON_DATABASE Database: public TObject
+#else
+#define DRAGON_DATABASE Database
+#endif
+
+
 namespace midas {
 
 /// Generic database reading class
@@ -18,7 +25,7 @@ namespace midas {
  * is either the path to a file containing XML data, or "online" to read
  * from the ODB.
  */
-class Database {
+class DRAGON_DATABASE {
 
 private:
 	/// Pointer to Xml reader (NULL if in 'online mode')
@@ -31,6 +38,10 @@ private:
 	bool fIsZombie;
 
 public:
+	/// Default constructor for ROOT I/O
+	Database (): fXml(0), fIsOnline(false), fIsZombie(false)
+		{ }
+
 	/// Determines online or offline mode
 	Database (const char* filename): fXml(0), fIsOnline(false), fIsZombie(false)
 		{
@@ -115,6 +126,10 @@ public:
 			}
 			else return 0;
 		}
+
+#ifdef USE_ROOT
+	ClassDef(midas::Database, 1);
+#endif
 };
 
 }
@@ -141,6 +156,7 @@ public:
 #pragma link C++ function midas::Database::ReadArray (const char*, ULong64_t*, int);
 #pragma link C++ function midas::Database::ReadArray (const char*, Float_t*, int);
 #pragma link C++ function midas::Database::ReadArray (const char*, Double_t*, int);
+
 #endif
 
 
