@@ -108,7 +108,7 @@ void dutils::Unpacker::UnpackRunParameters(const midas::Database& db)
 	fUnpacked.push_back(DRAGON_RUN_PARAMETERS);
 }
 
-void dutils::Unpacker::UnpackMidasEvent(void* header, char* data)
+std::vector<int32_t> dutils::Unpacker::UnpackMidasEvent(void* header, char* data)
 {
 	fUnpacked.clear();
 	midas::Event::Header* evtHeader = reinterpret_cast<midas::Event::Header*>(header);
@@ -157,19 +157,20 @@ void dutils::Unpacker::UnpackMidasEvent(void* header, char* data)
 			UnpackRunParameters(db);
 			break;
 		}
-	case MIDAS_EOR: ///  - End-of-run: read global parameters from the ODB
+	case MIDAS_EOR:
 		{
 			midas::Database db(data, evtHeader->fDataSize);
 			UnpackRunParameters(db);
 			break;
-			break;
 		}
-	default:        ///  - Warn about unknown event types
+	default:
 		{
 			dutils::err::Warning("UnpackBuffer") << "Unkonwn event ID: " << evtHeader->fEventId;
 			break;
 		}
 	}
+	/// \returns The result of GetUnpackedCodes() after this event
+	return fUnpacked;
 }
 
 

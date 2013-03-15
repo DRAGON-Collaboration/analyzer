@@ -8,6 +8,8 @@
 #ifdef USE_ROOT
 #include <vector>
 #include <string>
+#include <cassert>
+#include <algorithm>
 #include <iostream>
 #include <TTree.h>
 #include <TFile.h>
@@ -15,6 +17,9 @@
 #include <TString.h>
 #include <TSystem.h>
 #include "midas/libMidasInterface/TMidasFile.h"
+#include "midas/Database.hxx"
+#include "utils/definitions.h"
+#include "utils/Unpack.hxx"
 #include "Dragon.hxx"
 
 
@@ -46,9 +51,14 @@ public:
 	template <class T>
 	std::ostream& operator<< (const T& t)
 		{ return *pstrm << t; }
+	std::ostream& flush()
+		{ return std::flush(*pstrm); }
 private:
 	std::ostream* pstrm;
 };
+
+inline std::ostream& flush(strm_ref& strm)
+{ return strm.flush(); }
 
 strm_ref cout = std::cout;
 strm_ref cwar = std::cerr;
@@ -90,6 +100,7 @@ int GetQuietLevel()
 	return 0;
 }
 
+/// Program options
 struct Options_t {
 	std::string fIn;
 	std::string fOut;
@@ -97,6 +108,29 @@ struct Options_t {
 	bool fOverwrite;
 	Options_t(): fOverwrite(false) {}
 };
+
+
+/// Print in=place event counter
+void static_counter(Int_t n, Int_t nupdate = 1000, bool force = false)
+{
+	if(n == 0) {
+		m2r::cout << "Events converted: ";
+		m2r::flush(m2r::cout);
+	}
+	if(n % nupdate != 0 && !force) return;
+
+	static int nOut = 0;
+	std::stringstream out; out << n;
+	if(nOut) {
+		for(int i=0; i< nOut; ++i)
+			m2r::cout << "\b";
+	}
+	nOut = out.str().size();
+	m2r::cout << n;
+	m2r::flush(m2r::cout);
+}
+
+
 
 /// Print a usage message
 int usage(const char* what = 0)
@@ -265,25 +299,34 @@ int main(int argc, char** argv)
 		else outdir = ".";
 
 		gSystem->PrependPathName(outdir.Data(), out);
-	} // if (options.fOut.empty())
+	} // if (options.fOut.empty()) {
 
 	//
 	// Handle odb variables file
 	if (options.fOdb.empty()) {
-		options.fOdb = out.Data(); // No file specified, use ODB dump in midas file
+		options.fOdb = options.fIn; // No file specified, use ODB dump in midas file
 	}
 	else { // Check if it exists
 		FileStat_t dummy;
 		if(gSystem->GetPathInfo(options.fOdb.c_str(), dummy) != 0) { // no file
 			m2r::cerr
 				<< "Error: The specified variables file \'" << options.fOdb
-				<< "\' does not exist.\n";
+				<< "\' does not exist.\n\n";
 			return 1;
 		}
 	}
 
 	//
 	// Open output TFile
+	std::string ftitle;
+	{
+		midas::Database db(options.fOdb.c_str());
+		bool success = db.ReadValue("/Experiment/Run Parameters/Comment", ftitle);
+		if(!success) {
+			m2r::cerr << "Error: Invalid database file \"" << options.fOdb << "\".\n\n";
+			return 1;
+		}
+	}
 	if (options.fOverwrite == false) {
 		FileStat_t dummy;
 		if(gSystem->GetPathInfo(out.Data(), dummy) == 0) { // file exists
@@ -306,16 +349,131 @@ int main(int argc, char** argv)
 	TFile fout (out.Data(), "RECREATE");
 	if (fout.IsZombie()) {
 		m2r::cerr << "Error: Couldn't open the file \'" << out.Data()
-							<< "\' for writing.\n";
+							<< "\' for writing.\n\n";
 		return 1;
 	}
+	fout.SetTitle(ftitle.c_str());
 	
 	//
-	// Create TTrees
+	// Create TTrees, set branches, etc.
+	const int nIds = 7;
+
+	dragon::Head head;
+	dragon::Tail tail;
+	dragon::Coinc coinc;
+	dragon::Scaler head_scaler;
+	dragon::Scaler tail_scaler;
+	dragon::RunParameters runpar;
+	tstamp::Diagnostics tsdiag;
+
+	const int eventIds[nIds] = {
+		DRAGON_HEAD_EVENT,
+		DRAGON_HEAD_SCALER,
+		DRAGON_TAIL_EVENT,
+		DRAGON_TAIL_SCALER,
+		DRAGON_COINC_EVENT,
+		DRAGON_TSTAMP_DIAGNOSTICS,
+		DRAGON_RUN_PARAMETERS
+	};
+	const std::string eventTitles[nIds] = {
+		"Head singles event.",
+		"Head scaler event.",
+		"Tail singles event.",
+		"Tail scaler event.",
+		"Coincidence event.",
+		"Timestamp diagnostics.",
+		"Global run parameters."
+	};
+	void* addr[nIds] = {
+		&head,
+		&head_scaler,
+		&tail,
+		&tail_scaler,
+		&coinc,
+		&tsdiag,
+		&runpar
+	};
+	const std::string branchNames[nIds] = {
+		"gamma",
+		"sch",
+		"hi",
+		"sct",
+		"coinc",
+		"tsdiag",
+		"runpar"
+	};
+	const std::string classNames[nIds] = {
+		"dragon::Head",
+		"dragon::Scaler",
+		"dragon::Tail",
+		"dragon::Scaler",
+		"dragon::Coinc",
+		"tstamp::Diagnostics",
+		"dragon::RunParameters"
+	};
+
+	TTree* trees[nIds];
+	for(int i=0; i< nIds; ++i) {
+		char buf[256];
+		sprintf (buf, "t%d", i); // n.b. TTree cleanup handled by TFile destructor
+		trees[i] = new TTree(buf, eventTitles[i].c_str());
+		trees[i]->Branch(branchNames[i].c_str(), classNames[i].c_str(), &(addr[i]));
+	}
+
+	bool singlesMode = false; ///\todo User-settable singles mode
+	dragon::utils::Unpacker
+		unpack (&head, &tail, &coinc, &head_scaler, &tail_scaler, &runpar, &tsdiag, singlesMode);
 	
-	
-//	TTree* tree = new TTree 
+	///\todo User settable coinc window and queue times
+	// unpack.SetCoincWindow(...);
+	// unpack.SetQueueTime(...)
+
+	m2r::cout
+		<< "\nUnpacker parameters: coincidence window = " << unpack.GetCoincWindow() << " usec., "
+		<< "queue time = " << unpack.GetQueueTime() << " sec.\n\n";
+
+	//
+	// Loop over events in the midas file
+	int nnn = 0;
+	while (1) {
+		//
+		// Read event from MIDAS file
+		TMidasEvent temp;
+		bool success = fin.Read(&temp);
+		if (!success) break;
+
+		//
+		// Unpack into out classes
+		std::vector<Int_t> which =
+			unpack.UnpackMidasEvent(temp.GetEventHeader(), temp.GetData());
+
+		//
+		// Check which classes have data, fill trees for those that do
+		for (int i=0; i< nIds; ++i) {
+			std::vector<Int_t>::iterator it =
+				std::find(which.begin(), which.end(), eventIds[i]);
+			if(it != which.end())
+				trees[i]->Fill();
+		}
+		// if(!nnn) std::cout << "Events: \n";
+		// else if (nnn%1000) std::cout << nnn << " "; std::flush(std::cout);
+		// ++nnn;
+		m2r::static_counter (nnn++, 1000, false);
+	} // while (1) {
+
+	m2r::static_counter (nnn, 1000, true);
+	m2r::cout << "\nDone!\n\n";
+
+	//
+	// Write file, cleanup
+	for (int i=0; i< nIds; ++i) {
+		trees[i]->Write();
+		trees[i]->ResetBranchAddresses();
+	}
+	fout.Close();
 }
+
+
 
 
 #else // #ifdef USE_ROOT

@@ -620,6 +620,24 @@ public: // Subclass instances
 /// A complete Dragon (coincidence) event
 ///
 class Coinc {
+public: // Subclasses
+	///
+	/// Coinc variables
+	///
+	class Variables {
+ public: // Methods
+		/// Set data to global defaults
+		Variables();
+		/// Set data to global defaults
+		void reset();
+		/// Sets data from ODB
+		void set(const char* odb);
+ public: // Data
+		/// Coincidence time window [microseconds].
+		double window;
+		/// Time for which potential coincidence events are buffered [seconds].
+		double buffer_time;
+	};
 public: // Methods
 	/// Empty
 	Coinc();
@@ -647,6 +665,10 @@ public: // Data
 	double xtofh;
 	/// Crossover time-of-flight from the tail TDC
 	double xtoft;
+
+public: // Subclass instances
+	/// Variables instance
+	Variables variables; //!
 };
 
 

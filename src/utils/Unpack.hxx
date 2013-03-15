@@ -97,10 +97,10 @@ public:
 	void UnpackRunParameters(const midas::Database& db);
   ///
   /// Unpack a generic midas event (from full data buffer)
-  void UnpackMidasEvent(char* databuf);
+	std::vector<int32_t> UnpackMidasEvent(char* databuf);
 	///
 	/// Unpack a generic midas event (from header + data)
-	void UnpackMidasEvent(void* header, char* data);
+	std::vector<int32_t> UnpackMidasEvent(void* header, char* data);
 private:
 	/// Default queue time in seconds
 	static const int kQueueTimeDefault = 4;
@@ -179,7 +179,7 @@ inline void dragon::utils::Unpacker::SetCoincMode()
 		fQueue.reset(new tstamp::OwnedQueue<Unpacker>(kQueueTimeDefault*1e6, this));
 }
 
-inline void dragon::utils::Unpacker::UnpackMidasEvent(char* databuf)
+inline std::vector<int32_t> dragon::utils::Unpacker::UnpackMidasEvent(char* databuf)
 {
 	/// Forward all work to UnpackMidasEvent(void*, char*)
 	return UnpackMidasEvent(databuf, databuf + sizeof(midas::Event::Header));

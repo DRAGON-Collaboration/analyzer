@@ -1,7 +1,7 @@
 /*!
- * \file Channels.h
+ * \file Defaults.hxx
  * \author G. Christian
- * \brief Sets \e default channel mappings
+ * \brief Sets \e default channel mappings and other variables.
  * \details
  * \code
  *** Sketch of channel mappings ***
@@ -59,5 +59,43 @@ TDC
 #define HEAD_CROSS_TDC    31
 #define TAIL_CROSS_TDC    4
 
+
+#define DRAGON_DEFAULT_COINC_WINDOW        10 /** Coincidence window in usec */
+#define DRAGON_DEFAULT_COINC_BUFFER_TIME   4  /** Coincidence buffering time in sec */
+
+/** Bgo coordinates */
+#define BGO_COORDS		\
+	{										\
+		{ 4, -4.8,-15.3},	\
+		{ 0,-10.1,-12.2},	\
+		{ 4,  5.0,-12.2},	\
+		{ 0,  9.9, -9.2},	\
+		{ 0,  8.0, -3.1},	\
+		{ 0,  8.0,  3.1},	\
+		{ 0,  9.9,  9.2},	\
+		{ 0,-10.1, 12.2},	\
+		{ 0,  5.0, 12.2},	\
+		{ 0, -4.8, 15.3},	\
+		{-4, -2.6, -9.2},	\
+		{ 4, -2.6, -9.2},	\
+		{-4, -7.9, -6.1},	\
+		{ 4, -7.9, -6.1},	\
+		{-4,  2.7, -6.1},	\
+		{ 4,  2.7, -6.1},	\
+		{-4, -2.6, -3.1},	\
+		{ 4, -2.6, -3.1},	\
+		{-4, -7.9,    0},	\
+		{ 4, -7.9,    0},	\
+		{-4,  2.7,    0},	\
+		{ 4,  2.7,    0},	\
+		{-4, -2.6,  3.1},	\
+		{ 4, -2.6,  3.1},	\
+		{-4, -7.9,  6.1},	\
+		{ 4, -7.9,  6.1},	\
+		{-4,  2.7,  6.1},	\
+		{ 4,  2.7,  6.1},	\
+		{-4, -2.6,  9.2},	\
+		{ 4, -2.6,  9.2}	\
+	}
 
 #endif

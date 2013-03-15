@@ -10,7 +10,7 @@
 #include "utils/Valid.hxx"
 #include "utils/ErrorDragon.hxx"
 #include "utils/definitions.h"
-#include "Channels.h"
+#include "Defaults.hxx"
 #include "Dragon.hxx"
 
 
@@ -129,16 +129,8 @@ void dragon::Bgo::Variables::reset()
 	std::fill(tdc.offset, tdc.offset + MAX_CHANNELS, 0.);
 	std::fill(tdc.slope, tdc.slope + MAX_CHANNELS, 1.);
 
-	// Coordinates copied from dragon_event.c [old analyzer]
-	const double bgoCoords[MAX_CHANNELS][3] =  {
-		{ 4, -2.6,  9.2}, { 0, -4.8,-15.3}, { 0,-10.1,-12.2}, { 0,  5.0,-12.2}, { 0,  9.9, -9.2},
-		{ 0,  8.0, -3.1}, { 0,  8.0,  3.1}, { 0,  9.9,  9.2}, { 0,-10.1, 12.2}, { 0,  5.0, 12.2},
-		{ 0, -4.8, 15.3}, {-4, -2.6, -9.2}, { 4, -2.6, -9.2}, {-4, -7.9, -6.1}, { 4, -7.9, -6.1},
-		{-4,  2.7, -6.1}, { 4,  2.7, -6.1}, {-4, -2.6, -3.1}, { 4, -2.6, -3.1}, {-4, -7.9,    0},
-		{ 4, -7.9,    0}, {-4,  2.7,    0}, { 4,  2.7,    0}, {-4, -2.6,  3.1}, { 4, -2.6,  3.1},
-		{-4, -7.9,  6.1}, { 4, -7.9,  6.1}, {-4,  2.7,  6.1}, { 4,  2.7,  6.1}, {-4, -2.6,  9.2}
-	};
 
+	const double bgoCoords[MAX_CHANNELS][3] = BGO_COORDS;
 	for(int i=0; i< MAX_CHANNELS; ++i) {
 		pos.x[i] = bgoCoords[i][0];
 		pos.y[i] = bgoCoords[i][1];
@@ -1165,6 +1157,7 @@ void dragon::Coinc::set_variables(const char* odb)
 	 */
 	head.set_variables(odb);
 	tail.set_variables(odb);
+	variables.set(odb);
 }
 
 void dragon::Coinc::compose_event(const dragon::Head& head_, const dragon::Tail& tail_)
@@ -1197,4 +1190,29 @@ void dragon::Coinc::calculate()
 	xtrig = utils::calculate_tof(tail.io32.tsc4.trig_time, head.io32.tsc4.trig_time);
 	xtoft = utils::calculate_tof(tail.tcal0, tail.tcalx);
 	xtofh = utils::calculate_tof(head.tcalx, head.tcal0);
+}
+
+
+// ==================== Class dragon::Coinc::Variables ==================== //
+
+dragon::Coinc::Variables::Variables()
+{
+	/*! Calls reset() */
+	reset();
+}
+
+void dragon::Coinc::Variables::reset()
+{
+	/*! Reads defaults from Defaults.hxx */
+	window = DRAGON_DEFAULT_COINC_WINDOW;
+	buffer_time = DRAGON_DEFAULT_COINC_BUFFER_TIME;
+}
+
+void dragon::Coinc::Variables::set(const char* odb)
+{
+	midas::Database database(odb);
+	if(database.IsZombie()) return;
+
+	database.ReadValue("/dragon/coinc/variables/window", window);
+	database.ReadValue("/dragon/coinc/variables/buffer_time", buffer_time);
 }
