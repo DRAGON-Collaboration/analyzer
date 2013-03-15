@@ -12,6 +12,14 @@
 #include "mxml.h"
 #include "strlcpy.h"
 
+
+#ifdef USE_ROOT
+#include <TObject.h>
+#define DRAGON_MIDAS_XML Xml: public TObject
+#else
+#define DRAGON_MIDAS_XML Xml
+#endif
+
 namespace midas {
 
 /// Class to parse MIDAS ODB XML files.
@@ -22,7 +30,8 @@ namespace midas {
  * All of the "work" to read from an XML (or .mid) file is handled by the
  * template functions of this class.
  */
-class Xml {
+
+class DRAGON_MIDAS_XML {
 public:
 	/// Pointer to an XML node.
 	typedef PMXML_NODE Node;
@@ -43,6 +52,9 @@ public:
 	/// \note Memory is allocated only to fTree, fOdb and any other subnodes used later
 	/// simply refer to memory locations relative to fTree.
 	Xml(const char* filename);
+
+	/// \brief Default constructor for ROOTCINT
+	Xml() { }
 
 	/// \brief Read data from a buffer w/ XML data
 	Xml(char* buf, int length);
@@ -235,10 +247,10 @@ private:
 	bool Check();
 
 	/// Disable copy
-	Xml(const Xml& other) { }
+	Xml(const Xml&) { }
 
 	/// Disable assign
-	Xml& operator= (const Xml& other) { return *this; }
+	Xml& operator= (const Xml&) { return *this; }
 
 	/// Convert node->value into template class
 	template <typename T> T ConvertNode(Node& node)
@@ -249,6 +261,11 @@ private:
 			val >> value;
 			return value;
 		}
+
+public:
+#ifdef USE_ROOT
+	ClassDef(midas::Xml, 0);
+#endif
 };
 
 #ifndef __MAKECINT__
@@ -270,5 +287,21 @@ inline std::string midas::Xml::ConvertNode<std::string>(Node& node)
 #endif
 
 } // namespace midas
+
+
+#ifdef __MAKECINT__
+#pragma link C++ function midas::Xml::GetValue(const char*, Bool_t&,   bool*);
+#pragma link C++ function midas::Xml::GetValue(const char*, Char_t&,    bool*);
+#pragma link C++ function midas::Xml::GetValue(const char*, Short_t&,   bool*);
+#pragma link C++ function midas::Xml::GetValue(const char*, Int_t&,     bool*);
+#pragma link C++ function midas::Xml::GetValue(const char*, Long64_t&,  bool*);
+#pragma link C++ function midas::Xml::GetValue(const char*, UChar_t&,   bool*);
+#pragma link C++ function midas::Xml::GetValue(const char*, UShort_t&,  bool*);
+#pragma link C++ function midas::Xml::GetValue(const char*, UInt_t&,    bool*);
+#pragma link C++ function midas::Xml::GetValue(const char*, ULong64_t&, bool*);
+#pragma link C++ function midas::Xml::GetValue(const char*, Float_t&,   bool*);
+#pragma link C++ function midas::Xml::GetValue(const char*, Double_t&,  bool*);
+#endif
+
 
 #endif

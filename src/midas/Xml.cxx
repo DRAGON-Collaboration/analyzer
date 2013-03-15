@@ -12,20 +12,33 @@
 #include <iostream>
 #include "Xml.hxx"
 
+#ifdef USE_ROOT
+#include <TSystem.h>
+#include <TString.h>
+#endif
+
 midas::Xml::Xml(const char* filename):
 	fTree(0), fOdb(0), fIsZombie(false)
 {
+#ifdef USE_ROOT
+	TString fnameExp (filename);
+	gSystem->ExpandPathName(fnameExp);
+	const char* fname2 = fnameExp.Data();
+#else
+	const char* fname2 = filename;
+#endif
+
 	char err[256]; int err_line;
-	fTree = ParseFile(filename, err, sizeof(err), &err_line);
+	fTree = ParseFile(fname2, err, sizeof(err), &err_line);
 	if(!fTree) {
-		std::cerr << "Error: Bad XML file: " << filename << ", error message: " <<
+		std::cerr << "Error: Bad XML file: " << fname2 << ", error message: " <<
 			 err << ", error line: " << err_line << "\n";
 		fIsZombie = true;
 		return;
 	}
 	fOdb = mxml_find_node(fTree, "/odb");
 	if(!fOdb) {
-		std::cerr << "Error: no odb tag found in xml file: " << filename << ".\n";
+		std::cerr << "Error: no odb tag found in xml file: " << fname2 << ".\n";
 		fIsZombie = true;
 		return;
 	}
