@@ -36,15 +36,22 @@ public:
 	/// Pointer to an XML node.
 	typedef PMXML_NODE Node;
 
-private:
+public:// private:
 	/// Pointer to the entire XML tree contained within a file
-	Node fTree;
+	Node fTree; //!
 	/// Pointer to the ODB portion of fTree
-	Node fOdb;
+	Node fOdb;  //!
 	/// Flag specifying if the file was invalid
 	bool fIsZombie;
+	/// Length of fBuffer
+	uint32_t fLength;
+	/// Buffer containing all of the XML data
+	char* fBuffer; //[fLength]
 
 public:
+	/// \brief Default constructor for ROOTCINT
+	Xml();
+
 	/// \brief Read data from an XML file
 	/// \details Parses a file containing XML data to fill fTree and fOdb.
 	/// Can handle either a dedicated \c .xml file or a \c .mid (or any other) file containing
@@ -52,9 +59,6 @@ public:
 	/// \note Memory is allocated only to fTree, fOdb and any other subnodes used later
 	/// simply refer to memory locations relative to fTree.
 	Xml(const char* filename);
-
-	/// \brief Default constructor for ROOTCINT
-	Xml() { }
 
 	/// \brief Read data from a buffer w/ XML data
 	Xml(char* buf, int length);
@@ -231,7 +235,6 @@ public:
 			}
 		}
 
-
 private:
 	/// \brief Helper function to parse a file containing XML data and set fTree and fObd
 	/// \note Most of the implementation was a paraphrase of mxml_parse_file() in midas.c,
@@ -242,6 +245,19 @@ private:
 	/// \note Most of the implementation was a paraphrase of mxml_parse_file() in midas.c,
 	/// extended to handle files that contain the XML data only as a subset (i.e. MIDAS files).
 	Node ParseBuffer(char* buf, int length, char *error, int error_size, int *error_line);
+
+	/// \brief Parse XML tree stored in fBuffer
+	/// \details This is to be used for when we write a class instance to a ROOT file.
+	/// When reading it back, the contents of fBuffer are reproduced, but not until
+	/// after the default constructor is done. So we have to call a separate function
+	/// that would otherwise take on the role of a constructor. This is that function,
+	/// and it's purpose is to parse the contents of fBuffer into fTree.
+	///
+	/// Note that it gets automatically called from the read functions and does some
+	/// checks to make sure that fBuffer is valid and fTree is not already parsed. The
+	/// result is that a user of ROOT does not have to worry at all about calling this:
+	/// the class takes care of it on its own.
+	void InitFromStreamer();
 
 	/// \brief Check if fTree and fOdb are non-null
 	bool Check();
@@ -264,7 +280,7 @@ private:
 
 public:
 #ifdef USE_ROOT
-	ClassDef(midas::Xml, 0);
+	ClassDef(midas::Xml, 1);
 #endif
 };
 
@@ -290,7 +306,7 @@ inline std::string midas::Xml::ConvertNode<std::string>(Node& node)
 
 
 #ifdef __MAKECINT__
-#pragma link C++ function midas::Xml::GetValue(const char*, Bool_t&,   bool*);
+#pragma link C++ function midas::Xml::GetValue(const char*, Bool_t&,    bool*);
 #pragma link C++ function midas::Xml::GetValue(const char*, Char_t&,    bool*);
 #pragma link C++ function midas::Xml::GetValue(const char*, Short_t&,   bool*);
 #pragma link C++ function midas::Xml::GetValue(const char*, Int_t&,     bool*);
@@ -301,6 +317,21 @@ inline std::string midas::Xml::ConvertNode<std::string>(Node& node)
 #pragma link C++ function midas::Xml::GetValue(const char*, ULong64_t&, bool*);
 #pragma link C++ function midas::Xml::GetValue(const char*, Float_t&,   bool*);
 #pragma link C++ function midas::Xml::GetValue(const char*, Double_t&,  bool*);
+#pragma link C++ function midas::Xml::GetValue(const char*, std::string&, bool*);
+
+#pragma link C++ function midas::Xml::GetArray(const char*, int, Bool_t*,    bool*);
+#pragma link C++ function midas::Xml::GetArray(const char*, int, Char_t*,    bool*);
+#pragma link C++ function midas::Xml::GetArray(const char*, int, Short_t*,   bool*);
+#pragma link C++ function midas::Xml::GetArray(const char*, int, Int_t*,     bool*);
+#pragma link C++ function midas::Xml::GetArray(const char*, int, Long64_t*,  bool*);
+#pragma link C++ function midas::Xml::GetArray(const char*, int, UChar_t*,   bool*);
+#pragma link C++ function midas::Xml::GetArray(const char*, int, UShort_t*,  bool*);
+#pragma link C++ function midas::Xml::GetArray(const char*, int, UInt_t*,    bool*);
+#pragma link C++ function midas::Xml::GetArray(const char*, int, ULong64_t*, bool*);
+#pragma link C++ function midas::Xml::GetArray(const char*, int, Float_t*,   bool*);
+#pragma link C++ function midas::Xml::GetArray(const char*, int, Double_t*,  bool*);
+#pragma link C++ function midas::Xml::GetArray(const char*, int, std::string*, bool*);
+
 #endif
 
 

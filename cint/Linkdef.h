@@ -47,6 +47,7 @@ class TTree;
 #pragma link C++ class midas::Xml+;
 #pragma link C++ class midas::Odb+;
 #pragma link C++ class midas::Database+;
+#pragma link C++ class mxml_struct+;
 
 #pragma link C++ class tstamp::Diagnostics+;
 #pragma link C++ defined_in ../src/TStamp.hxx;

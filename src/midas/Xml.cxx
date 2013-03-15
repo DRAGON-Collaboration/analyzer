@@ -18,7 +18,7 @@
 #endif
 
 midas::Xml::Xml(const char* filename):
-	fTree(0), fOdb(0), fIsZombie(false)
+	fTree(0), fOdb(0), fIsZombie(false), fLength(0), fBuffer(0)
 {
 #ifdef USE_ROOT
 	TString fnameExp (filename);
@@ -45,7 +45,7 @@ midas::Xml::Xml(const char* filename):
 }
 
 midas::Xml::Xml(char* buf, int length):
-	fTree(0), fOdb(0), fIsZombie(false)
+	fTree(0), fOdb(0), fIsZombie(false), fLength(0), fBuffer(0)
 {
 	char err[256]; int err_line;
 	fTree = ParseBuffer(buf, length, err, sizeof(err), &err_line);
@@ -63,15 +63,42 @@ midas::Xml::Xml(char* buf, int length):
 	}
 }
 
+midas::Xml::Xml():
+	fTree(0), fOdb(0), fIsZombie(false), fLength(0), fBuffer(0)
+{
+	;
+}
+
+void midas::Xml::InitFromStreamer()
+{
+	if (fBuffer && !fTree) { // Set from ROOT I/O
+		char err[256]; int err_line;
+		fTree = ParseBuffer(fBuffer, fLength, err, sizeof(err), &err_line);
+		if(!fTree) {
+			std::cerr << "Error: Bad XML bufer, error message: " <<
+				err << ", error line: " << err_line << "\n";
+			fIsZombie = true;
+			return;
+		}
+		fOdb = mxml_find_node(fTree, "/odb");
+		if(!fOdb) {
+			std::cerr << "Error: no odb tag found in xml buffer.\n";
+			fIsZombie = true;
+			return;
+		}
+	}
+}
+
 midas::Xml::~Xml()
 {
 	if(fTree) mxml_free_tree(fTree);
+	if(fBuffer) delete fBuffer;
 }
 
 
 midas::Xml::Node midas::Xml::ParseFile(const char* file_name, char *error, int error_size, int *error_line)
 {
-	char* buf, line[1000];
+	char line[1000];
 	int length = 0;
 	PMXML_NODE root;
 	FILE* f;
@@ -126,8 +153,12 @@ midas::Xml::Node midas::Xml::ParseFile(const char* file_name, char *error, int e
 
 	length += strlen("</odb>");
 	fsetpos(f, &startPos);
-	buf = (char *)malloc(length+1);
-	if (buf == NULL) {
+
+	fLength = length + 1; // buffer size
+	try {
+		fBuffer = new char[fLength];
+	} catch (std::bad_alloc& e) {
+		delete[] fBuffer;
 		fclose(f);
 		sprintf(line, "Cannot allocate buffer: ");
 		strlcat(line, strerror(errno), sizeof(line));
@@ -136,18 +167,16 @@ midas::Xml::Node midas::Xml::ParseFile(const char* file_name, char *error, int e
 	}
 
   /* read odb portion of the file */
-	length = (int)fread(buf, 1, length, f);
-	buf[length] = 0;
+	length = (int)fread(fBuffer, 1, length, f);
+	fBuffer[length] = 0;
 	fclose(f);
 
-	if (mxml_parse_entity(&buf, file_name, error, error_size, error_line) != 0) {
-		free(buf);
+	if (mxml_parse_entity(&fBuffer, file_name, error, error_size, error_line) != 0) {
+		// delete[] fBuffer;
 		return NULL;
 	}
 
-	root = mxml_parse_buffer(buf, error, error_size, error_line);
-
-	free(buf);
+	root = mxml_parse_buffer(fBuffer, error, error_size, error_line);
 
 	return root;
 
@@ -155,6 +184,10 @@ midas::Xml::Node midas::Xml::ParseFile(const char* file_name, char *error, int e
 
 midas::Xml::Node midas::Xml::ParseBuffer(char* buf, int length, char *error, int error_size, int *error_line)
 {
+	fLength = length;
+	fBuffer = new char[fLength];
+	memcpy(fBuffer, buf, length);
+
 	PMXML_NODE root;
 
 	if (error)
@@ -162,7 +195,7 @@ midas::Xml::Node midas::Xml::ParseBuffer(char* buf, int length, char *error, int
 
 	int startPos = 0, lodb = (int)strlen("<odb");
 	while(startPos < length + lodb) {
-		if(!memcmp(&buf[startPos], "<odb", strlen("<odb")))
+		if(!memcmp(&fBuffer[startPos], "<odb", strlen("<odb")))
 			break;
 		++startPos;
 	}
@@ -172,7 +205,7 @@ midas::Xml::Node midas::Xml::ParseBuffer(char* buf, int length, char *error, int
 		return NULL;
 	}
 
-	char* pxml = &buf[startPos];
+	char* pxml = &fBuffer[startPos];
 	if (mxml_parse_entity(&pxml, "", error, error_size, error_line) != 0) {
 		return NULL;
 	}
@@ -185,10 +218,12 @@ midas::Xml::Node midas::Xml::ParseBuffer(char* buf, int length, char *error, int
 
 bool midas::Xml::Check()
 {
-	if(fTree && fOdb) return true;
+	if(fTree && fOdb) return true; // okay
+	InitFromStreamer(); // try to initialize from streamer
+	if(fTree && fOdb) return true; // okay now
 	std::cerr << "Warning: midas::Xml object was initialized with a bad XML file, "
 						<<"cannot perform any further operations.\n";
-	return false;
+	return false; // not okay
 }
 
 namespace {

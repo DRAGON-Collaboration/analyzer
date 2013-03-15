@@ -139,6 +139,7 @@ $(OBJ)/Dragon.o
 
 HEADERS=	                	\
 $(SRC)/midas/*.hxx	        	\
+$(SRC)/midas/*.h			\
 $(SRC)/midas/libMidasInterface/*.h     	\
 $(SRC)/utils/*.hxx        		\
 $(SRC)/utils/*.h          		\
