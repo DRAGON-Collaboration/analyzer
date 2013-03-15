@@ -34,7 +34,7 @@ rootbeer::RunParameters::RunParameters():
 Bool_t rootbeer::RunParameters::DoProcess(const void* addr, Int_t)
 {
 	const midas::Database* pdb = reinterpret_cast<const midas::Database*> (addr);
-	fParameters->read_data(*pdb);
+	fParameters->read_data(pdb);
 	return kTRUE;
 }
 

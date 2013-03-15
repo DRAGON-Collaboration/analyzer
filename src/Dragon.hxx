@@ -49,7 +49,7 @@ public: // Methods
 	/// Sets all data to defaults
 	void reset();
 	/// Reads data from the ODB or a midas file
-	void read_data(const midas::Database& db);
+	bool read_data(const midas::Database* db);
 
 public: // Data
 	/// Run start time from the tsc
@@ -115,8 +115,10 @@ public: // Subclasses
 		Variables();
 		/// Set values to defaults
 		void reset();
-		/// Set variable values from an ODB file
-		void set(const char* odb_file);
+		///  Set data values from an database (file or online)
+		bool set(const char* dbfile);
+		///  Set data values from a constructed database
+		bool set(const midas::Database* db);
 
  public: // Data
 		/// Adc variables
@@ -173,8 +175,10 @@ public: // Subclasses
  public: // Methods
 		/// Constructor, sets data to generic values
 		Variables();
-		/// Set variable values from an ODB file
-		void set(const char* odb_file);
+		///  Set data values from an database (file or online)
+		bool set(const char* dbfile);
+		///  Set data values from a constructed database
+		bool set(const midas::Database* db);
 		/// Reset all variable values to defaults
 		void reset();
 
@@ -226,8 +230,10 @@ public: // Subclasses
 		Variables();
 		/// Reset data to default values
 		void reset();
-		/// Set variable values from an ODB file
-		void set(const char* odb_file);
+		///  Set data values from an database (file or online)
+		bool set(const char* dbfile);
+		///  Set data values from a constructed database
+		bool set(const midas::Database* db);
 
  public: // Data
 		/// Anode variables
@@ -286,8 +292,10 @@ public: // Subclasses
 		Variables();
 		/// Restet variables to default values
 		void reset();
-		/// Set variable values from an ODB file
-		void set(const char* odb_file);
+		///  Set data values from an database (file or online)
+		bool set(const char* dbfile);
+		///  Set data values from a constructed database
+		bool set(const midas::Database* db);
 
  public: // Data
 		/// Adc variables for the anode signals
@@ -322,8 +330,10 @@ public: // Subclasses
 		Variables();
 		/// Sets data to defaults
 		void reset();
-		/// Set variable values from an ODB file
-		void set(const char* odb_file);
+		///  Set data values from an database (file or online)
+		bool set(const char* dbfile);
+		///  Set data values from a constructed database
+		bool set(const midas::Database* db);
 
  public: // Data
 		/// Adc variables
@@ -380,8 +390,10 @@ public: // Subclasses
 		Variables();
 		/// Set variable values to defaults
 		void reset();
-		/// Set variable values from an ODB file
-		void set(const char* odb_file);
+		///  Set data values from an database (file or online)
+		bool set(const char* dbfile);
+		///  Set data values from a constructed database
+		bool set(const midas::Database* db);
 
  public: // Data
 		/// Adc variables
@@ -422,8 +434,10 @@ public: // Subclasses
 		Variables();
 		/// Reset variables to default values
 		void reset();
-		/// Set variable values from an ODB file
-		void set(const char* odb_file);
+		///  Set data values from an database (file or online)
+		bool set(const char* dbfile);
+		///  Set data values from a constructed database
+		bool set(const midas::Database* db);
 
  public: // Data
 		/// ADC variables
@@ -472,8 +486,10 @@ public: // Methods
 	Head();
 	/// Sets all data values to vme::NONE or other defaults
 	void reset();
-	///  Reads all variable values from an ODB (file or online)
-	void set_variables(const char* odb_file);
+	///  Reads all variable values from an database (file or online)
+	bool set_variables(const char* dbfile);
+	///  Reads all variable values from a constructed database
+	bool set_variables(const midas::Database* db);
 	/// Unpack raw data into VME modules
 	void unpack(const midas::Event& event);
 	/// Calculate higher-level data for each detector, or across detectors
@@ -519,8 +535,10 @@ public: // Subclasses
 		Variables();
 		/// Sets data to defaults
 		void reset();
-		/// Sets data from ODB
-		void set(const char* odb);
+		///  Set data values from an database (file or online)
+		bool set(const char* dbfile);
+		///  Set data values from a constructed database
+		bool set(const midas::Database* db);
 	};
 
 public: // Subclass instances
@@ -542,8 +560,10 @@ public: // Methods
 	Tail();
 	/// Sets all data values to vme::NONE or other defaults
 	void reset();
-	/// Reads all variable values from an ODB (file or online)
-	void set_variables(const char* odb_file);
+	///  Reads all variable values from an database (file or online)
+	bool set_variables(const char* dbfile);
+	///  Reads all variable values from a constructed database
+	bool set_variables(const midas::Database* db);
 	/// Unpack raw data into VME modules
 	void unpack(const midas::Event& event);
 	/// Calculate higher-level data for each detector, or across detectors
@@ -603,8 +623,11 @@ public: // Subclasses
 		Variables();
 		/// Sets data to defaults
 		void reset();
-		/// Sets data from ODB
-		void set(const char* odb);
+		///  Set data values from an database (file or online)
+		bool set(const char* dbfile);
+		///  Set data values from a constructed database
+		bool set(const midas::Database* db);
+
  public: // Data
 		/// Crossover TDC channel variables
 		dragon::utils::TdcVariables<1> xtdc;
@@ -630,8 +653,11 @@ public: // Subclasses
 		Variables();
 		/// Set data to global defaults
 		void reset();
-		/// Sets data from ODB
-		void set(const char* odb);
+		///  Set data values from an database (file or online)
+		bool set(const char* dbfile);
+		///  Set data values from a constructed database
+		bool set(const midas::Database* db);
+
  public: // Data
 		/// Coincidence time window [microseconds].
 		double window;
@@ -645,8 +671,10 @@ public: // Methods
 	Coinc(const Head& head, const Tail& tail);
 	/// Reset all modules (set data to defaults)
 	void reset();
-	/// Reads all variable values from an ODB (file or online)
-	void set_variables(const char* odb_file);
+	///  Reads all variable values from an database (file or online)
+	bool set_variables(const char* dbfile);
+	///  Reads all variable values from a constructed database
+	bool set_variables(const midas::Database* db);
 	/// Copy data from head and tail coincidence events
 	void compose_event(const Head& head_, const Tail& tail_);
 	/// Unpack raw data from a midas::CoincEvent
@@ -689,8 +717,10 @@ public: // Methods
   void unpack(const midas::Event& event);
 	/// Returns the name of a given scaler channel
 	const std::string& channel_name(int ch) const;
-	/// Sets variable values
-	void set_variables(const char* odb);
+	///  Reads all variable values from an database (file or online)
+	bool set_variables(const char* dbfile);
+	///  Reads all variable values from a constructed database
+	bool set_variables(const midas::Database* db);
 	/// Set branch alises in a ROOT TTree.
 	template <class T>
 	void set_aliases(T* t, const char* branchName) const;
@@ -713,8 +743,10 @@ public: // Subclasses
     Variables(const char* name);
 		/// Resets names to default values
 		void reset();
-		/// Set names from ODB
-		void set(const char* odb);
+		///  Set data values from an database (file or online)
+		bool set(const char* dbfile);
+		///  Set data values from a constructed database
+		bool set(const midas::Database* db);
 		/// Set bank names
 		void set_bank_names(const char* base);
 

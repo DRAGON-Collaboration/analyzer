@@ -19,9 +19,9 @@ public:
 	/// Set a bank name (from string literal)
 	static void Set(Name_t bkName, const char* from);
 	/// Set a bank name (from ODB)
-	static void OdbSet(Name_t bkName, midas::Database& odb, const char* path);
+	static bool OdbSet(Name_t bkName, const midas::Database& odb, const char* path);
 	/// Set an array of bank names (from ODB)
-	static void OdbSetArray(utils::Banks::Name_t* bkName, int length, midas::Database& odb, const char* path);
+	static bool OdbSetArray(utils::Banks::Name_t* bkName, int length, const midas::Database& odb, const char* path);
 #endif
 
 };
