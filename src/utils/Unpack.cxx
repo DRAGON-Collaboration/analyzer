@@ -67,8 +67,8 @@ void dutils::Unpacker::HandleBor(const char* dbname)
 		fHead->set_variables(dbname);
 		fTail->set_variables(dbname);
 		fCoinc->set_variables(dbname);
-		fHeadScaler->set_variables(dbname);
-		fTailScaler->set_variables(dbname);
+		fHeadScaler->set_variables(dbname, "head");
+		fTailScaler->set_variables(dbname, "tail");
 	}
 }
 

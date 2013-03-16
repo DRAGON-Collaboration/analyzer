@@ -710,7 +710,7 @@ public: // Constants
 
 public: // Methods
   /// Initialize data
-  Scaler(const char* name = "head");
+	Scaler();
   /// Reset all data to zero
   void reset();
   /// Unpack Midas event data into scalar data structiures
@@ -718,9 +718,9 @@ public: // Methods
 	/// Returns the name of a given scaler channel
 	const std::string& channel_name(int ch) const;
 	///  Reads all variable values from an database (file or online)
-	bool set_variables(const char* dbfile);
+	bool set_variables(const char* dbfile, const char* dir);
 	///  Reads all variable values from a constructed database
-	bool set_variables(const midas::Database* db);
+	bool set_variables(const midas::Database* db, const char* dir);
 	/// Set branch alises in a ROOT TTree.
 	template <class T>
 	void set_aliases(T* t, const char* branchName) const;
@@ -740,15 +740,15 @@ public: // Subclasses
   class Variables {
  public: // Methods
     /// Constuctor
-    Variables(const char* name);
+    Variables();
 		/// Resets names to default values
 		void reset();
 		///  Set data values from an database (file or online)
-		bool set(const char* dbfile);
+		bool set(const char* dbfile, const char* dir);
 		///  Set data values from a constructed database
-		bool set(const midas::Database* db);
+		bool set(const midas::Database* db, const char* dir);
 		/// Set bank names
-		void set_bank_names(const char* base);
+ 		void set_bank_names(const char* base);
 
  public: // Data
 		/// Name of a given channel

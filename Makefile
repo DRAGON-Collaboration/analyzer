@@ -171,6 +171,7 @@ $(PWD)/bin/mid2root: src/mid2root.cxx $(DRLIB)/libDragon.so
 	$(LINK) -lDragon $< \
 -o $@ \
 
+mid2root: $(PWD)/bin/mid2root
 
 ### OBJECT FILES ###
 

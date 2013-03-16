@@ -17,12 +17,6 @@ inline void handle_event(rb::data::Wrapper<T>& data, const E* buf)
 	data->calculate();
 }
 
-template <class T>
-inline void db_read(const char* dbname, rb::data::Wrapper<T>& data)
-{
-	data->set_variables(dbname);
-}
-
 } // namespace
 
 
@@ -96,7 +90,7 @@ Bool_t rootbeer::GammaEvent::DoProcess(const void* addr, Int_t nchar)
 
 void rootbeer::GammaEvent::ReadVariables(const char* dbname)
 {
-	db_read(dbname, fGamma);
+	fGamma->set_variables(dbname);
 }
 
 
@@ -129,7 +123,7 @@ Bool_t rootbeer::HeavyIonEvent::DoProcess(const void* addr, Int_t nchar)
 
 void rootbeer::HeavyIonEvent::ReadVariables(const char* dbname)
 {
-	db_read(dbname, fHeavyIon);
+		fHeavyIon->set_variables(dbname);
 }
 
 
@@ -165,13 +159,13 @@ Bool_t rootbeer::CoincEvent::DoProcess(const void* addr, Int_t nchar)
 
 void rootbeer::CoincEvent::ReadVariables(const char* dbname)
 {
-	db_read(dbname, fCoinc);
+	fCoinc->set_variables(dbname);
 }
 
 // ======== Class rootbeer::HeadScaler ======== //
 
 rootbeer::HeadScaler::HeadScaler():
-	fScaler("head_scaler", true, this, true, "\"head\"")
+	fScaler("head_scaler", this, true)
 {
 	assert(fScaler.Get());
 	fScaler->variables.set_bank_names("SCH");
@@ -200,14 +194,14 @@ Bool_t rootbeer::HeadScaler::DoProcess(const void* addr, Int_t nchar)
 
 void rootbeer::HeadScaler::ReadVariables(const char* dbname)
 {
-	db_read(dbname, fScaler);
+	fScaler->set_variables(dbname, "head");
 }
 
 
 // ======== Class rootbeer::TailScaler ======== //
 
 rootbeer::TailScaler::TailScaler():
-	fScaler("tail_scaler", true, this, true, "\"tail\"")
+	fScaler("head_scaler", this, true)
 {
 	assert(fScaler.Get());
 	fScaler->variables.set_bank_names("SCT");
@@ -236,5 +230,5 @@ Bool_t rootbeer::TailScaler::DoProcess(const void* addr, Int_t nchar)
 
 void rootbeer::TailScaler::ReadVariables(const char* dbname)
 {
-	db_read(dbname, fScaler);
+	fScaler->set_variables(dbname, "tail");
 }
