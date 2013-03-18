@@ -148,7 +148,7 @@ void tstamp::Queue::Flush(int max_time, tstamp::Diagnostics* diagnostics)
 	 */
 	time_t t_begin = time(0);
 	while (!fEvents.empty()) {
-		if (max_time > 0 && difftime(time(0), t_begin) < max_time) {
+		if ( max_time < 0 || (difftime(time(0), t_begin) < max_time) ) {
 			DoFlushEvent(diagnostics);
 		}
 		else {
