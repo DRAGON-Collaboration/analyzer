@@ -263,23 +263,27 @@ Dragon: $(OBJ)/Dragon.o
 
 RBINC=-I$(RB_HOME)/src
 RB_OBJECTS= 				\
-$(OBJ)/rootbeer/Timestamp.o		\
-$(OBJ)/rootbeer/MidasBuffer.o		\
-$(OBJ)/rootbeer/DragonEvents.o		\
-$(OBJ)/rootbeer/DragonRootbeer.o	\
+$(OBJ)/rootbeer/RbDragon.o
+# $(OBJ)/rootbeer/Timestamp.o		\
+# $(OBJ)/rootbeer/MidasBuffer.o		\
+# $(OBJ)/rootbeer/DragonEvents.o		\
+# $(OBJ)/rootbeer/DragonRootbeer.o	\
 
-RB_HEADERS= $(SRC)/rootbeer/*.hxx
+RB_HEADERS= $(SRC)/rootbeer/RbDragon.hxx
+##$(SRC)/rootbeer/*.hxx
 
 RB_DEFS=-DRB_DRAGON_HOMEDIR=$(PWD)
 
-$(PWD)/bin/rbdragon: $(DRLIB)/libRBDragon.so
-	$(LINK) -lDragon -lRBDragon -L$(PWD)/../../rootbeer/lib -lRootbeer \
--o $@
+## $(DRLIB)/libRbDragon.so
+$(PWD)/bin/rbdragon: $(RB_OBJECTS)
+	$(LINK) $(RB_OBJECTS) -L$(PWD)/../../rootbeer/lib  -lDragon -lRootbeer -lRbMidas \
+-o $@ \
 
-$(DRLIB)/libRBDragon.so: $(RB_OBJECTS) $(RB_HEADERS)
-	$(LINK) $(RB_DEFS) $(RBINC) $(DYLIB) $(FPIC) -o $@ $(RB_OBJECTS) \
+$(DRLIB)/libRbDragon.so: $(RB_OBJECTS) $(RB_HEADERS)
+	$(LINK) $(RB_DEFS) $(RBINC) $(DYLIB) $(FPIC) $(RB_OBJECTS) -L$(PWD)/../../rootbeer/lib -lRbMidas \
+-o $@ \
 
-libRBDragon: $(DRLIB)/libRBDragon.so
+libRbDragon: $(DRLIB)/libRbDragon.so
 
 
 
