@@ -21,6 +21,17 @@
 
 
 
+
+//
+// Helper function to process unpacked events
+namespace { void process_events(const std::vector<Int_t>& codes)
+{
+	for (size_t i=0; i< codes.size(); ++i) {
+		rb::Event* event = rb::Rint::gApp()->GetEvent (codes[i]);
+		if(event) event->Process(0, 0);
+	}
+} }
+
 // ============ Class rbdragon::MidasBuffer ============ //
 
 rbdragon::MidasBuffer::MidasBuffer():
@@ -75,7 +86,15 @@ void rbdragon::MidasBuffer::RunStopTransition(Int_t runnum)
 
 	/// - Flush timestamp queue (max 60 seconds for online)
 	Int_t flush_time = fType == ONLINE ? 60 : -1;
-	fUnpacker.FlushQueue(flush_time);
+	size_t qsize;
+	while (1) {
+		fUnpacker.ClearUnpackedCodes();
+		qsize = fUnpacker.FlushQueueIterative(); // Fills classes implicitly
+		if (qsize == 0) break;
+
+		std::vector<Int_t> v = fUnpacker.GetUnpackedCodes();
+		process_events(v);
+	} 
 
 	/// - Call parent class implementation (prints a message)
 	rb::MidasBuffer::RunStopTransition(runnum);
@@ -104,10 +123,11 @@ Bool_t rbdragon::MidasBuffer::UnpackEvent(void* header, char* data)
 		ReadVariables(&db);
 	}
 
-	/// - For all other events, delegate to rb::Unpacker (note: vector output can
-	//  be ignored b/c rootbeer handles TTree filling automatically).
+	/// - For all other events, delegate to rb::Unpacker, then call the Process() function
 	std::vector<Int_t> v = fUnpacker.UnpackMidasEvent(phead, data);
-	return v.empty() ? false : true;
+	process_events(v);
+
+	return kTRUE;
 }
 
 
@@ -131,13 +151,6 @@ inline void handle_event(rb::data::Wrapper<T>& data, const E* buf)
 
 rbdragon::RunParameters::RunParameters():
 	fParameters("runpar", this, false, "") { }
-
-Bool_t rbdragon::RunParameters::DoProcess(const void* addr, Int_t)
-{
-	const midas::Database* pdb = reinterpret_cast<const midas::Database*> (addr);
-	fParameters->read_data(pdb);
-	return kTRUE;
-}
 
 void rbdragon::RunParameters::HandleBadEvent()
 {
@@ -169,23 +182,6 @@ void rbdragon::GammaEvent::HandleBadEvent()
 		<< "Unknown error encountered during event processing";
 }
 
-Bool_t rbdragon::GammaEvent::DoProcess(const void* addr, Int_t nchar)
-{
-  /*!
-	 * Calls unpacking routines of dragon::Head to extract the raw MIDAS
-	 * data into a dragon::Head structure. Then calculates higher-level
-	 * parameters.
-	 */
-	if(!addr) {
-		dragon::utils::err::Error("rbdragon::GammaEvent::DoProcess") << "Received NULL event address";
-		return false;
-	}
-
-	handle_event(fGamma, AsMidasEvent(addr));
-
-	return true;
-}
-
 void rbdragon::GammaEvent::ReadVariables(midas::Database* db)
 {
 	fGamma->set_variables(db);
@@ -203,22 +199,6 @@ void rbdragon::HeavyIonEvent::HandleBadEvent()
 		<< "Unknown error encountered during event processing";
 }
 
-Bool_t rbdragon::HeavyIonEvent::DoProcess(const void* addr, Int_t nchar)
-{
-  /*!
-	 * Calls unpacking routines of dragon::Tail to extract the raw MIDAS
-	 * data into a dragon::Head structure. Then calculates higher-level
-	 * parameters.
-	 */
-	if(!addr) {
-		dragon::utils::err::Error("rbdragon::HeavyIonEvent::DoProcess") << "Received NULL event address";
-		return false;
-	}
-
-	handle_event(fHeavyIon, AsMidasEvent(addr));
-	return true;
-}
-
 void rbdragon::HeavyIonEvent::ReadVariables(midas::Database* db)
 {
 		fHeavyIon->set_variables(db);
@@ -234,25 +214,6 @@ void rbdragon::CoincEvent::HandleBadEvent()
 {
 	dragon::utils::err::Error("CoincEvent")
 		<< "Unknown error encountered during event processing";
-}
-
-Bool_t rbdragon::CoincEvent::DoProcess(const void* addr, Int_t nchar)
-{
-	/*!
-	 * Unpacks data from the head and tail MIDAS events into the corresponding
-	 * fields of fDragon, then calls the calculate() methods of each.
-	 * \todo Figure out a way to handle this without unpacking the events; in principle,
-	 * they should have already been handled as singles events, thus we add extra overhead
-	 * by going through the unpacking routines twice - it should be possible to buffer and
-	 * then copy the already-unpacked head and tail structures directly.
-	 */
-	if(!addr) {
-		dragon::utils::err::Error("rbdragon::CoincEvent::DoProcess") << "Received NULL event address";
-		return false;
-	}
-
-	handle_event(fCoinc, AsCoincMidasEvent(addr));
-	return true;
 }
 
 void rbdragon::CoincEvent::ReadVariables(midas::Database* db)
@@ -275,21 +236,6 @@ void rbdragon::HeadScaler::HandleBadEvent()
 		<< "Unknown error encountered during event processing";
 }
 
-Bool_t rbdragon::HeadScaler::DoProcess(const void* addr, Int_t nchar)
-{
-	/*!
-	 * Unpacks into scaler event structure.
-	 * \returns true is given a valid \d addr input, false otherwise
-	 */
-	if(!addr) {
-		dragon::utils::err::Error("rbdragon::HeadScaler::DoProcess") << "Received NULL event address";
-		return false;
-	}
-
-	fScaler->unpack(*AsMidasEvent(addr));
-	return true;
-}
-
 void rbdragon::HeadScaler::ReadVariables(midas::Database* db)
 {
 	fScaler->set_variables(db, "head");
@@ -309,21 +255,6 @@ void rbdragon::TailScaler::HandleBadEvent()
 {
 	dragon::utils::err::Error("TailScaler")
 		<< "Unknown error encountered during event processing";
-}
-
-Bool_t rbdragon::TailScaler::DoProcess(const void* addr, Int_t nchar)
-{
-	/*!
-	 * Unpacks into scaler event structure.
-	 * \returns true is given a valid \d addr input, false otherwise
-	 */
-	if(!addr) {
-		dragon::utils::err::Error("rbdragon::TailScaler::DoProcess") << "Received NULL event address";
-		return false;
-	}
-
-	fScaler->unpack(*AsMidasEvent(addr));
-	return true;
 }
 
 void rbdragon::TailScaler::ReadVariables(midas::Database* db)

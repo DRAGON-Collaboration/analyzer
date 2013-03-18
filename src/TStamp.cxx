@@ -121,7 +121,7 @@ void tstamp::Queue::Pop(int32_t& singles_id, bool& found_coinc)
 	singles_id = -1;
 	found_coinc = false;
 	if (fEvents.empty()) return;
-	
+
 	EqualRange_t matches = fEvents.equal_range(*fEvents.begin());
 	MultiSet_t::iterator itMatch;
 	for (itMatch = matches.first; itMatch != matches.second; ++itMatch) {

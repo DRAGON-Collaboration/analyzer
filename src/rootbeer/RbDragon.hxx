@@ -67,8 +67,8 @@ public:
 	dragon::RunParameters* Get() { return fParameters.Get(); }
 
 private:
-	/// Read parameters from the ODB (or .mid file)
-	Bool_t DoProcess(const void*, Int_t);
+	/// Nothing to do - Unpacker class handles it
+	Bool_t DoProcess(const void*, Int_t) { return kTRUE; }
 
 	/// What to do in case of an error in event processing
 	void HandleBadEvent();	
@@ -95,8 +95,8 @@ public:
 	void Reset() { fDiagnostics->reset(); }
 
 private:
-	/// Nothing to do - queue fills data automatically
-	Bool_t DoProcess(const void*, Int_t) { return true; }
+	/// Nothing to do - Unpacker class handles it
+	Bool_t DoProcess(const void*, Int_t) { return kTRUE; }
 	
 	/// What to do in case of an error in event processing
 	void HandleBadEvent();
@@ -131,8 +131,8 @@ private:
 	const midas::Event* AsMidasEvent(const void* addr)
 		{ return reinterpret_cast<const midas::Event*>(addr); }
 
-	/// Does the work of processing a received event within a loop
-	Bool_t DoProcess(const void* event_address, Int_t nchar);
+	/// Nothing to do - Unpacker class handles it
+	Bool_t DoProcess(const void*, Int_t) { return kTRUE; }
 
 	/// What to do in case of an error in event processing
 	void HandleBadEvent();
@@ -168,8 +168,8 @@ private:
 	const midas::Event* AsMidasEvent(const void* addr)
 		{ return reinterpret_cast<const midas::Event*>(addr); }
 
-	/// Does the work of processing a received event within a loop
-	Bool_t DoProcess(const void* event_address, Int_t nchar);
+	/// Nothing to do - Unpacker class handles it
+	Bool_t DoProcess(const void*, Int_t) { return kTRUE; }
 
 	/// What to do in case of an error in event processing
 	void HandleBadEvent();
@@ -200,8 +200,8 @@ private:
 	const midas::CoincEvent* AsCoincMidasEvent(const void* addr)
 		{ return reinterpret_cast<const midas::CoincEvent*>(addr); }
 
-	/// Does the work of processing a received event within a loop
-	Bool_t DoProcess(const void* event_address, Int_t nchar);
+	/// Nothing to do - Unpacker class handles it
+	Bool_t DoProcess(const void*, Int_t) { return kTRUE; }
 
 	/// What to do in case of an error in event processing
 	void HandleBadEvent();
@@ -235,8 +235,8 @@ private:
 	const midas::Event* AsMidasEvent(const void* addr)
 		{ return reinterpret_cast<const midas::Event*>(addr); }
 
-	/// Does the work of processing a received event within a loop
-	Bool_t DoProcess(const void* event_address, Int_t nchar);
+	/// Nothing to do - Unpacker class handles it
+	Bool_t DoProcess(const void*, Int_t) { return kTRUE; }
 
 	/// What to do in case of an error in event processing
 	void HandleBadEvent();
@@ -270,8 +270,8 @@ private:
 	const midas::Event* AsMidasEvent(const void* addr)
 		{ return reinterpret_cast<const midas::Event*>(addr); }
 
-	/// Does the work of processing a received event within a loop
-	Bool_t DoProcess(const void* event_address, Int_t nchar);
+	/// Nothing to do - Unpacker class handles it
+	Bool_t DoProcess(const void*, Int_t) { return kTRUE; }
 
 	/// What to do in case of an error in event processing
 	void HandleBadEvent();

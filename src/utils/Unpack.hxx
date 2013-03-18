@@ -39,6 +39,9 @@ public:
 	/// Nothing to do, all cleanup is automatic
 	~Unpacker();
 	///
+	/// Clear vector of unpacked codes
+	void ClearUnpackedCodes();
+	///
 	/// Flush the timestamp queue
 	void FlushQueue(int flushTime = -1);
 	///
@@ -187,6 +190,15 @@ inline std::vector<int32_t> dragon::utils::Unpacker::UnpackMidasEvent(char* data
 {
 	/// Forward all work to UnpackMidasEvent(void*, char*)
 	return UnpackMidasEvent(databuf, databuf + sizeof(midas::Event::Header));
+}
+
+inline void
+dragon::utils::Unpacker::ClearUnpackedCodes()
+{
+	/// Needed when the unpack routines are called implicitly, for example
+	/// during a queue flush which calls Process(), not UnpackEvent()
+
+	fUnpacked.clear();
 }
 
 inline std::vector<int32_t>
