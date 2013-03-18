@@ -173,6 +173,8 @@ $(PWD)/bin/mid2root: src/mid2root.cxx $(DRLIB)/libDragon.so
 
 mid2root: $(PWD)/bin/mid2root
 
+RbDragon.o: $(OBJ)/rootbeer/RbDragon.o
+
 ### OBJECT FILES ###
 
 $(OBJ)/rootbeer/%.o: $(SRC)/rootbeer/%.cxx $(SRC)/rootbeer/*.hxx $(DR_DICT_DEP)
