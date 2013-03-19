@@ -88,10 +88,12 @@ vme::V1190::V1190()
 
 namespace { inline void reset_channel(vme::V1190::Channel* channel)
 {
-		dragon::utils::reset_array(vme::V1190::MAX_HITS, channel->leading_edge);
-		dragon::utils::reset_array(vme::V1190::MAX_HITS, channel->trailing_edge);
-		channel->nleading  = 0;
-		channel->ntrailing = 0;
+	// dragon::utils::reset_array(vme::V1190::MAX_HITS, channel->leading_edge);
+	// dragon::utils::reset_array(vme::V1190::MAX_HITS, channel->trailing_edge);
+	channel->leading_edge.clear();
+	channel->trailing_edge.clear();
+	channel->nleading  = 0;
+	channel->ntrailing = 0;
 } }	
 
 void vme::V1190::reset()
@@ -112,10 +114,11 @@ int32_t vme::V1190::get_data(int16_t ch) const
 	 * channel \e ch. If \e ch is out of bounds, prints a warning
 	 * message and returns dragon::NO_DATA.
 	 */
+
 	if (ch >= 0 && ch < MAX_CHANNELS) {
-		// return leading_edge[0][ch];
-		// return leading_edge[ch].hit[0];
-		return channel[ch].leading_edge[0];
+		// return channel[ch].leading_edge[0];
+		return channel[ch].leading_edge.empty() ?
+			dragon::NO_DATA : channel[ch].leading_edge[0];
 	}
 	else {
 		dragon::utils::err::Warning("V1190::get_data")
@@ -172,6 +175,7 @@ bool vme::V1190::unpack_data_buffer(const uint32_t* const pbuffer)
 
 
 	// error if over the hard coded hit maximum
+#if 0
 	bool over_max = (type == 0) ? (p_ch->nleading >= MAX_HITS) : (p_ch->ntrailing >= MAX_HITS);
 	if (over_max) {
 		const char* const which = (type == 0) ? "leading" : "trailing";
@@ -180,12 +184,22 @@ bool vme::V1190::unpack_data_buffer(const uint32_t* const pbuffer)
 		std::cerr << DRAGON_ERR_FILE_LINE;
 		return false;
 	}
+#endif
 
+#if 0
 	if (type == 0) // leading edge
 		p_ch->leading_edge[(p_ch->nleading)++] = measurement;
 	else // trailing edge
 		p_ch->trailing_edge[(p_ch->ntrailing)++] = measurement;
+#endif
+	if (type == 0) // leading edge
+		p_ch->leading_edge.push_back(measurement);
+	else // trailing edge
+		p_ch->trailing_edge.push_back(measurement);
 	
+	p_ch->nleading = p_ch->leading_edge.size();
+	p_ch->ntrailing = p_ch->trailing_edge.size();
+
 	return true;
 }
 

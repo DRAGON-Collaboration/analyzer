@@ -142,8 +142,10 @@ private: // Internal routines
 public: // Subclasses
 /// Encloses measurement data for a single v1190 TDC channel
 	struct Channel {
-		int32_t leading_edge[DRAGON_TDC_MAX_HITS];  ///< Array of leading-egde hit times
-		int32_t trailing_edge[DRAGON_TDC_MAX_HITS]; ///< Array of trailing-edge hit times
+		// int32_t leading_edge[DRAGON_TDC_MAX_HITS];  ///< Array of leading-egde hit times
+		// int32_t trailing_edge[DRAGON_TDC_MAX_HITS]; ///< Array of trailing-edge hit times
+		std::vector<int32_t> leading_edge;  //!
+		std::vector<int32_t> trailing_edge; //!
 		int16_t nleading;                           ///< Number of leading-edge hits
 		int16_t ntrailing;                          ///< Number of trailing-edge hits
 	};
