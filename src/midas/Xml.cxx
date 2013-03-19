@@ -25,13 +25,13 @@ midas::Xml::Xml(const char* filename):
 	gSystem->ExpandPathName(fnameExp);
 	const char* fname2 = fnameExp.Data();
 #else
-	const char* fname2 = filename;
+	const char* fname2 = filename ? filename : "0x0";
 #endif
 
 	char err[256]; int err_line;
 	fTree = ParseFile(fname2, err, sizeof(err), &err_line);
 	if(!fTree) {
-		std::cerr << "Error: Bad XML file: " << fname2 << ", error message: " <<
+		std::cerr << "Error: Bad XML file: " << filename << ", error message: " <<
 			 err << ", error line: " << err_line << "\n";
 		fIsZombie = true;
 		return;

@@ -128,7 +128,8 @@ void midas::Event::Init(const char* tsbank, const void* header, const void* addr
 		uint32_t route   = *ptsc++;
 
 		// Suppress compiler warning about unused values
-		if (0 && version && bkts && route) { }
+		if (version && bkts && route)
+			;
 
 		// Check version
 		uint32_t versions[] =

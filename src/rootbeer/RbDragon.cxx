@@ -3,6 +3,7 @@
 /// \author G. Christian
 /// \brief Implementation of rb::BufferSource::New() and rb::Rint::RegisterEvents()
 ///
+#include <ctime>
 #include <cassert>
 
 // ROOTBEER includes //
@@ -86,8 +87,13 @@ void rbdragon::MidasBuffer::RunStopTransition(Int_t runnum)
 
 	/// - Flush timestamp queue (max 60 seconds for online)
 	Int_t flush_time = fType == ONLINE ? 60 : -1;
+	time_t t_begin = time(0);
 	size_t qsize;
 	while (1) {
+		if (flush_time >= 0 &&
+				(difftime(time(0), t_begin) > flush_time))
+			break;
+
 		fUnpacker.ClearUnpackedCodes();
 		qsize = fUnpacker.FlushQueueIterative(); // Fills classes implicitly
 		if (qsize == 0) break;
