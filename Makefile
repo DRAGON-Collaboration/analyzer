@@ -270,20 +270,12 @@ $(OBJ)/rootbeer/RbDragon.o
 # $(OBJ)/rootbeer/DragonRootbeer.o	\
 
 RB_HEADERS= $(SRC)/rootbeer/RbDragon.hxx
-##$(SRC)/rootbeer/*.hxx
 
 RB_DEFS=-DRB_DRAGON_HOMEDIR=$(PWD)
 
-## $(DRLIB)/libRbDragon.so
 $(PWD)/bin/rbdragon: $(RB_OBJECTS)
 	$(LINK) $(RB_OBJECTS) -L$(PWD)/../../rootbeer/lib  -lDragon -lRootbeer -lRbMidas \
 -o $@ \
-
-$(DRLIB)/libRbDragon.so: $(RB_OBJECTS) $(RB_HEADERS)
-	$(LINK) $(RB_DEFS) $(RBINC) $(DYLIB) $(FPIC) $(RB_OBJECTS) -L$(PWD)/../../rootbeer/lib -lRbMidas \
--o $@ \
-
-libRbDragon: $(DRLIB)/libRbDragon.so
 
 
 
