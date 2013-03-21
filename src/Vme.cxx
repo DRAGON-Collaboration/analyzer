@@ -1,5 +1,5 @@
 ///
-/// \file Io32.cxx
+/// \file Vme.cxx
 /// \author G. Christian
 /// \brief Implements Vme.hxx
 ///

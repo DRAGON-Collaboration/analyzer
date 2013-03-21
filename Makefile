@@ -303,7 +303,7 @@ clean:
 #### FOR DOXYGEN ####
 
 doc::
-	doxygen doc/Doxyfile
+	$(HOME)/bin/doxygen doc/Doxyfile
 
 docclean::
 	rm -fr /triumfcs/trshare/gchristian/public_html/dragon/analyzer/html \

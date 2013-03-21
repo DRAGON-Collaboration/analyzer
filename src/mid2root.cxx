@@ -34,6 +34,10 @@ const char* const msg_use =
 /// Encloses mid2root helper functions
 namespace m2r {
 
+//
+// SKip documenting a bunch of internal stuff
+#ifndef DOXYGEN_SKIP
+
 typedef std::vector<std::string> strvector_t;
 
 //
@@ -100,6 +104,8 @@ int GetQuietLevel()
 	return 0;
 }
 
+#endif
+
 /// Program options
 struct Options_t {
 	std::string fIn;
@@ -111,7 +117,7 @@ struct Options_t {
 };
 
 
-/// Print in=place event counter
+/// Print in-place event counter
 void static_counter(Int_t n, Int_t nupdate = 1000, bool force = false)
 {
 	if(n == 0) {
@@ -186,6 +192,7 @@ int help()
 }
 
 
+/// Parse command line arguments
 int process_args(int argc, char** argv, Options_t* options)
 {
 	strvector_t args(argv+1, argv+argc);
