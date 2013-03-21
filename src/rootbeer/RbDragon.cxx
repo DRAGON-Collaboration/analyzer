@@ -1,7 +1,7 @@
 ///
-/// \file DragonRootbeer.cxx
+/// \file RbDragon.cxx
 /// \author G. Christian
-/// \brief Implementation of rb::BufferSource::New() and rb::Rint::RegisterEvents()
+/// \brief Implements RbDragon.hxx
 ///
 #include <ctime>
 #include <cassert>
@@ -274,13 +274,17 @@ void rbdragon::TailScaler::ReadVariables(midas::Database* db)
 
 rb::MidasBuffer* rb::MidasBuffer::Create()
 {
+	/*!
+	 * \returns <tt>new rbdragon::MidasBuffer();</tt>
+	 */
 	return new rbdragon::MidasBuffer();
 }
 
 rb::Main* rb::GetMain()
 {
 	/*!
-	 * Use the default main() implementation by returning a value of the base class rb::Main.
+	 * Use the default main() implementation.
+	 * \returns <tt>new rb::Main();</tt>
 	 */
 	return new rb::Main();
 }
