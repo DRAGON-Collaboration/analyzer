@@ -1,7 +1,7 @@
 #ifndef RB_DRAGON_INCLUDE_GUARD
 #define RB_DRAGON_INCLUDE_GUARD
 ///
-/// \file RbDragon.hxx
+/// \file rbdragon.hxx
 /// \author G. Christian
 /// \brief Defines classes to interface dragon with the ROOTBEER framework.
 ///

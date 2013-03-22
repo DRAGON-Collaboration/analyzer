@@ -1,7 +1,7 @@
 ///
-/// \file RbDragon.cxx
+/// \file rbdragon.cxx
 /// \author G. Christian
-/// \brief Implements RbDragon.hxx
+/// \brief Implements rbdragon.hxx
 ///
 #include <ctime>
 #include <cassert>
@@ -16,8 +16,7 @@
 #include "utils/Stringify.h"
 #include "midas/Database.hxx"
 #include "midas/Event.hxx"
-#include "DragonEvents.hxx"
-#include "RbDragon.hxx"
+#include "rbdragon.hxx"
 
 
 

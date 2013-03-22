@@ -150,7 +150,6 @@ $(SRC)/*.hxx
 MAKE_ALL=$(DRLIB)/libDragon.so $(PWD)/bin/mid2root
 ifeq ($(USE_ROOTBEER),YES)
 MAKE_ALL+=$(PWD)/bin/rbdragon
-## MAKE_ALL+=$(DRLIB)/libRBDragon.so
 endif
 ifeq ($(USE_ROOTANA),YES)
 MAKE_ALL+=anaDragon
@@ -173,7 +172,7 @@ $(PWD)/bin/mid2root: src/mid2root.cxx $(DRLIB)/libDragon.so
 
 mid2root: $(PWD)/bin/mid2root
 
-RbDragon.o: $(OBJ)/rootbeer/RbDragon.o
+rbdragon.o: $(OBJ)/rootbeer/rbdragon.o
 
 ### OBJECT FILES ###
 
@@ -263,18 +262,14 @@ Dragon: $(OBJ)/Dragon.o
 
 RBINC=-I$(RB_HOME)/src
 RB_OBJECTS= 				\
-$(OBJ)/rootbeer/RbDragon.o
-# $(OBJ)/rootbeer/Timestamp.o		\
-# $(OBJ)/rootbeer/MidasBuffer.o		\
-# $(OBJ)/rootbeer/DragonEvents.o		\
-# $(OBJ)/rootbeer/DragonRootbeer.o	\
+$(OBJ)/rootbeer/rbdragon.o
 
-RB_HEADERS= $(SRC)/rootbeer/RbDragon.hxx
+RB_HEADERS= $(SRC)/rootbeer/rbdragon.hxx
 
 RB_DEFS=-DRB_DRAGON_HOMEDIR=$(PWD)
 
 $(PWD)/bin/rbdragon: $(RB_OBJECTS)
-	$(LINK) $(RB_OBJECTS) -L$(PWD)/../../rootbeer/lib  -lDragon -lRootbeer -lRbMidas \
+	$(LINK) $(RB_OBJECTS) -L$(PWD)/../../rootbeer/lib  -lDragon -lRootbeer -lrbMidas \
 -o $@ \
 
 
@@ -295,7 +290,7 @@ clean:
 #### FOR DOXYGEN ####
 
 doc::
-	$(HOME)/bin/doxygen doc/Doxyfile
+	doxygen doc/Doxyfile
 
 docclean::
 	rm -fr /triumfcs/trshare/gchristian/public_html/dragon/analyzer/html \

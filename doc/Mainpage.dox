@@ -1,36 +1,10 @@
 /*!
 	\mainpage
-	\authors G. Christian
-	\authors C. Stanford
-	\authors K. Olchanski
+  \tableofcontents
 
+	\authors G. Christian\n C. Stanford\n	K. Olchanski
 
-	\section toc Table of Contents
-
-  - <a href=#intro><b>Introduction</b></a>
-
-  - <a href=#daq><b>DRAGON Data Acquisition (DAQ)</b></a>
-   - <a href=#hardware><b>DRAGON Hardware</b></a>
-   - <a href=#trigger><b>Trigger</b></a>
-   - <a href=#data><b>Data Format</b></a>
-
-  - <a href=#installation><b>Installation</b></a>
-    - <a href=#dependencies><b>Dependencies</b></a>
-    - <a href=#download><b>Download and Compile</b></a>
-    - <a href=#pyext><b>Python Extension</b></a>
-
-  - <a href=#using><b>For Users</b></a>
-    - <a href=#rootana><b>Rootana Online Analyzer</b></a>
-
-  - <a href=#developers><b>For Developers</b></a>
-    - <a href=#design><b>Design</b></a>
-    - <a href=#conventions><b>Coding Conventions</b></a>
-    - <a href=#doc><b>Documentation</b></a>
-
-
-	\n\n
 	\section intro Introduction
-
 	This software package is developed for the analysis of data collected in DRAGON experiments
 	at TRIUMF. The software is intended for experiments run with the "new" (c. 2013) DRAGON data-acquisition
 	system (VME hardware + timestamp coincidence matching).
@@ -58,10 +32,8 @@
 	the moment and requires installation of <a href=http://www.boost.org/doc/libs/1_51_0/libs/python/doc/>
 	boost::python</a> to compile the libraries.
 
-
-	\n\n
+	
 	\section daq DRAGON Data Acquisition (DAQ)
-
 	Before launching into a description of the analysis software, I'll first give an overview of how the DRAGON
 	data-acquisition is structured. This is intended to serve as documentation of the bit-packed structure of
 	DRAGON event data, as well as the trigger logic and related topics.
@@ -92,7 +64,6 @@
 	(writing to disk) functions.
 
 	\subsection trigger Trigger
-
 	The following figure shows a simplified diagram of the trigger logic (identical for head and tail DAQs):\n\n
 	\image html trigger.png
 	\n\n
@@ -107,9 +78,9 @@
 	signals (NIM in 2 and 3) are ORed internally and sent through an FPGA logic sequence to generate three output
 	signals:
 
-	-# "Trigger"
-	-# "Gate"
-	-# "TDC Trigger"
+	1. "Trigger"
+	2. "Gate"
+	3. "TDC Trigger"
 
 	The "trigger" signal is routed back into the IO32, where it sets off the internal logic to identify that an
 	event has occured. This also prompts the generation of a "busy" signal which can be used to block the generation
@@ -123,7 +94,6 @@
 	
 	
 	\subsection data Data Format
-
 	When an event triggers one of the respective DAQ systems, the corresponding data are read from the internal
 	memory of each of the VME modules and transferred via the network to a backend computer for analysis and
 	logging. Actually, it is slightly more complicated than that, as individual events are first buffered in
@@ -187,54 +157,54 @@
 	bank. A typical analysis code will loop over all of the data in the bank, and then decide how to handle it based either
 	on foreknowledge of the exact bank structure or on information contained in specific bits within each word.
 
-	As an example, take a slightly modified of the code to unpack V792 ADC data:
-
+	As an example, take a slightly modified version of the code to unpack V792 ADC data:
 	\code
-  bool vme::V792::unpack(const midas::Event& event, const char* bankName, bool reportMissing)
-  {
-    bool ret = true; // return value
-
-    // Search for a MIDAS bank with the correct name (the value of the variable 'bankName')
-    int bank_len;
-    uint32_t* pbank32 = event.GetBankPointer<uint32_t>(bankName, &bank_len, reportMissing, true);
-
-    // pbank32 is now set to the address of the bank with name 'bankName'. We know ahead of time that
-    // the bank contains a set of longwords (uint32_t), and bank_len is now set to the number of longwords
-    // stored in the bank.
-
-    // Loop over all data words in the bank
-    for (int i=0; i< bank_len; ++i) {
-
-      // Read bits 24, 25, 26 to figure out the type of data in this particular longword
-      uint32_t type = (*pbuffer >> 24) & 0x7;
-			
-      // Now decide what to do based on the value of 'type'
-      switch (type) {
-
-      case 0x0: // Data bits
-      // Figure out the measurement value, copy into vme::V792 class data.
-      break;
-
-      case 0x2: // Header bits
-      // Read relevant header information and proceed.
-      break;
-
-      // ... etc for other data types ... //
-
-      default:
-      break;
-
-      } // Note: Somewhere along the line, set 'ret' to 'false' if there was an error.
-    }
-
-    return ret;
-  }
+      bool vme::V792::unpack(const midas::Event& event, const char* bankName, bool reportMissing)
+      {
+        bool ret = true; // return value
+      
+        // Search for a MIDAS bank with the correct name (the value of the variable 'bankName')
+        int bank_len;
+        uint32_t* pbank32 = event.GetBankPointer<uint32_t>(bankName, &bank_len, reportMissing, true);
+      
+        // pbank32 is now set to the address of the bank with name 'bankName'. We know ahead of time that
+        // the bank contains a set of longwords (uint32_t), and bank_len is now set to the number of longwords
+        // stored in the bank.
+      
+        // Loop over all data words in the bank
+        for (int i=0; i< bank_len; ++i) {
+      
+          // Read bits 24, 25, 26 to figure out the type of data in this particular longword
+          uint32_t type = (*pbuffer >> 24) & 0x7;
+      		
+          // Now decide what to do based on the value of 'type'
+          switch (type) {
+      
+          case 0x0: // Data bits
+          // Figure out the measurement value, copy into vme::V792 class data.
+          break;
+      
+          case 0x2: // Header bits
+          // Read relevant header information and proceed.
+          break;
+      
+          // ... etc for other data types ... //
+      
+          default:
+          break;
+      
+          } // Note: Somewhere along the line, set 'ret' to 'false' if there was an error.
+        }
+      
+        return ret;
+      }
   \endcode
 
-  If you are unfamiliar with C/C++ bit shifting and masking, the line <tt>(*pbuffer >> 24)  & 0x7</tt> might be confusing
-	to you. The basic idea is that you are taking the value of the 32 bits stored at \c puffer (\c *pbuffer extracts the value)
-	and first shifting it by 24 bits, then masking it with the value of <tt>0x7</tt>, that is, extracting only the first three
-	bits, which now correspond to bits 24, 25, 26 since \c *pbuffer has already been shifted by 24 bits to the right. Here's a
+  If you are unfamiliar with C/C++ bit shifting and masking, the line `(*pbuffer >> 24)  & 0x7` might be confusing
+	to you. The basic idea is that you are taking the value of the 32 bits stored at the address pointed to by
+	`pbuffer` (`*pbuffer` extracts the value)
+	and first shifting it by 24 bits, then masking it with the value of `0x7`, that is, extracting only the first three
+	bits, which now correspond to bits 24, 25, 26 since `*pbuffer` has already been shifted by 24 bits to the right. Here's a
 	figure to help visualize the process:
 	\n\n
 	\image html bits.png
@@ -263,12 +233,12 @@
 	bits as follows:\n\n
 	\image html v792header.png \n\n
 
-	- Bits 0 - 7: Unused.
-	- Bits 8 - 13: Identify the total number of data longwords in the event.
-	- Bits 14 - 15: Unused
-	- Bits 16 - 23: Identify the "crate number" of the present module (ignored for DRAGON experiments).
-	- Bits 24 - 26: Uniquely identify the longword as a header, that is, all headers have the sequence 0 1 0 for these bits.
-	- Bits 27 - 31: Identify the "geo address" of the present module (ignored for DRAGON experiments).
+  -Bits 0 - 7: Unure3r23re32r3rt34gtsed.
+  - Bits 8 - 13: Identify the total number of data longwords in the event.
+  - Bits 14 - 15: Unused
+  - Bits 16 - 23: Identify the "crate number" of the present module (ignored for DRAGON experiments).
+  - Bits 24 - 26: Uniquely identify the longword as a header, that is, all headers have the sequence 0 1 0 for these bits.
+  - Bits 27 - 31: Identify the "geo address" of the present module (ignored for DRAGON experiments).
 
 	\n
 	<i>Data</i>
@@ -300,7 +270,7 @@
 	- Bits 24 - 26: Ideitify this longword as a footer; all footers have the sequence 0 0 1 for these bits.
 	- Bits 27 - 31: Copy of the "geo" address.
 
-	Finally, in addition to the types mentioned above, a longword can also be an \e invalid word, which is IDed by
+	Finally, in addition to the types mentioned above, a longword can also be an _invalid_ word, which is IDed by
 	0 0 1 for bits 24 - 26. An invalid word typically signifies some sort of error condition within the ADC.
 
 	\n
@@ -440,8 +410,7 @@
 	the time being.
 
 	\todo Write the TSC bank description.
-	
-	\n
+
 	<b><i>Coincidence Matching</i></b> \n
 
 	An important topic related to the TSC bank is the method used to identify singles and coincidence events. As analysis
@@ -478,7 +447,6 @@
 
 	\n\n
 	\section installation Installation
-
 	This section gives an overwiew of how to obtain and install the latest version of the DRAGON data analysis
 	package.
 	
@@ -498,18 +466,18 @@
 	https://github.com/gchristian321/dragon_analyzer/tree/dev</a>. You can either download the current version
 	of the code as a .zip file, or if you are familiar with
 	git, you can clone it into a local repository (note that you want to be on the 'dev' branch):
-	\code
-  git clone git@github.com:gchristian321/dragon_analyzer.git
-	\endcode
+	
+      git clone git@github.com:gchristian321/dragon_analyzer.git
+
 
 	Before compiling, you may need to customize the Makefile to work on your system. If you open the file,
 	you will see a section at the top where you can customize things. There are comments explaining what each of
 	the optional features are and how you can change them.
 
 	One you have set up the makefile as appropriate for your system, compiling should be as simple as typing
-	\code
-  make
-	\endcode
+
+      make
+
 	at the command line.  This will install the generated binaries in your local directory (shared libraries in
 	$PWD/lib, binaries in $PWD). There is no "install" option, so you should either copy/link the binaries and
 	libraries into a system-wide directory or update the necessary environment variables to allow your shell
@@ -531,29 +499,28 @@
 	changes to the dragon analyzer sources, re-generation of the Py++ sources will be necessary in order to safely use
 	the python libraries.
 
-	To compile the python extension, simply cd into the py++ directory and type 'make', \e after having compiled
+	To compile the python extension, simply cd into the py++ directory and type `make`, _after_ having compiled
 	the core dragon library. To be able to use the extensions from any directory, add the following to your bash
 	startup script:
-	\code
-  export PYTHONPATH=${PYTHONPATH}:"/path/to/your/dragon/analyzer/py++/"
-  export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:"/path/to/your/dragon/analyzer/py++/"
-	\endcode
+
+      export PYTHONPATH=${PYTHONPATH}:"/path/to/your/dragon/analyzer/py++/"
+			export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:"/path/to/your/dragon/analyzer/py++/"
+
 	and re-start your bash session or re-source the startup script. Now from a python session or script, you
 	can load the generated modules:
-	\code
-  import midas
-  import vme
-  import dragon
-	\endcode
 
-	You can use the python 'help' function (<tt>help dragon</tt>, etc) to see the classes and functions
+      import midas
+			import vme
+			import dragon
+
+
+	You can use the python 'help' function (`help dragon`, etc) to see the classes and functions
 	available in each module.
 
 	\n\n
 	\section using For Users
 
 	\subsection rootana Rootana Online Analyzer
-
 	This package includes a library to interface the DRAGON analysis codes with MIDAS's
 	<a href=http://ladd00.triumf.ca/~olchansk/rootana/>rootana</a> system,
 	which allows visualization of online and offline data in histograms, in. If you are familiar with the "old"
@@ -573,17 +540,15 @@
 	definitions. By default, histograms are created from the file <tt>${DR_HOME}/histos.dat</tt>, where \c ${DR_HOME}
 	is the location of the DRAGON analyzer package. However, you can alternatively specify a different histogram
 	definition file by invoking the \c -histos flag at program start:
-	\code
-  ./anaDragon -histos my_histograms.dat
-	\endcode
+
+      ./anaDragon -histos my_histograms.dat
 
 	Note that the default histogram file (or the one specified with the \c -histos flag, creates histograms that
 	are available both online and offline, that is, they are viewable online using the roody interface, and they
 	are also saved to a .root file at the end of the run. It is also possible to specify a separate set of histograms
 	for online viewing \e only. To do this, invoke the \c -histos0 flag:
-	\code
-  ./anaDragon -histos0 histograms_i_only_care_to_see_online.dat
-	\endcode
+
+      ./anaDragon -histos0 histograms_i_only_care_to_see_online.dat
 
 	Now that you know how to specify what file to read the histogram definitions from, you should probably also
 	know how to write said file. The basic way in which the files are parsed is by using a set of "key" codes
@@ -730,7 +695,7 @@
       Cut2D(gHead.bgo.ecal[0], gHead.bgo.ecal[1], cutg)
   \endcode
   The above example would apply the graphical cut "cutg" defined in the "CMD:" statement to the "bgo_ecal" histogram.
-
+	\endverbatim
 	With combinations of the above commands, you should hopefully be able to define any histogram-related objects you'll
 	need in the online analyzer without ever having to touch the source code. A few more notes about histogram definition
 	files:
@@ -785,13 +750,11 @@
 
 	\n\n
 	\section developers For Developers
-
 	This section just gives a brief overview behind the package's design and some suggestions for future
 	maintainers/developers. For detailed documentation, see the related Doxygen documentation linked from the top
 	of this page.
 
 	\subsection design Design
-
 	In writing this code, I've tried to adhere to a few design principles. I'll give a brief listing here
 	in hopes that future developers (or users) of the code can better understand what's going on and the
 	reasoning behind it. In the future (barring a major re-write), I think it will be beneficial to follow
@@ -999,7 +962,6 @@
 	
 
 	\subsection doc Documentation
-
 	Given the fast turnover rate of developers and the common requirement for "everyday" users (whose level of expertise
 	in the source language ranges from beginner to expert) to understand and modify source code,
 	maintaining quality code documentation is essential for a physics software package to stay maintainable.
