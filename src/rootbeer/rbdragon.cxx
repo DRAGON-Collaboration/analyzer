@@ -69,7 +69,7 @@ void rbdragon::MidasBuffer::RunStartTransition(Int_t runnum)
 	/// - Read variables from the ODB if online
 	if (fType == rb::MidasBuffer::ONLINE) {
 		dragon::utils::err::Info("rbdragon::MidasBuffer")
-			<< "Synching variable values with the online database.";
+			<< "Syncing variable values with the online database.";
 		midas::Database db("online");
 		ReadVariables(&db);
 	}
@@ -232,7 +232,6 @@ rbdragon::HeadScaler::HeadScaler():
 	fScaler("head_scaler", this, true)
 {
 	assert(fScaler.Get());
-	fScaler->variables.set_bank_names("SCH");
 }
 
 void rbdragon::HeadScaler::HandleBadEvent()
@@ -253,7 +252,6 @@ rbdragon::TailScaler::TailScaler():
 	fScaler("head_scaler", this, true)
 {
 	assert(fScaler.Get());
-	fScaler->variables.set_bank_names("SCT");
 }
 
 void rbdragon::TailScaler::HandleBadEvent()

@@ -128,7 +128,7 @@ std::vector<int32_t> dutils::Unpacker::UnpackMidasEvent(void* header, char* data
 				UnpackHead(event);
 			}
 			else {
-				midas::Event event(header, data, evtHeader->fDataSize, fHead->banks.tsc, GetCoincWindow());
+				midas::Event event(header, data, evtHeader->fDataSize, fHead->variables.bk_tsc, GetCoincWindow());
 				fQueue->Push(event, fDiag);
 			}
 			break;
@@ -140,7 +140,7 @@ std::vector<int32_t> dutils::Unpacker::UnpackMidasEvent(void* header, char* data
 				UnpackTail(event);
 			}
 			else {
-				midas::Event event(header, data, evtHeader->fDataSize, fTail->banks.tsc, GetCoincWindow());
+				midas::Event event(header, data, evtHeader->fDataSize, fTail->variables.bk_tsc, GetCoincWindow());
 				fQueue->Push(event, fDiag);
 			}
 			break;

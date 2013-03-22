@@ -12,7 +12,6 @@
 #include <string>
 #include <sstream>
 #include "utils/VariableStructs.hxx"
-#include "utils/Banks.hxx"
 #include "midas/Event.hxx"
 #include "Vme.hxx"
 
@@ -35,7 +34,6 @@ class Tail; // forward declaration
 
 
 // ======= Class definitions ======== //
-
 
 ///
 /// Global run parameters
@@ -496,8 +494,6 @@ public: // Methods
 	void calculate();
 
 public: // Data
-	/// Bank names
-	dragon::utils::EventBanks<1, 1> banks; //!
 	/// Midas event header
 	midas::Event::Header header; //#
 
@@ -528,6 +524,14 @@ public: // Subclasses
 	///
 	class Variables {
  public: // Data
+		/// IO32 bank name
+		midas::Bank_t bk_io32;
+		/// Timestamp counter bank name
+		midas::Bank_t bk_tsc;
+		/// ADC bank name
+		midas::Bank_t bk_adc;
+		/// TDC bank name
+		midas::Bank_t bk_tdc;
 		/// Crossover TDC channel variables
 		dragon::utils::TdcVariables<1> xtdc;
  public: // Methods
@@ -570,8 +574,6 @@ public: // Methods
 	void calculate();
 
 public: // Class data
-	/// Bank names
-	dragon::utils::EventBanks<2, 1> banks; //!
 	/// Midas event header
 	midas::Event::Header header;   //#
 	// Vme modules (write to TTree)
@@ -618,6 +620,18 @@ public: // Class data
 public: // Subclasses
 	// Subclasses //
 	class Variables {
+ public: // Data
+		/// IO32 bank name
+		midas::Bank_t bk_io32;
+		/// Timestamp counter bank name
+		midas::Bank_t bk_tsc;
+		/// ADC bank names
+		midas::Bank_t bk_adc[NUM_ADC];
+		/// TDC bank name
+		midas::Bank_t bk_tdc;
+		/// Crossover TDC channel variables
+		dragon::utils::TdcVariables<1> xtdc;
+
  public: // Methods
 		/// Sets data to defaults
 		Variables();
@@ -627,10 +641,6 @@ public: // Subclasses
 		bool set(const char* dbfile);
 		///  Set data values from a constructed database
 		bool set(const midas::Database* db);
-
- public: // Data
-		/// Crossover TDC channel variables
-		dragon::utils::TdcVariables<1> xtdc;
 	};
 
 public: // Subclass instances
@@ -738,6 +748,18 @@ public: // Subclasses
   /// Scalar variables
 	///
   class Variables {
+ public: // Data
+		/// Name of a given channel
+		std::string names[MAX_CHANNELS];
+		/// `count` bank name
+		midas::Bank_t bk_count;
+		/// `rate` bank name
+		midas::Bank_t bk_rate;
+		/// `sum` bank name
+		midas::Bank_t bk_sum;
+		/// Base odb path
+		std::string odb_path;
+
  public: // Methods
     /// Constuctor
     Variables();
@@ -747,21 +769,11 @@ public: // Subclasses
 		bool set(const char* dbfile, const char* dir);
 		///  Set data values from a constructed database
 		bool set(const midas::Database* db, const char* dir);
-		/// Set bank names
- 		void set_bank_names(const char* base);
-
- public: // Data
-		/// Name of a given channel
-		std::string names[MAX_CHANNELS]; //!
-		/// Frontend bank names
-		dragon::utils::ScalerBanks bank_names; //!
-		/// Base odb path
-		std::string odb_path; //!
   };
 
 public: // Subclass instances
 	/// Variables instance
-	Variables variables;
+	Variables variables; //!
 };
 
 } // namespace dragon

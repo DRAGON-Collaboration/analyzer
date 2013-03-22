@@ -21,9 +21,14 @@ int gErrorIgnoreLevel; // Global error ignore
 
 namespace dutils = dragon::utils;
 
-namespace {
 // 
 // Helper function for ::variables::set(const char*)
+namespace {
+
+//
+// Perform the action of creating a database from it's string name,
+// checking if it's valid, giving error if not, or forwarding on to
+// the overloaded method taking a db pointer if it's OK.
 template <class T>
 bool do_setv(T* t, const char* dbfile)
 {
@@ -70,6 +75,9 @@ bool do_setv(dragon::Coinc* t, const char* dbfile)
 	}
 	return t->set_variables(&db);	
 }
+
+//
+// Make sure a database is valid
 bool check_db(const midas::Database* db, const char* cl)
 {
 	bool success = db && !db->IsZombie();
@@ -79,6 +87,27 @@ bool check_db(const midas::Database* db, const char* cl)
 		if(db) zmsg << ", IsZombie() " << db->IsZombie();
 		dutils::err::Error(where.str().c_str())
 			<< "Invalid database: 0x" << db << zmsg.str();
+	}
+	return success;
+}
+
+//
+// Set a bank name from the ODB
+bool odb_set_bank(midas::Bank_t* bank, const midas::Database* db, const char* path, int arrayLen = 0)
+{
+	bool success;
+	if(!arrayLen) {
+		std::string bkName;
+		success = db->ReadValue(path, bkName);
+		if(success) dutils::set_bank_name(bkName.data(), *bank);
+	} else {
+		std::vector<std::string> bkNames(arrayLen);
+		success = db->ReadArray(path, &bkNames[0], arrayLen);
+		if(success) {
+			for(int i=0; i< arrayLen; ++i) {
+				dutils::set_bank_name(bkNames[i].data(), *(bank+i));
+			}
+		}
 	}
 	return success;
 }
@@ -835,10 +864,6 @@ dragon::Head::Head()
 	/*!
 	 * Set bank names, resets data to default values
 	 */
-	dutils::Banks::Set(banks.io32, "VTRH");
-	dutils::Banks::Set(banks.adc,  "ADC0");
-	dutils::Banks::Set(banks.tdc,  "TDC0");
-	dutils::Banks::Set(banks.tsc,  "TSCH");
 	reset();
 }
 
@@ -875,12 +900,6 @@ bool dragon::Head::set_variables(const midas::Database* db)
 	if(success) success = bgo.variables.set(db);
 	if(success) success = this->variables.set(db);
 
-	// Set bank names
-	if(success) success = dutils::Banks::OdbSet(banks.io32, *db, "dragon/head/bank_names/io32");
-	if(success) success = dutils::Banks::OdbSet(banks.adc,  *db, "dragon/head/bank_names/adc");
-	if(success) success = dutils::Banks::OdbSet(banks.tdc,  *db, "dragon/head/bank_names/tdc");
-	if(success) success = dutils::Banks::OdbSet(banks.tsc,  *db, "dragon/head/bank_names/tsc");
-
 	return success;
 }
 
@@ -900,9 +919,9 @@ void dragon::Head::unpack(const midas::Event& event)
 	 *  for missing banks
 	 */
 	const bool report = true;
-	io32.unpack (event, banks.io32, report);
-	v792.unpack (event, banks.adc , report);
-	v1190.unpack(event, banks.tdc,  report);
+	io32.unpack (event, variables.bk_io32, report);
+	v792.unpack (event, variables.bk_adc , report);
+	v1190.unpack(event, variables.bk_tdc,  report);
 	event.CopyHeader(header);
 }
 
@@ -934,6 +953,11 @@ dragon::Head::Variables::Variables()
 
 void dragon::Head::Variables::reset()
 {
+	dutils::set_bank_name(HEAD_IO32_BANK, bk_io32);
+	dutils::set_bank_name(HEAD_TSC_BANK,  bk_tsc);
+	dutils::set_bank_name(HEAD_TDC_BANK,  bk_tdc);
+	dutils::set_bank_name(HEAD_ADC_BANK,  bk_adc);
+
 	xtdc.channel = HEAD_CROSS_TDC;
 	xtdc.slope  = 1.;
 	xtdc.offset = 0.;
@@ -954,6 +978,11 @@ bool dragon::Head::Variables::set(const midas::Database* db)
 	 */
 	bool success = check_db(db, "dragon::Head");
 
+	if(success) success = odb_set_bank(&bk_io32, db, "/dragon/head/variables/bank_names/io32");
+	if(success) success = odb_set_bank(&bk_tsc,  db, "/dragon/head/variables/bank_names/tsc");
+	if(success) success = odb_set_bank(&bk_adc,  db, "/dragon/head/variables/bank_names/adc");
+	if(success) success = odb_set_bank(&bk_tdc,  db, "/dragon/head/variables/bank_names/tdc");
+
 	if(success) success = db->ReadValue("/dragon/head/variables/xtdc/channel", xtdc.channel);
 	if(success) success = db->ReadValue("/dragon/head/variables/xtdc/slope",   xtdc.slope);
 	if(success) success = db->ReadValue("/dragon/head/variables/xtdc/offset",  xtdc.offset);
@@ -966,11 +995,6 @@ bool dragon::Head::Variables::set(const midas::Database* db)
 
 dragon::Tail::Tail()
 {
-	dutils::Banks::Set(banks.io32,   "VTRT");
-	dutils::Banks::Set(banks.adc[0], "TLQ0");
-	dutils::Banks::Set(banks.adc[1], "TLQ1");
-	dutils::Banks::Set(banks.tdc,    "TLT0");
-	dutils::Banks::Set(banks.tsc,    "TSCT");
 	reset();
 }
 
@@ -1015,11 +1039,11 @@ void dragon::Tail::unpack(const midas::Event& event)
 	 *  for missing banks
 	 */
 	const bool report = false;
-	io32.unpack (event, banks.io32, report);
+	io32.unpack (event, variables.bk_io32, report);
 	for (int i=0; i< NUM_ADC; ++i) {
-		v785[i].unpack(event, banks.adc[i], report);
+		v785[i].unpack(event, variables.bk_adc[i], report);
 	}
-	v1190.unpack(event, banks.tdc, report);
+	v1190.unpack(event, variables.bk_tdc, report);
 	event.CopyHeader(header);
 }
 
@@ -1103,24 +1127,23 @@ bool dragon::Tail::set_variables(const midas::Database* db)
 #ifndef DRAGON_OMIT_DSSSD
 	if(success) success = dsssd.variables.set(db);
 #endif
+
 #ifndef DRAGON_OMIT_IC
 	if(success) success = ic.variables.set(db);
 #endif
+
 	if(success) success = mcp.variables.set(db);
 	if(success) success = sb.variables.set(db);
+
 #ifndef DRAGON_OMIT_NAI
 	if(success) success = nai.variables.set(db);
 #endif
+
 #ifndef DRAGON_OMIT_GE
 	if(success) success = ge.variables.set(db);
 #endif
+
 	if(success) success = this->variables.set(db);
-	
-	// Set bank names
-	if(success) success = dutils::Banks::OdbSet(banks.io32,*db, "dragon/tail/bank_names/io32");
-	if(success) success = dutils::Banks::OdbSet(banks.tsc, *db, "dragon/tail/bank_names/tsc");
-	if(success) success = dutils::Banks::OdbSet(banks.tdc, *db, "dragon/tail/bank_names/tdc");
-	if(success) success = dutils::Banks::OdbSetArray(banks.adc, 2, *db, "dragon/tail/bank_names/adc");
 
 	return success;
 }
@@ -1134,6 +1157,12 @@ dragon::Tail::Variables::Variables()
 
 void dragon::Tail::Variables::reset()
 {
+	dutils::set_bank_name(TAIL_IO32_BANK,   bk_io32);
+	dutils::set_bank_name(TAIL_TSC_BANK,    bk_tsc);
+	dutils::set_bank_name(TAIL_TDC_BANK,    bk_tdc);
+	dutils::set_bank_name(TAIL_ADC_BANK_0,  bk_adc[0]);
+	dutils::set_bank_name(TAIL_ADC_BANK_1,  bk_adc[1]);
+
 	xtdc.channel = TAIL_CROSS_TDC;
 	xtdc.slope  = 1.;
 	xtdc.offset = 0.;
@@ -1153,6 +1182,11 @@ bool dragon::Tail::Variables::set(const midas::Database* db)
 	 * \param [in] db Pointer to a constructed database.
 	 */
 	bool success = check_db(db, "dragon::Tail");
+
+	if(success) success = odb_set_bank(&bk_io32, db, "/dragon/tail/variables/bank_names/io32");
+	if(success) success = odb_set_bank(&bk_tsc,  db, "/dragon/tail/variables/bank_names/tsc");
+	if(success) success = odb_set_bank(&bk_tdc,  db, "/dragon/tail/variables/bank_names/tdc");
+	if(success) success = odb_set_bank(bk_adc,   db, "/dragon/tail/variables/bank_names/adc", NUM_ADC);
 
 	if(success) success = db->ReadValue("/dragon/tail/variables/xtdc/channel", xtdc.channel);
 	if(success) success = db->ReadValue("/dragon/tail/variables/xtdc/slope",   xtdc.slope);
@@ -1215,16 +1249,16 @@ void dragon::Scaler::unpack(const midas::Event& event)
 	 */
 	bool report = true;
 	int bank_len;
-	uint32_t* pcount = event.GetBankPointer<uint32_t>(variables.bank_names.count, &bank_len, report, true);
-	if ( check_bank_len(MAX_CHANNELS, bank_len, variables.bank_names.count) )
+	uint32_t* pcount = event.GetBankPointer<uint32_t>(variables.bk_count, &bank_len, report, true);
+	if ( check_bank_len(MAX_CHANNELS, bank_len, variables.bk_count) )
 		std::copy(pcount, pcount + bank_len, count);
 
-	uint32_t* psum = event.GetBankPointer<uint32_t>(variables.bank_names.sum, &bank_len, report, true);
-	if ( check_bank_len(MAX_CHANNELS, bank_len, variables.bank_names.sum) )
+	uint32_t* psum = event.GetBankPointer<uint32_t>(variables.bk_sum, &bank_len, report, true);
+	if ( check_bank_len(MAX_CHANNELS, bank_len, variables.bk_sum) )
 		std::copy(psum, psum + bank_len, sum);
 
-	double* prate = event.GetBankPointer<double>(variables.bank_names.rate, &bank_len, report, true);
-	if ( check_bank_len(MAX_CHANNELS, bank_len, variables.bank_names.rate) )
+	double* prate = event.GetBankPointer<double>(variables.bk_rate, &bank_len, report, true);
+	if ( check_bank_len(MAX_CHANNELS, bank_len, variables.bk_rate) )
 		std::copy(prate, prate + bank_len, rate);
 }
 
@@ -1254,13 +1288,17 @@ dragon::Scaler::Variables::Variables():
 
 void dragon::Scaler::Variables::reset()
 {
-	/*! Resets every channel to a default name: \c channel_n */
+	/*! Resets every channel to a default name: \c channel_n*/
 	for (int i=0; i< MAX_CHANNELS; ++i) {
 		std::stringstream strm_name;
 		strm_name << "channel_" << i;
 		names[i] = strm_name.str();
 	}
-	set_bank_names("SCH");
+
+	/// - Set bank names to dummy values
+	dutils::set_bank_name("NULD", bk_count);
+	dutils::set_bank_name("NULR", bk_rate);
+	dutils::set_bank_name("NULS", bk_sum);
 }
 
 bool dragon::Scaler::Variables::set(const char* dbfile, const char* dir)
@@ -1301,28 +1339,12 @@ bool dragon::Scaler::Variables::set(const midas::Database* db, const char* dir)
 
 	if(success) success = db->ReadArray((path1 + "/names").c_str(), names, MAX_CHANNELS);
 
-	if(success) success = dutils::Banks::OdbSet(bank_names.count, *db, (path1 + "/bank_names/count").c_str());
-	if(success) success = dutils::Banks::OdbSet(bank_names.rate, *db, (path1 + "/bank_names/rate").c_str());
-	if(success) success = dutils::Banks::OdbSet(bank_names.sum, *db, (path1 + "/bank_names/sum").c_str());
+	if(success) success = odb_set_bank(&bk_count, db, (path1 + "/bank_names/count").c_str());
+	if(success) success = odb_set_bank(&bk_rate, db, (path1 + "/bank_names/rate").c_str());
+	if(success) success = odb_set_bank(&bk_sum, db, (path1 + "/bank_names/sum").c_str());
 
 	return success;
 }
-
-void dragon::Scaler::Variables::set_bank_names(const char* base)
-{
-	std::string strbase(base);
-	if(strbase.size() != 3) {
-		dutils::err::Warning("dragon::Scaler::Variables::set_bank_names")
-			<< "Length of base: \"" << base << "\" != 3. Truncating...";
-		if(strbase.size() > 3) strbase = strbase.substr(0, 3);
-		else while (strbase.size() != 3) strbase.push_back('0');
-		std::cerr << "Base = " << strbase << "\n";
-	}
-	dutils::Banks::Set(bank_names.count, (strbase + "D").c_str());
-	dutils::Banks::Set(bank_names.rate,  (strbase + "R").c_str());
-	dutils::Banks::Set(bank_names.sum ,  (strbase + "S").c_str());
-}
-
 
 // ==================== Class dragon::Coinc ==================== //
 

@@ -3,16 +3,37 @@
 /// \brief Defines some functions commonly used in processing data
 #ifndef DRAGON_UTILS_FUNCTIONS_HXX
 #define DRAGON_UTILS_FUNCTIONS_HXX
+#ifndef __MAKECINT__ // Hide from CINT
 #include <stdint.h>
 #include <functional>
 #include "Bits.hxx"
 #include "Valid.hxx"
 
 
+#ifndef DOXYGEN_SKIP
+namespace midas { typedef char Bank_t[4]; }
+#endif
+
 namespace dragon {
 
 /// Encloses various 'utility' functions
 namespace utils {
+
+
+/// Sets a MIDAS bank name
+inline void set_bank_name(const midas::Bank_t from, midas::Bank_t to)
+{
+	/*!
+	 * \param [in] from Array of 4 `char`s containing the desired bank name.
+	 * \param [out] to Array of 4 `char`s to populate with the desired bank name.
+	 * \note The MIDAS banks are arrays of 4 `char` _only_, not a "length 4 string",
+	 *  which would also include a 5th NULL `char`.
+	 * \attention It is the user's responsibility to ensire that the arrays are properly
+	 *  allocated.
+	 */
+	std::copy (from, from + 4, to);
+}
+
 
 /// Calculates time-of-flight if both parameters are valid
 template <class T1, class T2>
@@ -552,5 +573,5 @@ inline void polynomial_calibrate(int order, T& value, const V& variables)
 } // namespace dragon
 
 
-
+#endif
 #endif

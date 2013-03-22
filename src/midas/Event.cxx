@@ -39,7 +39,7 @@ inline uint64_t read_timestamp (uint32_t tscl, uint32_t tsch)
 
 // ========= Class midas::Event ========= //
 
-midas::Event::Event(const void* header, const void* data, int size, const char* tsbank, double coinc_window):
+midas::Event::Event(const void* header, const void* data, int size, const Bank_t tsbank, double coinc_window):
 	fCoincWindow(coinc_window),
 	fClock (std::numeric_limits<uint64_t>::max()),
 	fTriggerTime(0.)
@@ -54,7 +54,7 @@ midas::Event::Event(const void* header, const void* data, int size, const char* 
 	Init(tsbank, header, data, size);
 }
 
-midas::Event::Event(char* buf, int size, const char* tsbank, double coinc_window):
+midas::Event::Event(char* buf, int size, const Bank_t tsbank, double coinc_window):
 	fCoincWindow(coinc_window),
  	fClock (std::numeric_limits<uint64_t>::max()),
 	fTriggerTime(0.)
@@ -66,6 +66,31 @@ midas::Event::Event(char* buf, int size, const char* tsbank, double coinc_window
 	 * \param coinc_window Desired window to be considered a coincidence match w/ another event.
 	 */
 	Init(tsbank, buf, buf+sizeof(midas::Event::Header), size);
+}
+
+midas::Event::Event(char* buf, int size):
+	fCoincWindow(0),
+ 	fClock (std::numeric_limits<uint64_t>::max()),
+	fTriggerTime(0.)
+{
+	/*!
+	 * \param buf Buffer containing the entirity of the event data (header + actual data)
+	 * \param size Size of the data portion of the event (not including the header)
+	 */
+	Init(0, buf, buf+sizeof(midas::Event::Header), size);
+}
+
+midas::Event::Event(const void* header, const void* data, int size):
+	fCoincWindow(0),
+	fClock (std::numeric_limits<uint64_t>::max()),
+	fTriggerTime(0.)
+{
+	/*!
+	 * \param header Pointer to event header (midas::Event::Header struct)
+	 * \param data Pointer to the data portion of an event
+	 * \param size Size in bytes of the data portion of the event
+	 */
+	Init(0, header, data, size);
 }
 
 void midas::Event::CopyDerived(const midas::Event& other)

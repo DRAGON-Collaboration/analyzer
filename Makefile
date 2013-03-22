@@ -129,8 +129,8 @@ $(OBJ)/midas/libMidasInterface/TMidasOnline.o 	\
 $(OBJ)/midas/Event.o                	\
 					\
 $(OBJ)/utils/Banks.o			\
-$(OBJ)/utils/Unpack.o			\
 					\
+$(OBJ)/Unpack.o				\
 $(OBJ)/TStamp.o		              	\
 $(OBJ)/Vme.o				\
 $(OBJ)/Dragon.o					

@@ -15,7 +15,7 @@
 
 // DRAGON includes
 #include "midas/Event.hxx"
-#include "utils/Unpack.hxx"
+#include "Unpack.hxx"
 #include "TStamp.hxx"
 #include "Dragon.hxx"
 
@@ -118,7 +118,7 @@ public:
 
 	/// Returns the TSC bank name
 	const char* TscBank() const
-		{ return fGamma->banks.tsc; }
+		{ return fGamma->variables.bk_tsc; }
 
 	/// Read variables from ODB
 	void ReadVariables(midas::Database* db);
@@ -155,7 +155,7 @@ public:
 
 	/// Returns the TSC bank name
 	const char* TscBank() const
-		{ return fHeavyIon->banks.tsc; }
+		{ return fHeavyIon->variables.bk_tsc; }
 
 	/// Read variables from ODB
 	void ReadVariables(midas::Database* db);

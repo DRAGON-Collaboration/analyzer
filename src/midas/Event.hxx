@@ -1,7 +1,9 @@
+///
 /// \file Event.hxx
 /// \author G. Christian
 /// \brief Defines an inherited class of TMidasEvent that includes
 /// specific functionality for timestamp coincidence matching.
+///
 #ifndef DRAGON_MIDAS_EVENT_HXX
 #define DRAGON_MIDAS_EVENT_HXX
 #include <set>
@@ -18,6 +20,10 @@
 
 /// Enclodes dragon-specific midas classes
 namespace midas {
+
+/// Typedef for a MIDAS bank name
+/*! \note Array of 4 `char`s, _not_ a null-terminated string. */
+typedef char Bank_t[4];
 
 /// Derived class of TMidasEvent for timestamped dragon events
 /*!
@@ -64,11 +70,17 @@ public:
 	/// Empty constructor
 	Event(): TMidasEvent() { }
 
-	/// Construct from event callback parameters
-	Event(const void* header, const void* data, int size, const char* tsbank = 0, double coinc_window = 10.);
+	/// Construct from event callback parameters, with TSC handling
+	Event(const void* header, const void* data, int size, const Bank_t tsbank, double coinc_window);
 
-	/// Construct from direct polling parameters
-	Event(char* buf, int size, const char* tsbank = 0, double coinc_window = 10.);
+	/// Construct from direct polling parameters, with TSC handling
+	Event(char* buf, int size, const Bank_t tsbank, double coinc_window);
+
+	/// Construct from event callback parameters, _without_ TSC handling
+	Event(const void* header, const void* data, int size);
+
+	/// Construct from direct polling parameters, _without_ TSC handling
+	Event(char* buf, int size);
 
 	/// Copy constructor
 	Event(const Event& other) { CopyDerived(other); }
@@ -122,7 +134,7 @@ public:
 
 	/// Bank finding routine (templated)
 	template <typename T>
-	T* GetBankPointer(const char* name, int* length, bool reportMissing = false, bool checkType = false) const
+	T* GetBankPointer(const Bank_t name, int* length, bool reportMissing = false, bool checkType = false) const
 		{
 			/*!
 			 * \param [in] name Name of the bank to search for

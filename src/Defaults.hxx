@@ -39,6 +39,17 @@ TDC
 #ifndef DRAGON_CHANNELS_H
 #define DRAGON_CHANNELS_H
 
+#define HEAD_IO32_BANK  "VTRH" /**< Head IO32 bank name */
+#define HEAD_TSC_BANK   "TSCH" /**< Head TSC bank name  */
+#define HEAD_ADC_BANK   "ADC0" /**< Head ADC bank name  */
+#define HEAD_TDC_BANK   "TDC0" /**< Head TDC bank name  */
+
+#define TAIL_IO32_BANK  "VTRT" /**< Tail IO32 bank name */
+#define TAIL_TSC_BANK   "TSCT" /**< Tail TSC bank name  */
+#define TAIL_ADC_BANK_0 "TLQ0" /**< Tail ADC0 bank name  */
+#define TAIL_ADC_BANK_1 "TLQ1" /**< Tail ADC1 bank name  */
+#define TAIL_TDC_BANK   "TLT0" /**< Tail TDC bank name  */
+
 #define BGO_ADC0         0  /**< Bgo q: Ch 0..30 */
 #define MCP_ADC0         0  /**< Mcp anode: Ch 0..3 */
 #define MCP_TAC_ADC0     4  /**< Mcp TAC: Ch 4 */
