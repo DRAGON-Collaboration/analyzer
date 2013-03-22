@@ -13,7 +13,7 @@
 // DRAGON includes //
 #include "utils/ErrorDragon.hxx"
 #include "utils/definitions.h"
-#include "utils/Stringify.h"
+#include "utils/Functions.hxx"
 #include "midas/Database.hxx"
 #include "midas/Event.hxx"
 #include "rbdragon.hxx"

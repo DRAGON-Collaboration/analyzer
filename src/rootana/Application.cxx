@@ -19,7 +19,7 @@
 #include "libNetDirectory/netDirectoryServer.h"
 
 #include "midas/Database.hxx"
-#include "utils/Stringify.h"
+#include "utils/Functions.hxx"
 #include "Timer.hxx"
 #include "Histos.hxx"
 #include "HistParser.hxx"

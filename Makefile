@@ -128,8 +128,6 @@ $(OBJ)/midas/libMidasInterface/TMidasEvent.o 	\
 $(OBJ)/midas/libMidasInterface/TMidasOnline.o 	\
 $(OBJ)/midas/Event.o                	\
 					\
-$(OBJ)/utils/Banks.o			\
-					\
 $(OBJ)/Unpack.o				\
 $(OBJ)/TStamp.o		              	\
 $(OBJ)/Vme.o				\
