@@ -221,7 +221,7 @@ void rootana::App::Process(const midas::Event& event)
 		break;
 
 	default: /// - Silently ignore other event types
-		utils::err::Warning("Process") << "Unknown event id: " << EID << ", skipping";
+		utils::Warning("Process") << "Unknown event id: " << EID << ", skipping";
 		break;
 	}
 
@@ -232,7 +232,7 @@ void rootana::App::Process(const midas::Event& event1, const midas::Event& event
 	midas::CoincEvent coincEvent(event1, event2);
 
 	if (coincEvent.fHeavyIon == 0 ||	coincEvent.fGamma == 0) {
-		utils::err::Error("rootana::TSQueue::HandleCoinc")
+		utils::Error("rootana::TSQueue::HandleCoinc")
 			<< "Invalid coincidence event, skipping...\n";
 		return;
 	}
@@ -436,7 +436,7 @@ void rootana::App::run_start(int runnum)
 	bool opened = fOutputFile.Open(runnum, fHistos.c_str());
 	if(!opened) Terminate(1);
 
-	utils::err::Info("rootana") << "Start of run " << runnum;
+	utils::Info("rootana") << "Start of run " << runnum;
 }
 
 void rootana::App::run_stop(int runnum)
@@ -448,7 +448,7 @@ void rootana::App::run_stop(int runnum)
   fRunNumber = runnum;
 	fQueue->Flush(30, &gDiagnostics);
 	fOutputFile.Close();
-	utils::err::Info("rootana") << "End of run " << runnum;
+	utils::Info("rootana") << "End of run " << runnum;
 }
 
 void rootana::App::fill_hists(uint16_t eid)

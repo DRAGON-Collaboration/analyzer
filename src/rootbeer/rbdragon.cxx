@@ -68,7 +68,7 @@ void rbdragon::MidasBuffer::RunStartTransition(Int_t runnum)
 
 	/// - Read variables from the ODB if online
 	if (fType == rb::MidasBuffer::ONLINE) {
-		dragon::utils::err::Info("rbdragon::MidasBuffer")
+		dragon::utils::Info("rbdragon::MidasBuffer")
 			<< "Syncing variable values with the online database.";
 		midas::Database db("online");
 		ReadVariables(&db);
@@ -159,7 +159,7 @@ rbdragon::RunParameters::RunParameters():
 
 void rbdragon::RunParameters::HandleBadEvent()
 {
-	dragon::utils::err::Error("RunParameters")
+	dragon::utils::Error("RunParameters")
 		<< "Unknown error encountered during event processing";
 }
 
@@ -171,7 +171,7 @@ rbdragon::TStampDiagnostics::TStampDiagnostics():
 
 void rbdragon::TStampDiagnostics::HandleBadEvent()
 {
-	dragon::utils::err::Error("TStampDiagnostics")
+	dragon::utils::Error("TStampDiagnostics")
 		<< "Unknown error encountered during event processing";
 }
 
@@ -183,7 +183,7 @@ rbdragon::GammaEvent::GammaEvent():
 
 void rbdragon::GammaEvent::HandleBadEvent()
 {
-	dragon::utils::err::Error("GammaEvent")
+	dragon::utils::Error("GammaEvent")
 		<< "Unknown error encountered during event processing";
 }
 
@@ -200,7 +200,7 @@ rbdragon::HeavyIonEvent::HeavyIonEvent():
 
 void rbdragon::HeavyIonEvent::HandleBadEvent()
 {
-	dragon::utils::err::Error("HeavyIonEvent")
+	dragon::utils::Error("HeavyIonEvent")
 		<< "Unknown error encountered during event processing";
 }
 
@@ -217,7 +217,7 @@ rbdragon::CoincEvent::CoincEvent():
 
 void rbdragon::CoincEvent::HandleBadEvent()
 {
-	dragon::utils::err::Error("CoincEvent")
+	dragon::utils::Error("CoincEvent")
 		<< "Unknown error encountered during event processing";
 }
 
@@ -236,7 +236,7 @@ rbdragon::HeadScaler::HeadScaler():
 
 void rbdragon::HeadScaler::HandleBadEvent()
 {
-	dragon::utils::err::Error("HeadScaler")
+	dragon::utils::Error("HeadScaler")
 		<< "Unknown error encountered during event processing";
 }
 
@@ -256,7 +256,7 @@ rbdragon::TailScaler::TailScaler():
 
 void rbdragon::TailScaler::HandleBadEvent()
 {
-	dragon::utils::err::Error("TailScaler")
+	dragon::utils::Error("TailScaler")
 		<< "Unknown error encountered during event processing";
 }
 

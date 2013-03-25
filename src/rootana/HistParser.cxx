@@ -140,7 +140,7 @@ void rootana::HistParser::handle_dir()
 	if(!IsGood()) throw_missing_arg("DIR:", fLineNumber, fFilename);
 	fDir = fLine;
 	std::cout << "\n";
-	utils::err::Info("HistParser", false)	<< "New directory: " << fDir;
+	utils::Info("HistParser", false)	<< "New directory: " << fDir;
 }
 
 namespace {
@@ -210,7 +210,7 @@ void rootana::HistParser::handle_hist(const char* type)
 	for(int i=1; i< npar; ++i) {
 		Int_t type_i = get_type(spar[i]);
 		if(type_i != type_code) {
-			utils::err::Error("HistParser") << "Mixed event types.";
+			utils::Error("HistParser") << "Mixed event types.";
 			throw_bad_line (spar[i], lpar[i], fFilename);
 		}
 	}
@@ -302,7 +302,7 @@ void rootana::HistParser::handle_cut()
 	pInfo->fHist->set_cut( rootana::Cut(condition) );
 
 	std::cout << "\t\t";
-	utils::err::Info("HistParser", false)
+	utils::Info("HistParser", false)
 		<< "Applying cut: " << fLine << " to histogram " << pInfo->fName;
 }
 
@@ -317,7 +317,7 @@ void rootana::HistParser::add_hist(rootana::HistBase* hst, Int_t type)
 	hst->set_name(tempName.str().c_str());
 
 	std::cout << "\t";
-	utils::err::Info("HistParser", false)
+	utils::Info("HistParser", false)
 		<< "Adding histogram " << histInfo.fName << " to directory " << fDir << ", EID = " << type;
 }
 
@@ -338,13 +338,13 @@ void rootana::HistParser::Run()
 		} catch (std::exception& e) {
 			cm_msg(MERROR, "anaDragon::HistParser::Run", "%s. Attempting to continue...", e.what());
 			// std::cerr << "\n*******\n";
-			// utils::err::Error("HistParser")
+			// utils::Error("HistParser")
 			// 	<< e.what() << "\nAttempting to continue...\n*******\n\n";
 		}
 	}
 	std::cout << "\n";
 
-	utils::err::Info("rootana::HistParser")
+	utils::Info("rootana::HistParser")
 		<< "Done creating histograms from file " << fFilename << std::endl;
 }
 

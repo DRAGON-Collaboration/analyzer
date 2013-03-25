@@ -63,7 +63,7 @@ public:
 					fIsZombie = true;
 			}
 			if (fIsZombie) {
-				dragon::utils::err::Error("midas::Database::Database")
+				dragon::utils::Error("midas::Database::Database")
 					<< "Failed opening the database: \"" << filename << "\"";
 			}
 		}
@@ -81,7 +81,7 @@ public:
 				fIsZombie = true;
 			}
 			if (fIsZombie) {
-				dragon::utils::err::Error("midas::Database::Database")
+				dragon::utils::Error("midas::Database::Database")
 					<< "Failed parsing the XML data.";
 			}
 		}

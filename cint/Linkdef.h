@@ -53,6 +53,7 @@ class TTree;
 
 #pragma link C++ class tstamp::Diagnostics+;
 #pragma link C++ defined_in ../src/TStamp.hxx;
+#pragma link C++ defined_in ../src/utils/ErrorDragon.hxx;
 
 /*
 	for j in Adc Tdc

@@ -171,7 +171,7 @@ std::vector<int32_t> dutils::Unpacker::UnpackMidasEvent(void* header, char* data
 		}
 	default:
 		{
-			dutils::err::Warning("UnpackBuffer") << "Unkonwn event ID: " << evtHeader->fEventId;
+			dutils::Warning("UnpackBuffer") << "Unkonwn event ID: " << evtHeader->fEventId;
 			break;
 		}
 	}
@@ -193,7 +193,7 @@ void dutils::Unpacker::Process(const midas::Event& event)
 		break;
 
 	default:
-		dutils::err::Error("utils::Unpacker::Process")
+		dutils::Error("utils::Unpacker::Process")
 			<< "Unknown event id: " << event.GetEventId() << ", skipping...\n";
 		break;
 	}
@@ -204,7 +204,7 @@ void dutils::Unpacker::Process(const midas::Event& event1, const midas::Event& e
 	midas::CoincEvent coincEvent(event1, event2);
 
 	if (coincEvent.fHeavyIon == 0 ||	coincEvent.fGamma == 0) {
-		dragon::utils::err::Error("utils::unpacker::Process")
+		dragon::utils::Error("utils::unpacker::Process")
 			<< "Invalid coincidence event, skipping...\n";
 		return;
 	}

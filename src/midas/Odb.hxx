@@ -95,7 +95,7 @@ public:
 			else
 				return false;
 #else
-			dragon::utils::err::Error("midas::Odb::ReadValue") << "MIDASSYS not defined." << DRAGON_ERR_FILE_LINE;
+			dragon::utils::Error("midas::Odb::ReadValue") << "MIDASSYS not defined." << DRAGON_ERR_FILE_LINE;
 			return false;
 #endif
 		}
@@ -113,7 +113,7 @@ public:
 
 			status = db_find_key (hdb, hdir, path, &hkey);
 			if (status == DB_NO_KEY) {
-				dragon::utils::err::Error("midas::Odb::ReadArray") <<
+				dragon::utils::Error("midas::Odb::ReadArray") <<
 					"Couldn't get array key for path \"" << path << "\". status = " << status
 																							 << DRAGON_ERR_FILE_LINE;
 				return 0;
@@ -125,11 +125,11 @@ public:
 					return size / sizeof (T);
 			}
 
-			dragon::utils::err::Error("midas::Odb::ReadArray") << "Cannot read \"" <<
+			dragon::utils::Error("midas::Odb::ReadArray") << "Cannot read \"" <<
 				path << "\" from odb, status = " << status << DRAGON_ERR_FILE_LINE;
 			return 0;
 #else
-			dragon::utils::err::Error("midas::Odb::ReadArray") << "MIDASSYS not defined." << DRAGON_ERR_FILE_LINE;
+			dragon::utils::Error("midas::Odb::ReadArray") << "MIDASSYS not defined." << DRAGON_ERR_FILE_LINE;
 			return 0;
 #endif
 		}
@@ -189,7 +189,7 @@ template<> inline bool Odb::ReadValue<std::string>(const char* path, std::string
 
 	status = db_find_key (hdb, hdir, path, &hkey);
 	if (status == DB_NO_KEY) {
-		dragon::utils::err::Error("midas::Odb::ReadValue<std::string>") <<
+		dragon::utils::Error("midas::Odb::ReadValue<std::string>") <<
 			"Couldn't get array key for path \"" << path << "\". status = " << status
 																					 << DRAGON_ERR_FILE_LINE;
 		return 0;
@@ -203,13 +203,13 @@ template<> inline bool Odb::ReadValue<std::string>(const char* path, std::string
 		}
 	}
 
-	dragon::utils::err::Error("midas::Odb::ReadValue<std::string>") << "Cannot read \"" <<
+	dragon::utils::Error("midas::Odb::ReadValue<std::string>") << "Cannot read \"" <<
 		path << "\" from odb, status = " << status << DRAGON_ERR_FILE_LINE;
 	return false;
 
 #else
 
-	dragon::utils::err::Error("midas::Odb::ReadValue<std::string>") << "MIDASSYS not defined." << DRAGON_ERR_FILE_LINE;
+	dragon::utils::Error("midas::Odb::ReadValue<std::string>") << "MIDASSYS not defined." << DRAGON_ERR_FILE_LINE;
 	return 0;
 
 #endif
@@ -228,7 +228,7 @@ template<> inline int Odb::ReadArray<std::string>(const char* path, std::string*
 
 	status = db_find_key (hdb, hdir, path, &hkey);
 	if (status == DB_NO_KEY) {
-		dragon::utils::err::Error("midas::Odb::ReadArray<std::string>") <<
+		dragon::utils::Error("midas::Odb::ReadArray<std::string>") <<
 			"Couldn't get array key for path \"" << path << "\". status = " << status
 																					 << DRAGON_ERR_FILE_LINE;
 		return 0;
@@ -244,12 +244,12 @@ template<> inline int Odb::ReadArray<std::string>(const char* path, std::string*
 		if (status == SUCCESS) return true;
 	}
 
-	dragon::utils::err::Error("midas::Odb::ReadArray<std::string>")
+	dragon::utils::Error("midas::Odb::ReadArray<std::string>")
 		<< "Cannot read \"" << path << "\" from odb, status = " << status
 		<< DRAGON_ERR_FILE_LINE;
 	return false;
 #else
-	dragon::utils::err::Error("midas::Odb::ReadArray<std::string>") << "MIDASSYS not defined." << DRAGON_ERR_FILE_LINE;
+	dragon::utils::Error("midas::Odb::ReadArray<std::string>") << "MIDASSYS not defined." << DRAGON_ERR_FILE_LINE;
 	return 0;
 #endif
 }

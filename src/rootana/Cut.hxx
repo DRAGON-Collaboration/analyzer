@@ -388,7 +388,7 @@ inline Condition2D<T1, T2>::Condition2D(const T1& xpar, const T2& ypar, ROOTANA_
 	if (fXpoints.size() && fYpoints.size()) {
 		if ( (*(fXpoints.end()-1) != *(fXpoints.begin())) ||
 				 (*(fYpoints.end()-1) != *(fYpoints.begin())) ) {
-			utils::err::Warning("Condition2D") << "Non-closed polygon specification, points:";
+			utils::Warning("Condition2D") << "Non-closed polygon specification, points:";
 			for (size_t i=0; i< fXpoints.size()-1; ++i) {
 				std::cerr << "(" << fXpoints.at(i) << ", " << fYpoints.at(i) << "), ";
 			}
@@ -396,7 +396,7 @@ inline Condition2D<T1, T2>::Condition2D(const T1& xpar, const T2& ypar, ROOTANA_
 		}
 	}
 	else {
-		utils::err::Warning("Condition2D") << "Empty polygon specification";
+		utils::Warning("Condition2D") << "Empty polygon specification";
 	}
 }
 
