@@ -19,7 +19,7 @@ class Scaler;
 class RunParameters;
 }
 
-namespace dragon { namespace utils {
+namespace dragon {
 
 ///
 /// Handles unpacking event data
@@ -134,37 +134,37 @@ private:
 	tstamp::Diagnostics* fDiag;
 };
 
-} } // namespace dragon namespace utils
+} // namespace dragon
 
 
-inline bool dragon::utils::Unpacker::IsSinglesMode() const
+inline bool dragon::Unpacker::IsSinglesMode() const
 {
 	return !(fQueue.get());
 }
 
-inline double dragon::utils::Unpacker::GetCoincWindow() const
+inline double dragon::Unpacker::GetCoincWindow() const
 {
 	return fCoincWindow;
 }
 
-inline double dragon::utils::Unpacker::GetQueueTime() const
+inline double dragon::Unpacker::GetQueueTime() const
 {
 	return fQueue->GetMaxDelta() / 1e6;
 }
 
-inline void dragon::utils::Unpacker::SetCoincWindow(double window)
+inline void dragon::Unpacker::SetCoincWindow(double window)
 {
 	/// \note Default value at construction is 10 usec.
 	fCoincWindow = window;
 }
 
-inline void dragon::utils::Unpacker::SetQueueTime(double t)
+inline void dragon::Unpacker::SetQueueTime(double t)
 {
 	/// \note Default value at construction is 4 sec.
 	fQueue->SetMaxDelta(t*1e6);
 }
 
-inline void dragon::utils::Unpacker::SetSinglesMode(int qFlush)
+inline void dragon::Unpacker::SetSinglesMode(int qFlush)
 {
 	/// Any incoming events after this call are processed as singles only.
 	/// If there are events in the queue, they are first flushed.
@@ -175,7 +175,7 @@ inline void dragon::utils::Unpacker::SetSinglesMode(int qFlush)
 	fQueue.reset(0);
 }
 
-inline void dragon::utils::Unpacker::SetCoincMode()
+inline void dragon::Unpacker::SetCoincMode()
 {
 	/// If in singles mode when called, it switches over to coincidence
 	/// mode with default coincidence window and queue time. To change
@@ -186,14 +186,14 @@ inline void dragon::utils::Unpacker::SetCoincMode()
 		fQueue.reset(new tstamp::OwnedQueue<Unpacker>(kQueueTimeDefault*1e6, this));
 }
 
-inline std::vector<int32_t> dragon::utils::Unpacker::UnpackMidasEvent(char* databuf)
+inline std::vector<int32_t> dragon::Unpacker::UnpackMidasEvent(char* databuf)
 {
 	/// Forward all work to UnpackMidasEvent(void*, char*)
 	return UnpackMidasEvent(databuf, databuf + sizeof(midas::Event::Header));
 }
 
 inline void
-dragon::utils::Unpacker::ClearUnpackedCodes()
+dragon::Unpacker::ClearUnpackedCodes()
 {
 	/// Needed when the unpack routines are called implicitly, for example
 	/// during a queue flush which calls Process(), not UnpackEvent()
@@ -202,7 +202,7 @@ dragon::utils::Unpacker::ClearUnpackedCodes()
 }
 
 inline std::vector<int32_t>
-dragon::utils::Unpacker::GetUnpackedCodes() const
+dragon::Unpacker::GetUnpackedCodes() const
 {
 	/// Whenever a call to UnpackMidasEvent() is made, an
 	/// internal vector<int32_t> is filled with the event codes 

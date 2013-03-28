@@ -434,7 +434,7 @@ int main(int argc, char** argv)
 		trees[i]->Branch(branchNames[i].c_str(), classNames[i].c_str(), &(addr[i]));
 	}
 
-	dragon::utils::Unpacker
+	dragon::Unpacker
 		unpack (&head, &tail, &coinc, &head_scaler, &tail_scaler, &runpar, &tsdiag, options.fSingles);
 	
 	//

@@ -45,7 +45,7 @@ private:
 
 private:
 	/// Unpacker instance
-	dragon::utils::Unpacker fUnpacker;
+	dragon::Unpacker fUnpacker;
 };
 
 

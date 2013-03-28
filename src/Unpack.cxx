@@ -12,11 +12,10 @@
 
 
 
-namespace dutils = dragon::utils;
 
-// ============ class dragon::utils::Unpacker ================ //
+// ============ class dragon::Unpacker ================ //
 
-dutils::Unpacker::Unpacker(dragon::Head* head,
+dragon::Unpacker::Unpacker(dragon::Head* head,
 													 dragon::Tail* tail,
 													 dragon::Coinc* coinc,
 													 dragon::Scaler* schead,
@@ -35,26 +34,26 @@ dutils::Unpacker::Unpacker(dragon::Head* head,
 	fDiag(tsdiag)
 {
 	if(!singlesMode)
-		fQueue.reset(new tstamp::OwnedQueue<dutils::Unpacker>(kQueueTimeDefault*1e6, this));
+		fQueue.reset(new tstamp::OwnedQueue<dragon::Unpacker>(kQueueTimeDefault*1e6, this));
 }
 
-dutils::Unpacker::~Unpacker()
+dragon::Unpacker::~Unpacker()
 {
 	;
 }
 
-void dutils::Unpacker::FlushQueue(int flushTime)
+void dragon::Unpacker::FlushQueue(int flushTime)
 {
 	fQueue->Flush(flushTime, fDiag);
 }
 
-size_t dutils::Unpacker::FlushQueueIterative()
+size_t dragon::Unpacker::FlushQueueIterative()
 {
 	/// \returns The size of the queue after removing the front event
 	return fQueue->FlushIterative(fDiag);
 }
 
-void dutils::Unpacker::HandleBor(const char* dbname)
+void dragon::Unpacker::HandleBor(const char* dbname)
 {
 	/// - Reset head, tail scalers; run parameters; and timestamp diagnostics.
 	fHeadScaler->reset();
@@ -72,7 +71,7 @@ void dutils::Unpacker::HandleBor(const char* dbname)
 	}
 }
 
-void dutils::Unpacker::UnpackHead(const midas::Event& event)
+void dragon::Unpacker::UnpackHead(const midas::Event& event)
 {
 	fHead->reset();       /// - Reset the class to default values.
 	fHead->unpack(event); /// - Read raw data from the MIDAS event.
@@ -80,7 +79,7 @@ void dutils::Unpacker::UnpackHead(const midas::Event& event)
 	fUnpacked.push_back(DRAGON_HEAD_EVENT);
 }
 
-void dutils::Unpacker::UnpackTail(const midas::Event& event)
+void dragon::Unpacker::UnpackTail(const midas::Event& event)
 {
 	fTail->reset();       /// - Reset the class to default values.
 	fTail->unpack(event); /// - Read raw data from the MIDAS event.
@@ -88,7 +87,7 @@ void dutils::Unpacker::UnpackTail(const midas::Event& event)
 	fUnpacked.push_back(DRAGON_TAIL_EVENT);
 }
 
-void dutils::Unpacker::UnpackCoinc(const midas::CoincEvent& event)
+void dragon::Unpacker::UnpackCoinc(const midas::CoincEvent& event)
 {
 	fCoinc->reset();       /// - Reset the class to default values.
 	fCoinc->unpack(event); /// - Read raw data from the MIDAS event.
@@ -96,25 +95,25 @@ void dutils::Unpacker::UnpackCoinc(const midas::CoincEvent& event)
 	fUnpacked.push_back(DRAGON_COINC_EVENT);
 }
 
-void dutils::Unpacker::UnpackHeadScaler(const midas::Event& event)
+void dragon::Unpacker::UnpackHeadScaler(const midas::Event& event)
 {
 	fHeadScaler->unpack(event); /// - Read scaler data from the midas event
 	fUnpacked.push_back(DRAGON_HEAD_SCALER);
 }
 
-void dutils::Unpacker::UnpackTailScaler(const midas::Event& event)
+void dragon::Unpacker::UnpackTailScaler(const midas::Event& event)
 {
 	fTailScaler->unpack(event); /// - Read scaler data from the midas event
 	fUnpacked.push_back(DRAGON_TAIL_SCALER);
 }
 
-void dutils::Unpacker::UnpackRunParameters(const midas::Database& db)
+void dragon::Unpacker::UnpackRunParameters(const midas::Database& db)
 {
 	fRunpar->read_data(&db); /// - Calculate run parameters from an ODB dump event
 	fUnpacked.push_back(DRAGON_RUN_PARAMETERS);
 }
 
-std::vector<int32_t> dutils::Unpacker::UnpackMidasEvent(void* header, char* data)
+std::vector<int32_t> dragon::Unpacker::UnpackMidasEvent(void* header, char* data)
 {
 	fUnpacked.clear();
 	midas::Event::Header* evtHeader = reinterpret_cast<midas::Event::Header*>(header);
@@ -171,7 +170,7 @@ std::vector<int32_t> dutils::Unpacker::UnpackMidasEvent(void* header, char* data
 		}
 	default:
 		{
-			dutils::Warning("UnpackBuffer") << "Unkonwn event ID: " << evtHeader->fEventId;
+			utils::Warning("UnpackBuffer") << "Unkonwn event ID: " << evtHeader->fEventId;
 			break;
 		}
 	}
@@ -180,7 +179,7 @@ std::vector<int32_t> dutils::Unpacker::UnpackMidasEvent(void* header, char* data
 }
 
 
-void dutils::Unpacker::Process(const midas::Event& event)
+void dragon::Unpacker::Process(const midas::Event& event)
 {
 	switch (event.GetEventId())
 	{
@@ -193,13 +192,13 @@ void dutils::Unpacker::Process(const midas::Event& event)
 		break;
 
 	default:
-		dutils::Error("utils::Unpacker::Process")
+		utils::Error("utils::Unpacker::Process")
 			<< "Unknown event id: " << event.GetEventId() << ", skipping...\n";
 		break;
 	}
 }
 
-void dutils::Unpacker::Process(const midas::Event& event1, const midas::Event& event2)
+void dragon::Unpacker::Process(const midas::Event& event1, const midas::Event& event2)
 {
 	midas::CoincEvent coincEvent(event1, event2);
 
@@ -212,7 +211,7 @@ void dutils::Unpacker::Process(const midas::Event& event1, const midas::Event& e
 	UnpackCoinc(coincEvent);
 }
 
-void dutils::Unpacker::Process(tstamp::Diagnostics*)
+void dragon::Unpacker::Process(tstamp::Diagnostics*)
 {
 	fUnpacked.push_back(DRAGON_TSTAMP_DIAGNOSTICS);
 }
