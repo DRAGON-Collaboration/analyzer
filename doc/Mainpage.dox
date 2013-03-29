@@ -32,6 +32,8 @@
 	the moment and requires installation of <a href=http://www.boost.org/doc/libs/1_51_0/libs/python/doc/>
 	boost::python</a> to compile the libraries.
 
+	If you have a specific question about package, you may want to check out the  \link faq FAQ \endlink  to
+	see if it's addresed there.
 	
 	\section daq DRAGON Data Acquisition (DAQ)
 	Before launching into a description of the analysis software, I'll first give an overview of how the DRAGON
@@ -94,25 +96,14 @@
 	
 	
 	\subsection data Data Format
-	When an event triggers one of the respective DAQ systems, the corresponding data are read from the internal
-	memory of each of the VME modules and transferred via the network to a backend computer for analysis and
-	logging. Actually, it is slightly more complicated than that, as individual events are first buffered in
-	the local RAM of the frontend computer before being sent as a block to the backend. This becomes relevant
-	for the timestamp coincidence matching as I will explain a bit later. In any case, each singles event is
-	written in a special MIDAS format which organizes the data into "banks" which correspond to the various
-	VME modules being read. Within each bank, the data are stored in a format that is defined by the conventions
-	of the VME module being written (in other words, the data are stored exactly as they are in the individual
-	VME modules' internal memory). This is typically some sort of bit-packed format, and it is the job of the
-	analysis program to "unpack" these data into a form that is more digestible for humans. In this section, I
-	will document the structure of a complete DRAGON event, from the MIDAS file format to the individual
-	bit-packed structure of the various modules' data.
-	
-	\n
-	<b><i>MIDAS</i></b> \n
 
-	This section is just to give a brief overview of the MIDAS data format and, more importantly, how it is
+	\subsubsection midas MIDAS
+	
+	This section gives a brief overview of the MIDAS data format and, more importantly, how it is
 	decoded for DRAGON data analysis. This is in no way exhaustive, and for more information, the reader should
-	consult the <a href=http://midas.psi.ch/htmldoc/index.html>MIDAS documentation page</a>.
+	consult the <a href=http://midas.psi.ch/htmldoc/index.html>MIDAS documentation page</a>. Readers who are already
+	familiar with the MIDAS data format may wish to skip to the \link midasbanks MIDAS Banks \endlink section where
+	the specifics of DRAGON data are discussed.
 
 	MIDAS files are first organized into "events". For DRAGON, each event corresponds to a single trigger of the
 	VME system(s). The analysis code handles everything on an event-by-event basis: each event block is fully
@@ -135,7 +126,8 @@
 	Once we have obtained an event and stored it in a local analysis buffer, the next step is to identify the individual
 	packets containing data from the various VME modules. Actually, there is one important step coming before this: the
 	individual events are placed into a local buffer (a "buffer of buffers") and, after a certain amount of time,
-	pre-analyzed to check for coincidence matches. For more on this, see the section on the IO32 unpacking. Anyway, as
+	pre-analyzed to check for coincidence matches. For more on this, see the section on \link coincmatch coincidence matching
+	\endlink. Anyway, as
 	mentioned, once we have a single, defined event we need to break it down into packets or "banks" in order to analyze
 	the data from individual VME modules. Each bank contains a header with some unique identifying information about the
 	bank, and from there the actual bank data follow. In the header, each bank is identified by a unique 4-character string.
@@ -210,12 +202,47 @@
 	\image html bits.png
 	\n\n
 
+	\subsubsection midasbanks MIDAS Banks
+	
+	The frontend codes generate four different types of events, with the following characteristics:
+	  1. "Head Event"
+       - Event Id: 1 (or DRAGON_HEAD_EVENT in definitions.h)
+			 - MIDAS Equipment: `HeadVME`
+			 - Trigger condition: OR of all BGO channels
+			 - Banks:
+			    1. "VTRH": IO32 data
+					2. "ADC0": V792 QDC data
+					3. "TDC0": V1190 TDC data
+					4. "TSCH": Timestamp counter data from the IO32
+		2. "Head Scaler Event"
+		   - Event Id: 2 (or DRAGON_HEAD_SCALER in definitions.h)
+			 - MIDAS Equipment: `HeadScaler`
+			 - Trigger condition: polled once per second
+			 - Banks:
+			    1. "SCHD": Scaler counts (for the current read period, ~1 second)
+					2. "SCHS": Scaler sum (since the beginning of the run)
+					3. "SCHR": Scaler rates (counts/second for the current read period)
+	  3. "Tail Event"
+       - Event Id: 3 (or DRAGON_TAIL_EVENT in definitions.h)
+			 - MIDAS Equipment: `TailVME`
+			 - Trigger condition: OR of all heavy ion detectors
+			 - Banks:
+			    1. "VTRT": IO32 data
+					2. "TLQ0": V785 ADC data (unit 0).
+					3. "TLQ1": V785 ADC data (unit 1).
+					4. "TLT0": V1190 TDC data
+					5. "TSCT": Timestamp counter data from the IO32
+		4. "Tail Scaler Event"
+		   - Event Id: 4 (or DRAGON_TAIL_SCALER in definitions.h)
+			 - MIDAS Equipment: `TailScaler`
+			 - Trigger condition: polled once per second
+			 - Banks:
+			    1. "SCTD": Scaler counts (for the current read period, ~1 second)
+					2. "SCTS": Scaler sum (since the beginning of the run)
+					3. "SCTR": Scaler rates (counts/second for the current read period)
 
-	The remaining parts of this section document the various data formats which we will need to read in order to fully
-	analyze a DRAGON event.
 
-	\n
-	<b><i>CAEN V792/V785 ADC</i></b> \n
+	\subsubsection caenadc CAEN V792/V785 ADC
 
 	The data format of CAEN V792 charge-sensing and CAEN V785 peak-sensing ADCs is exactly the same; in fact, identical
 	code is used to write and to analyze the data stored by each module. A single event from a V792/V785 is organized
@@ -273,8 +300,7 @@
 	Finally, in addition to the types mentioned above, a longword can also be an _invalid_ word, which is IDed by
 	0 0 1 for bits 24 - 26. An invalid word typically signifies some sort of error condition within the ADC.
 
-	\n
-	<b><i>CAEN V1190 TDC</i></b> \n
+	\subsubsection caentdc CAEN V1190 TDC
 
 	The structure of a V1190 TDC event is somewhat similar to that of a V792/V785 ADC: each event consists of a series
 	of longwords, with the general structure of [Header], [Data], [Data], ..., [Data], [Footer]. In addition, there is
@@ -382,8 +408,8 @@
 	 - Bit 26: Unused.
 	 - Bits 27 - 31: Identify the current longword as an error word via the sequence 0 0 1 0 0.
 
-	\n
-	<b><i>IO32 FPGA/Control Board</i></b> \n
+
+	\subsubsection vmeio32 IO32 FPGA/Control Board
 
 	Data from the IO32 FPGA/control board are written into two separate MIDAS banks. The first bank contains
 	information about the trigger conditions generating the present event. It consists of nine 32-bit longwords,
@@ -411,7 +437,7 @@
 
 	\todo Write the TSC bank description.
 
-	<b><i>Coincidence Matching</i></b> \n
+	\subsubsection coincmatch Coincidence Matching
 
 	An important topic related to the TSC bank is the method used to identify singles and coincidence events. As analysis
 	of real-time, online data is quite important for DRAGON experiments, we need a method that is able to handle potential

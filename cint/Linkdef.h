@@ -40,7 +40,6 @@
 class TTree;
 #pragma link C++ function dragon::Scaler::set_aliases(TTree*, const char*);
 
-
 #pragma link C++ class midas::Event::Header+;
 
 #pragma link C++ class midas::Xml+;
@@ -54,14 +53,18 @@ class TTree;
 #pragma link C++ class tstamp::Diagnostics+;
 #pragma link C++ defined_in ../src/TStamp.hxx;
 #pragma link C++ defined_in ../src/utils/ErrorDragon.hxx;
+#pragma link C++ defined_in ../src/utils/RootAnalysis.hxx;
 
-/*
-	for j in Adc Tdc
-	do for i in {1..32}
-	do echo "#pragma link C++ class dragon::${j}Variables<${i}>+;"
-	done
-	done
-*/
+#pragma link C++ class dragon::utils::AdcVariables<dragon::Bgo::MAX_CHANNELS>+;
+#pragma link C++ class dragon::utils::TdcVariables<dragon::Bgo::MAX_CHANNELS>+;
+#pragma link C++ class dragon::utils::PositionVariables<dragon::Bgo::MAX_CHANNELS>+;
+#pragma link C++ class dragon::utils::AdcVariables<dragon::Dsssd::MAX_CHANNELS>+;
+#pragma link C++ class dragon::utils::TdcVariables<1>+;
+#pragma link C++ class dragon::utils::AdcVariables<dragon::IonChamber::MAX_CHANNELS>+;
+#pragma link C++ class dragon::utils::TdcVariables<1>+;
+#pragma link C++ class dragon::utils::AdcVariables<dragon::SurfaceBarrier::MAX_CHANNELS>+;
+#pragma link C++ class dragon::utils::AdcVariables<dragon::NaI::MAX_CHANNELS>+;
+#pragma link C++ class dragon::utils::AdcVariables<1>+;
 
 
 #endif

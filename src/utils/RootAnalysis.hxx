@@ -6,24 +6,59 @@
 ///
 #ifndef DRAGON_ROOT_ANALYSIS_HEADER
 #define DRAGON_ROOT_ANALYSIS_HEADER
-#ifdef USE_ROOT
 #include <map>
+
+#include <TROOT.h>
+#include <TChain.h>
 #include <TFile.h>
 #include <TTree.h>
 #include <TString.h>
+#include <TSelector.h>
 
+#include "midas/libMidasInterface/TMidasStructs.h"
+#include "Dragon.hxx"
+#include "Vme.hxx"
 
 namespace dragon {
 
-/// Filters a TChain based on some cut condition
+/// Filters TChains (or TTrees) based on cut conditions.
+/*!
+ *  Example use:
+ *  \code
+ *  TString inFiles[] = {
+ *    "run123.root";
+ *    "run124.root";
+ *    "run125.root";
+ *  };
+ *
+ *  TChain ch1("t1"), ch3("t3");
+ *  for(Int_t i=0; i< sizeof(inFiles) / sizeof(TString); ++i) {
+ *    ch1.Add(inFiles[i]);
+ *    ch3.Add(inFiles[i]);
+ *  }
+ *
+ *  dragon::TTreeFilter filter("filtered.root");
+ *  filter.SetFilterCondition(&ch1, "bgo.ecal[0] > 0");
+ *  filter.SetFilterCondition(&ch3, "dsssd.ecal[0] > 0");
+ *  filter.Run();
+ *  filter.Close();
+ *  \endcode
+ *
+ *  To speed things up, by default each input tree is filtered in a
+ *  different thread (one thread per input). To turn off threading, call
+ *  SetThreaded(kFALSE) before calling Run(). This will cause each input
+ *  tree to be filtered in series rather than in parallel.
+ */
 class TTreeFilter {
 public:
+#ifndef DOXYGEN_SKIP
 	struct Out_t {
 		TTree* fTree;
 		TString fCondition;
 	};
 	typedef std::map <TTree*, Out_t> Map_t;
 	typedef std::pair<TTree*, Out_t> Pair_t;
+#endif
 private:
 	/// No copy
 	TTreeFilter(const TTreeFilter&) { }
@@ -31,7 +66,7 @@ private:
 	TTreeFilter& operator= (const TTreeFilter&) { return *this; }
 public:
 	/// Ctor
-	TTreeFilter(const char* filename);
+	TTreeFilter(const char* filename, Option_t* option = "", const char* ftitle = "", Int_t compress = 1);
 	/// Ctor
 	TTreeFilter(TDirectory* output);
 	/// Dtor
@@ -39,7 +74,7 @@ public:
 	/// Check if the filter condition is valid.
 	Bool_t CheckCondition(TTree* tree) const;
 	/// Close the output directory (if the owner)
-	void CloseOutDir();
+	void Close();
 	/// Check if we're the file owner
 	Bool_t IsFileOwner() const { return fFileOwner; }
 	/// Get filter condition
@@ -55,7 +90,7 @@ public:
 	/// Set output directory
 	void SetOutDir(TDirectory* directory);
 	/// Turn on/off threading for different trees, default is on
-	void SetThreaded(Bool_t on);
+	void SetThreaded(Bool_t on) { fRunThreaded = on; }
 	/// Check if output directory is valid.
 	Bool_t IsZombie() const;
 private:
@@ -69,8 +104,851 @@ private:
 	Map_t fInputs;
 };
 
+
+//! Generic selector class
+class ASelector : public TSelector {
+public :
+	TTree          *fChain;   //! <pointer to the analyzed TTree or TChain
+public:
+	ASelector(TTree * /*tree*/ =0) : fChain(0) { }
+	virtual ~ASelector() { }
+	virtual Int_t   Version() const { return 2; }
+	virtual void    Begin(TTree *tree);
+	virtual void    SlaveBegin(TTree *) { }
+	virtual void    Init(TTree *tree);
+	virtual Bool_t  Notify();
+	virtual Bool_t  Process(Long64_t entry);
+	virtual Int_t   GetEntry(Long64_t entry, Int_t getall = 0) { return fChain ? fChain->GetTree()->GetEntry(entry, getall) : 0; }
+	virtual void    SetOption(const char *option) { fOption = option; }
+	virtual void    SetObject(TObject *obj) { fObject = obj; }
+	virtual void    SetInputList(TList *input) { fInput = input; }
+	virtual TList  *GetOutputList() const { return fOutput; }
+	virtual void    SlaveTerminate() { }
+	virtual void    Terminate();
+
+	ClassDef(ASelector,0);
+};
+
+
+//! Selector class for head singles events.
+
+/// The intended use of this class is for users to derive from it and then
+/// implement the following methods:
+///
+///    - Begin():        called every time a loop on the tree starts,
+///                      a convenient place to create your histograms.
+///    - Process():      called for each event, in this function you decide what
+///                      to read and fill your histograms.
+///    - Terminate():    called at the end of the loop on the tree,
+///                      a convenient place to draw/fit your histograms.
+///
+/// Optionally, derived classes can also implement Notify() and Init().
+///
+/// For an example on how to use this class, see the file examples/Selectors.cxx
+///
+class HeadSelector : public ASelector {
+public :
+	// Declaration of leaf types
+	//dragon::Head    *gamma;
+	UShort_t        header_fEventId;
+	UShort_t        header_fTriggerMask;
+	UInt_t          header_fSerialNumber;
+	UInt_t          header_fTimeStamp;
+	UInt_t          header_fDataSize;
+	UInt_t          io32_header;
+	UInt_t          io32_trig_count;
+	UInt_t          io32_tstamp;
+	UInt_t          io32_start;
+	UInt_t          io32_end;
+	UInt_t          io32_latency;
+	UInt_t          io32_read_time;
+	UInt_t          io32_busy_time;
+	UInt_t          io32_trigger_latch;
+	UInt_t          io32_which_trigger;
+	Int_t           io32_tsc4_n_fifo[4];
+	Double_t        io32_tsc4_trig_time;
+	Short_t         v792_n_ch;
+	Int_t           v792_count;
+	Bool_t          v792_overflow;
+	Bool_t          v792_underflow;
+	Short_t         v792_data[32];
+	Short_t         v1190_n_ch;
+	Int_t           v1190_count;
+	Short_t         v1190_word_count;
+	Short_t         v1190_trailer_word_count;
+	Short_t         v1190_event_id;
+	Short_t         v1190_bunch_id;
+	Short_t         v1190_status;
+	Short_t         v1190_type;
+	Int_t           v1190_extended_trigger;
+	vme::V1190::Channel v1190_channel[64];
+	Double_t        bgo_ecal[30];
+	Double_t        bgo_tcal[30];
+	Double_t        bgo_esort[30];
+	Double_t        bgo_sum;
+	Int_t           bgo_hit0;
+	Double_t        bgo_x0;
+	Double_t        bgo_y0;
+	Double_t        bgo_z0;
+	Double_t        bgo_t0;
+	Double_t        tcal0;
+	Double_t        tcalx;
+
+	// List of branches
+	TBranch        *b_gamma_header_fEventId;   //!
+	TBranch        *b_gamma_header_fTriggerMask;   //!
+	TBranch        *b_gamma_header_fSerialNumber;   //!
+	TBranch        *b_gamma_header_fTimeStamp;   //!
+	TBranch        *b_gamma_header_fDataSize;   //!
+	TBranch        *b_gamma_io32_header;   //!
+	TBranch        *b_gamma_io32_trig_count;   //!
+	TBranch        *b_gamma_io32_tstamp;   //!
+	TBranch        *b_gamma_io32_start;   //!
+	TBranch        *b_gamma_io32_end;   //!
+	TBranch        *b_gamma_io32_latency;   //!
+	TBranch        *b_gamma_io32_read_time;   //!
+	TBranch        *b_gamma_io32_busy_time;   //!
+	TBranch        *b_gamma_io32_trigger_latch;   //!
+	TBranch        *b_gamma_io32_which_trigger;   //!
+	TBranch        *b_gamma_io32_tsc4_n_fifo;   //!
+	TBranch        *b_gamma_io32_tsc4_trig_time;   //!
+	TBranch        *b_gamma_v792_n_ch;   //!
+	TBranch        *b_gamma_v792_count;   //!
+	TBranch        *b_gamma_v792_overflow;   //!
+	TBranch        *b_gamma_v792_underflow;   //!
+	TBranch        *b_gamma_v792_data;   //!
+	TBranch        *b_gamma_v1190_n_ch;   //!
+	TBranch        *b_gamma_v1190_count;   //!
+	TBranch        *b_gamma_v1190_word_count;   //!
+	TBranch        *b_gamma_v1190_trailer_word_count;   //!
+	TBranch        *b_gamma_v1190_event_id;   //!
+	TBranch        *b_gamma_v1190_bunch_id;   //!
+	TBranch        *b_gamma_v1190_status;   //!
+	TBranch        *b_gamma_v1190_type;   //!
+	TBranch        *b_gamma_v1190_extended_trigger;   //!
+	TBranch        *b_gamma_v1190_channel;   //!
+	TBranch        *b_gamma_bgo_ecal;   //!
+	TBranch        *b_gamma_bgo_tcal;   //!
+	TBranch        *b_gamma_bgo_esort;   //!
+	TBranch        *b_gamma_bgo_sum;   //!
+	TBranch        *b_gamma_bgo_hit0;   //!
+	TBranch        *b_gamma_bgo_x0;   //!
+	TBranch        *b_gamma_bgo_y0;   //!
+	TBranch        *b_gamma_bgo_z0;   //!
+	TBranch        *b_gamma_bgo_t0;   //!
+	TBranch        *b_gamma_tcal0;   //!
+	TBranch        *b_gamma_tcalx;   //!
+
+	HeadSelector(TTree * /*tree*/ =0) : ASelector(0) { }
+	virtual ~HeadSelector() { }
+	virtual void    Init(TTree *tree);
+
+	ClassDef(HeadSelector,0);
+};
+
+
+//! Selector class for tail singles events.
+
+/// The intended use of this class is for users to derive from it and then
+/// implement the following methods:
+///
+///    - Begin():        called every time a loop on the tree starts,
+///                      a convenient place to create your histograms.
+///    - Process():      called for each event, in this function you decide what
+///                      to read and fill your histograms.
+///    - Terminate():    called at the end of the loop on the tree,
+///                      a convenient place to draw/fit your histograms.
+///
+/// Optionally, derived classes can also implement Notify() and Init().
+///
+/// For an example on how to use this class, see the file examples/Selectors.cxx
+///
+class TailSelector : public ASelector {
+public :
+	// Declaration of leaf types
+	//dragon::Tail    *hi;
+	UShort_t        header_fEventId;
+	UShort_t        header_fTriggerMask;
+	UInt_t          header_fSerialNumber;
+	UInt_t          header_fTimeStamp;
+	UInt_t          header_fDataSize;
+	UInt_t          io32_header;
+	UInt_t          io32_trig_count;
+	UInt_t          io32_tstamp;
+	UInt_t          io32_start;
+	UInt_t          io32_end;
+	UInt_t          io32_latency;
+	UInt_t          io32_read_time;
+	UInt_t          io32_busy_time;
+	UInt_t          io32_trigger_latch;
+	UInt_t          io32_which_trigger;
+	Int_t           io32_tsc4_n_fifo[4];
+	Double_t        io32_tsc4_trig_time;
+	vme::V792       v785[2];
+	Short_t         v1190_n_ch;
+	Int_t           v1190_count;
+	Short_t         v1190_word_count;
+	Short_t         v1190_trailer_word_count;
+	Short_t         v1190_event_id;
+	Short_t         v1190_bunch_id;
+	Short_t         v1190_status;
+	Short_t         v1190_type;
+	Int_t           v1190_extended_trigger;
+	vme::V1190::Channel v1190_channel[64];
+	Double_t        dsssd_ecal[32];
+	Double_t        dsssd_efront;
+	Double_t        dsssd_eback;
+	UInt_t          dsssd_hit_front;
+	UInt_t          dsssd_hit_back;
+	Double_t        dsssd_tcal;
+	Double_t        ic_anode[4];
+	Double_t        ic_tcal;
+	Double_t        ic_sum;
+	Double_t        nai_ecal[2];
+	Double_t        ge_ecal;
+	Double_t        mcp_anode[4];
+	Double_t        mcp_tcal[2];
+	Double_t        mcp_esum;
+	Double_t        mcp_tac;
+	Double_t        mcp_x;
+	Double_t        mcp_y;
+	Double_t        sb_ecal[2];
+	Double_t        tof_mcp;
+	Double_t        tof_mcp_dsssd;
+	Double_t        tof_mcp_ic;
+	Double_t        tcal0;
+	Double_t        tcalx;
+
+	// List of branches
+	TBranch        *b_hi_header_fEventId;   //!
+	TBranch        *b_hi_header_fTriggerMask;   //!
+	TBranch        *b_hi_header_fSerialNumber;   //!
+	TBranch        *b_hi_header_fTimeStamp;   //!
+	TBranch        *b_hi_header_fDataSize;   //!
+	TBranch        *b_hi_io32_header;   //!
+	TBranch        *b_hi_io32_trig_count;   //!
+	TBranch        *b_hi_io32_tstamp;   //!
+	TBranch        *b_hi_io32_start;   //!
+	TBranch        *b_hi_io32_end;   //!
+	TBranch        *b_hi_io32_latency;   //!
+	TBranch        *b_hi_io32_read_time;   //!
+	TBranch        *b_hi_io32_busy_time;   //!
+	TBranch        *b_hi_io32_trigger_latch;   //!
+	TBranch        *b_hi_io32_which_trigger;   //!
+	TBranch        *b_hi_io32_tsc4_n_fifo;   //!
+	TBranch        *b_hi_io32_tsc4_trig_time;   //!
+	TBranch        *b_hi_v785;   //!
+	TBranch        *b_hi_v1190_n_ch;   //!
+	TBranch        *b_hi_v1190_count;   //!
+	TBranch        *b_hi_v1190_word_count;   //!
+	TBranch        *b_hi_v1190_trailer_word_count;   //!
+	TBranch        *b_hi_v1190_event_id;   //!
+	TBranch        *b_hi_v1190_bunch_id;   //!
+	TBranch        *b_hi_v1190_status;   //!
+	TBranch        *b_hi_v1190_type;   //!
+	TBranch        *b_hi_v1190_extended_trigger;   //!
+	TBranch        *b_hi_v1190_channel;   //!
+	TBranch        *b_hi_dsssd_ecal;   //!
+	TBranch        *b_hi_dsssd_efront;   //!
+	TBranch        *b_hi_dsssd_eback;   //!
+	TBranch        *b_hi_dsssd_hit_front;   //!
+	TBranch        *b_hi_dsssd_hit_back;   //!
+	TBranch        *b_hi_dsssd_tcal;   //!
+	TBranch        *b_hi_ic_anode;   //!
+	TBranch        *b_hi_ic_tcal;   //!
+	TBranch        *b_hi_ic_sum;   //!
+	TBranch        *b_hi_nai_ecal;   //!
+	TBranch        *b_hi_ge_ecal;   //!
+	TBranch        *b_hi_mcp_anode;   //!
+	TBranch        *b_hi_mcp_tcal;   //!
+	TBranch        *b_hi_mcp_esum;   //!
+	TBranch        *b_hi_mcp_tac;   //!
+	TBranch        *b_hi_mcp_x;   //!
+	TBranch        *b_hi_mcp_y;   //!
+	TBranch        *b_hi_sb_ecal;   //!
+	TBranch        *b_hi_tof_mcp;   //!
+	TBranch        *b_hi_tof_mcp_dsssd;   //!
+	TBranch        *b_hi_tof_mcp_ic;   //!
+	TBranch        *b_hi_tcal0;   //!
+	TBranch        *b_hi_tcalx;   //!
+
+	TailSelector(TTree * /*tree*/ =0) : ASelector(0) { }
+	virtual ~TailSelector() { }
+	virtual void    Init(TTree *tree);
+
+	ClassDef(TailSelector,0);
+};
+
+
+//! Selector class for coincidence events.
+
+/// The intended use of this class is for users to derive from it and then
+/// implement the following methods:
+///
+///    - Begin():        called every time a loop on the tree starts,
+///                      a convenient place to create your histograms.
+///    - Process():      called for each event, in this function you decide what
+///                      to read and fill your histograms.
+///    - Terminate():    called at the end of the loop on the tree,
+///                      a convenient place to draw/fit your histograms.
+///
+/// Optionally, derived classes can also implement Notify() and Init().
+///
+/// For an example on how to use this class, see the file examples/Selectors.cxx
+///
+class CoincSelector : public ASelector {
+public :
+	// Declaration of leaf types
+	//dragon::Coinc   *coinc;
+	UShort_t        head_header_fEventId;
+	UShort_t        head_header_fTriggerMask;
+	UInt_t          head_header_fSerialNumber;
+	UInt_t          head_header_fTimeStamp;
+	UInt_t          head_header_fDataSize;
+	UInt_t          head_io32_header;
+	UInt_t          head_io32_trig_count;
+	UInt_t          head_io32_tstamp;
+	UInt_t          head_io32_start;
+	UInt_t          head_io32_end;
+	UInt_t          head_io32_latency;
+	UInt_t          head_io32_read_time;
+	UInt_t          head_io32_busy_time;
+	UInt_t          head_io32_trigger_latch;
+	UInt_t          head_io32_which_trigger;
+	Int_t           head_io32_tsc4_n_fifo[4];
+	Double_t        head_io32_tsc4_trig_time;
+	Short_t         head_v792_n_ch;
+	Int_t           head_v792_count;
+	Bool_t          head_v792_overflow;
+	Bool_t          head_v792_underflow;
+	Short_t         head_v792_data[32];
+	Short_t         head_v1190_n_ch;
+	Int_t           head_v1190_count;
+	Short_t         head_v1190_word_count;
+	Short_t         head_v1190_trailer_word_count;
+	Short_t         head_v1190_event_id;
+	Short_t         head_v1190_bunch_id;
+	Short_t         head_v1190_status;
+	Short_t         head_v1190_type;
+	Int_t           head_v1190_extended_trigger;
+	vme::V1190::Channel head_v1190_channel[64];
+	Double_t        head_bgo_ecal[30];
+	Double_t        head_bgo_tcal[30];
+	Double_t        head_bgo_esort[30];
+	Double_t        head_bgo_sum;
+	Int_t           head_bgo_hit0;
+	Double_t        head_bgo_x0;
+	Double_t        head_bgo_y0;
+	Double_t        head_bgo_z0;
+	Double_t        head_bgo_t0;
+	Double_t        head_tcal0;
+	Double_t        head_tcalx;
+	UShort_t        tail_header_fEventId;
+	UShort_t        tail_header_fTriggerMask;
+	UInt_t          tail_header_fSerialNumber;
+	UInt_t          tail_header_fTimeStamp;
+	UInt_t          tail_header_fDataSize;
+	UInt_t          tail_io32_header;
+	UInt_t          tail_io32_trig_count;
+	UInt_t          tail_io32_tstamp;
+	UInt_t          tail_io32_start;
+	UInt_t          tail_io32_end;
+	UInt_t          tail_io32_latency;
+	UInt_t          tail_io32_read_time;
+	UInt_t          tail_io32_busy_time;
+	UInt_t          tail_io32_trigger_latch;
+	UInt_t          tail_io32_which_trigger;
+	Int_t           tail_io32_tsc4_n_fifo[4];
+	Double_t        tail_io32_tsc4_trig_time;
+	vme::V792       tail_v785[2];
+	Short_t         tail_v1190_n_ch;
+	Int_t           tail_v1190_count;
+	Short_t         tail_v1190_word_count;
+	Short_t         tail_v1190_trailer_word_count;
+	Short_t         tail_v1190_event_id;
+	Short_t         tail_v1190_bunch_id;
+	Short_t         tail_v1190_status;
+	Short_t         tail_v1190_type;
+	Int_t           tail_v1190_extended_trigger;
+	vme::V1190::Channel tail_v1190_channel[64];
+	Double_t        tail_dsssd_ecal[32];
+	Double_t        tail_dsssd_efront;
+	Double_t        tail_dsssd_eback;
+	UInt_t          tail_dsssd_hit_front;
+	UInt_t          tail_dsssd_hit_back;
+	Double_t        tail_dsssd_tcal;
+	Double_t        tail_ic_anode[4];
+	Double_t        tail_ic_tcal;
+	Double_t        tail_ic_sum;
+	Double_t        tail_nai_ecal[2];
+	Double_t        tail_ge_ecal;
+	Double_t        tail_mcp_anode[4];
+	Double_t        tail_mcp_tcal[2];
+	Double_t        tail_mcp_esum;
+	Double_t        tail_mcp_tac;
+	Double_t        tail_mcp_x;
+	Double_t        tail_mcp_y;
+	Double_t        tail_sb_ecal[2];
+	Double_t        tail_tof_mcp;
+	Double_t        tail_tof_mcp_dsssd;
+	Double_t        tail_tof_mcp_ic;
+	Double_t        tail_tcal0;
+	Double_t        tail_tcalx;
+	Double_t        xtrig;
+	Double_t        xtofh;
+	Double_t        xtoft;
+
+	// List of branches
+	TBranch        *b_coinc_head_header_fEventId;   //!
+	TBranch        *b_coinc_head_header_fTriggerMask;   //!
+	TBranch        *b_coinc_head_header_fSerialNumber;   //!
+	TBranch        *b_coinc_head_header_fTimeStamp;   //!
+	TBranch        *b_coinc_head_header_fDataSize;   //!
+	TBranch        *b_coinc_head_io32_header;   //!
+	TBranch        *b_coinc_head_io32_trig_count;   //!
+	TBranch        *b_coinc_head_io32_tstamp;   //!
+	TBranch        *b_coinc_head_io32_start;   //!
+	TBranch        *b_coinc_head_io32_end;   //!
+	TBranch        *b_coinc_head_io32_latency;   //!
+	TBranch        *b_coinc_head_io32_read_time;   //!
+	TBranch        *b_coinc_head_io32_busy_time;   //!
+	TBranch        *b_coinc_head_io32_trigger_latch;   //!
+	TBranch        *b_coinc_head_io32_which_trigger;   //!
+	TBranch        *b_coinc_head_io32_tsc4_n_fifo;   //!
+	TBranch        *b_coinc_head_io32_tsc4_trig_time;   //!
+	TBranch        *b_coinc_head_v792_n_ch;   //!
+	TBranch        *b_coinc_head_v792_count;   //!
+	TBranch        *b_coinc_head_v792_overflow;   //!
+	TBranch        *b_coinc_head_v792_underflow;   //!
+	TBranch        *b_coinc_head_v792_data;   //!
+	TBranch        *b_coinc_head_v1190_n_ch;   //!
+	TBranch        *b_coinc_head_v1190_count;   //!
+	TBranch        *b_coinc_head_v1190_word_count;   //!
+	TBranch        *b_coinc_head_v1190_trailer_word_count;   //!
+	TBranch        *b_coinc_head_v1190_event_id;   //!
+	TBranch        *b_coinc_head_v1190_bunch_id;   //!
+	TBranch        *b_coinc_head_v1190_status;   //!
+	TBranch        *b_coinc_head_v1190_type;   //!
+	TBranch        *b_coinc_head_v1190_extended_trigger;   //!
+	TBranch        *b_coinc_head_v1190_channel;   //!
+	TBranch        *b_coinc_head_bgo_ecal;   //!
+	TBranch        *b_coinc_head_bgo_tcal;   //!
+	TBranch        *b_coinc_head_bgo_esort;   //!
+	TBranch        *b_coinc_head_bgo_sum;   //!
+	TBranch        *b_coinc_head_bgo_hit0;   //!
+	TBranch        *b_coinc_head_bgo_x0;   //!
+	TBranch        *b_coinc_head_bgo_y0;   //!
+	TBranch        *b_coinc_head_bgo_z0;   //!
+	TBranch        *b_coinc_head_bgo_t0;   //!
+	TBranch        *b_coinc_head_tcal0;   //!
+	TBranch        *b_coinc_head_tcalx;   //!
+	TBranch        *b_coinc_tail_header_fEventId;   //!
+	TBranch        *b_coinc_tail_header_fTriggerMask;   //!
+	TBranch        *b_coinc_tail_header_fSerialNumber;   //!
+	TBranch        *b_coinc_tail_header_fTimeStamp;   //!
+	TBranch        *b_coinc_tail_header_fDataSize;   //!
+	TBranch        *b_coinc_tail_io32_header;   //!
+	TBranch        *b_coinc_tail_io32_trig_count;   //!
+	TBranch        *b_coinc_tail_io32_tstamp;   //!
+	TBranch        *b_coinc_tail_io32_start;   //!
+	TBranch        *b_coinc_tail_io32_end;   //!
+	TBranch        *b_coinc_tail_io32_latency;   //!
+	TBranch        *b_coinc_tail_io32_read_time;   //!
+	TBranch        *b_coinc_tail_io32_busy_time;   //!
+	TBranch        *b_coinc_tail_io32_trigger_latch;   //!
+	TBranch        *b_coinc_tail_io32_which_trigger;   //!
+	TBranch        *b_coinc_tail_io32_tsc4_n_fifo;   //!
+	TBranch        *b_coinc_tail_io32_tsc4_trig_time;   //!
+	TBranch        *b_coinc_tail_v785;   //!
+	TBranch        *b_coinc_tail_v1190_n_ch;   //!
+	TBranch        *b_coinc_tail_v1190_count;   //!
+	TBranch        *b_coinc_tail_v1190_word_count;   //!
+	TBranch        *b_coinc_tail_v1190_trailer_word_count;   //!
+	TBranch        *b_coinc_tail_v1190_event_id;   //!
+	TBranch        *b_coinc_tail_v1190_bunch_id;   //!
+	TBranch        *b_coinc_tail_v1190_status;   //!
+	TBranch        *b_coinc_tail_v1190_type;   //!
+	TBranch        *b_coinc_tail_v1190_extended_trigger;   //!
+	TBranch        *b_coinc_tail_v1190_channel;   //!
+	TBranch        *b_coinc_tail_dsssd_ecal;   //!
+	TBranch        *b_coinc_tail_dsssd_efront;   //!
+	TBranch        *b_coinc_tail_dsssd_eback;   //!
+	TBranch        *b_coinc_tail_dsssd_hit_front;   //!
+	TBranch        *b_coinc_tail_dsssd_hit_back;   //!
+	TBranch        *b_coinc_tail_dsssd_tcal;   //!
+	TBranch        *b_coinc_tail_ic_anode;   //!
+	TBranch        *b_coinc_tail_ic_tcal;   //!
+	TBranch        *b_coinc_tail_ic_sum;   //!
+	TBranch        *b_coinc_tail_nai_ecal;   //!
+	TBranch        *b_coinc_tail_ge_ecal;   //!
+	TBranch        *b_coinc_tail_mcp_anode;   //!
+	TBranch        *b_coinc_tail_mcp_tcal;   //!
+	TBranch        *b_coinc_tail_mcp_esum;   //!
+	TBranch        *b_coinc_tail_mcp_tac;   //!
+	TBranch        *b_coinc_tail_mcp_x;   //!
+	TBranch        *b_coinc_tail_mcp_y;   //!
+	TBranch        *b_coinc_tail_sb_ecal;   //!
+	TBranch        *b_coinc_tail_tof_mcp;   //!
+	TBranch        *b_coinc_tail_tof_mcp_dsssd;   //!
+	TBranch        *b_coinc_tail_tof_mcp_ic;   //!
+	TBranch        *b_coinc_tail_tcal0;   //!
+	TBranch        *b_coinc_tail_tcalx;   //!
+	TBranch        *b_coinc_xtrig;   //!
+	TBranch        *b_coinc_xtofh;   //!
+	TBranch        *b_coinc_xtoft;   //!
+
+	CoincSelector(TTree * /*tree*/ =0) : ASelector(0) { }
+	virtual ~CoincSelector() { }
+	virtual void    Init(TTree *tree);
+	ClassDef(CoincSelector,0);
+};
+
+//! Selector class for scaler events.
+
+/// The intended use of this class is for users to derive from it and then
+/// implement the following methods:
+///
+///    - Begin():        called every time a loop on the tree starts,
+///                      a convenient place to create your histograms.
+///    - Process():      called for each event, in this function you decide what
+///                      to read and fill your histograms.
+///    - Terminate():    called at the end of the loop on the tree,
+///                      a convenient place to draw/fit your histograms.
+///
+/// Optionally, derived classes can also implement Notify() and Init().
+///
+/// For an example on how to use this class, see the file examples/Selectors.cxx
+///
+class ScalerSelector : public ASelector {
+public :
+	// Declaration of leaf types
+	//dragon::Scaler  *sch;
+	UInt_t          count[17];
+	UInt_t          sum[17];
+	Double_t        rate[17];
+
+	// List of branches
+	TBranch        *b_sch_count;   //!
+	TBranch        *b_sch_sum;   //!
+	TBranch        *b_sch_rate;   //!
+
+	ScalerSelector(TTree * /*tree*/ =0) : ASelector(0) { }
+	virtual ~ScalerSelector() { }
+	virtual void    Init(TTree *tree);
+
+	ClassDef(ScalerSelector,0);
+};
+
 } // namespace dragon
 
+inline void dragon::ASelector::Begin(TTree*)
+{
+	//! BOR actions
+	///
+	/// The Begin() function is called at the start of the query.
+	/// When running with PROOF Begin() is only called on the client.
+	/// The tree argument is deprecated (on PROOF 0 is passed).
+	///
+	/// \note Derived classes should always implement this method.
+	AbstractMethod("Begin");
+}
 
-#endif // USE_ROOT
+inline Bool_t dragon::ASelector::Process(Long64_t)
+{
+	//! Event-by-event actions.
+	///
+	/// The Process() function is called for each entry in the tree (or possibly
+	/// keyed object in the case of PROOF) to be processed. The entry argument
+	/// specifies which entry in the currently loaded tree is to be processed.
+	/// It can be passed to either dragon::HeadSelector::GetEntry() or TBranch::GetEntry()
+	/// to read either all or the required parts of the data. When processing
+	/// keyed objects with PROOF, the object is already loaded and is available
+	/// via the fObject pointer.
+	///
+	/// This function should contain the "body" of the analysis. It can contain
+	/// simple or elaborate selection criteria, run algorithms on the data
+	/// of the event and typically fill histograms.
+	///
+	/// The processing can be stopped by calling Abort().
+	///
+	/// Use fStatus to set the return value of TTree::Process().
+	///
+	/// The return value is currently not used.
+	///
+	/// \note Derived classes should always implement this method.
+	AbstractMethod("Process");
+	return kTRUE;
+}
+
+inline void dragon::ASelector::Terminate()
+{
+	//! EOR actions
+	///
+	/// The Terminate() function is the last function to be called during
+	/// a query. It always runs on the client, it can be used to present
+	/// the results graphically or save the results to file.
+	///
+	/// \note Derived classes should always implement this method.
+	AbstractMethod("Terminate");
+}
+
+inline Bool_t dragon::ASelector::Notify()
+{
+	//! File open actions.
+	///
+	/// The Notify() function is called when a new file is opened. This
+	/// can be either for a new TTree in a TChain or when when a new TTree
+	/// is started when using PROOF. It is normally not necessary to make changes
+	/// to the generated code, but the routine can be extended by the
+	/// user if needed. The return value is currently not used.
+	return kTRUE;
+}
+
+inline void dragon::ASelector::Init(TTree*)
+{
+	//! Set branch addresses and branch pointers.
+	///
+	/// The Init() function is called when the selector needs to initialize
+	/// a new tree or chain. Typically here the branch addresses and branch
+	/// pointers of the tree will be set.
+	/// It is normally not necessary to make changes to the generated
+	/// code, but the routine can be extended by the user if needed.
+	/// Init() will be called many times when running on PROOF
+	/// (once per file to be processed).
+	///
+	/// For DRAGON, this method is implemented in HeadSelector, TailSelector, etc.
+	/// If desired, users may choose to override it in their derived classes.
+	AbstractMethod("Init");
+}
+
+inline void dragon::HeadSelector::Init(TTree *tree)
+{
+	/// See ASelector::Init()
+	if (!tree) return;
+	fChain = tree;
+	fChain->SetMakeClass(1);
+
+	fChain->SetBranchAddress("header.fEventId", &header_fEventId, &b_gamma_header_fEventId);
+	fChain->SetBranchAddress("header.fTriggerMask", &header_fTriggerMask, &b_gamma_header_fTriggerMask);
+	fChain->SetBranchAddress("header.fSerialNumber", &header_fSerialNumber, &b_gamma_header_fSerialNumber);
+	fChain->SetBranchAddress("header.fTimeStamp", &header_fTimeStamp, &b_gamma_header_fTimeStamp);
+	fChain->SetBranchAddress("header.fDataSize", &header_fDataSize, &b_gamma_header_fDataSize);
+	fChain->SetBranchAddress("io32.header", &io32_header, &b_gamma_io32_header);
+	fChain->SetBranchAddress("io32.trig_count", &io32_trig_count, &b_gamma_io32_trig_count);
+	fChain->SetBranchAddress("io32.tstamp", &io32_tstamp, &b_gamma_io32_tstamp);
+	fChain->SetBranchAddress("io32.start", &io32_start, &b_gamma_io32_start);
+	fChain->SetBranchAddress("io32.end", &io32_end, &b_gamma_io32_end);
+	fChain->SetBranchAddress("io32.latency", &io32_latency, &b_gamma_io32_latency);
+	fChain->SetBranchAddress("io32.read_time", &io32_read_time, &b_gamma_io32_read_time);
+	fChain->SetBranchAddress("io32.busy_time", &io32_busy_time, &b_gamma_io32_busy_time);
+	fChain->SetBranchAddress("io32.trigger_latch", &io32_trigger_latch, &b_gamma_io32_trigger_latch);
+	fChain->SetBranchAddress("io32.which_trigger", &io32_which_trigger, &b_gamma_io32_which_trigger);
+	fChain->SetBranchAddress("io32.tsc4.n_fifo[4]", io32_tsc4_n_fifo, &b_gamma_io32_tsc4_n_fifo);
+	fChain->SetBranchAddress("io32.tsc4.trig_time", &io32_tsc4_trig_time, &b_gamma_io32_tsc4_trig_time);
+	fChain->SetBranchAddress("v792.n_ch", &v792_n_ch, &b_gamma_v792_n_ch);
+	fChain->SetBranchAddress("v792.count", &v792_count, &b_gamma_v792_count);
+	fChain->SetBranchAddress("v792.overflow", &v792_overflow, &b_gamma_v792_overflow);
+	fChain->SetBranchAddress("v792.underflow", &v792_underflow, &b_gamma_v792_underflow);
+	fChain->SetBranchAddress("v792.data[32]", v792_data, &b_gamma_v792_data);
+	fChain->SetBranchAddress("v1190.n_ch", &v1190_n_ch, &b_gamma_v1190_n_ch);
+	fChain->SetBranchAddress("v1190.count", &v1190_count, &b_gamma_v1190_count);
+	fChain->SetBranchAddress("v1190.word_count", &v1190_word_count, &b_gamma_v1190_word_count);
+	fChain->SetBranchAddress("v1190.trailer_word_count", &v1190_trailer_word_count, &b_gamma_v1190_trailer_word_count);
+	fChain->SetBranchAddress("v1190.event_id", &v1190_event_id, &b_gamma_v1190_event_id);
+	fChain->SetBranchAddress("v1190.bunch_id", &v1190_bunch_id, &b_gamma_v1190_bunch_id);
+	fChain->SetBranchAddress("v1190.status", &v1190_status, &b_gamma_v1190_status);
+	fChain->SetBranchAddress("v1190.type", &v1190_type, &b_gamma_v1190_type);
+	fChain->SetBranchAddress("v1190.extended_trigger", &v1190_extended_trigger, &b_gamma_v1190_extended_trigger);
+	fChain->SetBranchAddress("v1190.channel[64]", v1190_channel, &b_gamma_v1190_channel);
+	fChain->SetBranchAddress("bgo.ecal[30]", bgo_ecal, &b_gamma_bgo_ecal);
+	fChain->SetBranchAddress("bgo.tcal[30]", bgo_tcal, &b_gamma_bgo_tcal);
+	fChain->SetBranchAddress("bgo.esort[30]", bgo_esort, &b_gamma_bgo_esort);
+	fChain->SetBranchAddress("bgo.sum", &bgo_sum, &b_gamma_bgo_sum);
+	fChain->SetBranchAddress("bgo.hit0", &bgo_hit0, &b_gamma_bgo_hit0);
+	fChain->SetBranchAddress("bgo.x0", &bgo_x0, &b_gamma_bgo_x0);
+	fChain->SetBranchAddress("bgo.y0", &bgo_y0, &b_gamma_bgo_y0);
+	fChain->SetBranchAddress("bgo.z0", &bgo_z0, &b_gamma_bgo_z0);
+	fChain->SetBranchAddress("bgo.t0", &bgo_t0, &b_gamma_bgo_t0);
+	fChain->SetBranchAddress("tcal0", &tcal0, &b_gamma_tcal0);
+	fChain->SetBranchAddress("tcalx", &tcalx, &b_gamma_tcalx);
+}
+
+inline void dragon::TailSelector::Init(TTree *tree)
+{
+	/// See ASelector::Init()
+	if (!tree) return;
+	fChain = tree;
+	fChain->SetMakeClass(1);
+
+	fChain->SetBranchAddress("header.fEventId", &header_fEventId, &b_hi_header_fEventId);
+	fChain->SetBranchAddress("header.fTriggerMask", &header_fTriggerMask, &b_hi_header_fTriggerMask);
+	fChain->SetBranchAddress("header.fSerialNumber", &header_fSerialNumber, &b_hi_header_fSerialNumber);
+	fChain->SetBranchAddress("header.fTimeStamp", &header_fTimeStamp, &b_hi_header_fTimeStamp);
+	fChain->SetBranchAddress("header.fDataSize", &header_fDataSize, &b_hi_header_fDataSize);
+	fChain->SetBranchAddress("io32.header", &io32_header, &b_hi_io32_header);
+	fChain->SetBranchAddress("io32.trig_count", &io32_trig_count, &b_hi_io32_trig_count);
+	fChain->SetBranchAddress("io32.tstamp", &io32_tstamp, &b_hi_io32_tstamp);
+	fChain->SetBranchAddress("io32.start", &io32_start, &b_hi_io32_start);
+	fChain->SetBranchAddress("io32.end", &io32_end, &b_hi_io32_end);
+	fChain->SetBranchAddress("io32.latency", &io32_latency, &b_hi_io32_latency);
+	fChain->SetBranchAddress("io32.read_time", &io32_read_time, &b_hi_io32_read_time);
+	fChain->SetBranchAddress("io32.busy_time", &io32_busy_time, &b_hi_io32_busy_time);
+	fChain->SetBranchAddress("io32.trigger_latch", &io32_trigger_latch, &b_hi_io32_trigger_latch);
+	fChain->SetBranchAddress("io32.which_trigger", &io32_which_trigger, &b_hi_io32_which_trigger);
+	fChain->SetBranchAddress("io32.tsc4.n_fifo[4]", io32_tsc4_n_fifo, &b_hi_io32_tsc4_n_fifo);
+	fChain->SetBranchAddress("io32.tsc4.trig_time", &io32_tsc4_trig_time, &b_hi_io32_tsc4_trig_time);
+	fChain->SetBranchAddress("v785[2]", v785, &b_hi_v785);
+	fChain->SetBranchAddress("v1190.n_ch", &v1190_n_ch, &b_hi_v1190_n_ch);
+	fChain->SetBranchAddress("v1190.count", &v1190_count, &b_hi_v1190_count);
+	fChain->SetBranchAddress("v1190.word_count", &v1190_word_count, &b_hi_v1190_word_count);
+	fChain->SetBranchAddress("v1190.trailer_word_count", &v1190_trailer_word_count, &b_hi_v1190_trailer_word_count);
+	fChain->SetBranchAddress("v1190.event_id", &v1190_event_id, &b_hi_v1190_event_id);
+	fChain->SetBranchAddress("v1190.bunch_id", &v1190_bunch_id, &b_hi_v1190_bunch_id);
+	fChain->SetBranchAddress("v1190.status", &v1190_status, &b_hi_v1190_status);
+	fChain->SetBranchAddress("v1190.type", &v1190_type, &b_hi_v1190_type);
+	fChain->SetBranchAddress("v1190.extended_trigger", &v1190_extended_trigger, &b_hi_v1190_extended_trigger);
+	fChain->SetBranchAddress("v1190.channel[64]", v1190_channel, &b_hi_v1190_channel);
+	fChain->SetBranchAddress("dsssd.ecal[32]", dsssd_ecal, &b_hi_dsssd_ecal);
+	fChain->SetBranchAddress("dsssd.efront", &dsssd_efront, &b_hi_dsssd_efront);
+	fChain->SetBranchAddress("dsssd.eback", &dsssd_eback, &b_hi_dsssd_eback);
+	fChain->SetBranchAddress("dsssd.hit_front", &dsssd_hit_front, &b_hi_dsssd_hit_front);
+	fChain->SetBranchAddress("dsssd.hit_back", &dsssd_hit_back, &b_hi_dsssd_hit_back);
+	fChain->SetBranchAddress("dsssd.tcal", &dsssd_tcal, &b_hi_dsssd_tcal);
+	fChain->SetBranchAddress("ic.anode[4]", ic_anode, &b_hi_ic_anode);
+	fChain->SetBranchAddress("ic.tcal", &ic_tcal, &b_hi_ic_tcal);
+	fChain->SetBranchAddress("ic.sum", &ic_sum, &b_hi_ic_sum);
+	fChain->SetBranchAddress("nai.ecal[2]", nai_ecal, &b_hi_nai_ecal);
+	fChain->SetBranchAddress("ge.ecal", &ge_ecal, &b_hi_ge_ecal);
+	fChain->SetBranchAddress("mcp.anode[4]", mcp_anode, &b_hi_mcp_anode);
+	fChain->SetBranchAddress("mcp.tcal[2]", mcp_tcal, &b_hi_mcp_tcal);
+	fChain->SetBranchAddress("mcp.esum", &mcp_esum, &b_hi_mcp_esum);
+	fChain->SetBranchAddress("mcp.tac", &mcp_tac, &b_hi_mcp_tac);
+	fChain->SetBranchAddress("mcp.x", &mcp_x, &b_hi_mcp_x);
+	fChain->SetBranchAddress("mcp.y", &mcp_y, &b_hi_mcp_y);
+	fChain->SetBranchAddress("sb.ecal[2]", sb_ecal, &b_hi_sb_ecal);
+	fChain->SetBranchAddress("tof.mcp", &tof_mcp, &b_hi_tof_mcp);
+	fChain->SetBranchAddress("tof.mcp_dsssd", &tof_mcp_dsssd, &b_hi_tof_mcp_dsssd);
+	fChain->SetBranchAddress("tof.mcp_ic", &tof_mcp_ic, &b_hi_tof_mcp_ic);
+	fChain->SetBranchAddress("tcal0", &tcal0, &b_hi_tcal0);
+	fChain->SetBranchAddress("tcalx", &tcalx, &b_hi_tcalx);
+}
+
+inline void dragon::CoincSelector::Init(TTree *tree)
+{
+	/// See ASelector::Init()
+	if (!tree) return;
+	fChain = tree;
+	fChain->SetMakeClass(1);
+
+	fChain->SetBranchAddress("head.header.fEventId", &head_header_fEventId, &b_coinc_head_header_fEventId);
+	fChain->SetBranchAddress("head.header.fTriggerMask", &head_header_fTriggerMask, &b_coinc_head_header_fTriggerMask);
+	fChain->SetBranchAddress("head.header.fSerialNumber", &head_header_fSerialNumber, &b_coinc_head_header_fSerialNumber);
+	fChain->SetBranchAddress("head.header.fTimeStamp", &head_header_fTimeStamp, &b_coinc_head_header_fTimeStamp);
+	fChain->SetBranchAddress("head.header.fDataSize", &head_header_fDataSize, &b_coinc_head_header_fDataSize);
+	fChain->SetBranchAddress("head.io32.header", &head_io32_header, &b_coinc_head_io32_header);
+	fChain->SetBranchAddress("head.io32.trig_count", &head_io32_trig_count, &b_coinc_head_io32_trig_count);
+	fChain->SetBranchAddress("head.io32.tstamp", &head_io32_tstamp, &b_coinc_head_io32_tstamp);
+	fChain->SetBranchAddress("head.io32.start", &head_io32_start, &b_coinc_head_io32_start);
+	fChain->SetBranchAddress("head.io32.end", &head_io32_end, &b_coinc_head_io32_end);
+	fChain->SetBranchAddress("head.io32.latency", &head_io32_latency, &b_coinc_head_io32_latency);
+	fChain->SetBranchAddress("head.io32.read_time", &head_io32_read_time, &b_coinc_head_io32_read_time);
+	fChain->SetBranchAddress("head.io32.busy_time", &head_io32_busy_time, &b_coinc_head_io32_busy_time);
+	fChain->SetBranchAddress("head.io32.trigger_latch", &head_io32_trigger_latch, &b_coinc_head_io32_trigger_latch);
+	fChain->SetBranchAddress("head.io32.which_trigger", &head_io32_which_trigger, &b_coinc_head_io32_which_trigger);
+	fChain->SetBranchAddress("head.io32.tsc4.n_fifo[4]", head_io32_tsc4_n_fifo, &b_coinc_head_io32_tsc4_n_fifo);
+	fChain->SetBranchAddress("head.io32.tsc4.trig_time", &head_io32_tsc4_trig_time, &b_coinc_head_io32_tsc4_trig_time);
+	fChain->SetBranchAddress("head.v792.n_ch", &head_v792_n_ch, &b_coinc_head_v792_n_ch);
+	fChain->SetBranchAddress("head.v792.count", &head_v792_count, &b_coinc_head_v792_count);
+	fChain->SetBranchAddress("head.v792.overflow", &head_v792_overflow, &b_coinc_head_v792_overflow);
+	fChain->SetBranchAddress("head.v792.underflow", &head_v792_underflow, &b_coinc_head_v792_underflow);
+	fChain->SetBranchAddress("head.v792.data[32]", head_v792_data, &b_coinc_head_v792_data);
+	fChain->SetBranchAddress("head.v1190.n_ch", &head_v1190_n_ch, &b_coinc_head_v1190_n_ch);
+	fChain->SetBranchAddress("head.v1190.count", &head_v1190_count, &b_coinc_head_v1190_count);
+	fChain->SetBranchAddress("head.v1190.word_count", &head_v1190_word_count, &b_coinc_head_v1190_word_count);
+	fChain->SetBranchAddress("head.v1190.trailer_word_count", &head_v1190_trailer_word_count, &b_coinc_head_v1190_trailer_word_count);
+	fChain->SetBranchAddress("head.v1190.event_id", &head_v1190_event_id, &b_coinc_head_v1190_event_id);
+	fChain->SetBranchAddress("head.v1190.bunch_id", &head_v1190_bunch_id, &b_coinc_head_v1190_bunch_id);
+	fChain->SetBranchAddress("head.v1190.status", &head_v1190_status, &b_coinc_head_v1190_status);
+	fChain->SetBranchAddress("head.v1190.type", &head_v1190_type, &b_coinc_head_v1190_type);
+	fChain->SetBranchAddress("head.v1190.extended_trigger", &head_v1190_extended_trigger, &b_coinc_head_v1190_extended_trigger);
+	fChain->SetBranchAddress("head.v1190.channel[64]", head_v1190_channel, &b_coinc_head_v1190_channel);
+	fChain->SetBranchAddress("head.bgo.ecal[30]", head_bgo_ecal, &b_coinc_head_bgo_ecal);
+	fChain->SetBranchAddress("head.bgo.tcal[30]", head_bgo_tcal, &b_coinc_head_bgo_tcal);
+	fChain->SetBranchAddress("head.bgo.esort[30]", head_bgo_esort, &b_coinc_head_bgo_esort);
+	fChain->SetBranchAddress("head.bgo.sum", &head_bgo_sum, &b_coinc_head_bgo_sum);
+	fChain->SetBranchAddress("head.bgo.hit0", &head_bgo_hit0, &b_coinc_head_bgo_hit0);
+	fChain->SetBranchAddress("head.bgo.x0", &head_bgo_x0, &b_coinc_head_bgo_x0);
+	fChain->SetBranchAddress("head.bgo.y0", &head_bgo_y0, &b_coinc_head_bgo_y0);
+	fChain->SetBranchAddress("head.bgo.z0", &head_bgo_z0, &b_coinc_head_bgo_z0);
+	fChain->SetBranchAddress("head.bgo.t0", &head_bgo_t0, &b_coinc_head_bgo_t0);
+	fChain->SetBranchAddress("head.tcal0", &head_tcal0, &b_coinc_head_tcal0);
+	fChain->SetBranchAddress("head.tcalx", &head_tcalx, &b_coinc_head_tcalx);
+	fChain->SetBranchAddress("tail.header.fEventId", &tail_header_fEventId, &b_coinc_tail_header_fEventId);
+	fChain->SetBranchAddress("tail.header.fTriggerMask", &tail_header_fTriggerMask, &b_coinc_tail_header_fTriggerMask);
+	fChain->SetBranchAddress("tail.header.fSerialNumber", &tail_header_fSerialNumber, &b_coinc_tail_header_fSerialNumber);
+	fChain->SetBranchAddress("tail.header.fTimeStamp", &tail_header_fTimeStamp, &b_coinc_tail_header_fTimeStamp);
+	fChain->SetBranchAddress("tail.header.fDataSize", &tail_header_fDataSize, &b_coinc_tail_header_fDataSize);
+	fChain->SetBranchAddress("tail.io32.header", &tail_io32_header, &b_coinc_tail_io32_header);
+	fChain->SetBranchAddress("tail.io32.trig_count", &tail_io32_trig_count, &b_coinc_tail_io32_trig_count);
+	fChain->SetBranchAddress("tail.io32.tstamp", &tail_io32_tstamp, &b_coinc_tail_io32_tstamp);
+	fChain->SetBranchAddress("tail.io32.start", &tail_io32_start, &b_coinc_tail_io32_start);
+	fChain->SetBranchAddress("tail.io32.end", &tail_io32_end, &b_coinc_tail_io32_end);
+	fChain->SetBranchAddress("tail.io32.latency", &tail_io32_latency, &b_coinc_tail_io32_latency);
+	fChain->SetBranchAddress("tail.io32.read_time", &tail_io32_read_time, &b_coinc_tail_io32_read_time);
+	fChain->SetBranchAddress("tail.io32.busy_time", &tail_io32_busy_time, &b_coinc_tail_io32_busy_time);
+	fChain->SetBranchAddress("tail.io32.trigger_latch", &tail_io32_trigger_latch, &b_coinc_tail_io32_trigger_latch);
+	fChain->SetBranchAddress("tail.io32.which_trigger", &tail_io32_which_trigger, &b_coinc_tail_io32_which_trigger);
+	fChain->SetBranchAddress("tail.io32.tsc4.n_fifo[4]", tail_io32_tsc4_n_fifo, &b_coinc_tail_io32_tsc4_n_fifo);
+	fChain->SetBranchAddress("tail.io32.tsc4.trig_time", &tail_io32_tsc4_trig_time, &b_coinc_tail_io32_tsc4_trig_time);
+	fChain->SetBranchAddress("tail.v785[2]", tail_v785, &b_coinc_tail_v785);
+	fChain->SetBranchAddress("tail.v1190.n_ch", &tail_v1190_n_ch, &b_coinc_tail_v1190_n_ch);
+	fChain->SetBranchAddress("tail.v1190.count", &tail_v1190_count, &b_coinc_tail_v1190_count);
+	fChain->SetBranchAddress("tail.v1190.word_count", &tail_v1190_word_count, &b_coinc_tail_v1190_word_count);
+	fChain->SetBranchAddress("tail.v1190.trailer_word_count", &tail_v1190_trailer_word_count, &b_coinc_tail_v1190_trailer_word_count);
+	fChain->SetBranchAddress("tail.v1190.event_id", &tail_v1190_event_id, &b_coinc_tail_v1190_event_id);
+	fChain->SetBranchAddress("tail.v1190.bunch_id", &tail_v1190_bunch_id, &b_coinc_tail_v1190_bunch_id);
+	fChain->SetBranchAddress("tail.v1190.status", &tail_v1190_status, &b_coinc_tail_v1190_status);
+	fChain->SetBranchAddress("tail.v1190.type", &tail_v1190_type, &b_coinc_tail_v1190_type);
+	fChain->SetBranchAddress("tail.v1190.extended_trigger", &tail_v1190_extended_trigger, &b_coinc_tail_v1190_extended_trigger);
+	fChain->SetBranchAddress("tail.v1190.channel[64]", tail_v1190_channel, &b_coinc_tail_v1190_channel);
+	fChain->SetBranchAddress("tail.dsssd.ecal[32]", tail_dsssd_ecal, &b_coinc_tail_dsssd_ecal);
+	fChain->SetBranchAddress("tail.dsssd.efront", &tail_dsssd_efront, &b_coinc_tail_dsssd_efront);
+	fChain->SetBranchAddress("tail.dsssd.eback", &tail_dsssd_eback, &b_coinc_tail_dsssd_eback);
+	fChain->SetBranchAddress("tail.dsssd.hit_front", &tail_dsssd_hit_front, &b_coinc_tail_dsssd_hit_front);
+	fChain->SetBranchAddress("tail.dsssd.hit_back", &tail_dsssd_hit_back, &b_coinc_tail_dsssd_hit_back);
+	fChain->SetBranchAddress("tail.dsssd.tcal", &tail_dsssd_tcal, &b_coinc_tail_dsssd_tcal);
+	fChain->SetBranchAddress("tail.ic.anode[4]", tail_ic_anode, &b_coinc_tail_ic_anode);
+	fChain->SetBranchAddress("tail.ic.tcal", &tail_ic_tcal, &b_coinc_tail_ic_tcal);
+	fChain->SetBranchAddress("tail.ic.sum", &tail_ic_sum, &b_coinc_tail_ic_sum);
+	fChain->SetBranchAddress("tail.nai.ecal[2]", tail_nai_ecal, &b_coinc_tail_nai_ecal);
+	fChain->SetBranchAddress("tail.ge.ecal", &tail_ge_ecal, &b_coinc_tail_ge_ecal);
+	fChain->SetBranchAddress("tail.mcp.anode[4]", tail_mcp_anode, &b_coinc_tail_mcp_anode);
+	fChain->SetBranchAddress("tail.mcp.tcal[2]", tail_mcp_tcal, &b_coinc_tail_mcp_tcal);
+	fChain->SetBranchAddress("tail.mcp.esum", &tail_mcp_esum, &b_coinc_tail_mcp_esum);
+	fChain->SetBranchAddress("tail.mcp.tac", &tail_mcp_tac, &b_coinc_tail_mcp_tac);
+	fChain->SetBranchAddress("tail.mcp.x", &tail_mcp_x, &b_coinc_tail_mcp_x);
+	fChain->SetBranchAddress("tail.mcp.y", &tail_mcp_y, &b_coinc_tail_mcp_y);
+	fChain->SetBranchAddress("tail.sb.ecal[2]", tail_sb_ecal, &b_coinc_tail_sb_ecal);
+	fChain->SetBranchAddress("tail.tof.mcp", &tail_tof_mcp, &b_coinc_tail_tof_mcp);
+	fChain->SetBranchAddress("tail.tof.mcp_dsssd", &tail_tof_mcp_dsssd, &b_coinc_tail_tof_mcp_dsssd);
+	fChain->SetBranchAddress("tail.tof.mcp_ic", &tail_tof_mcp_ic, &b_coinc_tail_tof_mcp_ic);
+	fChain->SetBranchAddress("tail.tcal0", &tail_tcal0, &b_coinc_tail_tcal0);
+	fChain->SetBranchAddress("tail.tcalx", &tail_tcalx, &b_coinc_tail_tcalx);
+	fChain->SetBranchAddress("xtrig", &xtrig, &b_coinc_xtrig);
+	fChain->SetBranchAddress("xtofh", &xtofh, &b_coinc_xtofh);
+	fChain->SetBranchAddress("xtoft", &xtoft, &b_coinc_xtoft);
+}
+
+inline void dragon::ScalerSelector::Init(TTree *tree)
+{
+	/// See ASelector::Init()
+	if (!tree) return;
+	fChain = tree;
+	fChain->SetMakeClass(1);
+
+	fChain->SetBranchAddress("count[17]", count, &b_sch_count);
+	fChain->SetBranchAddress("sum[17]", sum, &b_sch_sum);
+	fChain->SetBranchAddress("rate[17]", rate, &b_sch_rate);
+}
+
 #endif // Include guard

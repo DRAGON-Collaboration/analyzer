@@ -17,6 +17,20 @@ namespace { std::ostream NullStream(0); }
 
 namespace dragon { namespace utils {
 
+/// Utility to temporarily change the error ignore level
+/*! Enclose in `{ ... }` blocks to get desired bahavior */
+class ChangeErrorIgnore {
+public:
+	/// Set gErrorIgnoreLevel to _level_
+	ChangeErrorIgnore(int level): fOldLevel(gErrorIgnoreLevel)
+		{ gErrorIgnoreLevel = level; }
+	/// Set gErrorIgnoreLevel back to previous value
+	~ChangeErrorIgnore()
+		{ gErrorIgnoreLevel = fOldLevel; }
+private:
+	int fOldLevel;
+};
+
 /// Base stream class
 class AStrm {
 protected:
@@ -32,7 +46,7 @@ public:
 
 #ifndef __MAKECINT__
 	/// Stream operator, for std::endl
-	AStrm& operator<<(StandardEndLine manip)
+	AStrm& operator<<(StandardEndLine)
 		{	return operator<< ("\n"); }
 #endif
 	

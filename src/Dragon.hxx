@@ -825,25 +825,4 @@ inline void dragon::Scaler::set_aliases(T* t, const char* branchName) const
 }
 
 
-// ======= ROOTCINT stuff ======== //
-
-#ifdef __MAKECINT__
-// Create CINT links to template classes //
-#pragma link C++ class dragon::utils::AdcVariables<dragon::Bgo::MAX_CHANNELS>;
-#pragma link C++ class dragon::utils::TdcVariables<dragon::Bgo::MAX_CHANNELS>;
-#pragma link C++ class dragon::utils::PositionVariables<dragon::Bgo::MAX_CHANNELS>;
-
-#pragma link C++ class dragon::utils::AdcVariables<dragon::Dsssd::MAX_CHANNELS>+;
-#pragma link C++ class dragon::utils::TdcVariables<1>+;
-
-#pragma link C++ class dragon::utils::AdcVariables<dragon::IonChamber::MAX_CHANNELS>+;
-#pragma link C++ class dragon::utils::TdcVariables<1>+;
-
-#pragma link C++ class dragon::utils::AdcVariables<dragon::SurfaceBarrier::MAX_CHANNELS>+;
-
-#pragma link C++ class dragon::utils::AdcVariables<dragon::NaI::MAX_CHANNELS>+;
-#pragma link C++ class dragon::utils::AdcVariables<1>+;
-#endif
-
-
-#endif // #ifndef HAVE_DRAGON__HXX
+#endif // #ifndef HAVE_DRAGON_HXX

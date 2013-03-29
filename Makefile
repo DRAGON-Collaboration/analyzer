@@ -132,6 +132,12 @@ $(OBJ)/Unpack.o				\
 $(OBJ)/TStamp.o		              	\
 $(OBJ)/Vme.o				\
 $(OBJ)/Dragon.o					
+
+ifeq ($(USE_ROOT), YES)
+OBJECTS+=$(OBJ)/utils/RootAnalysis.o
+endif
+
+
 ## END OBJECTS ##
 
 
@@ -170,11 +176,11 @@ $(PWD)/bin/mid2root: src/mid2root.cxx $(DRLIB)/libDragon.so
 
 mid2root: $(PWD)/bin/mid2root
 
-rbdragon.o: $(OBJ)/rootbeer/rbdragon.o
+rbdragon.o: $(OBJ)/rootbeer/rbdragon.o 
 
 ### OBJECT FILES ###
 
-$(OBJ)/rootbeer/%.o: $(SRC)/rootbeer/%.cxx $(SRC)/rootbeer/*.hxx $(DR_DICT_DEP)
+$(OBJ)/rootbeer/%.o: $(SRC)/rootbeer/%.cxx $(SRC)/rootbeer/*.hxx $(DR_DICT_DEP) $(HOME)/packages/rootbeer/cint/RBDictionary.cxx
 	$(CXX) $(RB_DEFS) $(RBINC) $(FPIC) -c \
 -o $@ $< \
 
@@ -288,11 +294,7 @@ clean:
 #### FOR DOXYGEN ####
 
 doc::
-	doxygen doc/Doxyfile
-
-docclean::
-	rm -fr /triumfcs/trshare/gchristian/public_html/dragon/analyzer/html \
-/triumfcs/trshare/gchristian/public_html/dragon/analyzer/latex
+	cd doc ; doxygen Doxyfile ; cd ..
 
 
 #### FOR UNIT TESTING ####

@@ -31,3 +31,5 @@ lib/.*
 .nfs*
 bin/*
 test.xml
+examples/*.d
+examples/*.so

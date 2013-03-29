@@ -3,7 +3,6 @@
 /// \author G. Christian
 /// \brief Implements RootAnalysis.hxx
 ///
-#ifdef USE_ROOT
 #include <vector>
 #include <TThread.h>
 #include "ErrorDragon.hxx"
@@ -20,31 +19,27 @@ template <class T> void Zap(T*& t)
 
 // ============ Class dragon::TTreeFilter ============ //
 
-dragon::TTreeFilter::TTreeFilter(const char* filename):
+dragon::TTreeFilter::TTreeFilter(const char* filename, const char* option, const char* ftitle, Int_t compress):
 	fRunThreaded(kTRUE)
 {
-	/// Create a new TFile for filter output
-	/// \param tree The TTree (TChain) to be filtered
-	/// \param condition The filter condition
-	/// \param filename
-	/// \note Closes the created output file upon destruction.
+	/// Create a new TFile to be used for filter output.
+	/// For explanation of parameters, see the <a href = http://root.cern.ch/root/html/TFile.html#TFile:TFile@2>
+	/// TFile constructor documentation</a>.
 	TDirectory* current = gDirectory;
 	fFileOwner = kTRUE;
-	fDirectory = new TFile(filename, "recreate");
+	fDirectory = new TFile(filename, option, ftitle, compress);
 	if(IsZombie()) { Zap(fDirectory);	}
 	if(current) current->cd();
 }
 
-dragon::TTreeFilter::TTreeFilter(TDirectory* directory):
+dragon::TTreeFilter::TTreeFilter(TDirectory* output):
 	fRunThreaded(kTRUE)
 {
 	/// Create a filter into a currently existing directory (file).
-	/// \param tree The TTree (TChain) to be filtered
-	/// \param condition The filter condition
-	/// \param directory Currently existing directory in which to place the output tree.
-	/// \note Takes no ownership of _directory_.
+	/// \param output Currently existing directory in which to place the output tree.
+	/// \note Takes no ownership of _output_.
 	fFileOwner = kFALSE;
-	fDirectory = directory;
+	fDirectory = output;
 }
 
 dragon::TTreeFilter::~TTreeFilter()
@@ -77,7 +72,7 @@ void dragon::TTreeFilter::SetOutDir(TDirectory* directory)
 	fFileOwner = kFALSE;
 }
 
-void dragon::TTreeFilter::CloseOutDir()
+void dragon::TTreeFilter::Close()
 {
 	if(!IsFileOwner()) {
 		utils::Warning("TTreeFilter::CloseOutDir")
@@ -99,8 +94,9 @@ void dragon::TTreeFilter::SetFilterCondition(TTree* tree, const char* condition)
 	///
 	/// \param tree The input TTree to be filtered
 	/// \param condition String specifying the filter condition. Should be a boolean
-	///  expresion involving valid parameters of _tree_. See ROOT's documentation on
-	///  TTree::Draw() for more information.
+	///  expresion involving valid parameters of _tree_. See ROOT's 
+	///  <a href=http://root.cern.ch/root/html/TTree.html#TTree:Draw@2> ocumentation on
+	///  TTree::Draw()</a> for more information.
 	/// \note If _tree_ has already been set as an input, the effect of this method is
 	///  to reset the filter condition to _condition_.
 	Out_t out = { 0, condition };
@@ -178,7 +174,7 @@ Int_t dragon::TTreeFilter::Run()
 		args->fCondition = i->second.fCondition;
 
 		// Construct thread and add to list
-		TThread *thread = new TThread(run_thread, args);
+		TThread *thread =	GetThreaded() ? new TThread(run_thread, args) : 0;
 		threads.push_back(std::make_pair(thread, args));
 	}
 	
@@ -195,13 +191,19 @@ Int_t dragon::TTreeFilter::Run()
 
 	//
 	// Run all threads
-	for(size_t i=0; i< threads.size(); ++i) 
-		threads[i].first->Run();
-	//
-	// Join all threads
 	std::vector<void*> nout(threads.size(), 0);
 	for(size_t i=0; i< threads.size(); ++i) {
-		threads[i].first->Join( &(nout[i]) );
+		if(GetThreaded())
+			threads[i].first->Run();
+		else
+			nout[i] = run_thread(threads[i].second);
+	}
+	//
+	// Join all threads
+	if(GetThreaded()) {
+		for(size_t i=0; i< threads.size(); ++i) {
+			threads[i].first->Join( &(nout[i]) );
+		}
 	}
 	//
 	// Message & cleanup
@@ -211,13 +213,15 @@ Int_t dragon::TTreeFilter::Run()
 		Long64_t* nout64 = (Long64_t*) nout[i];
 		Long64_t nnn = nout64 ? *nout64 : 0;
 		std::cout << "\t" << threads[i].second->fIn->GetName() << ", " << nnn << "\n";
-		delete threads[i].first;
-		delete threads[i].second;
-		if(nout64) delete nout64;
+
+		if(GetThreaded()) 
+			delete threads[i].first;
+		if(1)
+			delete threads[i].second;
+		if(nout64)
+			delete nout64;
 	}
 
 	return 0;
 }
 
-
-#endif // USE_ROOT
