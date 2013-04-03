@@ -207,6 +207,38 @@ private:
 	void HandleBadEvent();
 };
 
+/// Epics event
+class EpicsEvent : public rb::Event
+{
+private:
+	/// Wrapper of dragon::Scaler class that stored the unpacked scaler data
+	rb::data::Wrapper<dragon::Epics> fEpics;
+
+public:
+	/// Initializes fEpics
+	EpicsEvent();
+
+	/// Empty
+	~EpicsEvent() {}
+
+	/// Read variables from ODB
+	void ReadVariables(midas::Database* db);
+
+	/// Get raw pointer
+	dragon::Epics* Get() { return fEpics.Get(); }
+
+private:
+	/// Casts from const void* to const midas::Event*
+	const midas::Event* AsMidasEvent(const void* addr)
+		{ return reinterpret_cast<const midas::Event*>(addr); }
+
+	/// Nothing to do - Unpacker class handles it
+	Bool_t DoProcess(const void*, Int_t) { return kTRUE; }
+
+	/// What to do in case of an error in event processing
+	void HandleBadEvent();
+};
+
 /// Head scaler event
 class HeadScaler : public rb::Event
 {
@@ -215,7 +247,7 @@ private:
 	rb::data::Wrapper<dragon::Scaler> fScaler;
 
 public:
-	/// Initializes fGamma
+	/// Initializes fScaler
 	HeadScaler();
 
 	/// Empty

@@ -776,6 +776,66 @@ public: // Subclass instances
 	Variables variables; //!
 };
 
+///
+/// DRAGON EPICS parameters
+///
+class Epics {
+public: // Constants
+	/// Number of epics channels
+	static const int MAX_CHANNELS = 80; //!
+
+public: // Methods
+  /// Initialize data
+	Epics();
+  /// Reset all data to zero
+  void reset();
+  /// Unpack Midas event data into scalar data structiures
+  void unpack(const midas::Event& event);
+	/// Returns the name of a given scaler channel
+	const std::string& channel_name(int ch) const;
+	///  Reads all variable values from an database (file or online)
+	bool set_variables(const char* dbfile);
+	///  Reads all variable values from a constructed database
+	bool set_variables(const midas::Database* db);
+	/// Set branch alises in a ROOT TTree.
+	template <class T>
+	void set_aliases(T* t) const;
+
+public: // Data
+	/// Midas event header
+	midas::Event::Header header; //#
+	/// Epics channel number for this event
+	int32_t ch; //#
+	/// EPICS value at `ch` for this event
+	float val;  //#
+
+public: // Subclasses
+	///
+  /// EPICS variables
+	///
+  class Variables {
+ public: // Data
+		/// Name of a given channel
+		std::string names[MAX_CHANNELS];
+		/// Bank name
+		midas::Bank_t bkname;
+
+ public: // Methods
+    /// Constuctor
+    Variables();
+		/// Resets names to default values
+		void reset();
+		///  Set data values from an database (file or online)
+		bool set(const char* dbfile);
+		///  Set data values from a constructed database
+		bool set(const midas::Database* db);
+  };
+
+public: // Subclass instances
+	/// Variables instance
+	Variables variables; //!
+};
+
 } // namespace dragon
 
 
@@ -824,5 +884,17 @@ inline void dragon::Scaler::set_aliases(T* t, const char* branchName) const
 	}
 }
 
+template <class T>
+inline void dragon::Epics::set_aliases(T* t) const
+{
+	/*!
+	 * See dragon::Scaler::set_aliases()
+	 */
+	for(int i=0; i< MAX_CHANNELS; ++i) {
+		std::stringstream oldName;
+		oldName << "1*" << i << "";
+		t->SetAlias(variables.names[i].c_str(), oldName.str().c_str());
+	}
+}
 
 #endif // #ifndef HAVE_DRAGON_HXX

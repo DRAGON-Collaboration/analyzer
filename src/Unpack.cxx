@@ -18,6 +18,7 @@
 dragon::Unpacker::Unpacker(dragon::Head* head,
 													 dragon::Tail* tail,
 													 dragon::Coinc* coinc,
+													 dragon::Epics* epics,
 													 dragon::Scaler* schead,
 													 dragon::Scaler* sctail,
 													 dragon::RunParameters* runpar,
@@ -28,6 +29,7 @@ dragon::Unpacker::Unpacker(dragon::Head* head,
 	fHead(head),
 	fTail(tail),
 	fCoinc(coinc),
+  fEpics(epics),
 	fHeadScaler(schead),
 	fTailScaler(sctail),
 	fRunpar(runpar),
@@ -95,6 +97,13 @@ void dragon::Unpacker::UnpackCoinc(const midas::CoincEvent& event)
 	fUnpacked.push_back(DRAGON_COINC_EVENT);
 }
 
+void dragon::Unpacker::UnpackEpics(const midas::Event& event)
+{
+	fEpics->reset();       /// - Reset the class to default values.
+	fEpics->unpack(event); /// - Read raw data from the MIDAS event.
+	fUnpacked.push_back(DRAGON_EPICS_EVENT);
+}
+
 void dragon::Unpacker::UnpackHeadScaler(const midas::Event& event)
 {
 	fHeadScaler->unpack(event); /// - Read scaler data from the midas event
@@ -154,6 +163,12 @@ std::vector<int32_t> dragon::Unpacker::UnpackMidasEvent(void* header, char* data
 		{
 			midas::Event event(header, data, evtHeader->fDataSize);
 			UnpackTailScaler(event);
+			break;
+		}
+	case DRAGON_EPICS_EVENT:
+		{
+			midas::Event event(header, data, evtHeader->fDataSize);
+			UnpackEpics(event);
 			break;
 		}
 	case MIDAS_BOR:

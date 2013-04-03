@@ -39,6 +39,7 @@ rbdragon::MidasBuffer::MidasBuffer():
 	fUnpacker(rb::Event::Instance<rbdragon::GammaEvent>()->Get(),
 						rb::Event::Instance<rbdragon::HeavyIonEvent>()->Get(),
 						rb::Event::Instance<rbdragon::CoincEvent>()->Get(),
+						rb::Event::Instance<rbdragon::EpicsEvent>()->Get(),
 						rb::Event::Instance<rbdragon::HeadScaler>()->Get(),
 						rb::Event::Instance<rbdragon::TailScaler>()->Get(),
 						rb::Event::Instance<rbdragon::RunParameters>()->Get(),
@@ -226,6 +227,27 @@ void rbdragon::CoincEvent::ReadVariables(midas::Database* db)
 	fCoinc->set_variables(db);
 }
 
+
+// ======== Class rbdragon::EpicsEvent ======== //
+
+rbdragon::EpicsEvent::EpicsEvent():
+	fEpics("epics", this, false)
+{
+	assert(fEpics.Get());
+}
+
+void rbdragon::EpicsEvent::HandleBadEvent()
+{
+	dragon::utils::Error("EpicsEvent")
+		<< "Unknown error encountered during event processing";
+}
+
+void rbdragon::EpicsEvent::ReadVariables(midas::Database* db)
+{
+	fEpics->set_variables(db);
+}
+
+
 // ======== Class rbdragon::HeadScaler ======== //
 
 rbdragon::HeadScaler::HeadScaler():
@@ -307,6 +329,9 @@ void rb::Rint::RegisterEvents()
 
 	/// - Coincidences [ rbdragon::CoincEvent ]: "CoincEvent"
   RegisterEvent<rbdragon::CoincEvent> (DRAGON_COINC_EVENT, "CoincEvent");
+
+	/// - Epics [ rbdragon::EpicsEvent ]: "EpicsEvent"
+  RegisterEvent<rbdragon::EpicsEvent> (DRAGON_EPICS_EVENT, "EpicsEvent");
 
 	/// - Head Scalers [ rbdragon::HeadScaler ]: "HeadScaler"
 	RegisterEvent<rbdragon::HeadScaler> (DRAGON_HEAD_SCALER, "HeadScaler");

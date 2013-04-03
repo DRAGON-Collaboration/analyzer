@@ -1346,6 +1346,7 @@ bool dragon::Scaler::Variables::set(const midas::Database* db, const char* dir)
 	return success;
 }
 
+
 // ==================== Class dragon::Coinc ==================== //
 
 dragon::Coinc::Coinc()
@@ -1449,6 +1450,118 @@ bool dragon::Coinc::Variables::set(const midas::Database* db)
 
 	if(success) success = db->ReadValue("/dragon/coinc/variables/window", window);
 	if(success) success = db->ReadValue("/dragon/coinc/variables/buffer_time", buffer_time);
+
+	return success;
+}
+
+
+// ====================== Class dragon::Epics ====================== //
+
+dragon::Epics::Epics()
+{
+	/*! Calls reset() */
+	reset();
+}
+
+void dragon::Epics::reset()
+{
+	/*! Sets all ch and val to vme::NONE, header to all zeroes. */
+	const midas::Event::Header temp = { 0, 0, 0, 0, 0 };
+	header = temp;
+	utils::reset_data(ch, val);
+}
+
+bool dragon::Epics::set_variables(const char* dbfile)
+{
+	/*!
+	 * Delegates to dragon::Epics::Variables::Set()
+	 */
+	return variables.set(dbfile);
+}
+
+bool dragon::Epics::set_variables(const midas::Database* db)
+{
+	/*!
+	 * Delegates to dragon::Epics::Variables::Set()
+	 */
+	return variables.set(db);
+}
+
+void dragon::Epics::unpack(const midas::Event& event)
+{
+	bool report = true;
+	int bank_len;
+	float* pch = event.GetBankPointer<float>(variables.bkname, &bank_len, report, true);
+
+	/// - Read channel number and value from the bank
+	if(bank_len == 2) {
+		ch  = static_cast<int32_t>(*pch++);
+		val = *pch++;
+	} else {
+		dutils::Error("Epics::unpack") << "Bank len != 2, skipping!";
+	}
+
+	/// - Copy event header
+	event.CopyHeader(header);
+}
+
+const std::string& dragon::Epics::channel_name(int ch) const
+{
+	/*!
+	 * \param ch Channel number
+	 */
+	if (ch >= 0 && ch < MAX_CHANNELS) return variables.names[ch];
+	dutils::Error("dragon::Epics::channel_name")
+		<< "Invalid channel number: " << ch << ". Valid arguments are 0 <= ch < " << MAX_CHANNELS;
+	static std::string junk = "";
+	return junk;
+}
+
+
+// ====================== Class dragon::Epics::Variables ====================== //
+
+dragon::Epics::Variables::Variables()
+{
+	/*! Calls reset() */
+	reset();
+}
+
+void dragon::Epics::Variables::reset()
+{
+	/*! Resets every channel to a default name: \c channel_n*/
+	for (int i=0; i< MAX_CHANNELS; ++i) {
+		std::stringstream strm_name;
+		strm_name << "channel_" << i;
+		names[i] = strm_name.str();
+	}
+
+	/// Set bank name to `"EPCS"`
+	dutils::set_bank_name("EPCS", bkname);
+}
+
+bool dragon::Epics::Variables::set(const char* dbfile)
+{
+	/*!
+	 * \param [in] dbfile Name of the database file from which to read variables ("online" for the ODB).
+	 */
+	midas::Database db(dbfile);
+	if(db.IsZombie()) {
+		dutils::Error("Epics::Variables::Set")
+			<< "Zombie database: " << dbfile;
+		return false;
+	}
+	return this->set(&db);
+}
+
+bool dragon::Epics::Variables::set(const midas::Database* db)
+{
+	/*!
+	 * \param [in] db Pointer to a valid database.
+	 */
+	bool success = check_db(db, "dragon::Epics");
+
+	if(success) success = db->ReadArray("Equipment/Epics/Settings/Names EPICS_Values", names, MAX_CHANNELS);
+	if(success) success = odb_set_bank(&bkname, db, "/dragon/epics/bank_name");
 
 	return success;
 }

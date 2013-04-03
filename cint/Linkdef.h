@@ -39,6 +39,7 @@
 
 class TTree;
 #pragma link C++ function dragon::Scaler::set_aliases(TTree*, const char*);
+#pragma link C++ function dragon::Epics::set_aliases(TTree*);
 
 #pragma link C++ class midas::Event::Header+;
 

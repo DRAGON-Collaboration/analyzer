@@ -370,11 +370,12 @@ int main(int argc, char** argv)
 	
 	//
 	// Create TTrees, set branches, etc.
-	const int nIds = 7;
+	const int nIds = 8;
 
 	dragon::Head head;
 	dragon::Tail tail;
 	dragon::Coinc coinc;
+	dragon::Epics epics;
 	dragon::Scaler head_scaler;
 	dragon::Scaler tail_scaler;
 	dragon::RunParameters runpar;
@@ -386,6 +387,7 @@ int main(int argc, char** argv)
 		DRAGON_TAIL_EVENT,
 		DRAGON_TAIL_SCALER,
 		DRAGON_COINC_EVENT,
+		DRAGON_EPICS_EVENT,
 		DRAGON_TSTAMP_DIAGNOSTICS,
 		DRAGON_RUN_PARAMETERS
 	};
@@ -395,6 +397,7 @@ int main(int argc, char** argv)
 		"Tail singles event.",
 		"Tail scaler event.",
 		"Coincidence event.",
+		"Epics event.",
 		"Timestamp diagnostics.",
 		"Global run parameters."
 	};
@@ -404,6 +407,7 @@ int main(int argc, char** argv)
 		&tail,
 		&tail_scaler,
 		&coinc,
+		&epics,
 		&tsdiag,
 		&runpar
 	};
@@ -413,6 +417,7 @@ int main(int argc, char** argv)
 		"hi",
 		"sct",
 		"coinc",
+		"epics",
 		"tsdiag",
 		"runpar"
 	};
@@ -422,6 +427,7 @@ int main(int argc, char** argv)
 		"dragon::Tail",
 		"dragon::Scaler",
 		"dragon::Coinc",
+		"dragon::Epics",
 		"tstamp::Diagnostics",
 		"dragon::RunParameters"
 	};
@@ -435,7 +441,7 @@ int main(int argc, char** argv)
 	}
 
 	dragon::Unpacker
-		unpack (&head, &tail, &coinc, &head_scaler, &tail_scaler, &runpar, &tsdiag, options.fSingles);
+		unpack (&head, &tail, &coinc, &epics, &head_scaler, &tail_scaler, &runpar, &tsdiag, options.fSingles);
 	
 	//
 	// Set coincidence variables

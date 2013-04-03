@@ -15,6 +15,7 @@ namespace dragon {
 class Head;
 class Tail;
 class Coinc;
+class Epics;
 class Scaler;
 class RunParameters;
 }
@@ -30,6 +31,7 @@ public:
 	Unpacker(dragon::Head* head,
 					 dragon::Tail* tail,
 					 dragon::Coinc* coinc,
+					 dragon::Epics* epics,
 					 dragon::Scaler* schead,
 					 dragon::Scaler* sctail,
 					 dragon::RunParameters* runpar,
@@ -98,6 +100,9 @@ public:
   ///
   /// Unpack a tail scaler event into fTailScaler
 	void UnpackTailScaler(const midas::Event& event);
+	///
+  /// Unpack an EPICS event into fEpics
+	void UnpackEpics(const midas::Event& event);
   ///
   /// Unpack run parameters into fRunpar
 	void UnpackRunParameters(const midas::Database& db);
@@ -118,19 +123,21 @@ private:
 	std::auto_ptr<tstamp::Queue> fQueue;
 	/// Container of event codes of unpacked events
 	std::vector<int32_t> fUnpacked;
-	/// Pointer to external head class
+	/// Pointer to _external_ head class
 	dragon::Head* fHead;
-	/// Pointer to external tail class
+	/// Pointer to _external_ tail class
 	dragon::Tail* fTail;
-	/// Pointer to external coinc class
+	/// Pointer to _external_ coinc class
 	dragon::Coinc* fCoinc;
-	/// Pointer to external scaler class (for head data)
+	/// Pointer to _external_ epics class
+	dragon::Epics* fEpics;
+	/// Pointer to _external_ scaler class (for head data)
 	dragon::Scaler* fHeadScaler;
-	/// Pointer to external scaler class (for tail data)
+	/// Pointer to _external_ scaler class (for tail data)
 	dragon::Scaler* fTailScaler;
-	/// Pointer to external run parameters class
+	/// Pointer to _external_ run parameters class
 	dragon::RunParameters* fRunpar;
-	/// Pointer to external timestamp diagnostics class
+	/// Pointer to _external_ timestamp diagnostics class
 	tstamp::Diagnostics* fDiag;
 };
 
