@@ -89,6 +89,18 @@ public:
 	/// Tell the public if a zombie or not
 	bool IsZombie() const { return fIsZombie; }
 
+	/// Dump odb contents to an output stream
+	void Dump(std::ostream& strm = std::cout)
+		{
+			if(fIsZombie) return;
+			if(fIsOnline) {
+				dragon::utils::Error("Database::Dump")
+					<< "Currently not supported for online database";
+				return;
+			}
+			if(fXml.get()) fXml->Dump(strm);
+		}
+
 	/// Read a single value
 	template <typename T> bool ReadValue(const char* path, T& value) const
 		{

@@ -69,6 +69,9 @@ public:
 	/// Returns fIsZombie
 	bool IsZombie() { return fIsZombie; }
 
+	/// Dump buffer to an output stream
+	void Dump(std::ostream& strm);
+
 	/// \brief Find the node location of a specific key element within the xml file
 	/// \param [in] path String specifying the "directory" path of the element, e.g.
 	/// "Equipment/gTrigger/Variables/Pedestals".

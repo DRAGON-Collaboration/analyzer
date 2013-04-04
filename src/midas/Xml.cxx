@@ -183,6 +183,13 @@ midas::Xml::Node midas::Xml::ParseFile(const char* file_name, char *error, int e
 
 }
 
+void midas::Xml::Dump(std::ostream& strm)
+{
+	strm << "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n"
+			 << "<!-- created by midas::Xml::Dump -->\n"
+			 << fBuffer;
+}
+
 midas::Xml::Node midas::Xml::ParseBuffer(char* buf, int length, char *error, int error_size, int *error_line)
 {
 	fLength = length;
