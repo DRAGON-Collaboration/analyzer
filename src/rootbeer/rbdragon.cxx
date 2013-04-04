@@ -9,6 +9,7 @@
 // ROOTBEER includes //
 #include "Main.hxx"
 #include "Rint.hxx"
+namespace rb { namespace hist { void ClearAll(); } }
 
 // DRAGON includes //
 #include "utils/ErrorDragon.hxx"
@@ -74,6 +75,9 @@ void rbdragon::MidasBuffer::RunStartTransition(Int_t runnum)
 		midas::Database db("online");
 		ReadVariables(&db);
 	}
+
+	/// - Zero all histograms
+	rb::hist::ClearAll();
 
 	/// - Call parent class implementation (prints a message)
 	rb::MidasBuffer::RunStartTransition(runnum);
