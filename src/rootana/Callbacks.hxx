@@ -56,7 +56,7 @@ inline void rootana_run_pause(int transition, int run, int time)
 	/*!
 	 * Prints an information message.
 	 */
-	utils::Info("rootana") << "Pausing run " << run;
+	dragon::utils::Info("rootana") << "Pausing run " << run;
 }
 
 inline void rootana_run_resume(int transition, int run, int time)
@@ -64,7 +64,7 @@ inline void rootana_run_resume(int transition, int run, int time)
 	/*!
 	 * Prints an information message.
 	 */
-	utils::Info("rootana") << "Resuming run " << run;
+	dragon::utils::Info("rootana") << "Resuming run " << run;
 }
 
 

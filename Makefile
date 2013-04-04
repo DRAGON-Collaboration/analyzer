@@ -20,7 +20,7 @@ DEFINITIONS+=-DDISPLAY_MODULES
 
 ### Set to YES (NO) to turn on (off) root [or rootbeer, or rootana, or ...] usage ###
 USE_ROOT=YES
-## USE_ROOTANA=YES
+USE_ROOTANA=YES
 USE_ROOTBEER=YES
 
 ## Automatically turn off rootana if on jabberwock
@@ -156,7 +156,7 @@ ifeq ($(USE_ROOTBEER),YES)
 MAKE_ALL+=$(PWD)/bin/rbdragon
 endif
 ifeq ($(USE_ROOTANA),YES)
-MAKE_ALL+=anaDragon
+MAKE_ALL+=$(PWD)/bin/anaDragon
 endif
 
 all:  $(MAKE_ALL)
@@ -202,7 +202,7 @@ $(OBJ)/midas/%.o: $(SRC)/midas/%.cxx $(DR_DICT_DEP)
 
 $(OBJ)/rootana/%.o: $(SRC)/rootana/%.cxx $(CINT)/rootana/Dict.cxx
 	$(CXX) $(ROOTANA_FLAGS) $(ROOTANA_DEFS) -c $(FPIC) \
--o $@ $< $(ROOTLIBS) \
+-o $@ $< \
 
 ## Must be last object rule!!
 $(OBJ)/%.o: $(SRC)/%.cxx $(DR_DICT_DEP)
@@ -215,15 +215,11 @@ dict: $(CINT)/DragonDictionary.cxx
 $(CINT)/DragonDictionary.cxx:  $(HEADERS) $(CINT)/Linkdef.h
 	$(MAKE_DRAGON_DICT) \
 
-definitions:
-	scp dragon@ladd06.triumf.ca:/home/dragon/online/src/definitions.h \
-$(PWD)/src/utils/
-
 
 ### FOR ROOTANA ###
 ROOTANA=$(HOME)/packages/rootana
 ROOTANA_FLAGS=-ansi -Df2cFortran -I$(ROOTANA)
-ROOTANA_DEFS=-DROOTANA_DEFAULT_HISTOS=$(PWD)/histos.dat
+ROOTANA_DEFS=-DROOTANA_DEFAULT_HISTOS=$(HOME)/packages/dragon/analyzer/histos.dat
 
 ROOTANA_REMOTE_OBJS=				\
 $(ROOTANA)/libNetDirectory/netDirectoryServer.o
@@ -236,7 +232,7 @@ $(OBJ)/rootana/Directory.o
 
 ROOTANA_HEADERS= $(SRC)/rootana/Globals.h $(SRC)/rootana/*.hxx
 
-ROOTANA_LIBS=-lrootana -lNetDirectory -L/home/dragon/packages/rootana/libNetDirectory/ -L/home/dragon/packages/rootana/
+ROOTANA_LIBS=-lrootana -lNetDirectory -L$(HOME)/packages/rootana/libNetDirectory/ -L$(HOME)/packages/rootana/lib
 
 $(CINT)/rootana/Dict.cxx: $(ROOTANA_HEADERS) $(SRC)/rootana/Linkdef.h $(CINT)/DragonDictionary.cxx
 	rootcint -f $@ -c $(CXXFLAGS) $(ROOTANA_FLAGS) -p $(ROOTANA_HEADERS) $(SRC)/rootana/Linkdef.h \
@@ -245,15 +241,15 @@ $(CINT)/rootana/CutDict.cxx: $(SRC)/rootana/Cut.hxx $(SRC)/rootana/CutLinkdef.h
 	rootcint -f $@ -c $(CXXFLAGS) $(ROOTANA_FLAGS) -p $(SRC)/rootana/Cut.hxx $(SRC)/rootana/CutLinkdef.h \
 
 $(DRLIB)/libRootanaCut.so: $(CINT)/rootana/CutDict.cxx
-	$(LINK)  $(DYLIB) $(FPIC) $(RBINC) $(ROOTANA_FLAGS) $(ROOTANA_DEFS)  \
+	$(LINK)  $(DYLIB) $(FPIC) $(ROOTANA_FLAGS) $(ROOTANA_DEFS)  \
 -o $@ $< \
 
 libRootanaDragon.so: $(DRLIB)/libDragon.so $(CINT)/rootana/Dict.cxx $(DRLIB)/libRootanaCut.so $(ROOTANA_OBJS)
-	$(LINK)  $(DYLIB) $(FPIC) $(RBINC) $(ROOTANA_FLAGS) $(ROOTANA_DEFS)  \
+	$(LINK)  $(DYLIB) $(FPIC) $(ROOTANA_FLAGS) $(ROOTANA_DEFS)  \
 -o $@ $< $(CINT)/rootana/Dict.cxx $(ROOTANA_OBJS) -lDragon -lRootanaCut -L$(DRLIB) \
 
 $(PWD)/bin/anaDragon: $(SRC)/rootana/anaDragon.cxx $(DRLIB)/libDragon.so $(CINT)/rootana/Dict.cxx $(DRLIB)/libRootanaCut.so $(ROOTANA_OBJS) $(ROOTANA_REMOTE_OBJS)
-	$(LINK)  $(RBINC) $(ROOTANA_FLAGS) $(ROOTANA_DEFS) \
+	$(LINK) $(ROOTANA_FLAGS) $(ROOTANA_DEFS) \
 -o $@ $< $(CINT)/rootana/Dict.cxx $(ROOTANA_OBJS) -lDragon -lRootanaCut -L$(DRLIB) $(ROOTANA_LIBS) $(MIDASLIBS) \
 
 rootana_clean:

@@ -12,26 +12,8 @@
 #include "Callbacks.hxx"
 
 
-bool check_public()
-{
-	std::string priv = DRAGON_UTILS_STRINGIFY(PRIVATE);
-	bool ret = true;
-
-	if(priv != "public") {
-		std::cerr << "Error: To use the histogram parser, anaDragon must be compiled with -DPRIVATE=public\n"
-							<< "Please change the appropriate lines near the top of your Makefile and re-compile.\n\n";
-		ret = false;
-	}
-
-	return ret;	
-}
-	
-
 int main(int argc, char *argv[])
 {
-	if(!check_public())
-		return 1;
-
 	setbuf(stdout,NULL);
 	setbuf(stderr,NULL);
  
