@@ -40,6 +40,9 @@ EXTERN dragon::Scaler gHeadScaler;
 /// Global tail scaler class
 EXTERN dragon::Scaler gTailScaler;
 
+/// Global epics clas
+EXTERN dragon::Epics gEpics;
+
 }
 
 

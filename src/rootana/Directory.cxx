@@ -9,6 +9,7 @@
 #include <TROOT.h>
 #include <TFile.h>
 #include <TString.h>
+#include <TSystem.h>
 #include <TObjArray.h>
 #include <TObjString.h>
 #include <TDirectory.h>
@@ -37,7 +38,13 @@ void rootana::Directory::DeleteHists()
 		it->second.clear();
 	}
 	fHistos.clear();
-}	
+}
+
+rootana::Directory::Directory(TDirectory* dir):
+	fDir(dir)
+{
+	VerboseNetDirectoryServer(true);
+}
 
 rootana::Directory::~Directory()
 {
@@ -167,11 +174,22 @@ bool rootana::OfflineDirectory::Open(Int_t runnum, const char* defFile)
 	Close();
 	std::stringstream fullPath;
 	if(!fOutputPath.empty()) fullPath << fOutputPath << "/";
-	fullPath << "output" << runnum << ".root";
+	fullPath << "histos" << runnum << ".root";
 	Reset(new TFile(fullPath.str().c_str(), "RECREATE"));
 	if (!IsOpen()) return false;
-	if(!(std::string(defFile)).empty()) CreateHists(defFile);
-	NetDirExport("outputFile");
+
+	TString defFile2(defFile);
+	if(defFile2.IsNull() == kFALSE) {
+		gSystem->ExpandPathName(defFile2);
+		FileStat_t dummy;
+		if(gSystem->GetPathInfo(defFile2, dummy) != 0) { // no file
+			dragon::utils::Error("OfflineDirectory::Open")
+				<< "Histos file: \"" << defFile2 << "\" does not exist";
+			return false;
+		}
+		CreateHists(defFile2);
+		NetDirExport("outputFile");
+	}
   return true ;
 }
 
@@ -217,7 +235,19 @@ bool rootana::OnlineDirectory::Open(Int_t tcp, const char* defFile)
 		Reset(new TDirectory("rootana", "rootana online plots"));
 	}
 	if(!IsOpen()) return false;
-	if(!(std::string(defFile)).empty()) CreateHists(defFile);
+
+	TString defFile2(defFile);
+	if(defFile2.IsNull() == kFALSE) {
+		gSystem->ExpandPathName(defFile2);
+		FileStat_t dummy;
+		if(gSystem->GetPathInfo(defFile2, dummy) != 0) { // no file
+			dragon::utils::Error("OfflineDirectory::Open")
+				<< "Histos file: \"" << defFile2 << "\" does not exist";
+			return false;
+		}
+		CreateHists(defFile2);
+	}
+
 	StartNetDirServer(tcp);
 	if(!tcp) fprintf(stderr, "TCP port == 0, can't start histogram server!\n");
 	return true;

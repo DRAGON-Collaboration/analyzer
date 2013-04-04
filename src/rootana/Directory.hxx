@@ -55,7 +55,7 @@ private:
 
 public:
 	/// Initializes fDir
-	Directory(TDirectory* dir = 0):	fDir(dir) { }
+	Directory(TDirectory* dir = 0);
 	/// Writes directory, deletes histograms, deletes directory
 	virtual ~Directory();
 	/// Checks if fDir points to a "good" working directory

@@ -82,8 +82,8 @@ rootana::App::App(const char* appClassName, Int_t* argc, char** argv):
 	fExpt(""),
 	fHistos( DRAGON_UTILS_STRINGIFY(ROOTANA_DEFAULT_HISTOS) ),
 	fHistosOnline(""),
-	fOutputFile(""),
-	fOnlineHists(),
+	fOutputFile(0),
+	fOnlineHists(0),
 	fOdb(0),
 	fMidasOnline(0)
 { 
@@ -91,10 +91,11 @@ rootana::App::App(const char* appClassName, Int_t* argc, char** argv):
  *  Also: process command line arguments, starts histogram server if appropriate.
  */
 	process_argv (*argc, argv);
-	if (!fQueue.get()) fQueue.reset(tstamp::NewOwnedQueue(10e6, this));
+	if (!fQueue.get()) fQueue.reset(tstamp::NewOwnedQueue(4e6, this));
 	if (fMode == ONLINE) {
 		gROOT->cd();
-		fOnlineHists.Open(fTcp, fHistosOnline.c_str());
+		fOnlineHists.reset(new rootana::OnlineDirectory());
+		fOnlineHists->Open(fTcp, fHistosOnline.c_str());
 	}
 }
 
@@ -220,6 +221,11 @@ void rootana::App::Process(const midas::Event& event)
 		fill_hists(EID);
 		break;
 
+	case DRAGON_EPICS_EVENT: /// - DRAGON_EPICS_EVENT
+		rootana::gEpics.unpack(event);
+		fill_hists(EID);
+		break;
+
 	default: /// - Silently ignore other event types
 		dragon::utils::Warning("Process") << "Unknown event id: " << EID << ", skipping";
 		break;
@@ -337,6 +343,23 @@ int rootana::App::midas_online(const char* host, const char* experiment)
 	(*fMidasOnline)->eventRequest("SYSTEM",-1,-1,(1<<1));
 
 
+	/*! Open output file */
+	TString dataDir = (*fMidasOnline)->odbReadString("/Logger/Data dir");
+	TString dataDir2 = dataDir + "/rootfiles";
+
+	void *d = gSystem->OpenDirectory(dataDir2);
+	if (d)
+		gSystem->FreeDirectory(d);
+	else {
+		dataDir2 = dataDir;
+		d = gSystem->OpenDirectory(dataDir2);
+		if(d) gSystem->FreeDirectory(d);
+		else dataDir2 = ".";
+	}
+	
+	fOutputFile.reset(new rootana::OfflineDirectory(dataDir2));
+
+
 	/*! - Fill "present run" parameters */
 	std::string whichParam = "/runinfo/Run number";
 	bool success = fOdb->ReadValue(whichParam.c_str(), fRunNumber);
@@ -401,6 +424,7 @@ void rootana::App::Run(Bool_t)
 void rootana::App::Terminate(Int_t status)
 {
 	do_exit();
+	if (fMidasOnline->Connected()) fMidasOnline.reset(0);
 	TApplication::Terminate(status);
 }
 
@@ -433,7 +457,7 @@ void rootana::App::run_start(int runnum)
 	rootana::gHeadScaler.set_variables("online", "head");
 	rootana::gTailScaler.set_variables("online", "tail");
 
-	bool opened = fOutputFile.Open(runnum, fHistos.c_str());
+	bool opened = fOutputFile->Open(runnum, fHistos.c_str());
 	if(!opened) Terminate(1);
 
 	dragon::utils::Info("rootana") << "Start of run " << runnum;
@@ -447,14 +471,14 @@ void rootana::App::run_stop(int runnum)
 	 */
   fRunNumber = runnum;
 	fQueue->Flush(30, &gDiagnostics);
-	fOutputFile.Close();
+	fOutputFile->Close();
 	dragon::utils::Info("rootana") << "End of run " << runnum;
 }
 
 void rootana::App::fill_hists(uint16_t eid)
 {
-	fOutputFile.CallForAll(&rootana::HistBase::fill, eid);
-	fOnlineHists.CallForAll(&rootana::HistBase::fill, eid);
+	fOutputFile->CallForAll(&rootana::HistBase::fill, eid);
+	fOnlineHists->CallForAll(&rootana::HistBase::fill, eid);
 }
 
 void rootana::App::help()
