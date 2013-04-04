@@ -108,6 +108,20 @@ public:
 			else return false;
 		}
 
+	/// Read the length of an array
+	int ReadArrayLength(const char* path) const
+		{
+			/*!
+			 * \param [in] path Path ODB directory path of what is to be read
+			 * \returns The length of the array upon success, -1 upon failure.
+			 */
+			if      (fIsZombie)  return -1;
+			else if (fIsOnline)  return Odb::ReadArraySize(path);
+			else if (fXml.get()) return fXml->GetArrayLength(path);
+			else                 return -1;
+		}
+
+	/// Read an array
 	template <typename T> int ReadArray(const char* path, T* array, int length) const
 		{
 			/*!
@@ -117,8 +131,8 @@ public:
 			 * \tparam T The type of the data in the array to be read
 			 * \returns The length of the array that was read (0 if error)
 			 */
-			if(fIsZombie) return false;
-			if (fIsOnline) return Odb::ReadArray(path, array, length);
+			if(fIsZombie) return 0;
+			if(fIsOnline) return Odb::ReadArray(path, array, length);
 			else if (fXml.get()) {
 				bool success;
 				fXml->GetArray(path, length, array, &success);

@@ -781,9 +781,6 @@ public: // Subclass instances
 ///
 class Epics {
 public: // Constants
-	/// Number of epics channels
-	static const int MAX_CHANNELS = 80; //!
-
 public: // Methods
   /// Initialize data
 	Epics();
@@ -816,7 +813,7 @@ public: // Subclasses
   class Variables {
  public: // Data
 		/// Name of a given channel
-		std::string names[MAX_CHANNELS];
+		std::vector<std::string> names;
 		/// Bank name
 		midas::Bank_t bkname;
 
@@ -890,7 +887,7 @@ inline void dragon::Epics::set_aliases(T* t) const
 	/*!
 	 * See dragon::Scaler::set_aliases()
 	 */
-	for(int i=0; i< MAX_CHANNELS; ++i) {
+	for(int i=0; i< variables.names.size(); ++i) {
 		std::stringstream oldName;
 		oldName << "1*" << i << "";
 		t->SetAlias(variables.names[i].c_str(), oldName.str().c_str());

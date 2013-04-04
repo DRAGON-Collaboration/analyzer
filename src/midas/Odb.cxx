@@ -148,11 +148,11 @@ int midas::Odb::ReadArraySize(const char*name)
 
   status = db_find_key (GetHandle(), hdir, (char*)name, &hkey);
   if (status != SUCCESS)
-		 return 0;
+		 return -1;
 
   status = db_get_key(GetHandle(), hkey, &key);
   if (status != SUCCESS)
-		 return 0;
+		 return -1;
 
   return key.num_values;
 }

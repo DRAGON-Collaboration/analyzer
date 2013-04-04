@@ -1510,9 +1510,10 @@ const std::string& dragon::Epics::channel_name(int ch) const
 	/*!
 	 * \param ch Channel number
 	 */
-	if (ch >= 0 && ch < MAX_CHANNELS) return variables.names[ch];
+	if (ch >= 0 && ch < variables.names.size())
+		return variables.names[ch];
 	dutils::Error("dragon::Epics::channel_name")
-		<< "Invalid channel number: " << ch << ". Valid arguments are 0 <= ch < " << MAX_CHANNELS;
+		<< "Invalid channel number: " << ch << ". Valid arguments are 0 <= ch < " << variables.names.size();
 	static std::string junk = "";
 	return junk;
 }
@@ -1528,13 +1529,8 @@ dragon::Epics::Variables::Variables()
 
 void dragon::Epics::Variables::reset()
 {
-	/*! Resets every channel to a default name: \c channel_n*/
-	for (int i=0; i< MAX_CHANNELS; ++i) {
-		std::stringstream strm_name;
-		strm_name << "channel_" << i;
-		names[i] = strm_name.str();
-	}
-
+	/// Call `vector::clear()` on names
+	names.clear();
 	/// Set bank name to `"EPCS"`
 	dutils::set_bank_name("EPCS", bkname);
 }
@@ -1560,7 +1556,14 @@ bool dragon::Epics::Variables::set(const midas::Database* db)
 	 */
 	bool success = check_db(db, "dragon::Epics");
 
-	if(success) success = db->ReadArray("Equipment/Epics/Settings/Names EPICS_Values", names, MAX_CHANNELS);
+	int length = db->ReadArrayLength("/Equipment/Epics/Settings/Names EPICS_Values");
+	if(length < 0) success = false;
+
+	if(success) {
+		names.clear();
+		names.resize(length);
+		success = db->ReadArray("/Equipment/Epics/Settings/Names EPICS_Values", &names[0], length);
+	}
 	if(success) success = odb_set_bank(&bkname, db, "/dragon/epics/bank_name");
 
 	return success;

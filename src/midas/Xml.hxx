@@ -180,6 +180,25 @@ public:
 			}
 		}
 
+	/// Read the length of an array
+	int GetArrayLength(const char* path)
+		{
+			/*!
+			 * \param [in] path String specifying the "directory" path of the element, e.g.
+			 * "Equipment/gTrigger/Variables/Pedestals"
+			 * \returns Length of the array if valid, -1 if error.
+			 */
+			Node node = FindKeyArray(path);
+			if(!node) return -1;
+			char* pAttribute = mxml_get_attribute(node, "num_values");
+			if(!pAttribute) {
+				std::cerr << "Error: \"num_values\" attribute not found for array: " << path << "\n";
+				return -1;
+			}
+			int size = atoi(pAttribute);
+			return size;
+		}
+
 	/// Get the values of an array of key elements
 	template <typename T> void GetArray(const char* path, int length, T* array, bool* success = 0)
 		{
