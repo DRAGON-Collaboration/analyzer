@@ -78,4 +78,19 @@
 	level of familiarity with C++. For the true beginners, I wrote a ROOT guide a few years ago for a different group
 	that can hopefully be useful. Some of it is specific to that group, but the basics are still the same. It is available
 	online here: http://www.cord.edu/dept/physics/mona/manuals/root_guide.pdf
+
+	Otherwise, there is the ROOT guide available at: http://root.cern.ch/drupal/content/users-guide
+	though this often is not the best for beginners. Often,
+	a good reference is the ROOT class documentation, e.g. for TTree http://root.cern.ch/root/html/TTree.html.
+	.
+5. _How do you make plots of energy vs. channel in offline analysis from Trees. For example: DSSSD energy vs channel?_
+
+  Take advantage of `TTree::Draw()` and its features for parsing arrays. To draw DSSSD energy vs. channel just do the
+	following:
+	\code
+	t3->Draw("Iteration$:dsssd.ecal[]>>hst(400,0,4000,32,0,32)", "", "colz");
+	\endcode
+
+	For more information on the options available usint `TTree::Draw()`, see the
+	<a href=http://root.cern.ch/root/html/TTree.html#TTree:Draw@2>class method documentation</a>.
 */
