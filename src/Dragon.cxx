@@ -183,8 +183,9 @@ void dragon::Bgo::calculate()
 	/*!
 	 * Does the following:
 	 */
-	/// - Pedestal subtract and calibrate energy values
-	dutils::pedestal_subtract(ecal, MAX_CHANNELS, variables.adc, 10);
+	/// - Pedestal subtract, zero suppress and calibrate energy values
+	dutils::pedestal_subtract(ecal, MAX_CHANNELS, variables.adc);
+	dutils::zero_suppress1(ecal, MAX_CHANNELS, 10.);
 	dutils::linear_calibrate(ecal, MAX_CHANNELS, variables.adc);
 
 	/// - Calibrate time values
@@ -302,11 +303,10 @@ void dragon::Dsssd::calculate()
 	 * from variables.adc_slope and variables.adc_offset, respectively. Also calibrates the TDC
 	 * signal; calculates efront, hit_front, eback, and hit_back.
 	 *
-	 * Delegates the work to dutils::pedestal_subtract and dutils::linear_calibrate
+	 * Delegates the work to dutils::linear_calibrate
+	 * \note Do we want to add a zzero suppression threshold here?
 	 */
-	dutils::pedestal_subtract(ecal, MAX_CHANNELS, variables.adc);
 	dutils::linear_calibrate(ecal, MAX_CHANNELS, variables.adc);
-
 	dutils::linear_calibrate(tcal, variables.tdc);
 
 	const double* const pmax_front = std::max_element(ecal, ecal+16);
@@ -359,7 +359,6 @@ bool dragon::Dsssd::Variables::set(const midas::Database* db)
 
 	if(success) success = db->ReadArray("/dragon/dsssd/variables/adc/module",   adc.module,   MAX_CHANNELS);
 	if(success) success = db->ReadArray("/dragon/dsssd/variables/adc/channel",  adc.channel,  MAX_CHANNELS);
-	if(success) success = db->ReadArray("/dragon/dsssd/variables/adc/pedestal", adc.pedestal, MAX_CHANNELS);
 	if(success) success = db->ReadArray("/dragon/dsssd/variables/adc/slope",    adc.slope,    MAX_CHANNELS);
 	if(success) success = db->ReadArray("/dragon/dsssd/variables/adc/offset",   adc.offset,   MAX_CHANNELS);
 
@@ -399,9 +398,7 @@ void dragon::IonChamber::calculate()
 	/*!
 	 * Calibrates anode and time signals, calculates anode sum
 	 */
-	dutils::pedestal_subtract(anode, MAX_CHANNELS, variables.adc);
 	dutils::linear_calibrate(anode, MAX_CHANNELS, variables.adc);
-
 	dutils::linear_calibrate(tcal, variables.tdc);
 
 	if(dutils::is_valid(anode, MAX_CHANNELS)) {
@@ -451,7 +448,6 @@ bool dragon::IonChamber::Variables::set(const midas::Database* db)
 
 	if(success) success = db->ReadArray("/dragon/ic/variables/adc/module",   adc.module,   MAX_CHANNELS);
 	if(success) success = db->ReadArray("/dragon/ic/variables/adc/channel",  adc.channel,  MAX_CHANNELS);
-	if(success) success = db->ReadArray("/dragon/ic/variables/adc/pedestal", adc.pedestal, MAX_CHANNELS);
 	if(success) success = db->ReadArray("/dragon/ic/variables/adc/slope",    adc.slope,    MAX_CHANNELS);
 	if(success) success = db->ReadArray("/dragon/ic/variables/adc/offset",   adc.offset,   MAX_CHANNELS);
 
@@ -494,7 +490,7 @@ void dragon::Mcp::read_data(const vme::V785 adcs[], const vme::V1190& tdc)
 void dragon::Mcp::calculate()
 {
   /*!
-	 * Pedestal-subtracts and calibrates anode, tcal, and tac values; calculates x- and
+	 * Calibrates anode, tcal, and tac values; calculates x- and
 	 * y-positions.
 	 *
 	 * \note Position calculation algorithm taken from the MSc thesis of
@@ -502,12 +498,8 @@ void dragon::Mcp::calculate()
 	 * <a href="http://dragon.triumf.ca/docs/Lamey_thesis.pdf">
 	 * dragon.triumf.ca/docs/Lamey_thesis.pdf</a>
 	 */
-	dutils::pedestal_subtract(anode, MAX_CHANNELS, variables.adc);
 	dutils::linear_calibrate(anode, MAX_CHANNELS, variables.adc);
-
 	dutils::linear_calibrate(tcal, NUM_DETECTORS, variables.tdc);
-
-	dutils::pedestal_subtract(tac, variables.tac_adc);
 	dutils::linear_calibrate(tac, variables.tac_adc);
 
 	dutils::calculate_sum(anode, anode + MAX_CHANNELS);
@@ -573,13 +565,11 @@ bool dragon::Mcp::Variables::set(const midas::Database* db)
 
 	if(success) success = db->ReadArray("/dragon/mcp/variables/adc/channel",  adc.channel,  MAX_CHANNELS);
 	if(success) success = db->ReadArray("/dragon/mcp/variables/adc/module",   adc.module,   MAX_CHANNELS);
-	if(success) success = db->ReadArray("/dragon/mcp/variables/adc/pedestal", adc.pedestal, MAX_CHANNELS);
 	if(success) success = db->ReadArray("/dragon/mcp/variables/adc/slope",    adc.slope,    MAX_CHANNELS);
 	if(success) success = db->ReadArray("/dragon/mcp/variables/adc/offset",   adc.offset,   MAX_CHANNELS);
 
 	if(success) success = db->ReadValue("/dragon/mcp/variables/tac_adc/channel",  tac_adc.channel);
 	if(success) success = db->ReadValue("/dragon/mcp/variables/tac_adc/module",   tac_adc.module);
-	if(success) success = db->ReadValue("/dragon/mcp/variables/tac_adc/pedestal", tac_adc.pedestal);
 	if(success) success = db->ReadValue("/dragon/mcp/variables/tac_adc/slope",    tac_adc.slope);
 	if(success) success = db->ReadValue("/dragon/mcp/variables/tac_adc/offset",   tac_adc.offset);
 	
@@ -618,11 +608,10 @@ void dragon::SurfaceBarrier::read_data(const vme::V785 adcs[], const vme::V1190&
 void dragon::SurfaceBarrier::calculate()
 {
   /*!
-	 * Performs pedestal subtraction & calibration of energies.
+	 * Performs calibration of energies.
 	 *
-	 * Delegates work to dutils::pedestal_aubtract() and dutils::linear_calibrate()
+	 * Delegates work to dutils::linear_calibrate()
 	 */
-	dutils::pedestal_subtract(ecal, MAX_CHANNELS, variables.adc);
 	dutils::linear_calibrate(ecal, MAX_CHANNELS, variables.adc);
 }
 
@@ -662,7 +651,6 @@ bool dragon::SurfaceBarrier::Variables::set(const midas::Database* db)
 
 	if(success) success = db->ReadArray("/dragon/sb/variables/adc/module",   adc.module,   MAX_CHANNELS);
 	if(success) success = db->ReadArray("/dragon/sb/variables/adc/channel",  adc.channel,  MAX_CHANNELS);
-	if(success) success = db->ReadArray("/dragon/sb/variables/adc/pedestal", adc.pedestal, MAX_CHANNELS);
 	if(success) success = db->ReadArray("/dragon/sb/variables/adc/slope",    adc.slope,    MAX_CHANNELS);
 	if(success) success = db->ReadArray("/dragon/sb/variables/adc/offset",   adc.offset,   MAX_CHANNELS);
 
@@ -696,7 +684,7 @@ void dragon::NaI::read_data(const vme::V785 adcs[], const vme::V1190&)
 
 void dragon::NaI::calculate()
 {
-	dutils::pedestal_subtract(ecal, MAX_CHANNELS, variables.adc);
+	/// Linear calibration of energies
 	dutils::linear_calibrate(ecal, MAX_CHANNELS, variables.adc);
 }
 
@@ -735,7 +723,6 @@ bool dragon::NaI::Variables::set(const midas::Database* db)
 
 	if(success) success = db->ReadArray("/dragon/nai/variables/adc/module",   adc.module,   MAX_CHANNELS);
 	if(success) success = db->ReadArray("/dragon/nai/variables/adc/channel",  adc.channel,  MAX_CHANNELS);
-	if(success) success = db->ReadArray("/dragon/nai/variables/adc/pedestal", adc.pedestal, MAX_CHANNELS);
 	if(success) success = db->ReadArray("/dragon/nai/variables/adc/slope",    adc.slope,    MAX_CHANNELS);
 	if(success) success = db->ReadArray("/dragon/nai/variables/adc/offset",   adc.offset,   MAX_CHANNELS);
 
@@ -769,10 +756,7 @@ void dragon::Ge::read_data(const vme::V785 adcs[], const vme::V1190&)
 
 void dragon::Ge::calculate()
 {
-	/*!
-	 * Delegates work to functions in dutils namespace.
-	 */
-	dutils::pedestal_subtract(ecal, variables.adc);
+	/// Calibration of energies
 	dutils::linear_calibrate(ecal, variables.adc);
 }
 
@@ -811,7 +795,6 @@ bool dragon::Ge::Variables::set(const midas::Database*db)
 
 	if(success) success = db->ReadValue("/dragon/ge/variables/adc/module",   adc.module);
 	if(success) success = db->ReadValue("/dragon/ge/variables/adc/channel",  adc.channel);
-	if(success) success = db->ReadValue("/dragon/ge/variables/adc/pedestal", adc.pedestal);
 	if(success) success = db->ReadValue("/dragon/ge/variables/adc/slope",    adc.slope);
 	if(success) success = db->ReadValue("/dragon/ge/variables/adc/offset",   adc.offset);
 
