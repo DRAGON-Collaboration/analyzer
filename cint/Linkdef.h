@@ -55,6 +55,7 @@ class TTree;
 #pragma link C++ defined_in ../src/TStamp.hxx;
 #pragma link C++ defined_in ../src/utils/ErrorDragon.hxx;
 #pragma link C++ defined_in ../src/utils/RootAnalysis.hxx;
+#pragma link C++ defined_in ../src/utils/Calibration.hxx;
 
 #pragma link C++ class dragon::utils::AdcVariables<dragon::Bgo::MAX_CHANNELS>+;
 #pragma link C++ class dragon::utils::TdcVariables<dragon::Bgo::MAX_CHANNELS>+;

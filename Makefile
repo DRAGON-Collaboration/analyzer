@@ -64,10 +64,10 @@ ROOTLIBS=
 ifeq ($(USE_ROOT),YES)
 DEFINITIONS+= -DUSE_ROOT
 ifdef ROOTSYS
-ROOTLIBS= -L$(ROOTSYS)/lib $(shell $(ROOTSYS)/bin/root-config --cflags --libs --glibs) -I$(ROOTSYS)/include -lXMLParser
+ROOTLIBS= -L$(ROOTSYS)/lib $(shell $(ROOTSYS)/bin/root-config --cflags --libs --glibs) -I$(ROOTSYS)/include -lXMLParser -lSpectrum
 CXXFLAGS += -I$(ROOTSYS)/include
 else
-ROOTLIBS= - $(shell $(ROOTSYS)/bin/root-config --cflags --libs --glibs) -lXMLParser -lThread -lTreePlayer
+ROOTLIBS= - $(shell $(ROOTSYS)/bin/root-config --cflags --libs --glibs) -lXMLParser -lThread -lTreePlayer -lSpectrum
 endif
 else
 USE_ROOTBEER=NO
@@ -102,7 +102,6 @@ endif
 
 
 CXX+=$(CXXFLAGS)
-
 CC+=$(CXXFLAGS)
 
 LINK=$(CXX) $(ROOTLIBS) $(RPATH) -L$(PWD)/lib
@@ -135,6 +134,7 @@ $(OBJ)/Dragon.o
 
 ifeq ($(USE_ROOT), YES)
 OBJECTS+=$(OBJ)/utils/RootAnalysis.o
+OBJECTS+=$(OBJ)/utils/Calibration.o
 endif
 
 
