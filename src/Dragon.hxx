@@ -895,7 +895,11 @@ inline void dragon::Scaler::set_aliases(T* t, const char* branchName) const
 			oldName << branchName << "." << chNames[j] << "[" << i << "]";
 			newName << chNames[j] << "_" << variables.names[i];
 
-			t->SetAlias(newName.str().c_str(), oldName.str().c_str());
+			std::string newName1 = newName.str();
+			for(size_t j=0; j< newName1.size(); ++j) {
+				if(newName1[j] == ' ') newName1[j] = '_';
+			}
+			t->SetAlias(newName1.c_str(), oldName.str().c_str());
 		}
 	}
 }
@@ -909,7 +913,12 @@ inline void dragon::Epics::set_aliases(T* t) const
 	for(int i=0; i< variables.names.size(); ++i) {
 		std::stringstream oldName;
 		oldName << "1*" << i << "";
-		t->SetAlias(variables.names[i].c_str(), oldName.str().c_str());
+
+		std::string newName1 = variables.names[i];
+		for(size_t j=0; j< newName1.size(); ++j) {
+			if(newName1[j] == ' ') newName1[j] = '_';
+		}
+		t->SetAlias(newName1.c_str(), oldName.str().c_str());
 	}
 }
 

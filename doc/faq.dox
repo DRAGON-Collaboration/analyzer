@@ -166,4 +166,33 @@
 
 	For more information on the options available using `TTree::Draw()`, see the
 	<a href=http://root.cern.ch/root/html/TTree.html#TTree:Draw@2>class method documentation</a>.
+
+\section offline_online Generic (Online/Offline) Analysis
+
+1. _What do all the parameter names mean? How can I find the parameter name corresponding to xyz signal?_
+
+  All of the parameters are arranged in a tree-like structure defined by classes....
+
+	See namespace dragon for more....
+  .
+2. _What am I looking at when I look at the TDC (tcal) or tof parameters?_
+
+  This can get a little confusing because of the way the TDCs operate. Briefly, in order to cover the range of times
+	we need, we have to send the TDC a "stop-like" signal that comes _after_ any measurement pulse. This "stop" is generated
+	by the IO32 with a programmable delay relative to the trigger. Making the delay introduces a jitter to the stop signal,
+	so any measurement value coming from the TDC will also contain the same jitter.
+	
+	The jitter mentioned above is common to every measurement channel, so it can be removed by simply subtracting channels
+	from each other in software. However, this is _not_ done in the default anaylzer for the `tcal` parameters - what you
+	are looking at when you view, say, `bgo.tcal[0]` contains jitter. The `tcal` parameters have, however, been calibrated
+	into nanoseconds by multiplying by a slope of 0.1 (the nominal resolution of the TDC is 100 ps / channel the way we
+	operate it). If you want to view calibrated times without jitter, the easiest thing to do is to subtract off the trigger
+	time (`tcal0`) yourself, i.e.
+	\code
+	t1->Draw("bgo.tcal[0] - tcal0")
+	\endcode
+
+	The time-of-flight parameters (e.g. `coinc.xtofh`, `hi.tof.mcp_dsssd`, etc.) _do_ have jitter subtracted since they are
+	calculated by subtracting two `tcal` values from each other.
+
 */
