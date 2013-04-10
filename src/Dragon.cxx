@@ -278,7 +278,7 @@ dragon::Dsssd::Dsssd():
 
 void dragon::Dsssd::reset()
 {
-	dutils::reset_data(efront, eback, hit_front, hit_back);
+	dutils::reset_data(efront, eback, hit_front, hit_back, tfront, tback);
 	dutils::reset_array(MAX_CHANNELS, ecal);
 }
 
@@ -293,7 +293,8 @@ void dragon::Dsssd::read_data(const vme::V785 adcs[], const vme::V1190& tdc)
 	 * \param [in] tdc vme::V1190 tdc module from which data can be read
 	 */
 	dutils::channel_map(ecal, MAX_CHANNELS, variables.adc.channel, variables.adc.module, adcs);
-	dutils::channel_map(tcal, variables.tdc.channel, tdc);
+	dutils::channel_map(tfront, variables.tdc_front.channel, tdc);
+	dutils::channel_map(tback,  variables.tdc_back.channel,  tdc);
 }
 
 void dragon::Dsssd::calculate()
@@ -304,18 +305,21 @@ void dragon::Dsssd::calculate()
 	 * signal; calculates efront, hit_front, eback, and hit_back.
 	 *
 	 * Delegates the work to dutils::linear_calibrate
-	 * \note Do we want to add a zzero suppression threshold here?
+	 * \note Do we want to add a zero suppression threshold here?
 	 */
 	dutils::linear_calibrate(ecal, MAX_CHANNELS, variables.adc);
-	dutils::linear_calibrate(tcal, variables.tdc);
+	dutils::linear_calibrate(tfront, variables.tdc_front);
+	dutils::linear_calibrate(tback,  variables.tdc_back);
 
-	const double* const pmax_front = std::max_element(ecal, ecal+16);
-	efront = *pmax_front;
-	hit_front = pmax_front - ecal;
+	if(dutils::is_valid(ecal, MAX_CHANNELS)) {
+		const double* const pmax_front = std::max_element(ecal, ecal+16);
+		efront = *pmax_front;
+		hit_front = pmax_front - ecal;
 
-	const double* const pmax_back  = std::max_element(ecal+16, ecal+32);
-	eback  = *pmax_back;
-	hit_back = pmax_back - ecal;
+		const double* const pmax_back  = std::max_element(ecal+16, ecal+32);
+		eback  = *pmax_back;
+		hit_back = pmax_back - ecal;
+	}
 }
 
 
@@ -336,10 +340,15 @@ void dragon::Dsssd::Variables::reset()
 	std::fill(adc.slope,  adc.slope + MAX_CHANNELS, 1.);
 	std::fill(adc.offset, adc.offset + MAX_CHANNELS, 0.);
 
-	tdc.module  = 0; // unused
-	tdc.channel = DSSSD_TDC0;
-	tdc.slope   = 1.;
-	tdc.offset  = 0.;
+	tdc_front.module  = 0; // unused
+	tdc_front.channel = DSSSD_TDC0;
+	tdc_front.slope   = 1.;
+	tdc_front.offset  = 0.;
+
+	tdc_back.module  = 0; // unused
+	tdc_back.channel = DSSSD_TDC0 + 1;
+	tdc_back.slope   = 1.;
+	tdc_back.offset  = 0.;
 }
 
 bool dragon::Dsssd::Variables::set(const char* dbfile)
@@ -362,9 +371,13 @@ bool dragon::Dsssd::Variables::set(const midas::Database* db)
 	if(success) success = db->ReadArray("/dragon/dsssd/variables/adc/slope",    adc.slope,    MAX_CHANNELS);
 	if(success) success = db->ReadArray("/dragon/dsssd/variables/adc/offset",   adc.offset,   MAX_CHANNELS);
 
-	if(success) success = db->ReadValue("/dragon/dsssd/variables/tdc/channel", tdc.channel);
-	if(success) success = db->ReadValue("/dragon/dsssd/variables/tdc/slope",   tdc.slope);
-	if(success) success = db->ReadValue("/dragon/dsssd/variables/tdc/offset",  tdc.offset);
+	if(success) success = db->ReadValue("/dragon/dsssd/variables/tdc_front/channel", tdc_front.channel);
+	if(success) success = db->ReadValue("/dragon/dsssd/variables/tdc_front/slope",   tdc_front.slope);
+	if(success) success = db->ReadValue("/dragon/dsssd/variables/tdc_front/offset",  tdc_front.offset);
+
+	if(success) success = db->ReadValue("/dragon/dsssd/variables/tdc_back/channel", tdc_back.channel);
+	if(success) success = db->ReadValue("/dragon/dsssd/variables/tdc_back/slope",   tdc_back.slope);
+	if(success) success = db->ReadValue("/dragon/dsssd/variables/tdc_back/offset",  tdc_back.offset);
 
 	return success;
 }
@@ -380,7 +393,8 @@ dragon::IonChamber::IonChamber()
 void dragon::IonChamber::reset()
 {
 	dutils::reset_array(MAX_CHANNELS, anode);
-	dutils::reset_data(tcal, sum);
+	dutils::reset_array(MAX_TDC, tcal);
+	dutils::reset_data(sum);
 }
 
 void dragon::IonChamber::read_data(const vme::V785 adcs[], const vme::V1190& tdc)
@@ -390,7 +404,7 @@ void dragon::IonChamber::read_data(const vme::V785 adcs[], const vme::V1190& tdc
 	 * \param [in] v1190_trigger_ch Channel number of the v1190b trigger
 	 */
 	dutils::channel_map(anode, MAX_CHANNELS, variables.adc.channel, variables.adc.module, adcs);
-	dutils::channel_map(tcal, variables.tdc.channel, tdc);
+	dutils::channel_map(tcal, MAX_TDC, variables.tdc.channel, tdc);
 }
 
 void dragon::IonChamber::calculate()
@@ -399,7 +413,7 @@ void dragon::IonChamber::calculate()
 	 * Calibrates anode and time signals, calculates anode sum
 	 */
 	dutils::linear_calibrate(anode, MAX_CHANNELS, variables.adc);
-	dutils::linear_calibrate(tcal, variables.tdc);
+	dutils::linear_calibrate(tcal, MAX_TDC, variables.tdc);
 
 	if(dutils::is_valid(anode, MAX_CHANNELS)) {
 		sum = dutils::calculate_sum(anode, anode + MAX_CHANNELS);
@@ -424,11 +438,11 @@ void dragon::IonChamber::Variables::reset()
 	std::fill(adc.slope, adc.slope + MAX_CHANNELS, 1.);
 	std::fill(adc.offset, adc.offset + MAX_CHANNELS, 0.);
 
-	tdc.module = 0; // unused
-	tdc.channel = IC_TDC0;
 
-	tdc.offset = 0.;
-	tdc.slope = 1.;
+	std::fill(tdc.module, tdc.module + MAX_TDC, 0); // unused
+	dutils::index_fill(tdc.channel, tdc.channel+MAX_TDC, IC_TDC0);
+	std::fill(tdc.offset, tdc.offset + MAX_TDC, 0.);
+	std::fill(tdc.slope, tdc.slope + MAX_TDC, 1.);
 }
 
 bool dragon::IonChamber::Variables::set(const char* dbfile)
@@ -451,9 +465,9 @@ bool dragon::IonChamber::Variables::set(const midas::Database* db)
 	if(success) success = db->ReadArray("/dragon/ic/variables/adc/slope",    adc.slope,    MAX_CHANNELS);
 	if(success) success = db->ReadArray("/dragon/ic/variables/adc/offset",   adc.offset,   MAX_CHANNELS);
 
-	if(success) success = db->ReadValue("/dragon/ic/variables/tdc/channel",  tdc.channel);
-	if(success) success = db->ReadValue("/dragon/ic/variables/tdc/slope",    tdc.slope);
-	if(success) success = db->ReadValue("/dragon/ic/variables/tdc/offset",   tdc.offset);
+	if(success) success = db->ReadArray("/dragon/ic/variables/tdc/channel",  tdc.channel, MAX_TDC);
+	if(success) success = db->ReadArray("/dragon/ic/variables/tdc/slope",    tdc.slope,   MAX_TDC);
+	if(success) success = db->ReadArray("/dragon/ic/variables/tdc/offset",   tdc.offset,  MAX_TDC);
 
 	return success;
 }
@@ -832,10 +846,10 @@ void dragon::HiTof::calculate(const dragon::Tail* tail)
 	 */
 	mcp = dutils::calculate_tof(tail->mcp.tcal[1], tail->mcp.tcal[0]);
 #ifndef DRAGON_OMIT_DSSSD
-	mcp_ic = dutils::calculate_tof(tail->dsssd.tcal, tail->mcp.tcal[0]);
+	mcp_ic = dutils::calculate_tof(tail->dsssd.tfront, tail->mcp.tcal[0]);
 #endif
 #ifndef DRAGON_OMIT_IC
-	mcp_ic = dutils::calculate_tof(tail->ic.tcal, tail->mcp.tcal[0]);
+	mcp_ic = dutils::calculate_tof(tail->ic.tcal[0], tail->mcp.tcal[0]);
 #endif
 }
 
@@ -861,7 +875,7 @@ void dragon::Head::reset()
 	v792.reset();
 	v1190.reset();
 	bgo.reset();
-	dutils::reset_data(tcalx, tcal0);
+	dutils::reset_data(tcalx, tcal0, tcal_rf);
 }
 
 bool dragon::Head::set_variables(const char* dbfile)
@@ -917,13 +931,23 @@ void dragon::Head::calculate()
 	 * detector signals, up to calculation of abstract physics quantities that depend on multiple
 	 * calibrated detector signals.
 	 *
-	 * In the specific implementation, we delegate to functions in the dragon::Bgo class.
+	 * In the specific implementation, the following are done:
 	 */
+	/// - Read BGO data and calculate (see dragon::Head::Bgo).
 	bgo.read_data(v792, v1190);
 	bgo.calculate();
-	tcal0 = bgo.t0;
+
+	/// - Read and calibrate "crossover" TDC channel.
 	dutils::channel_map(tcalx, variables.xtdc.channel, v1190);
 	dutils::linear_calibrate(tcalx, variables.xtdc); 
+
+	/// - Read and calibrate RF TDC channel.
+	dutils::channel_map(tcal_rf, variables.rf_tdc.channel, v1190);
+	dutils::linear_calibrate(tcal_rf, variables.rf_tdc);
+
+	/// - Read and calibrate t0 (trigger) channel
+	dutils::channel_map(tcal0, variables.tdc0.channel, v1190);
+	dutils::linear_calibrate(tcal0, variables.tdc0);
 }
 
 
@@ -944,6 +968,14 @@ void dragon::Head::Variables::reset()
 	xtdc.channel = HEAD_CROSS_TDC;
 	xtdc.slope  = 1.;
 	xtdc.offset = 0.;
+
+	rf_tdc.channel = HEAD_CROSS_TDC - 2;
+	rf_tdc.slope  = 1.;
+	rf_tdc.offset = 0.;
+
+	tdc0.channel = HEAD_CROSS_TDC - 1;
+	tdc0.slope  = 1.;
+	tdc0.offset = 0.;
 }
 
 bool dragon::Head::Variables::set(const char* dbfile)
@@ -969,6 +1001,14 @@ bool dragon::Head::Variables::set(const midas::Database* db)
 	if(success) success = db->ReadValue("/dragon/head/variables/xtdc/channel", xtdc.channel);
 	if(success) success = db->ReadValue("/dragon/head/variables/xtdc/slope",   xtdc.slope);
 	if(success) success = db->ReadValue("/dragon/head/variables/xtdc/offset",  xtdc.offset);
+
+	if(success) success = db->ReadValue("/dragon/head/variables/rf_tdc/channel", rf_tdc.channel);
+	if(success) success = db->ReadValue("/dragon/head/variables/rf_tdc/slope",   rf_tdc.slope);
+	if(success) success = db->ReadValue("/dragon/head/variables/rf_tdc/offset",  rf_tdc.offset);
+
+	if(success) success = db->ReadValue("/dragon/head/variables/tdc0/channel", tdc0.channel);
+	if(success) success = db->ReadValue("/dragon/head/variables/tdc0/slope",   tdc0.slope);
+	if(success) success = db->ReadValue("/dragon/head/variables/tdc0/offset",  tdc0.offset);
 
 	return success;
 }
@@ -1003,7 +1043,7 @@ void dragon::Tail::reset()
 	mcp.reset();
 	sb.reset();
 	tof.reset();
-	dutils::reset_data(tcalx, tcal0);
+	dutils::reset_data(tcalx, tcal0, tcal_rf);
 }
 
 void dragon::Tail::unpack(const midas::Event& event)
@@ -1027,6 +1067,7 @@ void dragon::Tail::unpack(const midas::Event& event)
 		v785[i].unpack(event, variables.bk_adc[i], report);
 	}
 	v1190.unpack(event, variables.bk_tdc, report);
+
 	event.CopyHeader(header);
 }
 
@@ -1048,7 +1089,7 @@ void dragon::Tail::calculate()
 	ge.read_data(v785, v1190);
 #endif
 	
-	/// - Perform calibrations, higher-order calculations, etc
+	/// - Perform calibrations, higher-order calculations, etc, detector-by-detector
 #ifndef DRAGON_OMIT_DSSSD
 	dsssd.calculate();
 #endif
@@ -1064,31 +1105,20 @@ void dragon::Tail::calculate()
 	ge.calculate();
 #endif
 
+	/// - Calculate TOF between HI detectors
 	tof.calculate(this);
+
+	/// - Map and calibrate "crossover" TDC
 	dutils::channel_map(tcalx, variables.xtdc.channel, v1190);
 	dutils::linear_calibrate(tcalx, variables.xtdc);
 
-	// Decide what detector to use for tcal0
-#if   defined DRAGON_OMIT_IC     && !defined DRAGON_OMIT_DSSSD
-	tcal0 = dsssd.tcal;  // use dsssd
-#elif defined DRAGON_OMIT_DSSSD  && !defined DRAGON_OMIT_IC
-	tcal0 = ic.tcal;     // use ic
-#elif !defined DRAGON_OMIT_DSSSD && !defined DRAGON_OMIT_IC
-	tcal0 = mcp.tcal[0]; // use mcp (no end detector)
-#else // try to figure it out from present signals
-	if (0)  { ; }
-	else if (dutils::is_valid(dsssd.tcal) && !dutils::is_valid(ic.tcal))
-		tcal0 = dsssd.tcal[0];
-	else if (dutils::is_valid(ic.tcal)    && !dutils::is_valid(dsssd.tcal))
-		tcal0 = ic.tcal[0];
-	else if (!dutils::is_valid(ic.tcal)   && !dutils::is_valid(dsssd.tcal))
-		tcal0 = mcp.tcal[0];
-	else {
-		tcal0 = dsssd.tcal[0];
-		dragon::Warning("dragon::Tail::calculate", false)
-			<< "Both DSSSD and IC have valid times; using DSSSD for tcal0.";
-	}
-#endif
+	/// - Map and calibrate RF TDC
+	dutils::channel_map(tcal_rf, variables.rf_tdc.channel, v1190);
+	dutils::linear_calibrate(tcal_rf, variables.rf_tdc);
+
+	/// - Map and calibrate "trigger" TDC
+	dutils::channel_map(tcal0, variables.tdc0.channel, v1190);
+	dutils::linear_calibrate(tcal0, variables.tdc0);
 }
 
 bool dragon::Tail::set_variables(const char* dbfile)
@@ -1149,6 +1179,14 @@ void dragon::Tail::Variables::reset()
 	xtdc.channel = TAIL_CROSS_TDC;
 	xtdc.slope  = 1.;
 	xtdc.offset = 0.;
+
+	rf_tdc.channel = TAIL_RF_TDC;
+	rf_tdc.slope  = 1.;
+	rf_tdc.offset = 0.;
+
+	tdc0.channel = TAIL_RF_TDC + 1;
+	tdc0.slope  = 1.;
+	tdc0.offset = 0.;
 }
 
 bool dragon::Tail::Variables::set(const char* dbfile)
@@ -1174,6 +1212,14 @@ bool dragon::Tail::Variables::set(const midas::Database* db)
 	if(success) success = db->ReadValue("/dragon/tail/variables/xtdc/channel", xtdc.channel);
 	if(success) success = db->ReadValue("/dragon/tail/variables/xtdc/slope",   xtdc.slope);
 	if(success) success = db->ReadValue("/dragon/tail/variables/xtdc/offset",  xtdc.offset);
+
+	if(success) success = db->ReadValue("/dragon/tail/variables/rf_tdc/channel", rf_tdc.channel);
+	if(success) success = db->ReadValue("/dragon/tail/variables/rf_tdc/slope",   rf_tdc.slope);
+	if(success) success = db->ReadValue("/dragon/tail/variables/rf_tdc/offset",  rf_tdc.offset);
+
+	if(success) success = db->ReadValue("/dragon/tail/variables/tdc0/channel", tdc0.channel);
+	if(success) success = db->ReadValue("/dragon/tail/variables/tdc0/slope",   tdc0.slope);
+	if(success) success = db->ReadValue("/dragon/tail/variables/tdc0/offset",  tdc0.offset);
 
 	return success;
 }

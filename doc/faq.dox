@@ -3,15 +3,57 @@
 \page faq FAQ
 \tableofcontents
 
+\section hardware_fe Frontend and Hardware
+
+1. _How to I add or remove a detector signal from the trigger?_
+
+  For both the head and tail, the trigger is an `OR` of IO32 ECL inputs 0-7. Each of these inputs is masked
+	by an IO32 register that is controlled through ODB variables. So, to add or remove a detector signal from
+	the trigger, first identify which ECL channel the signal in question is plugged into. It should be one of
+	the first eight channels on the LeCroy NIM->ECL converter labeled with "trigger + scalers" or "IO32".
+  Once you have identified the channel in question, edit the corresponding ODB variable
+	`/Equipment/xxxxVME/Settings/IO32/ChannelEnable[n]`, where `xxxx` is either `Head` or `Tail`, and `n` is the
+	channel number in question (note that the NIM->ECL converters are labeled starting with 1, whereas the ODB
+	variables start at 0). Setting the `ChannelEnable[n]` variable to `y` adds the signal to the trigger, while
+	`n` removes it.
+	.
+2. _What are all those signals going into and out of the IO32?_
+
+  See the following page:	http://trshare.triumf.ca/~gchristian/dragon/frontend/html/hardware.html for an overview
+	of the signals originating from and going into the IO32.
+	.
+3. _What about the scalers?_
+
+  Scaler inputs are discussed at http://trshare.triumf.ca/~gchristian/dragon/frontend/html/hardware.html#scalers
+	.
+4. _What about other signals? Is there a drawing of what goes where?_
+
+  Currently, there isn't a full drawing of all connections, but it is on the to-do list. In the meantime,
+	you can refer to the <a href=http://trshare.triumf.ca/~gchristian/dragon/frontend/html/hardware.html>
+	hardware</a> and <a href=http://trshare.triumf.ca/~gchristian/dragon/frontend/html/trigger.html>
+	trigger logic</a> pages to get an idea of what the signals are for and what the various inputs/outputs
+	to the VME modules are. Nearly everything else in the setup, electronics wise, (i.e. all of the NIM
+	modules) is pretty sparse and hopefully can be figured out from cable tracing.
+	.
+5. _How to I operate the new frontend?_
+
+  See the operation guide at http://trshare.triumf.ca/~gchristian/dragon/frontend/html/operation.html
+	.
+6. _What parts of the frontend are configurable? How do I control it?_
+
+  Most of the fronend options (gate widths, delays, etc.) are controlled by ODB variables.
+	See the operation guide http://trshare.triumf.ca/~gchristian/dragon/frontend/html/operation.html
+	for more information.
+	
 \section online Online Analysis
 
 1. _How do I change a variable (ADC pedestal, slope, channel mapping, etc.)?_
 
   Update the corresponding value in the MIDAS ODB, and start a new run (or re-start the analysis program).
 	The online analysis routines automatically sync all variables with the ODB at the beginning of each run,
-	or at program start.
+	or at program start (this is true both for ROOTBEER and anaDragon/ROODY).
   .
-2. _Where can I find the ODB value corresponding to xxx?_
+2. _Where can I find the ODB variable corresponding to xxx?_
 
   All analysis-related ODB variables are contained under the `/dragon` tree. From here, they are subdivided
 	by detector element, i.e. variables related to the BGO array are under `/bgo/`, etc. From there, follow the
@@ -34,6 +76,31 @@
 
 	If you prefer to view scalers as an analyzer histogram, it is still possible. See the proceeding FAQ for
 	for information on how to create them.
+	.
+5. _How do I use ROOTBEER?_
+
+  To start the program, ssh into smaug and run `rbdragon`. Click the orange `Load` button on the
+	`rootbeer histograms` window to select a histogram definitions file (default is `dragon_hists.C`).
+	This should load a standard set of histograms which you can tweak or add to as needed using the GUI
+	or command line. If you make major changes, be sure to save them (in a different file) using the blue
+	`Save` button on the `rootbeer histograms` page.
+
+	To connect to online MIDAS data, click `Attach Online` on the `rootbeer` window. To manipulate canvases/refresh
+	rate, use the `Canvas` section of the `rootbeer` window. Note that by double clicking on a canvas (or pad) _outside_
+	the histogram region, you can make that canvas (pad) take focus. You can draw a histogram in the current canvas
+	(pad) by cicking the blue `Draw` button on the `rootbeer histograms` window when the desired histogram is selected
+	in the window above it (or double clicking the desired histogram should have the same effect). Note that histograms
+	are drawn using the `Draw option:` box contents as the `opt` argument, i.e. filling the `Draw option:` box with `COL`
+	draws a 2d histogram in color, etc.
+
+	All histograms are automatically cleared (zeroed)
+	at the beginning of a new run, or you can use the `Zero All` and `Zero Current` buttons to manually zero those
+	histograms which are currently drawn in a canvas. If you want to zero _every_ histogram manually, type
+	`rb::hist::ClearAll()` in the command window.
+
+	This is just a bare-bones basic introduction; there is more info avaialable at
+	http://trshare.triumf.ca/~gchristian/rootbeer/doc/html/index.html (though some of this may currently be out
+	of date).
 
 
 \section offline Offline Analysis
@@ -83,7 +150,13 @@
 	though this often is not the best for beginners. Often,
 	a good reference is the ROOT class documentation, e.g. for TTree http://root.cern.ch/root/html/TTree.html.
 	.
-5. _How do you make plots of energy vs. channel in offline analysis from Trees. For example: DSSSD energy vs channel?_
+5. _I can never remember all of the parameter names in the ROOT trees. Is there a way to find this out easily?_
+
+  Use the TTree::StartViewer() command, e.g. `t3->StartViewer()` to see a complete graphical listing of all avaiable
+	parameters in a given tree. Alternatively, you can use TTree::Print, e.e. `t3->Print()` to see a textual listing
+	of available parameters.
+  .
+6. _How do you make plots of energy vs. channel in offline analysis from Trees. For example: DSSSD energy vs channel?_
 
   Take advantage of `TTree::Draw()` and its features for parsing arrays. To draw DSSSD energy vs. channel just do the
 	following:
@@ -91,6 +164,6 @@
 	t3->Draw("Iteration$:dsssd.ecal[]>>hst(400,0,4000,32,0,32)", "", "colz");
 	\endcode
 
-	For more information on the options available usint `TTree::Draw()`, see the
+	For more information on the options available using `TTree::Draw()`, see the
 	<a href=http://root.cern.ch/root/html/TTree.html#TTree:Draw@2>class method documentation</a>.
 */

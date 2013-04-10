@@ -5,6 +5,7 @@
 /// \brief Defines dragon detector classes
 /// \attention The '//!' or '//#' comments following variable declarations are not
 ///  optional! They are actually used in processing of the file with ROOTCINT.
+/// \todo Add Mini-IC.
 ///
 #ifndef HAVE_DRAGON_HXX
 #define HAVE_DRAGON_HXX
@@ -162,8 +163,10 @@ public:
 	uint32_t hit_front; //#
 	/// Which strip was hit in the back strips
 	uint32_t hit_back;  //#
-	/// Calibrated time signal
-	double tcal;        //#
+	/// Calibrated time signal from the front strips
+	double tfront;      //#
+	/// Calibrated time signal from the back strips
+	double tback;       //#
 
 public: // Subclasses
 	///
@@ -183,8 +186,10 @@ public: // Subclasses
  public: // Data
 		/// Adc variables for the energy signals
 		dragon::utils::AdcVariables<32> adc;
-		/// Tdc variables
-		dragon::utils::TdcVariables<1> tdc;
+		/// Tdc variables (front strips)
+		dragon::utils::TdcVariables<1> tdc_front;
+		/// Tdc variables (back strips)
+		dragon::utils::TdcVariables<1> tdc_back;
 	};
 
 public: // Subclass instances
@@ -198,7 +203,9 @@ public: // Subclass instances
 class IonChamber {
 public: // Constants
 	/// Number of anodes
-	static const int MAX_CHANNELS = 4; //!
+	static const int MAX_CHANNELS = 5; //!
+	/// Number of time signals
+	static const int MAX_TDC = 4; //!
 
 public: // Methods
 	/// Constructor, initialize data
@@ -213,8 +220,8 @@ public: // Methods
 public: // Data
 	/// Calibrated anode signals
 	double anode[MAX_CHANNELS]; //#
-	/// Time signal
-	double tcal; //#
+	/// Time signals
+	double tcal[MAX_TDC]; //#
 	/// Sum of anode signals
 	double sum;  //#
 
@@ -237,7 +244,7 @@ public: // Subclasses
 		/// Anode variables
 		dragon::utils::AdcVariables<MAX_CHANNELS> adc;
 		/// Tdc variables
-		dragon::utils::TdcVariables<1> tdc;
+		dragon::utils::TdcVariables<MAX_TDC> tdc;
 	};
 
 public: // Subclass instances
@@ -517,6 +524,8 @@ public: // Data
 	double tcal0;
 	/// Crossover [tail] trigger time
 	double tcalx;
+	/// RF time
+	double tcal_rf;
 
 public: // Subclasses
 	///
@@ -534,6 +543,10 @@ public: // Subclasses
 		midas::Bank_t bk_tdc;
 		/// Crossover TDC channel variables
 		dragon::utils::TdcVariables<1> xtdc;
+		/// RF TDC channel variables
+		dragon::utils::TdcVariables<1> rf_tdc;
+		/// Trigger TDC channel variables
+		dragon::utils::TdcVariables<1> tdc0;
  public: // Methods
 		/// Sets data to defaults
 		Variables();
@@ -612,6 +625,8 @@ public: // Class data
 	SurfaceBarrier sb;       //
 	/// Time-of-flights
 	HiTof tof;               //
+	/// RF tdc value
+	double tcal_rf;
 	/// Trigger [tail] tdc value
 	double tcal0;
 	/// Crossover [head] tdc value
@@ -631,6 +646,10 @@ public: // Subclasses
 		midas::Bank_t bk_tdc;
 		/// Crossover TDC channel variables
 		dragon::utils::TdcVariables<1> xtdc;
+		/// RF TDC channel variables
+		dragon::utils::TdcVariables<1> rf_tdc;
+		/// Trigger TDC channel variables
+		dragon::utils::TdcVariables<1> tdc0;
 
  public: // Methods
 		/// Sets data to defaults
@@ -866,7 +885,7 @@ inline void dragon::Scaler::set_aliases(T* t, const char* branchName) const
 	 * t.Branch("scaler", "dragon::Scaler", &pScaler);
 	 * scaler.set_aliases(&t, "scaler");
 	 * t.Fill(); // adds a events worth of data
-	 * t.Draw("scaler_count_bgo_triggers_presented"); // same as doing t.Draw("scaler.count[0]");
+	 * t.Draw("count_bgo_triggers_presented"); // same as doing t.Draw("scaler.count[0]");
 	 * \endcode
 	 */
 	const std::string chNames[3] = { "count", "sum", "rate" };
@@ -874,7 +893,7 @@ inline void dragon::Scaler::set_aliases(T* t, const char* branchName) const
 		for(int j=0; j< 3; ++j) {
 			std::stringstream oldName, newName;
 			oldName << branchName << "." << chNames[j] << "[" << i << "]";
-			newName << branchName << "_" << chNames[j] << "_" << variables.names[i];
+			newName << chNames[j] << "_" << variables.names[i];
 
 			t->SetAlias(newName.str().c_str(), oldName.str().c_str());
 		}

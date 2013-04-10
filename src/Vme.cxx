@@ -88,18 +88,33 @@ vme::V1190::V1190()
 
 namespace { inline void reset_channel(vme::V1190::Channel* channel)
 {
-	// dragon::utils::reset_array(vme::V1190::MAX_HITS, channel->leading_edge);
-	// dragon::utils::reset_array(vme::V1190::MAX_HITS, channel->trailing_edge);
-	channel->leading_edge.clear();
-	channel->trailing_edge.clear();
 	channel->nleading  = 0;
 	channel->ntrailing = 0;
+	channel->fLeading.clear();
+	channel->fTrailing.clear();
 } }	
+
+void vme::V1190::Fifo::push_back(int32_t measurement_, int16_t channel_, int16_t number_)
+{
+	measurement.push_back(measurement_);
+	channel.push_back(channel_);
+	number.push_back(number_);
+}
+
+void vme::V1190::Fifo::clear()
+{
+	measurement.clear();
+	channel.clear();
+	number.clear();
+}
 
 void vme::V1190::reset()
 {
 	for (int ch = 0; ch < MAX_CHANNELS; ++ch)
 		::reset_channel( &(channel[ch]) );
+	
+	fifo0.clear();
+	fifo1.clear();
 
 	dragon::utils::reset_data (type, extended_trigger, n_ch, count,
 						  word_count, trailer_word_count,
@@ -116,9 +131,11 @@ int32_t vme::V1190::get_data(int16_t ch) const
 	 */
 
 	if (ch >= 0 && ch < MAX_CHANNELS) {
-		// return channel[ch].leading_edge[0];
-		return channel[ch].leading_edge.empty() ?
-			dragon::NO_DATA : channel[ch].leading_edge[0];
+		try {
+			return channel[ch].fLeading.at(0);
+		} catch(std::exception& e) {
+			return dragon::NO_DATA;
+		}
 	}
 	else {
 		dragon::utils::Warning("V1190::get_data")
@@ -127,18 +144,6 @@ int32_t vme::V1190::get_data(int16_t ch) const
 		return dragon::NO_DATA;
 	}
 }
-
-
-namespace {
-template<typename T1, typename T2, typename T3>
-inline void report_max_hits(T1 ch, T2 nhits, T3 max, const char* which)
-{
-	dragon::utils::Warning("vme::V1190::unpack_data_buffer", false) 
-		<< "Number of " << which << " edge hits received for TDC channel " << ch << " (=="
-		<< nhits << ") is greater than the maximum allowed in the analyzer (== "
-		<< max << "). Ignoring all subsequent hits for this channel... "
-		<< "(You may want to recomiple with vme::V1190::MAX_HITS set to a higer value)." ;
-} }
 
 bool vme::V1190::unpack_data_buffer(const uint32_t* const pbuffer)
 {
@@ -169,36 +174,18 @@ bool vme::V1190::unpack_data_buffer(const uint32_t* const pbuffer)
 
 	int32_t measurement = (*pbuffer >> 0) & READ19; /// - Bits 0 - 18 encode the measurement value
 
-
-	// p_ch points to the correct channel structure based on the read-out channel number
-	V1190::Channel* const p_ch = &(channel[ch]);
-
-
-	// error if over the hard coded hit maximum
-#if 0
-	bool over_max = (type == 0) ? (p_ch->nleading >= MAX_HITS) : (p_ch->ntrailing >= MAX_HITS);
-	if (over_max) {
-		const char* const which = (type == 0) ? "leading" : "trailing";
-		int n_hits_this = (type == 0) ? p_ch->nleading : p_ch->ntrailing;
-		report_max_hits(ch, n_hits_this+1, MAX_HITS, which);
-		std::cerr << DRAGON_ERR_FILE_LINE;
-		return false;
+	if (type == 0) // leading edge
+	{
+		channel[ch].fLeading.push_back(measurement);
 	}
-#endif
-
-#if 0
-	if (type == 0) // leading edge
-		p_ch->leading_edge[(p_ch->nleading)++] = measurement;
 	else // trailing edge
-		p_ch->trailing_edge[(p_ch->ntrailing)++] = measurement;
-#endif
-	if (type == 0) // leading edge
-		p_ch->leading_edge.push_back(measurement);
-	else // trailing edge
-		p_ch->trailing_edge.push_back(measurement);
+		channel[ch].fTrailing.push_back(measurement);
 	
-	p_ch->nleading = p_ch->leading_edge.size();
-	p_ch->ntrailing = p_ch->trailing_edge.size();
+	channel[ch].nleading  = channel[ch].fLeading.size();
+	channel[ch].ntrailing = channel[ch].fTrailing.size();
+
+	if(type == 0) fifo0.push_back(measurement, ch, channel[ch].nleading);
+	else          fifo1.push_back(measurement, ch, channel[ch].ntrailing);
 
 	return true;
 }
@@ -327,6 +314,19 @@ bool vme::V1190::unpack(const midas::Event& event, const char* bankName, bool re
     bool success = unpack_buffer(pbank32++, bankName);
 		if(!success) ret = false;
   }
+
+	// for(int i=0; i< MAX_CHANNELS; ++i) {
+	// 	Channel* const pch = &(channel[i]);
+	// 	pch->nleading  = pch->fLeading.size();
+	// 	pch->ntrailing = pch->fTrailing.size();
+
+	// 	pch->leading_edge  = new int32_t[ pch->nleading ];
+	// 	pch->trailing_edge = new int32_t[ pch->ntrailing ];
+
+	// 	std::copy(pch->fLeading.begin(), pch->fLeading.end(), pch->leading_edge);
+	// 	std::copy(pch->fTrailing.begin(), pch->fTrailing.end(), pch->trailing_edge);
+	// }
+
   return ret;
 }
 
