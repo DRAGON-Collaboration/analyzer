@@ -176,7 +176,7 @@ void midas::Event::Init(const char* tsbank, const void* header, const void* addr
 		bool overflow = (ctrl>>15) & READ1; // overflow flag
 		uint32_t tsch = (ctrl>>16) & READ8; // upper tsc bits 35..28
 
-		if (overflow) {
+		if (overflow && false) {
 			dragon::utils::Warning("midas::Event::Init") <<
 				"IO32 TSC in overflow condition. Event Serial #, Id: " << GetSerialNumber() << ", " << GetEventId() << "\n";
 		}
