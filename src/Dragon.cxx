@@ -846,10 +846,10 @@ void dragon::HiTof::calculate(const dragon::Tail* tail)
 	 */
 	mcp = dutils::calculate_tof(tail->mcp.tcal[1], tail->mcp.tcal[0]);
 #ifndef DRAGON_OMIT_DSSSD
-	mcp_ic = dutils::calculate_tof(tail->dsssd.tfront, tail->mcp.tcal[0]);
+	mcp_dsssd = dutils::calculate_tof(tail->dsssd.tfront, tail->mcp.tcal[0]);
 #endif
 #ifndef DRAGON_OMIT_IC
-	mcp_ic = dutils::calculate_tof(tail->ic.tcal[0], tail->mcp.tcal[0]);
+	mcp_ic    = dutils::calculate_tof(tail->ic.tcal[0], tail->mcp.tcal[0]);
 #endif
 }
 
