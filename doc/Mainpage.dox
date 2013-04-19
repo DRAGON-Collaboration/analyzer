@@ -260,7 +260,7 @@
 	bits as follows:\n\n
 	\image html v792header.png \n\n
 
-  -Bits 0 - 7: Unure3r23re32r3rt34gtsed.
+  - Bits 0 - 7: Unused
   - Bits 8 - 13: Identify the total number of data longwords in the event.
   - Bits 14 - 15: Unused
   - Bits 16 - 23: Identify the "crate number" of the present module (ignored for DRAGON experiments).
@@ -432,10 +432,32 @@
 	The other bank consisting of IO32 data is the timestamp counter (TSC) bank. This bank contains timestamp information
 	for both the event trigger and other programmable channels (such as the "cross" trigger, or the trigger of the other
 	DAQ, if it's present). It is here that we look to identify which events are singles events and which are coincidences.
-	Since the specific structure of this bank is still in flux (being designed), I will leave this section as a to-do for
-	the time being.
+	The actual TSC data are stored in a FIFO (first in, first out) with a maximum depth set by firmware limitations. Any
+	pulses arriving beyond the limits of the FIFO are ignored.
 
-	\todo Write the TSC bank description.
+	The TSC banks are arranged as follows (all 32-bit unsigned integers).
+	
+	-# Version number (firmware revision tag).
+	   - Currently ignored other than a check that the version numbner is a known one.
+	-# Bank timestamp (time at which the TSC bank was composed).
+	   - Currently ignored.
+	-# TSC routing bits (sets TSC signal routing for the frontend)
+     - Ignored for analysis.
+  -# TSC control
+	   - Contains the following bitpacked information:
+		    -# Bits 13..0 - Number of TSC words in the FIFO
+				-# Bit 14 - FIFO overflow marker
+				-# Bits 21..15 - Upper 8 bits common to each TSC in the FIFO.
+	-# Upper bits rollover
+	    - Firmware limits each TSC measurement to 38 bits, which rolls over in ~3.8 hours. Runs could occasionally go longer
+			  than this, so we manually count the number of rollovers in the upper 8 bits in the frontend code and write it here.
+	-# FIFO (depth given by TSC control as noted above)
+	   - Each entry is bitpacked as follows:
+		    -# Bits 0..29 - Lower 30 bits of the timestamp entry (combine with upper 8 bits plus upper bits rollover marker).
+				-# Bits 30..31 - Channel marker (0,1,2,3) for this TSC measurement.
+	-# Overflow marker: additional word `== 0xFFFFFFFF` is written if the TSC is in an overflow condition.
+	   - Currently ignored because TSC control gives the same information.
+
 
 	\subsubsection coincmatch Coincidence Matching
 
@@ -447,8 +469,9 @@
 	backend.
 
 	The method used to match coincidence and singles events is to buffer every incoming event in a queue, sorted by their
-	trigger time values. In practice, this is done using a <a href=http://www.cplusplus.com/reference/set/set/>C++ standard
-	library set</a>, as this container was shown to be the most efficient way in which to order events by their trigger time
+	trigger time values. In practice, this is done using a <a href=http://www.cplusplus.com/reference/set/multiset/>C++
+	standard library multiset</a>, as this container was shown to be the most efficient way in which to order events by
+	their trigger time
 	value. Whenever a new event is placed in the queue, the code checks its current "length" in time, that is, it checks the
 	time difference between the beginning of the queue (the earliest event) and the end of the queue (the latest event). If
 	this time difference is greater than a certain value (user programmable), then the code searches for timestamp matches

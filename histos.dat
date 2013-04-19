@@ -28,7 +28,7 @@ TH1D:
 	rootana::gHead.bgo.z0
 
 SUMMARY:
- 	("bgoE", "Bgo chan vs. Energy;Energy [keV/10];Detector Number", 256, 0, 4096)
+ 	("bgoE", "Bgo chan vs. Energy;Energy [keV/10];Detector Number", 200, 0, 10)
  	rootana::gHead.bgo.ecal
 	30
 
@@ -42,8 +42,8 @@ TH2D:
 	("bgoE0", "BGO_{0} Channel vs. Energy;Energy [keV/10];Detector Number", 200, 0, 10, 30, 0, 30)
 	rootana::gHead.bgo.esort[0]
 	rootana::gHead.bgo.hit0
-CUT:
-	Greater(rootana::gHead.bgo.esort[0], 0)
+# CUT:
+# 	Greater(rootana::gHead.bgo.esort[0], 0)
 
 TH2D:
 	("bgoE0E1", "BGO_{1} vs. BGO_{0};E0 [keV/10];E1 [keV/10]", 200, 0, 10, 200, 0, 10)
@@ -58,7 +58,7 @@ DIR:
 histos/event/hion/dsssd
 
 SUMMARY:
-	("dsssdE", "DSSSD channel vs. Energy;Energy [keV];Channel", 200, 0, 20000)
+	("dsssdE", "DSSSD channel vs. Energy;Energy [keV];Channel", 256, 0, 4096)
 	rootana::gTail.dsssd.ecal
 	32
 
@@ -227,7 +227,7 @@ DIR:
 histos/event/coinc/dsssd
 
 SUMMARY:
-	("dsssdE", "DSSSD channel vs. Energy;Energy [keV];Channel", 200, 0, 20000)
+	("dsssdE", "DSSSD channel vs. Energy;Energy [keV];Channel", 256, 0, 4096)
 	rootana::gCoinc.tail.dsssd.ecal
 	32
 
@@ -240,14 +240,14 @@ TH1D:
 	rootana::gCoinc.tail.dsssd.tback
 
 TH2D:
-        ("dsssdEfront_mcpTAC", "DSSSD Efront vs. MCP TAC", 256, 0, 4096, 200, 0, 20000)
+        ("dsssdEfront_mcpTAC", "DSSSD Efront vs. MCP TAC", 256, 0, 4096, 200, 0, 20)
 	rootana::gCoinc.tail.mcp.tac
 	rootana::gCoinc.tail.dsssd.efront
 CUT:
         Greater(rootana::gCoinc.tail.mcp.tac, 0) && Greater(rootana::gCoinc.tail.dsssd.efront, 0)
 
 TH2D:
-        ("dsssdEback_mcpTAC", "DSSSD Eback vs. MCP TAC", 256, 0, 4096, 200, 0, 20000)
+        ("dsssdEback_mcpTAC", "DSSSD Eback vs. MCP TAC", 256, 0, 4096, 200, 0, 20)
 	rootana::gCoinc.tail.mcp.tac
 	rootana::gCoinc.tail.dsssd.eback
 CUT:

@@ -220,6 +220,7 @@ midas::CoincEvent::CoincEvent(const Event& event1, const Event& event2):
 		dragon::utils::Warning("CoincMidasEvent::CoincMidasEvent")
 			<< "Don't know how to handle the passed events: "
 			<< "Id1 = " << event1.GetEventId() << ", Id2 = " << event2.GetEventId()
+			<< ", Serial 1 = " << event1.GetSerialNumber() << ", Serial 2 = " << event2.GetSerialNumber()
 			<< ", Sys time 1 = " << event1.GetTimeStamp() << ", Sys time 2 = " << event2.GetTimeStamp()
 			<< ", trig1 = " << event1.ClockTime() << ", trig2 = " << event2.ClockTime()
 			<< ", time diff = " << event1.TimeDiff(event2)

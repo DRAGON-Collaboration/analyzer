@@ -32,21 +32,22 @@ class Queue {
 public:
 	/// Internal container type used to store events.
 	/*!
-	 * Performance testing has indicated that a std::multiset is the optimal container
+	 * Performance testing has indicated that a `std::multiset` is the optimal container
 	 * for our needs:
 	 *   - Frequent insertion into the container
 	 *   - Frequent removal of the oldest element in the container
 	 *   - Quick identification of (possible multiple) coincidences by searching on the trigger time
 	 *
-	 * Others containers tested included a sorted std::deque or std::vector; boost::container::flat_multiset
-	 * (essentially a sorted std::vector); and boost::unordered_multiset. The sorted std::deque performed
-	 * similarly to std::multiset for objects with cheap copy operations (e.g. a simple 'int' or 'double'),
+	 * Others containers tested included a sorted `std::deque` or `std::vector`; `boost::container::flat_multiset`
+	 * (essentially a sorted `std::vector`); and `boost::unordered_multiset`. The sorted `std::deque` performed
+	 * similarly to `std::multiset` for objects with cheap copy operations (e.g. a simple 'int' or 'double'),
 	 * but for objects with non-trivial copy constructors the extra copy operations required to maintain
-	 * sorting inhibit performance significantly (note that std::vector had bad performance in all cases
+	 * sorting inhibit performance significantly (note that `std::vector` had bad performance in all cases
 	 * due to the expense of removing items at the beginning of the vector).
 	 *
-	 * The boost hash implementation showed slightly better performance for coincidence matching than
-	 * the std::multiset; however, the the increase was not significant, and it is not likely that it's
+	 * The boost hash implementation (`boost::unordered_multiset`)
+	 * showed slightly better performance for coincidence matching than
+	 * the `std::multiset`; however, the the increase was not significant, and it is not likely that it's
 	 * worth the extra code required to keep track of the earliest entry and the the reliance
 	 * on "non-standard" third-party code for a hash implementation.
 	 */

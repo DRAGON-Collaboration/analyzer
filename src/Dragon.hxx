@@ -752,7 +752,7 @@ public: // Methods
 	bool set_variables(const midas::Database* db, const char* dir);
 	/// Set branch alises in a ROOT TTree.
 	template <class T>
-	void set_aliases(T* t, const char* branchName) const;
+	void set_aliases(T* t, const char* branchName, bool print = false) const;
 
 public: // Data
 	/// Number of counts in a single read period
@@ -859,7 +859,7 @@ public: // Subclass instances
 // ======= Inlined Implementations ======== //
 
 template <class T>
-inline void dragon::Scaler::set_aliases(T* t, const char* branchName) const
+inline void dragon::Scaler::set_aliases(T* t, const char* branchName, bool print) const
 {
 	/*!
 	 * Sets tree branch aliases based on variable values - results in easier to use
@@ -894,12 +894,10 @@ inline void dragon::Scaler::set_aliases(T* t, const char* branchName) const
 			std::stringstream oldName, newName;
 			oldName << branchName << "." << chNames[j] << "[" << i << "]";
 			newName << chNames[j] << "_" << variables.names[i];
-
-			std::string newName1 = newName.str();
-			for(size_t j=0; j< newName1.size(); ++j) {
-				if(newName1[j] == ' ') newName1[j] = '_';
+			t->SetAlias(newName.str().c_str(), oldName.str().c_str());
+			if(print) {
+				std::cout << "Set alias \"" << newName.str() << "\" == \"" << oldName.str() << "\"\n";
 			}
-			t->SetAlias(newName1.c_str(), oldName.str().c_str());
 		}
 	}
 }

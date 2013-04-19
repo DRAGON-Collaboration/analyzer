@@ -16,6 +16,9 @@
 	channel number in question (note that the NIM->ECL converters are labeled starting with 1, whereas the ODB
 	variables start at 0). Setting the `ChannelEnable[n]` variable to `y` adds the signal to the trigger, while
 	`n` removes it.
+
+	You can look here: http://trshare.triumf.ca/~gchristian/dragon/frontend/html/hardware.html#ecl_in for a listing
+	of which detectors are plugged into which ECL channels.
 	.
 2. _What are all those signals going into and out of the IO32?_
 
@@ -34,6 +37,9 @@
 	trigger logic</a> pages to get an idea of what the signals are for and what the various inputs/outputs
 	to the VME modules are. Nearly everything else in the setup, electronics wise, (i.e. all of the NIM
 	modules) is pretty sparse and hopefully can be figured out from cable tracing.
+
+	There is also a <a href=http://trshare.triumf.ca/~gchristian/dragon/frontend/html/hardware.html#adc_in>
+	section of the hardware page</a> giving the channel mapping for ADCs and TDCs.
 	.
 5. _How to I operate the new frontend?_
 
@@ -41,9 +47,20 @@
 	.
 6. _What parts of the frontend are configurable? How do I control it?_
 
-  Most of the fronend options (gate widths, delays, etc.) are controlled by ODB variables.
+  Most of the frontend options (gate widths, delays, etc.) are controlled by ODB variables.
 	See the operation guide http://trshare.triumf.ca/~gchristian/dragon/frontend/html/operation.html
 	for more information.
+	.
+7. _How do I adjust BGO thresholds?_
+
+  From the <a href=smaug.triumf.ca:8081>MIDAS status page</a>, first click the `Adjust BGO Thresholds` button.
+	Then change the `Threshold Gamma Energy` variable to the desired threshold energy in keV. Now go back to the
+	status page and click `Apply BGO Thresholds` to make the change. Finally, start a new run for the new
+	threshold values to take effect.
+
+	Note that this only sets the correct keV threshold when the array is gain matched in the standard manner, that
+	is, placing the 6.13 MeV <SUP>13</SUP>C peak at channel 1471 (or 6.13 MeV using the standard ADC slopes of 0.00415).
+	For alternative gain matching, the relationship between threshold value and keV will need to be figured out empirically.
 	
 \section online Online Analysis
 
@@ -153,7 +170,7 @@
 5. _I can never remember all of the parameter names in the ROOT trees. Is there a way to find this out easily?_
 
   Use the TTree::StartViewer() command, e.g. `t3->StartViewer()` to see a complete graphical listing of all avaiable
-	parameters in a given tree. Alternatively, you can use TTree::Print, e.e. `t3->Print()` to see a textual listing
+	parameters in a given tree. Alternatively, you can use TTree::Print, e.g. `t3->Print()` to see a textual listing
 	of available parameters.
   .
 6. _How do you make plots of energy vs. channel in offline analysis from Trees. For example: DSSSD energy vs channel?_
@@ -171,9 +188,47 @@
 
 1. _What do all the parameter names mean? How can I find the parameter name corresponding to xyz signal?_
 
-  All of the parameters are arranged in a tree-like structure defined by classes....
+  Each detector element in DRAGON is represented by a C++ class in the analyzer. Each detector class contains
+	data members which correspond to experimental parameters recorded by the corresponding detector. By arranging
+	the various detector classes in a hierarchy, we create a tree-like structure describing experiment parameters.
+	For example, the DSSSD parameters are arranged as follows:
+	\code
+	class Dsssd {
+	public:
+    /// Calibrated energy signals
+		double ecal[MAX_CHANNELS]; //#
+		/// Highest energy signal in the front strips (0 - 15)
+		double efront;      //#
+		/// Highest energy signal in the back strips (16 - 31)
+		double eback;       //#
+		/// Which strip was hit in the front strips
+		uint32_t hit_front; //#
+		/// Which strip was hit in the back strips
+		uint32_t hit_back;  //#
+		/// Calibrated time signal from the front strips
+		double tfront;      //#
+		/// Calibrated time signal from the back strips
+		double tback;       //#
+		
+		// etc //
+  };
 
-	See namespace dragon for more....
+	class Tail {
+	public:
+	  Dsssd dsssd;
+		
+		// etc //
+  };
+	\endcode
+
+	This sets the DSSSD as a sub-element of Tail, with each of the DSSSD data members being sub-elements of DSSSD.
+	Thus the full hierarchy for, say, the energy of channel 16 is `tail.dsssd.ecal[16]`.	When using ROOT, the class
+	hierarchy is parsed into a TTree branch structure, meaning that the parameter name for
+	DSSSD energy, channel 16 is exactly as noted.
+
+	Perhaps the simplest way to figure out parameter names, then, is to look in the <a href=namespacedragon.html>dragon
+	namespace documentation</a>, which has links to documentation on each of the DRAGON detector classes. Within the
+	documentation, the physical measurement corresponding to each data member is explained.
   .
 2. _What am I looking at when I look at the TDC (tcal) or tof parameters?_
 
@@ -194,5 +249,20 @@
 
 	The time-of-flight parameters (e.g. `coinc.xtofh`, `hi.tof.mcp_dsssd`, etc.) _do_ have jitter subtracted since they are
 	calculated by subtracting two `tcal` values from each other.
+	.
+3. _How is the coincidence matching done?_
 
+  See <a href=index.html#coincmatch> this section</a> for an overview of the algorithm used for coincidence matching. The
+	same algorithm is used whether in online or offline mode. Also, see the documentation on tstamp::Queue for some more
+	details about the implementation of the matching algorithm.
+	.
+4. _Are EPICS data logged anywhere?_
+  
+  Yes, every time the EPICS frontend polls a channel for data, it sends the results to the `SYSTEM` buffer. From there, they
+	go into both the online analysis pipeline and into the saved `run***.mid` file if data recording is turned on. The analyzer
+	upacks EPICS events into a ROOT tree (`t20`) with two parameters (in addition to a MIDAS event header): channel number 
+	[`ch`] and value [`val`]. So to see, for intance, the recorded values of EPICS channel 0 versus time, plot the following:
+	\code
+	t20->Draw("val:header.fTimeStamp", "ch == 0");
+	\endcode
 */
