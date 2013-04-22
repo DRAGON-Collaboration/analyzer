@@ -7,8 +7,10 @@
 #include <cassert>
 
 // ROOTBEER includes //
-#include "Main.hxx"
+#include <TString.h>
 #include "Rint.hxx"
+#include "Attach.hxx"
+#include "Rootbeer.hxx"
 namespace rb { namespace hist { void ClearAll(); } }
 
 // DRAGON includes //
@@ -292,6 +294,77 @@ void rbdragon::TailScaler::ReadVariables(midas::Database* db)
 }
 
 
+// ======== Class rbdragon::Main ======== //
+
+namespace {
+void usage(const char* arg0) {
+	std::string progname(arg0);
+	unsigned long slashPos = progname.rfind('/');
+	if (slashPos < progname.size())
+		progname = progname.substr (slashPos + 1);
+	std::cout << "usage: " << progname << " --unpack <input file>\n\n";
+	exit(1);
+}
+void handle_args(int argc, char** argv, std::string& fin) {
+	if(argc != 3) usage(argv[0]);
+	fin  = argv[2];
+} }
+
+int rbdragon::Main::Run(int argc, char** argv)
+{
+	/// Copy of normal rb::Main::Run() with the following
+	/// additions:
+ if (argc > 1 && !strcmp(argv[1], "--unpack")) { // 'rbunpack'
+
+	 std::string fin;
+	 handle_args(argc, argv, fin);
+	 int argc2 = argc + 1;
+	 char** argv2 = (char**)malloc(argc2*sizeof(char*));
+	 for(int i=0; i< argc; ++i) {
+		 argv2[i] = (char*)malloc(strlen(argv[i]+1));
+		 strcpy(argv2[i], argv[i]);
+	 }
+	 argv2[argc] = (char*)malloc(4);
+	 strcpy(argv2[argc], "-ng");
+
+	 rb::Rint rbApp("Rbunpack", &argc2, argv2, 0, 0, true);
+	 rbApp.StartSave(false);
+	 rb::AttachFile(fin.c_str());
+	 gSystem->Sleep(1e2);
+	 while(rb::FileAttached())
+		 assert(0);
+	 rbApp.Terminate(0);
+	 for(int i=0; i< argc2; ++i)
+		 free(argv2[i]);
+	 free(argv2);
+	 return 0;
+
+ } else { // Standard ROOTBEER
+
+	 std::set<std::string> args(argv, argv+argc);
+	 Bool_t lite = args.count("-l");
+	 rb::Rint rbApp("Rootbeer", &argc, argv, 0, 0, lite);
+	 gROOT->ProcessLine("gStyle->SetOptTitle(kTRUE)");
+	 gROOT->ProcessLine("gStyle->SetOptStat(kTRUE)");
+
+	 /// - Load standard histograms if the file exists
+	 Int_t processed;
+	 {
+		 dragon::utils::ChangeErrorIgnore err_ignore(8001);
+		 processed = gROOT->ProcessLine(".x $RB_CONFIGDIR/dragon_hists.C");
+	 }
+	 if(processed == 0) {
+		 dragon::utils::Error("Main")
+			 << "Couldn't load macro file: \"$RB_CONFIGDIR/dragon_hists.C\": "
+			 << "Check that the RB_CONFIGDIR environment variable is set and dragon_hists.C exists.";
+	 }
+
+	 rbApp.Run();
+	 return 0;
+
+ }
+}
+
 
 // ============ Required Static / Free Function Implementations ============ //
 
@@ -309,7 +382,7 @@ rb::Main* rb::GetMain()
 	 * Use the default main() implementation.
 	 * \returns <tt>new rb::Main();</tt>
 	 */
-	return new rb::Main();
+	return new rbdragon::Main();
 }
 
 void rb::Rint::RegisterEvents()

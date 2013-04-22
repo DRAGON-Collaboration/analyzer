@@ -7,6 +7,7 @@
 ///
 
 // ROOTBEER includes
+#include "Main.hxx"
 #include "Data.hxx"
 #include "Event.hxx"
 #include "midas/TMidasFile.h"
@@ -307,6 +308,14 @@ private:
 
 	/// What to do in case of an error in event processing
 	void HandleBadEvent();
+};
+
+
+/// DRAGON-specific rb::Main
+class Main: public rb::Main {
+public:
+	/// Implements main() function
+	int Run(int argc, char** argv);
 };
 
 } // namespace rbdragon
