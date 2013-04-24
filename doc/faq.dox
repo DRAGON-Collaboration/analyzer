@@ -61,7 +61,87 @@
 	Note that this only sets the correct keV threshold when the array is gain matched in the standard manner, that
 	is, placing the 6.13 MeV <SUP>13</SUP>C peak at channel 1471 (or 6.13 MeV using the standard ADC slopes of 0.00415).
 	For alternative gain matching, the relationship between threshold value and keV will need to be figured out empirically.
-	
+
+
+\section panic "Panic" Instructions / Help
+
+1. _MIDAS got hung up when I tried to start or stop a run._
+
+  Open up a shell, ssh into smaug (`ssh dragon@smaug`) and then run the command `odbedit`. Once in this program,
+  issue the command `stop now -v` (or `start now -v`). The this may solve the problem on it's own, but if not you
+  should see from the output where the transition is getting hung up. If so, kill the offending program and try again
+  to start/stop the run. Then try re-starting the program you killed, and then try starting a new run to see if the
+  problem is fixed. If there are still problems, more drastic measures may be necessary (see below).
+  .
+2. _Program xyz has crashed/hung and it's affecting the data taking._
+
+  MIDAS is supposed to have a built in "watchdog" system for removing any crashed programs from the experiment so
+  that they cannot influence the data taking. However, if a program has registered start or stop transitions and has
+  become hung but not fully crashed, it can block the stopping or starting of runs. If this is the case, you will want
+  to kill the offending program manually. ssh into the host machine running the program and type:
+
+       ps ux | grep program_name
+
+  to find out the process ID.  Then type `kill xxxxxx`, where `xxxxxx` is the process ID. If this doesn't work,
+  try again with `kill -9 xxxxxx`. Once you have killed the program, the data taking should work again; however,
+  you may want to do a stop run/start run cycle to re-set things.
+  .
+3. _Program xyz won't stay open._
+
+  If a program refuses to start from the MIDAS programs page, click on the link on the left side of the page
+  and look at the "Start command" section to see what the command is to start the program. Then try running
+  this in a shell, removing any "-D" flags. This may not get the program to start, but at least the extra
+  terminal output can point you in the right direction towards figuring out the problem.
+  .
+4. _I tried to submit an elog entry and it got hung up._
+
+  We have noticed that occasionally certain attachments can cause an elog entry to become hung. If this
+	happens to you, first try to copy the entry text to the clipboard or another program so that you don't
+	have to re-type everything. Then close the browser window/tab in which you have tried to submit the
+	elog entry. This should fix the hang-up, but your entry may be missing. If so, re-submit without the
+	attachments. Then try to edit the entry and if the attachment still refuses to upload, you can try
+	breaking it into multiple smaller files (by area) as this seems to fix things. As a last resoort, you
+	can just reference the location of the attachment on `draco` and interested readers can go find it
+	manually.
+	.
+5. _The MIDAS status page is spewing errors and I have no idea what they mean._
+
+  As long as the errors are not coming from one of the frontends (fe_head, fe_tail) then it is likely something
+	non-cricual (probably a bug in one of the analysis codes). In this case, it is not worth stopping data-taking
+	to investigate. If the errors are swamping the MDIAS message system, close the offending client until someone
+	who can debug the problem is around.
+
+	If you are getting the occational error from one of the frontends about "V792 trigger problem", then this
+	is a known, albeit not fully understood issue. You can continue to safely take data if this is the case.
+	.
+6. _Something isn't working and I have no idea what's going on!_
+
+  For DAQ problems where the source is unknown, the standard procedure is to do the following:
+
+    1. Kill and re-start all programs by logging into `smaug` and typing the command `start_daq.sh`.
+       As a second step, double check that none of the frontend programs (fe_head, fe_tail, fewiener,
+			 feepics) are running more than one instance: log into the appropriate host (this will be noted
+			 from the link on the MIDAS programs page) and do `ps ux | grep program_name`; there should be
+			 only one instance of the program running. If there is more than one, kill all of them, then
+			 re-start the program from the MIDAS programs page or directly from a terminal.
+		   .
+		2. Start up any other clients that aren't automatically started by the `start_daq.sh` command (anaDragon,
+		   rootbeer, dragonscaler, feepics) and then try to resume data taking. If everything is looking okay, then
+		   you have probably fixed things.
+		   .
+		3. If Steps a & b haven't solved the problem, log into smaug and issue the command `kill_daq.sh`; then 
+		   go downstairs and reboot the VME crates. There are two crates, located near each of the electronics racks.
+		   They are the relatively small, white-colored VME crates with horizontally-oriented modules. To reboot a crate,
+		   flip off the power switch, wait ~20 seconds and then switch it back on again. Verify that the crate powers up
+		   correctly and that the status lights on the front of all of the modules are green.
+
+		   After rebooting the crates, go back to smaug and type `start_daq.sh`, then start over again at step (b).
+
+	 If you are able to get things back to a working state, continue running but make a note of what happened and
+	 any details that you think might be relevant in case this might be useful in later figuring out what went wrong
+	 and potentially fixing the problem.
+
+
 \section online Online Analysis
 
 1. _How do I change a variable (ADC pedestal, slope, channel mapping, etc.)?_

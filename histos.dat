@@ -1,4 +1,7 @@
 ##
+## Edit this file to change the histograms that will be displayed in ROODY.
+## Then restart the program 'anaDragon'.
+##
 ## Standard DRAGON histograms for the rootana analyzer.
 ##
 ## EXAMPLE COMMAND ##
@@ -24,7 +27,7 @@ DIR:
 histos/event/gamma/bgo
 
 TH1D:
-	("bgoZ", "Bgo Z position;z0 [mm];Counts",100, -200, 200)
+	("bgoZ", "Bgo Z position;z0 [mm];Counts",100, -20, 20)
 	rootana::gHead.bgo.z0
 
 SUMMARY:
@@ -193,8 +196,9 @@ DIR:
 histos/event/coinc/bgo
 
 TH1D:
-	("bgoZ", "Bgo Z position;z0 [mm];Counts", 100, -200, 200)
+	("bgoZ", "Bgo Z position;z0 [mm];Counts", 100, -20, 20)
 	rootana::gCoinc.head.bgo.z0
+	Greater(rootana::gCoinc.head.bgo.esort[0], 0)
 
 SUMMARY:
  	("bgoE", "Bgo chan vs. Energy;Energy [keV/10];Detector Number", 200, 0, 10)
