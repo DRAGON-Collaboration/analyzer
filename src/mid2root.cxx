@@ -519,9 +519,10 @@ int main(int argc, char** argv)
 			for (int i=0; i< nIds; ++i) {
 				std::vector<Int_t>::iterator it =
 					std::find(which.begin(), which.end(), eventIds[i]);
-				if(it != which.end())
+				if(it != which.end()) {
 					trees[i]->Fill();
-			}			
+				}
+			}
 		} 
 	}
 
