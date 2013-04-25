@@ -8,6 +8,7 @@
 #ifdef USE_ROOT
 #include <vector>
 #include <string>
+#include <memory>
 #include <cassert>
 #include <algorithm>
 #include <iostream>
@@ -471,6 +472,10 @@ int main(int argc, char** argv)
 	unpack.HandleBor(options.fOdb.c_str());
 
 	//
+	// ODB parameters
+	std::auto_ptr<midas::Database> db(0);
+	
+	//
 	// Loop over events in the midas file
 	int nnn = 0;
 	while (1) {
@@ -479,6 +484,11 @@ int main(int argc, char** argv)
 		TMidasEvent temp;
 		bool success = fin.Read(&temp);
 		if (!success) break;
+
+		//
+		// Read ODB tree if MIDAS_EOR buffer
+		if(temp.GetEventId() == MIDAS_EOR)
+			db.reset(new midas::Database(temp.GetData(), temp.GetDataSize()));
 
 		//
 		// Unpack into our classes
@@ -525,8 +535,7 @@ int main(int argc, char** argv)
 		trees[i]->ResetBranchAddresses();
 	}
 
-	midas::Database db(options.fOdb.c_str());
-	db.Write("variables");
+	if(db.get()) db->Write("variables");
 
 	fout.Close();
 }
