@@ -345,7 +345,7 @@ int rbdragon::Main::Run(int argc, char** argv)
 	 Bool_t lite = args.count("-l");
 	 rb::Rint rbApp("Rootbeer", &argc, argv, 0, 0, lite);
 	 gROOT->ProcessLine("gStyle->SetOptTitle(kTRUE)");
-	 gROOT->ProcessLine("gStyle->SetOptStat(kTRUE)");
+	 gROOT->ProcessLine("gStyle->SetOptStat(\"emri\")");
 
 	 /// - Load standard histograms if the file exists
 	 Int_t processed;
