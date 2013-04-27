@@ -52,6 +52,7 @@ void dragon::Unpacker::FlushQueue(int flushTime)
 size_t dragon::Unpacker::FlushQueueIterative()
 {
 	/// \returns The size of the queue after removing the front event
+	fUnpacked.clear();
 	return fQueue->FlushIterative(fDiag);
 }
 
@@ -122,7 +123,7 @@ void dragon::Unpacker::UnpackRunParameters(const midas::Database& db)
 	fRunpar->read_data(&db); /// - Calculate run parameters from an ODB dump event
 	fUnpacked.push_back(DRAGON_RUN_PARAMETERS);
 }
-#include <fstream>
+
 std::vector<int32_t> dragon::Unpacker::UnpackMidasEvent(void* header, char* data)
 {
 	fUnpacked.clear();
