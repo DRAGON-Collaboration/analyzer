@@ -473,7 +473,8 @@ int main(int argc, char** argv)
 
 	//
 	// ODB parameters
-	std::auto_ptr<midas::Database> db(0);
+	std::auto_ptr<midas::Database> db0(0); // run start
+	std::auto_ptr<midas::Database> db1(0); // run stop
 	
 	//
 	// Loop over events in the midas file
@@ -487,8 +488,12 @@ int main(int argc, char** argv)
 
 		//
 		// Read ODB tree if MIDAS_EOR buffer
-		if(temp.GetEventId() == MIDAS_EOR)
-			db.reset(new midas::Database(temp.GetData(), temp.GetDataSize()));
+		if (temp.GetEventId() == MIDAS_BOR) {
+			db0.reset(new midas::Database(temp.GetData(), temp.GetDataSize()));
+		}
+		else if (temp.GetEventId() == MIDAS_EOR) {
+			db1.reset(new midas::Database(temp.GetData(), temp.GetDataSize()));
+		}
 
 		//
 		// Unpack into our classes
@@ -529,15 +534,32 @@ int main(int argc, char** argv)
 	m2r::cout << "\nDone!\n\n";
 
 	//
-	// Write trees, variables to file, cleanup
+	// Write trees to file.
 	for (int i=0; i< nIds; ++i) {
 		trees[i]->GetCurrentFile();
 		trees[i]->AutoSave();
 		trees[i]->ResetBranchAddresses();
 	}
+	//
+	// Write run start ODB variables
+	if(db0.get()) {
+		db0->SetNameTitle("odbstart", "ODB tree at run start.");
+		db0->Write("odbstart");
+	}
+	//
+	// Write run stop ODB variables
+	if(db1.get()) {
+		db1->SetNameTitle("odbstop", "ODB tree at run stop.");
+		db1->Write("odbstop");
+	}
+	//
+	// Write variables actually used in analysis
+	midas::Database db(options.fOdb.c_str());
+	db.SetNameTitle("variables", "ODB tree used in analysis.");
+	db.Write("variables");
 
-	if(db.get()) db->Write("variables");
-
+	//
+	// Close output file
 	fout.Close();
 }
 

@@ -9,7 +9,7 @@
 #include "Xml.hxx"
 
 #ifdef USE_ROOT
-#define DRAGON_DATABASE Database: public TObject
+#define DRAGON_DATABASE Database: public TNamed
 #else
 #define DRAGON_DATABASE Database
 #endif
