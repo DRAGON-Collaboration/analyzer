@@ -21,6 +21,9 @@
 
 namespace dragon {
 
+/// Chain together all trees in multiple DRAGON files.
+void MakeChains(Int_t* runnumbers, Int_t nruns, const char* format = "$DH/rootfiles/run%d.root");
+
 /// Filters TChains (or TTrees) based on cut conditions.
 /*!
  *  Example use:

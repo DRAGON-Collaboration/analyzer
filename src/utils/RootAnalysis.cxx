@@ -17,6 +17,46 @@ template <class T> void Zap(T*& t)
 }
 
 
+// ============ dragon::MakeChains ============ //
+void dragon::MakeChains(Int_t* runnumbers, Int_t nruns, const char* format)
+{
+	///
+	/// \param [in] runnumbers Pointer to a valid array of desired run numbers to chain together.
+	/// \param [in] nruns Length of _runnumbers_.
+	/// \param format String specifying the file name format, uses _printf_ syntax.
+	/// 
+	/// \note Does not return anything, but creates `new` heap-allocated TChains that become part of
+	/// the present ROOT directory; these must be deleted by the user.
+	TChain* chain[] = {
+		new TChain("t1", "Head singles event."),
+		new TChain("t2", "Head scaler event."),
+		new TChain("t3", "Tail singles event."),
+		new TChain("t4", "Tail scaler event."),
+		new TChain("t5", "Coincidence event."),
+		new TChain("t20", "Epics event."),
+		new TChain("t6", "Timestamp diagnostics."),
+		new TChain("t7", "Glocal run parameters.")
+	};
+	Int_t nchains = sizeof(chain) / sizeof(TChain*);
+
+	for(Int_t i=0; i< nruns; ++i) {
+		char fname[4096];
+		sprintf(fname, format, runnumbers[i]);
+		{
+			TFile file(fname);
+			if(file.IsZombie()) {
+				dragon::utils::Warning("MakeChains")
+					<< "Skipping run " << runnumbers[i] << ", couldn't find file " << fname;
+			}
+		}
+
+		for(int j=0; j< nchains; ++j) {
+			chain[j]->AddFile(fname);
+		}
+	}
+}
+
+
 // ============ Class dragon::TTreeFilter ============ //
 
 dragon::TTreeFilter::TTreeFilter(const char* filename, const char* option, const char* ftitle, Int_t compress):
