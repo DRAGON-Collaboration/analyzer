@@ -78,8 +78,9 @@ void rbdragon::MidasBuffer::RunStartTransition(Int_t runnum)
 		ReadVariables(&db);
 	}
 
-	/// - Zero all histograms
-	rb::hist::ClearAll();
+	/// - Zero all histograms if online
+	if (fType == rb::MidasBuffer::ONLINE)
+		rb::hist::ClearAll();
 
 	/// - Call parent class implementation (prints a message)
 	rb::MidasBuffer::RunStartTransition(runnum);
