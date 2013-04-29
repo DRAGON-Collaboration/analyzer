@@ -56,7 +56,7 @@ DRLIB=$(PWD)/lib
 DYLIB=-shared
 FPIC=-fPIC
 INCFLAGS=-I$(SRC) -I$(CINT)
-DEBUG=-ggdb -O0 -DDEBUG
+DEBUG=-ggdb -O3 -DDEBUG
 CXXFLAGS=$(DEBUG) $(INCFLAGS) $(DEFINITIONS)
 
 
@@ -167,6 +167,7 @@ $(OBJECTS) $(DR_DICT) \
 \
 -o $@ \
 
+mid2root: $(PWD)/bin/mid2root
 $(PWD)/bin/mid2root: src/mid2root.cxx $(DRLIB)/libDragon.so
 	$(LINK) -lDragon $< \
 -o $@ \
