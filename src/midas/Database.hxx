@@ -154,7 +154,7 @@ public:
 		}
 
 #ifdef USE_ROOT
-	ClassDef(midas::Database, 1);
+	ClassDef(midas::Database, 2);
 #endif
 };
 
