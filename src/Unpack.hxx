@@ -50,6 +50,9 @@ public:
 	/// Flush the timestamp queue, for only a single event
 	size_t FlushQueueIterative();
 	///
+	/// Return a pointer to fQueue
+	tstamp::Queue* GetQueue() const;
+	///
 	/// Returns true if we are in singles mode
 	bool IsSinglesMode() const;
 	///
@@ -221,5 +224,10 @@ dragon::Unpacker::GetUnpackedCodes() const
 	return fUnpacked;
 }
 
+inline tstamp::Queue*
+dragon::Unpacker::GetQueue() const
+{
+	return fQueue.get();
+}
 
 #endif

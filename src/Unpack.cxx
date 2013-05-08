@@ -80,6 +80,19 @@ void dragon::Unpacker::UnpackHead(const midas::Event& event)
 	fHead->reset();       /// - Reset the class to default values.
 	fHead->unpack(event); /// - Read raw data from the MIDAS event.
 	fHead->calculate();   /// - Calculate abstract parameters.
+
+	{
+		int len;
+		uint32_t* p = event.GetBankPointer<uint32_t>("GBLH", &len);
+		std::cout << "Serial: " << event.GetSerialNumber();
+		if(p)
+			std::cout << ", Run num: " << *p << ", Queue size: " << fQueue->Size() << "\n";
+		else
+			std::cout << ", Queue size: " << fQueue->Size() << "\n";
+
+		ss_sleep(100);
+	}
+
 	fUnpacked.push_back(DRAGON_HEAD_EVENT);
 }
 

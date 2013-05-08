@@ -93,8 +93,8 @@ void rbdragon::MidasBuffer::RunStopTransition(Int_t runnum)
 	///
 	/// Does the following:
 
-	/// - Flush timestamp queue (max 60 seconds for online)
-	Int_t flush_time = fType == ONLINE ? 60 : -1;
+	/// - Flush timestamp queue (max 15 seconds for online)
+	Int_t flush_time = fType == ONLINE ? 15 : -1;
 	time_t t_begin = time(0);
 	size_t qsize;
 	while (1) {
@@ -109,6 +109,10 @@ void rbdragon::MidasBuffer::RunStopTransition(Int_t runnum)
 		std::vector<Int_t> v = fUnpacker.GetUnpackedCodes();
 		process_events(v);
 	} 
+	if (qsize) {
+		fUnpacker.GetQueue()->FlushTimeoutMessage(flush_time);
+		fUnpacker.GetQueue()->Clear();
+	}
 
 	/// - Call parent class implementation (prints a message)
 	rb::MidasBuffer::RunStopTransition(runnum);
