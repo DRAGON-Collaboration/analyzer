@@ -114,7 +114,27 @@
 	If you are getting the occational error from one of the frontends about "V792 trigger problem", then this
 	is a known, albeit not fully understood issue. You can continue to safely take data if this is the case.
 	.
-6. _Something isn't working and I have no idea what's going on!_
+6. _The MIDAS status page won't load._
+  There seems to be an issue with the mhttpd program that causes the MIDAS page to get hung up. This
+	doesn't seem to affect the rest of the DAQ, but it does make operation difficult. If this happens, try the following:
+	
+    1. Open a terminal and ssh as dragon@smaug.triumf.ca (no password necessary from draco).
+		   .
+		2. Type the following: `ps ux | grep mhttpd`
+		   .
+		3. Kill the mhttpd process that shows up: `kill xxxxxxx` where `xxxxxxx` is the mhttpd process ID.
+		   .
+		4. Re-do step (b) to see if the process was killed.
+		   .
+		5. If not, try step (c) again but with kill -9.
+       .
+		6. Check again for mhttpd. Assuming the `kill -9` worked, run the following command: 
+   		`mhttpd -p 8081 -D`.
+			 .
+		7. This should have fixed the problem, so try refreshing the MIDAS status page to see if it's working again.
+
+   .
+7. _Something isn't working and I have no idea what's going on!_
 
   For DAQ problems where the source is unknown, the standard procedure is to do the following:
 
