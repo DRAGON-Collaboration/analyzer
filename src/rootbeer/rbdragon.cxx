@@ -192,7 +192,7 @@ void rbdragon::TStampDiagnostics::HandleBadEvent()
 // ======== Class rbdragon::GammaEvent ======== //
 
 rbdragon::GammaEvent::GammaEvent():
-	fGamma("gamma", this, true, "") { }
+	fGamma("head", this, true, "") { }
 
 void rbdragon::GammaEvent::HandleBadEvent()
 {
@@ -209,7 +209,7 @@ void rbdragon::GammaEvent::ReadVariables(midas::Database* db)
 // ======== Class rbdragon::HeavyIonEvent ======== //
 
 rbdragon::HeavyIonEvent::HeavyIonEvent():
-	fHeavyIon("hi", this, true, "") { }
+	fHeavyIon("tail", this, true, "") { }
 
 void rbdragon::HeavyIonEvent::HandleBadEvent()
 {

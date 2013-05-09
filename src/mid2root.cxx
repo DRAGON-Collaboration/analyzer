@@ -413,9 +413,9 @@ int main(int argc, char** argv)
 		&runpar
 	};
 	const std::string branchNames[nIds] = {
-		"gamma",
+		"head",
 		"sch",
-		"hi",
+		"tail",
 		"sct",
 		"coinc",
 		"epics",
