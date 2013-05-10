@@ -39,7 +39,7 @@ inline uint64_t read_timestamp (uint32_t tscl, uint32_t tsch)
 
 // ========= Class midas::Event ========= //
 
-midas::Event::Event(const void* header, const void* data, int size, const char* tsbank, double coinc_window):
+midas::Event::Event(const void* header, const void* data, int size, const Bank_t tsbank, double coinc_window):
 	fCoincWindow(coinc_window),
 	fClock (std::numeric_limits<uint64_t>::max()),
 	fTriggerTime(0.)
@@ -54,7 +54,7 @@ midas::Event::Event(const void* header, const void* data, int size, const char* 
 	Init(tsbank, header, data, size);
 }
 
-midas::Event::Event(char* buf, int size, const char* tsbank, double coinc_window):
+midas::Event::Event(char* buf, int size, const Bank_t tsbank, double coinc_window):
 	fCoincWindow(coinc_window),
  	fClock (std::numeric_limits<uint64_t>::max()),
 	fTriggerTime(0.)
@@ -66,6 +66,31 @@ midas::Event::Event(char* buf, int size, const char* tsbank, double coinc_window
 	 * \param coinc_window Desired window to be considered a coincidence match w/ another event.
 	 */
 	Init(tsbank, buf, buf+sizeof(midas::Event::Header), size);
+}
+
+midas::Event::Event(char* buf, int size):
+	fCoincWindow(0),
+ 	fClock (std::numeric_limits<uint64_t>::max()),
+	fTriggerTime(0.)
+{
+	/*!
+	 * \param buf Buffer containing the entirity of the event data (header + actual data)
+	 * \param size Size of the data portion of the event (not including the header)
+	 */
+	Init(0, buf, buf+sizeof(midas::Event::Header), size);
+}
+
+midas::Event::Event(const void* header, const void* data, int size):
+	fCoincWindow(0),
+	fClock (std::numeric_limits<uint64_t>::max()),
+	fTriggerTime(0.)
+{
+	/*!
+	 * \param header Pointer to event header (midas::Event::Header struct)
+	 * \param data Pointer to the data portion of an event
+	 * \param size Size in bytes of the data portion of the event
+	 */
+	Init(0, header, data, size);
 }
 
 void midas::Event::CopyDerived(const midas::Event& other)
@@ -128,7 +153,8 @@ void midas::Event::Init(const char* tsbank, const void* header, const void* addr
 		uint32_t route   = *ptsc++;
 
 		// Suppress compiler warning about unused values
-		if (0 && version && bkts && route) { }
+		if (version && bkts && route)
+			;
 
 		// Check version
 		uint32_t versions[] =
@@ -139,7 +165,7 @@ void midas::Event::Init(const char* tsbank, const void* header, const void* addr
 			if(version == versions[v]) { okVersion = true; break; }
 		}
 		if(okVersion == false) {
-			dragon::utils::err::Warning("midas::Event::Init") <<
+			dragon::utils::Warning("midas::Event::Init") <<
 				"Unknown TSC version 0x" << std::hex << version << std::dec << " (id, serial #: " << GetEventId() <<
 				", " << GetSerialNumber() << ")" << DRAGON_ERR_FILE_LINE;
 		}
@@ -150,8 +176,8 @@ void midas::Event::Init(const char* tsbank, const void* header, const void* addr
 		bool overflow = (ctrl>>15) & READ1; // overflow flag
 		uint32_t tsch = (ctrl>>16) & READ8; // upper tsc bits 35..28
 
-		if (overflow) {
-			dragon::utils::err::Warning("midas::Event::Init") <<
+		if (overflow && false) {
+			dragon::utils::Warning("midas::Event::Init") <<
 				"IO32 TSC in overflow condition. Event Serial #, Id: " << GetSerialNumber() << ", " << GetEventId() << "\n";
 		}
 
@@ -191,9 +217,10 @@ midas::CoincEvent::CoincEvent(const Event& event1, const Event& event2):
 		fHeavyIon = &event1;
 	}
 	else {
-		dragon::utils::err::Warning("CoincMidasEvent::CoincMidasEvent")
+		dragon::utils::Warning("CoincMidasEvent::CoincMidasEvent")
 			<< "Don't know how to handle the passed events: "
 			<< "Id1 = " << event1.GetEventId() << ", Id2 = " << event2.GetEventId()
+			<< ", Serial 1 = " << event1.GetSerialNumber() << ", Serial 2 = " << event2.GetSerialNumber()
 			<< ", Sys time 1 = " << event1.GetTimeStamp() << ", Sys time 2 = " << event2.GetTimeStamp()
 			<< ", trig1 = " << event1.ClockTime() << ", trig2 = " << event2.ClockTime()
 			<< ", time diff = " << event1.TimeDiff(event2)

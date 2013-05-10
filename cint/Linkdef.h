@@ -34,13 +34,13 @@
 #pragma link C++ class vme+;
 
 #pragma link C++ defined_in ../src/Vme.hxx;
+#pragma link C++ class vme::V1190::Channel+;
 #pragma link C++ defined_in ../src/Dragon.hxx;
-#pragma link C++ defined_in ../src/utils/Banks.hxx;
 #pragma link C++ defined_in ../src/utils/VariableStructs.hxx;
 
 class TTree;
 #pragma link C++ function dragon::Scaler::set_aliases(TTree*, const char*);
-
+#pragma link C++ function dragon::Epics::set_aliases(TTree*);
 
 #pragma link C++ class midas::Event::Header+;
 
@@ -54,14 +54,22 @@ class TTree;
 
 #pragma link C++ class tstamp::Diagnostics+;
 #pragma link C++ defined_in ../src/TStamp.hxx;
+#pragma link C++ defined_in ../src/utils/ErrorDragon.hxx;
+#pragma link C++ defined_in ../src/utils/RootAnalysis.hxx;
+#pragma link C++ defined_in ../src/utils/Calibration.hxx;
+#pragma link C++ defined_in ../src/utils/Uncertainty.hxx;
 
-/*
-	for j in Adc Tdc
-	do for i in {1..32}
-	do echo "#pragma link C++ class dragon::${j}Variables<${i}>+;"
-	done
-	done
-*/
+#pragma link C++ class dragon::utils::AdcVariables<dragon::Bgo::MAX_CHANNELS>+;
+#pragma link C++ class dragon::utils::TdcVariables<dragon::Bgo::MAX_CHANNELS>+;
+#pragma link C++ class dragon::utils::PositionVariables<dragon::Bgo::MAX_CHANNELS>+;
+#pragma link C++ class dragon::utils::AdcVariables<dragon::Dsssd::MAX_CHANNELS>+;
+#pragma link C++ class dragon::utils::TdcVariables<1>+;
+#pragma link C++ class dragon::utils::AdcVariables<dragon::IonChamber::MAX_CHANNELS>+;
+#pragma link C++ class dragon::utils::TdcVariables<1>+;
+#pragma link C++ class dragon::utils::AdcVariables<dragon::SurfaceBarrier::MAX_CHANNELS>+;
+#pragma link C++ class dragon::utils::AdcVariables<dragon::NaI::MAX_CHANNELS>+;
+#pragma link C++ class dragon::utils::AdcVariables<1>+;
 
+#pragma link C++ class dragon::Constants+;
 
 #endif

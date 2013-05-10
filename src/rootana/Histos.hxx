@@ -191,9 +191,9 @@ inline rootana::Hist<T>::~Hist()
 template <class T>
 inline rootana::Hist<T>::Hist(const Hist& other)
 {
-	fParamx = new DataPointer(other.fParamx);
-	fParamy = new DataPointer(other.fParamy);
-	fParamz = new DataPointer(other.fParamz);
+	fParamx = new DataPointerT<T>(other.fParamx);
+	fParamy = new DataPointerT<T>(other.fParamy);
+	fParamz = new DataPointerT<T>(other.fParamz);
 	fHist   = new T (*(other.fHist));
 	fHistOwner = fHist->GetDirectory();
 }
@@ -201,9 +201,9 @@ inline rootana::Hist<T>::Hist(const Hist& other)
 template <class T>
 inline rootana::Hist<T>& rootana::Hist<T>::operator= (const Hist& other)
 {
-	fParamx = new DataPointer(other.fParamx);
-	fParamy = new DataPointer(other.fParamy);
-	fParamz = new DataPointer(other.fParamz);
+	fParamx = new DataPointerT<T>(other.fParamx);
+	fParamy = new DataPointerT<T>(other.fParamy);
+	fParamz = new DataPointerT<T>(other.fParamz);
 	fHist   = new T (*(other.fHist));
 	fHistOwner = fHist->GetDirectory();
 	return *this;
@@ -239,7 +239,7 @@ template <>
 inline Int_t rootana::Hist<TH1D>::fill()
 {
 	/*! Fills the histogram if x param is valid and fCut is satisfied */
-	if ( utils::is_valid(fParamx->get()) && apply_cut() )
+	if ( dragon::utils::is_valid(fParamx->get()) && apply_cut() )
 		return fHist->Fill (fParamx->get());
 	else return 0;
 }
@@ -249,7 +249,7 @@ template <>
 inline Int_t rootana::Hist<TH2D>::fill()
 {
 	/*! Fills the histogram if x,y params are valid and fCut is satisfied */
-	if ( utils::is_valid(fParamx->get(), fParamy->get()) && apply_cut() )
+	if ( dragon::utils::is_valid(fParamx->get(), fParamy->get()) && apply_cut() )
 		return fHist->Fill (fParamx->get(), fParamy->get());
 	else return 0;
 }
@@ -259,7 +259,7 @@ template<>
 inline Int_t rootana::Hist<TH3D>::fill()
 {
 	/*! Fills the histogram if x,y,z params are valid and fCut is satisfied */
-	if (utils::is_valid(fParamx->get(), fParamy->get(), fParamz->get()) && apply_cut() )
+	if (dragon::utils::is_valid(fParamx->get(), fParamy->get(), fParamz->get()) && apply_cut() )
 		return fHist->Fill (fParamx->get(), fParamy->get(), fParamz->get());
 	else return 0;
 }
@@ -342,7 +342,7 @@ inline Int_t rootana::SummaryHist::fill()
 	Int_t filled = 0;
 	if (!apply_cut()) return filled;
 	for (Int_t bin = 0; bin < fHist->GetYaxis()->GetNbins(); ++bin) {
-		if (utils::is_valid(fParamx->get(bin))) {
+		if (dragon::utils::is_valid(fParamx->get(bin))) {
 			fHist->Fill (fParamx->get(bin), bin);
 			filled = 1;
 		}

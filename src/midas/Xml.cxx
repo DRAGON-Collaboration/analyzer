@@ -25,13 +25,13 @@ midas::Xml::Xml(const char* filename):
 	gSystem->ExpandPathName(fnameExp);
 	const char* fname2 = fnameExp.Data();
 #else
-	const char* fname2 = filename;
+	const char* fname2 = filename ? filename : "0x0";
 #endif
 
 	char err[256]; int err_line;
 	fTree = ParseFile(fname2, err, sizeof(err), &err_line);
 	if(!fTree) {
-		std::cerr << "Error: Bad XML file: " << fname2 << ", error message: " <<
+		std::cerr << "Error: Bad XML file: " << filename << ", error message: " <<
 			 err << ", error line: " << err_line << "\n";
 		fIsZombie = true;
 		return;
@@ -171,6 +171,7 @@ midas::Xml::Node midas::Xml::ParseFile(const char* file_name, char *error, int e
 	fBuffer[length] = 0;
 	fclose(f);
 
+	// The following lines leak memory and I am not sure why they were ever there!!
 	// if (mxml_parse_entity(&fBuffer, file_name, error, error_size, error_line) != 0) {
 	// 	// delete[] fBuffer;
 	// 	return NULL;
@@ -180,6 +181,13 @@ midas::Xml::Node midas::Xml::ParseFile(const char* file_name, char *error, int e
 
 	return root;
 
+}
+
+void midas::Xml::Dump(std::ostream& strm)
+{
+	strm << "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n"
+			 << "<!-- created by midas::Xml::Dump -->\n"
+			 << fBuffer;
 }
 
 midas::Xml::Node midas::Xml::ParseBuffer(char* buf, int length, char *error, int error_size, int *error_line)
@@ -206,6 +214,7 @@ midas::Xml::Node midas::Xml::ParseBuffer(char* buf, int length, char *error, int
 	}
 
 	char* pxml = &fBuffer[startPos];
+	// The following lines leak memory and I'm not sure why they were ever there!
 	// if (mxml_parse_entity(&pxml, "", error, error_size, error_line) != 0) {
 	// 	return NULL;
 	// }
@@ -250,21 +259,21 @@ std::string get_xml_path(const char* path, const char* node_type) {
 	return xmlPath.str();
 } }
 
-midas::Xml::Node midas::Xml::FindKey(const char* path)
+midas::Xml::Node midas::Xml::FindKey(const char* path, bool silent)
 {
 	if(!Check()) return 0;
 	Node out = mxml_find_node(fOdb, get_xml_path(path, "key").c_str());
-	if(!out) {
+	if(!out && !silent) {
 		std::cerr << "Error: XML path: " << path << " was not found.\n";
 	}
 	return out;
 }
 
-midas::Xml::Node midas::Xml::FindKeyArray(const char* path)
+midas::Xml::Node midas::Xml::FindKeyArray(const char* path, bool silent)
 {
 	if(!Check()) return 0;
 	Node out = mxml_find_node(fOdb, get_xml_path(path, "keyarray").c_str());
-	if(!out) {
+	if(!out && !silent) {
 		std::cerr << "Error: XML path: " << path << " was not found.\n";
 	}
 	return out;

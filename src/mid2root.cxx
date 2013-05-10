@@ -8,6 +8,7 @@
 #ifdef USE_ROOT
 #include <vector>
 #include <string>
+#include <memory>
 #include <cassert>
 #include <algorithm>
 #include <iostream>
@@ -19,7 +20,7 @@
 #include "midas/libMidasInterface/TMidasFile.h"
 #include "midas/Database.hxx"
 #include "utils/definitions.h"
-#include "utils/Unpack.hxx"
+#include "Unpack.hxx"
 #include "Dragon.hxx"
 
 
@@ -33,6 +34,10 @@ const char* const msg_use =
 //
 /// Encloses mid2root helper functions
 namespace m2r {
+
+//
+// SKip documenting a bunch of internal stuff
+#ifndef DOXYGEN_SKIP
 
 typedef std::vector<std::string> strvector_t;
 
@@ -100,6 +105,8 @@ int GetQuietLevel()
 	return 0;
 }
 
+#endif
+
 /// Program options
 struct Options_t {
 	std::string fIn;
@@ -111,7 +118,7 @@ struct Options_t {
 };
 
 
-/// Print in=place event counter
+/// Print in-place event counter
 void static_counter(Int_t n, Int_t nupdate = 1000, bool force = false)
 {
 	if(n == 0) {
@@ -186,6 +193,7 @@ int help()
 }
 
 
+/// Parse command line arguments
 int process_args(int argc, char** argv, Options_t* options)
 {
 	strvector_t args(argv+1, argv+argc);
@@ -363,11 +371,12 @@ int main(int argc, char** argv)
 	
 	//
 	// Create TTrees, set branches, etc.
-	const int nIds = 7;
+	const int nIds = 8;
 
 	dragon::Head head;
 	dragon::Tail tail;
 	dragon::Coinc coinc;
+	dragon::Epics epics;
 	dragon::Scaler head_scaler;
 	dragon::Scaler tail_scaler;
 	dragon::RunParameters runpar;
@@ -379,6 +388,7 @@ int main(int argc, char** argv)
 		DRAGON_TAIL_EVENT,
 		DRAGON_TAIL_SCALER,
 		DRAGON_COINC_EVENT,
+		DRAGON_EPICS_EVENT,
 		DRAGON_TSTAMP_DIAGNOSTICS,
 		DRAGON_RUN_PARAMETERS
 	};
@@ -388,6 +398,7 @@ int main(int argc, char** argv)
 		"Tail singles event.",
 		"Tail scaler event.",
 		"Coincidence event.",
+		"Epics event.",
 		"Timestamp diagnostics.",
 		"Global run parameters."
 	};
@@ -397,6 +408,7 @@ int main(int argc, char** argv)
 		&tail,
 		&tail_scaler,
 		&coinc,
+		&epics,
 		&tsdiag,
 		&runpar
 	};
@@ -406,6 +418,7 @@ int main(int argc, char** argv)
 		"hi",
 		"sct",
 		"coinc",
+		"epics",
 		"tsdiag",
 		"runpar"
 	};
@@ -415,6 +428,7 @@ int main(int argc, char** argv)
 		"dragon::Tail",
 		"dragon::Scaler",
 		"dragon::Coinc",
+		"dragon::Epics",
 		"tstamp::Diagnostics",
 		"dragon::RunParameters"
 	};
@@ -427,8 +441,8 @@ int main(int argc, char** argv)
 		trees[i]->Branch(branchNames[i].c_str(), classNames[i].c_str(), &(addr[i]));
 	}
 
-	dragon::utils::Unpacker
-		unpack (&head, &tail, &coinc, &head_scaler, &tail_scaler, &runpar, &tsdiag, options.fSingles);
+	dragon::Unpacker
+		unpack (&head, &tail, &coinc, &epics, &head_scaler, &tail_scaler, &runpar, &tsdiag, options.fSingles);
 	
 	//
 	// Set coincidence variables
@@ -458,6 +472,11 @@ int main(int argc, char** argv)
 	unpack.HandleBor(options.fOdb.c_str());
 
 	//
+	// ODB parameters
+	std::auto_ptr<midas::Database> db0(0); // run start
+	std::auto_ptr<midas::Database> db1(0); // run stop
+	
+	//
 	// Loop over events in the midas file
 	int nnn = 0;
 	while (1) {
@@ -466,6 +485,15 @@ int main(int argc, char** argv)
 		TMidasEvent temp;
 		bool success = fin.Read(&temp);
 		if (!success) break;
+
+		//
+		// Read ODB tree if MIDAS_EOR buffer
+		if (temp.GetEventId() == MIDAS_BOR) {
+			db0.reset(new midas::Database(temp.GetData(), temp.GetDataSize()));
+		}
+		else if (temp.GetEventId() == MIDAS_EOR) {
+			db1.reset(new midas::Database(temp.GetData(), temp.GetDataSize()));
+		}
 
 		//
 		// Unpack into our classes
@@ -496,25 +524,42 @@ int main(int argc, char** argv)
 			for (int i=0; i< nIds; ++i) {
 				std::vector<Int_t>::iterator it =
 					std::find(which.begin(), which.end(), eventIds[i]);
-				if(it != which.end())
+				if(it != which.end()) {
 					trees[i]->Fill();
-			}			
+				}
+			}
 		} 
 	}
 
 	m2r::cout << "\nDone!\n\n";
 
 	//
-	// Write trees, variables to file, cleanup
+	// Write trees to file.
 	for (int i=0; i< nIds; ++i) {
 		trees[i]->GetCurrentFile();
 		trees[i]->AutoSave();
 		trees[i]->ResetBranchAddresses();
 	}
-
+	//
+	// Write run start ODB variables
+	if(db0.get()) {
+		db0->SetNameTitle("odbstart", "ODB tree at run start.");
+		db0->Write("odbstart");
+	}
+	//
+	// Write run stop ODB variables
+	if(db1.get()) {
+		db1->SetNameTitle("odbstop", "ODB tree at run stop.");
+		db1->Write("odbstop");
+	}
+	//
+	// Write variables actually used in analysis
 	midas::Database db(options.fOdb.c_str());
+	db.SetNameTitle("variables", "ODB tree used in analysis.");
 	db.Write("variables");
 
+	//
+	// Close output file
 	fout.Close();
 }
 

@@ -16,10 +16,8 @@
 #ifndef G__DICTIONARY
 /// Provide 'extern' linkage except in CINT dictionary
 #define EXTERN extern
-#define CREATE_SCALER_ARG(symbol, arg) extern dragon::Scaler symbol
 #else
 #define EXTERN
-#define CREATE_SCALER_ARG(symbol, arg)        dragon::Scaler symbol(arg)
 #endif
 
 namespace rootana {
@@ -37,10 +35,13 @@ EXTERN dragon::Tail gTail;
 EXTERN dragon::Coinc gCoinc;
 
 /// Global head scaler class
-CREATE_SCALER_ARG(gHeadScaler, "head");
+EXTERN dragon::Scaler gHeadScaler;
 
 /// Global tail scaler class
-CREATE_SCALER_ARG(gTailScaler, "tail");
+EXTERN dragon::Scaler gTailScaler;
+
+/// Global epics clas
+EXTERN dragon::Epics gEpics;
 
 }
 

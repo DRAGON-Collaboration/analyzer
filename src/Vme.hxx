@@ -14,7 +14,6 @@
 /// Sets the maximum number of recorded TDC hits in a single event
 #define DRAGON_TDC_MAX_HITS 5
 
-
 namespace midas { class Event; }
 
 
@@ -95,8 +94,6 @@ public: // Constants
 	static const uint16_t EXTENDED_TRIGGER_TIME = 0x11;
 	/// Number of data channels available in the TDC
 	static const uint16_t MAX_CHANNELS          = 64;
-	/// Maximum number of hits (head + tail) in a channel
-	static const uint16_t MAX_HITS = DRAGON_TDC_MAX_HITS;
 
 public: // Methods
 	/// Calls reset()
@@ -123,7 +120,7 @@ public: // Data
 	int16_t bunch_id;
 	/// Module status
 	int16_t status;
-	/// \briefMeasurement type
+	/// \brief Measurement type
 	/// \details 0 = leading, 1 = trailing
 	int16_t type;
 	/// Extended trigger time
@@ -142,15 +139,43 @@ private: // Internal routines
 public: // Subclasses
 /// Encloses measurement data for a single v1190 TDC channel
 	struct Channel {
-		int32_t leading_edge[DRAGON_TDC_MAX_HITS];  ///< Array of leading-egde hit times
-		int32_t trailing_edge[DRAGON_TDC_MAX_HITS]; ///< Array of trailing-edge hit times
-		int16_t nleading;                           ///< Number of leading-edge hits
-		int16_t ntrailing;                          ///< Number of trailing-edge hits
+    /// Number of leading-edge hits in the current event
+		int32_t nleading;
+    /// Number of trailing-edge hits in the current event
+		int32_t ntrailing;
+		/// Temporary storage of leading edge hits
+		std::vector<int32_t> fLeading;  //!
+		/// Temporary storage of trailing edge hits
+		std::vector<int32_t> fTrailing; //!
 	};
 
+	/// Holds measurement information in a first-in-first-out structure
+	/*!
+	 * \todo Explain reason for using this as the transient way of storing data
+	 *  (TTree::Draw doesn't handle arrays of vectors, apparently).
+	 */
+	class Fifo {
+ public:
+		/// Append another measurement
+		void push_back(int32_t measurement_, int16_t channel_, int16_t number_);
+		/// Clear all vectors
+		void clear();
+ public:
+		/// FIFO measurement values
+		std::vector<uint32_t> measurement;
+		/// FIFO channel numbers
+		std::vector<uint16_t> channel;
+		/// FIFO numner of mesurement per `channel`
+		std::vector<uint16_t> number;
+	};
+	
 public: // Subclass instances
-	/// Array of all measurement channels
-	Channel channel[MAX_CHANNELS];
+	/// Array of all measurement channels (not transient)
+	Channel channel[MAX_CHANNELS]; //!
+	/// Leading edge measurements
+	Fifo fifo0;
+	/// Trailing edge measurements
+	Fifo fifo1;
 };
 
 ///

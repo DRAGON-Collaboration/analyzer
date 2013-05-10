@@ -1,4 +1,7 @@
 ##
+## Edit this file to change the histograms that will be displayed in ROODY.
+## Then restart the program 'anaDragon'.
+##
 ## Standard DRAGON histograms for the rootana analyzer.
 ##
 ## EXAMPLE COMMAND ##
@@ -19,74 +22,16 @@
 # END:
 
 
-DIR:
-histos/event/tstamp/diagnostics
-
-
-TH1D:
-	("time_diff", "trig_time - earliest in queue [us]", 1000, 0, 20e6)
-	rootana::gDiagnostics.time_diff;
-
-TH1D:
-	("coinc_rate", "Coincidence Rate;rate [/sec];Counts", 500, 0, 1000)
-	rootana::gDiagnostics.coinc_rate
-
-	
-## Head IO32
-DIR:
-histos/event/gamma/io32
-
-TH1D:
-       ("busy_time", "Head busy time;Busy time [ns/50];Counts", 1000, 0, 10000)
-       rootana::gHead.io32.busy_time
-       
-TH1D:
-       ("trigger_channel", "Head trigger channel;Channel;Counts", 8, 0, 8)
-       rootana::gHead.io32.which_trigger
-       
-SCALER:
-        ("trig_time", "tsc4 trigger time;Event; time [us]", 5000, 0, 5000)
-        rootana::gHead.io32.tsc4.trig_time;
-
-
-## Tail IO32
-DIR:
-histos/event/hion/io32
-
-TH1D:
-       ("busy_time", "Tail busy time; Busy time [ns/50];Counts", 1000, 0, 10000)
-       rootana::gTail.io32.busy_time
-
-TH1D:
-       ("trigger_channel", "Tail trigger channel;Channel;Counts", 8, 0, 8)
-       rootana::gTail.io32.which_trigger
-
-
-## Coinc IO32
-DIR:
-histos/event/coinc/gamma/io32
-
-TH1D:
-       ("trigger_channel", "Head trigger channel;Channel;Counts", 8, 0, 8)
-       rootana::gHead.io32.which_trigger
-
-histos/event/coinc/hion/io32
-TH1D:
-       ("trigger_channel", "Tail trigger channel;Channel;Counts", 8, 0, 8)
-       rootana::gTail.io32.which_trigger
-
-
-
 ## BGO SINGLES ##
 DIR:
 histos/event/gamma/bgo
 
 TH1D:
-	("bgoZ", "Bgo Z position;z0 [mm];Counts",100, -200, 200)
+	("bgoZ", "Bgo Z position;z0 [mm];Counts",100, -20, 20)
 	rootana::gHead.bgo.z0
 
 SUMMARY:
- 	("bgoE", "Bgo chan vs. Energy;Energy [keV/10];Detector Number", 256, 0, 4096)
+ 	("bgoE", "Bgo chan vs. Energy;Energy [keV/10];Detector Number", 200, 0, 10)
  	rootana::gHead.bgo.ecal
 	30
 
@@ -96,19 +41,15 @@ TH1D:
 CUT:
 	Greater(rootana::gHead.bgo.esort[0], 0)
 
-TH1D:
-("e0", "", 500, 0, 5000)
-rootana::gHead.bgo.ecal[0]
-
 TH2D:
-	("bgoE0", "BGO_{0} Channel vs. Energy;Energy [keV/10];Detector Number", 256, 0, 4096, 30, 0, 30)
+	("bgoE0", "BGO_{0} Channel vs. Energy;Energy [keV/10];Detector Number", 200, 0, 10, 30, 0, 30)
 	rootana::gHead.bgo.esort[0]
 	rootana::gHead.bgo.hit0
-CUT:
-	Greater(rootana::gHead.bgo.esort[0], 0)
+# CUT:
+# 	Greater(rootana::gHead.bgo.esort[0], 0)
 
 TH2D:
-	("bgoE0E1", "BGO_{1} vs. BGO_{0};E0 [keV/10];E1 [keV/10]", 256, 0, 4096, 256, 0, 4096)
+	("bgoE0E1", "BGO_{1} vs. BGO_{0};E0 [keV/10];E1 [keV/10]", 200, 0, 10, 200, 0, 10)
 	rootana::gHead.bgo.esort[0]
 	rootana::gHead.bgo.esort[1]
 CUT:
@@ -120,13 +61,17 @@ DIR:
 histos/event/hion/dsssd
 
 SUMMARY:
-	("dsssdE", "DSSSD channel vs. Energy;Energy [keV];Channel", 200, 0, 20000)
+	("dsssdE", "DSSSD channel vs. Energy;Energy [keV];Channel", 256, 0, 4096)
 	rootana::gTail.dsssd.ecal
 	32
 
 TH1D:
-	("dsssdT", "DSSSD time;TDC [arb.];Counts", 200, 0, 20000)
-	rootana::gTail.dsssd.tcal
+	("dsssd_tfront", "DSSSD time (front strips);TDC [arb.];Counts", 200, 0, 20000)
+	rootana::gTail.dsssd.tfront
+
+TH1D:
+	("dsssd_tback", "DSSSD time (back strips);TDC [arb.];Counts", 200, 0, 20000)
+	rootana::gTail.dsssd.tback
 
 TH2D:
         ("dsssdEfront_mcpTAC", "DSSSD Efront vs. MCP TAC", 256, 0, 4096, 200, 0, 20000)
@@ -164,8 +109,8 @@ CUT:
         Greater(rootana::gTail.ic.anode[0], 0) && Greater(rootana::gTail.ic.anode[1], 0)
 
 TH1D:
-	("icT", "IC time;TDC [arb.];Counts", 200, 0, 20000)
-	rootana::gTail.ic.tcal
+	("ic_t0", "IC time (ch. 0);TDC [arb.];Counts", 200, 0, 20000)
+	rootana::gTail.ic.tcal[0]
 
 TH2D:
         ("icSum_mcpTAC", "IC anode sum vs. MCP TAC", 256, 0, 4096, 200, 0, 20000)
@@ -251,16 +196,12 @@ DIR:
 histos/event/coinc/bgo
 
 TH1D:
-	("e0", "", 500, 0, 5000)
-	rootana::gCoinc.head.bgo.ecal[0]
-
-
-TH1D:
-	("bgoZ", "Bgo Z position;z0 [mm];Counts",100, -200, 200)
+	("bgoZ", "Bgo Z position;z0 [mm];Counts", 100, -20, 20)
 	rootana::gCoinc.head.bgo.z0
+	Greater(rootana::gCoinc.head.bgo.esort[0], 0)
 
 SUMMARY:
- 	("bgoE", "Bgo chan vs. Energy;Energy [keV/10];Detector Number", 256, 0, 4096)
+ 	("bgoE", "Bgo chan vs. Energy;Energy [keV/10];Detector Number", 200, 0, 10)
  	rootana::gCoinc.head.bgo.ecal
 	30
 
@@ -271,14 +212,14 @@ CUT:
 	Greater(rootana::gCoinc.head.bgo.hit0, 0)
 
 TH2D:
-	("bgoE0", "BGO_{0} Channel vs. Energy;Energy [keV/10];Detector Number", 256, 0, 4096, 30, 0, 30)
+	("bgoE0", "BGO_{0} Channel vs. Energy;Energy [keV/10];Detector Number", 200, 0, 10, 30, 0, 30)
 	rootana::gCoinc.head.bgo.esort[0]
 	rootana::gCoinc.head.bgo.hit0
 CUT:
 	Greater(rootana::gCoinc.head.bgo.esort[0], 0)
 
 TH2D:
-	("bgoE0E1", "BGO_{1} vs. BGO_{0};E0 [keV/10];E1 [keV/10]", 256, 0, 4096, 256, 0, 4096)
+	("bgoE0E1", "BGO_{1} vs. BGO_{0};E0 [keV/10];E1 [keV/10]", 200, 0, 10, 200, 0, 10)
 	rootana::gCoinc.head.bgo.esort[0]
 	rootana::gCoinc.head.bgo.esort[1]
 CUT:
@@ -290,23 +231,27 @@ DIR:
 histos/event/coinc/dsssd
 
 SUMMARY:
-	("dsssdE", "DSSSD channel vs. Energy;Energy [keV];Channel", 200, 0, 20000)
+	("dsssdE", "DSSSD channel vs. Energy;Energy [keV];Channel", 256, 0, 4096)
 	rootana::gCoinc.tail.dsssd.ecal
 	32
 
 TH1D:
-	("dsssdT", "DSSSD time;TDC [arb.];Counts", 200, 0, 20000)
-	rootana::gCoinc.tail.dsssd.tcal
+	("dsssd_tfront", "DSSSD time (front strips);TDC [arb.];Counts", 200, 0, 20000)
+	rootana::gCoinc.tail.dsssd.tfront
+
+TH1D:
+	("dsssd_tfront", "DSSSD time (front strips);TDC [arb.];Counts", 200, 0, 20000)
+	rootana::gCoinc.tail.dsssd.tback
 
 TH2D:
-        ("dsssdEfront_mcpTAC", "DSSSD Efront vs. MCP TAC", 256, 0, 4096, 200, 0, 20000)
+        ("dsssdEfront_mcpTAC", "DSSSD Efront vs. MCP TAC", 256, 0, 4096, 200, 0, 20)
 	rootana::gCoinc.tail.mcp.tac
 	rootana::gCoinc.tail.dsssd.efront
 CUT:
         Greater(rootana::gCoinc.tail.mcp.tac, 0) && Greater(rootana::gCoinc.tail.dsssd.efront, 0)
 
 TH2D:
-        ("dsssdEback_mcpTAC", "DSSSD Eback vs. MCP TAC", 256, 0, 4096, 200, 0, 20000)
+        ("dsssdEback_mcpTAC", "DSSSD Eback vs. MCP TAC", 256, 0, 4096, 200, 0, 20)
 	rootana::gCoinc.tail.mcp.tac
 	rootana::gCoinc.tail.dsssd.eback
 CUT:
@@ -334,8 +279,8 @@ CUT:
         Greater(rootana::gCoinc.tail.ic.anode[0], 0) && Greater(rootana::gCoinc.tail.ic.anode[1], 0)
 
 TH1D:
-	("icT", "IC time;TDC [arb.];Counts", 200, 0, 20000)
-	rootana::gCoinc.tail.ic.tcal
+	("ic_t0", "IC time (ch 0);TDC [arb.];Counts", 200, 0, 20000)
+	rootana::gCoinc.tail.ic.tcal[0]
 
 TH2D:
         ("icSum_mcpTAC", "IC anode sum vs. MCP TAC", 256, 0, 4096, 200, 0, 20000)
@@ -421,27 +366,95 @@ CUT:
 
 
 ## Crossover TOF ##
+# DIR:
+# histos/event/xtof
+
+# TH1D:
+#         ("xtof_head", "Crossover TOF (bgo->tail trig., measured by head TDC);ToF [arb.];Counts", 500, 0, 10000)
+# 	rootana::gCoinc.head.tof.gamma_tail
+# CUT:
+#         IsValid(rootana::gCoinc.head.tof.gamma_tail)
+
+# TH1D:
+#         ("gamma_ic", "Crossover TOF (BGO->ic, measured by tail TDC);ToF [arb.];Counts", 500, 0, 10000)
+# 	rootana::gCoinc.tail.tof.gamma_ic
+# CUT:
+#         IsValid(rootana::gCoinc.tail.tof.gamma_ic)
+
+# TH1D:
+#         ("gamma_dsssd", "Crossover TOF (BGO->dsssd, measured by tail TDC);ToF [arb.];Counts", 500, 0, 10000)
+# 	rootana::gCoinc.tail.tof.gamma_dsssd
+# CUT:
+#         IsValid(rootana::gCoinc.tail.tof.gamma_dsssd)
+
+
 DIR:
-histos/event/xtof
+histos/event/tstamp/diagnostics
+
 
 TH1D:
-        ("xtof_head", "Crossover TOF (bgo->tail trig., measured by head TDC);ToF [arb.];Counts", 500, 0, 10000)
-	rootana::gCoinc.head.tof.gamma_tail
-CUT:
-        IsValid(rootana::gCoinc.head.tof.gamma_tail)
+	("time_diff", "trig_time - earliest in queue [us]", 1000, 0, 20e6)
+	rootana::gDiagnostics.time_diff;
 
 TH1D:
-        ("gamma_ic", "Crossover TOF (BGO->ic, measured by tail TDC);ToF [arb.];Counts", 500, 0, 10000)
-	rootana::gCoinc.tail.tof.gamma_ic
-CUT:
-        IsValid(rootana::gCoinc.tail.tof.gamma_ic)
+	("coinc_rate", "Coincidence Rate;rate [/sec];Counts", 500, 0, 1000)
+	rootana::gDiagnostics.coinc_rate
+
+	
+## Head IO32
+DIR:
+histos/event/gamma/io32
 
 TH1D:
-        ("gamma_dsssd", "Crossover TOF (BGO->dsssd, measured by tail TDC);ToF [arb.];Counts", 500, 0, 10000)
-	rootana::gCoinc.tail.tof.gamma_dsssd
-CUT:
-        IsValid(rootana::gCoinc.tail.tof.gamma_dsssd)
+       ("busy_time", "Head busy time;Busy time [ns/50];Counts", 1000, 0, 10000)
+       rootana::gHead.io32.busy_time
+       
+TH1D:
+       ("trigger_channel", "Head trigger channel;Channel;Counts", 8, 0, 8)
+       rootana::gHead.io32.which_trigger
+       
+SCALER:
+        ("trig_time", "tsc4 trigger time;Event; time [us]", 5000, 0, 5000)
+        rootana::gHead.io32.tsc4.trig_time;
 
+
+## Tail IO32
+DIR:
+histos/event/hion/io32
+
+TH1D:
+       ("busy_time", "Tail busy time; Busy time [ns/50];Counts", 1000, 0, 10000)
+       rootana::gTail.io32.busy_time
+
+TH1D:
+       ("trigger_channel", "Tail trigger channel;Channel;Counts", 8, 0, 8)
+       rootana::gTail.io32.which_trigger
+
+
+## Coinc IO32
+DIR:
+histos/event/coinc/gamma/io32
+
+TH1D:
+       ("trigger_channel", "Head trigger channel;Channel;Counts", 8, 0, 8)
+       rootana::gHead.io32.which_trigger
+
+histos/event/coinc/hion/io32
+TH1D:
+       ("trigger_channel", "Tail trigger channel;Channel;Counts", 8, 0, 8)
+       rootana::gTail.io32.which_trigger
+
+
+## EPICS
+DIR:
+histos/event/epics
+
+TH1D:
+      ("value", "EPICS Chan 0", 200, 0, 10)
+      rootana::gEpics.val
+CUT:
+      Equal(rootana::gEpics.ch, 0)
+      
 
 ## Head Scalers ##
 DIR:

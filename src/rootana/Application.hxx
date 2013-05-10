@@ -39,8 +39,8 @@ private:
 	std::string fExpt;          ///< Online experiment name
 	std::string fHistos;        ///< Histogram specification file (online + file)
 	std::string fHistosOnline;  ///< Histogram specification file (online only)
-	rootana::OfflineDirectory fOutputFile;      ///< Online/offline histograms
-	rootana::OnlineDirectory fOnlineHists;      ///< Online-only histograms
+	std::auto_ptr<rootana::OfflineDirectory> fOutputFile;      ///< Online/offline histograms
+	std::auto_ptr<rootana::OnlineDirectory>  fOnlineHists;     ///< Online-only histograms
 	std::auto_ptr<midas::Database> fOdb;        ///< Online/offline database
 	std::auto_ptr<tstamp::Queue> fQueue;        ///< Timestamping queue
 	std::auto_ptr<MidasOnline> fMidasOnline;    ///< "Online midas" instance

@@ -119,7 +119,7 @@ public:
 		{ return new Validity(*this); }
 	/// Checks if fV1 is valid
 	bool operator() () const
-		{ return utils::is_valid(fV1); }
+		{ return dragon::utils::is_valid(fV1); }
 };
 
 
@@ -388,7 +388,7 @@ inline Condition2D<T1, T2>::Condition2D(const T1& xpar, const T2& ypar, ROOTANA_
 	if (fXpoints.size() && fYpoints.size()) {
 		if ( (*(fXpoints.end()-1) != *(fXpoints.begin())) ||
 				 (*(fYpoints.end()-1) != *(fYpoints.begin())) ) {
-			utils::err::Warning("Condition2D") << "Non-closed polygon specification, points:";
+			dragon::utils::Warning("Condition2D") << "Non-closed polygon specification, points:";
 			for (size_t i=0; i< fXpoints.size()-1; ++i) {
 				std::cerr << "(" << fXpoints.at(i) << ", " << fYpoints.at(i) << "), ";
 			}
@@ -396,7 +396,7 @@ inline Condition2D<T1, T2>::Condition2D(const T1& xpar, const T2& ypar, ROOTANA_
 		}
 	}
 	else {
-		utils::err::Warning("Condition2D") << "Empty polygon specification";
+		dragon::utils::Warning("Condition2D") << "Empty polygon specification";
 	}
 }
 
@@ -435,7 +435,7 @@ template <class T1, class T2>
 inline rootana::Cut GreaterEqual(const T1& v1, const T2& v2)
 { rootana::Cut c_(new rootana::Equivalency<T1, T2, std::greater_equal<double> >(v1, v2)); return c_; }
 
-/// Checks if a parameter is valid, using utils::is_valid()
+/// Checks if a parameter is valid, using dragon::utils::is_valid()
 template <class T1>
 inline rootana::Cut IsValid(const T1& v1)
 { rootana::Cut c_(new rootana::Validity<T1>(v1)); return c_; }

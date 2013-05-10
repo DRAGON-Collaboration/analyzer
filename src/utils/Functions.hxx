@@ -3,16 +3,37 @@
 /// \brief Defines some functions commonly used in processing data
 #ifndef DRAGON_UTILS_FUNCTIONS_HXX
 #define DRAGON_UTILS_FUNCTIONS_HXX
+#ifndef __MAKECINT__ // Hide from CINT
 #include <stdint.h>
 #include <functional>
 #include "Bits.hxx"
 #include "Valid.hxx"
 
 
+#ifndef DOXYGEN_SKIP
+namespace midas { typedef char Bank_t[4]; }
+#endif
+
 namespace dragon {
 
 /// Encloses various 'utility' functions
 namespace utils {
+
+
+/// Sets a MIDAS bank name
+inline void set_bank_name(const midas::Bank_t from, midas::Bank_t to)
+{
+	/*!
+	 * \param [in] from Array of 4 `char`s containing the desired bank name.
+	 * \param [out] to Array of 4 `char`s to populate with the desired bank name.
+	 * \note The MIDAS banks are arrays of 4 `char` _only_, not a "length 4 string",
+	 *  which would also include a 5th NULL `char`.
+	 * \attention It is the user's responsibility to ensire that the arrays are properly
+	 *  allocated.
+	 */
+	std::copy (from, from + 4, to);
+}
+
 
 /// Calculates time-of-flight if both parameters are valid
 template <class T1, class T2>
@@ -380,11 +401,10 @@ inline void transform(T& output, TR transform)
  * \endcode
  */
 template <class T, class V>
-inline void pedestal_subtract(T& value, const V& variables, int suppress = 0)
+inline void pedestal_subtract(T& value, const V& variables)
 {
 	if(is_valid(value) == false) return;		
 	value -= variables.pedestal; // shift
-	if(value < suppress) value = 0; // suppress
 }
 
 /// Perform pedestal subtraction on an array
@@ -406,12 +426,11 @@ inline void pedestal_subtract(T& value, const V& variables, int suppress = 0)
  * \endcode
  */
 template <class T, class L, class V>
-inline void pedestal_subtract(T* array, L length, const V& variables, int suppress = 0)
+inline void pedestal_subtract(T* array, L length, const V& variables)
 {
 	for (L i=0; i< length; ++i) {
 		if(is_valid(array[i]) == false) continue;
 		array[i] -= variables.pedestal[i]; // shift
-		if(array[i] < suppress) array[i] = 0; // suppress
 	}
 }
 
@@ -441,6 +460,71 @@ inline void linear_calibrate(T* array, L length, const V& variables)
 	for (L i=0; i< length; ++i) {
 		if(is_valid(array[i]))
 			array[i] = variables.offset[i] + array[i] * variables.slope[i];
+	}
+}
+
+/// Perform zero suppression on a single value
+/*!
+ * \param [out] value Value to zero-suppress
+ * \param [in] threshold Zero suppression threshold
+ *
+ *      if(value < threshold) value = 0;
+ *
+ * \tparam T type of the value to zero-suppress
+ * \tparam T2 Type of the threshold value
+ */
+template <class T, class T2>
+inline void zero_suppress(T& value, const T2& threshold)
+{
+	if(is_valid(value) == false) return;
+	if(value < threshold) value = 0;
+}
+
+/// Perform zero suppression on an array
+/*!
+ * \param [out] values Array of values to zero-suppress
+ * \param [in] thresholds Array of zero suppression thresholds
+ * \param [in] length Length of both arrrays
+ *
+ *      for(L i=0; i< length; ++i) {
+ *        if(values[i] < thresholds[i])
+ *          values[i] = 0;
+ *      }
+ *
+ * \tparam T type of the value to zero-suppress
+ * \tparam T2 Type of the threshold value
+ * \tparam L Type of the length parameter
+ */
+template <class T, class T2, class L>
+inline void zero_suppress(T* values, L length, const T2* thresholds)
+{
+	for(L i=0; i< length; ++i) {
+		if(is_valid(values[i]) == false) continue;
+		if(values[i] < thresholds[i]) values[i] = 0;
+	}
+}
+
+/// Perform zero suppression on an array with a single suppression value
+/*!
+ * \param [out] values Array of values to zero-suppress
+ * \param [in] thresholds Zero suppression threshold for the whole array
+ * \param [in] length Length of _values_
+ *
+ *      for(L i=0; i< length; ++i) {
+ *        if(values[i] < threshold)
+ *          values[i] = 0;
+ *      }
+ *
+ * \tparam T type of the value to zero-suppress
+ * \tparam T2 Type of the threshold value
+ * \tparam L Type of the length parameter
+ */
+template <class T, class T2, class L>
+inline void zero_suppress1(T* values, L length, const T2& threshold)
+{
+	for(L i=0; i< length; ++i) {
+		if(is_valid(values[i]) == false) continue;
+		if(values[i] < threshold) values[i] = 0;
 	}
 }
 
@@ -551,6 +635,20 @@ inline void polynomial_calibrate(int order, T& value, const V& variables)
 
 } // namespace dragon
 
+/// Macro to turn a #define into a string literal
+/*!
+ * Example:
+ * \code
+ * #define A_MACRO filename.txt
+ * std::cout "The name of the file is: " << DRAGON_UTILS_STRINGIFY(A_MACRO) << "\n";
+ * \endcode
+ *
+ * Result: "The name of the file is filename.txt"
+ */
+#define DRAGON_UTILS_STRINGIFY(S) DRAGON_UTILS_STRINGIFY_HELPER (S)
 
+/// Helper macro for DRAGON_UTILS_STRINGIFY
+#define DRAGON_UTILS_STRINGIFY_HELPER(S) #S
 
+#endif
 #endif

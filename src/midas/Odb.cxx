@@ -19,7 +19,7 @@ HNDLE midas::Odb::GetHandle()
 	int hndle;
 	cm_get_experiment_database(&hndle, 0);
 	if (hndle == 0)
-		dragon::utils::err::Error("midas::Odb") << "Not connected to an experiment.";
+		dragon::utils::Error("midas::Odb") << "Not connected to an experiment.";
 
 	return hndle;
 }
@@ -148,11 +148,11 @@ int midas::Odb::ReadArraySize(const char*name)
 
   status = db_find_key (GetHandle(), hdir, (char*)name, &hkey);
   if (status != SUCCESS)
-		 return 0;
+		 return -1;
 
   status = db_get_key(GetHandle(), hkey, &key);
   if (status != SUCCESS)
-		 return 0;
+		 return -1;
 
   return key.num_values;
 }

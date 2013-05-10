@@ -1,5 +1,6 @@
+rbconfig
+doc/Doxyfile.bak
 anaDragon
-*.png
 gmon.out
 *.root
 cint/DragonDictionary.cxx
@@ -30,3 +31,5 @@ lib/.*
 .nfs*
 bin/*
 test.xml
+examples/*.d
+examples/*.so

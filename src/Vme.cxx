@@ -1,5 +1,5 @@
 ///
-/// \file Io32.cxx
+/// \file Vme.cxx
 /// \author G. Christian
 /// \brief Implements Vme.hxx
 ///
@@ -56,7 +56,7 @@ bool vme::Io32::unpack(const midas::Event& event, const char* bankName, bool rep
 	if (!pdata32) return false;
 
 	if (bank_len != expected_bank_len) {
-		dragon::utils::err::Error("vme::Io32::unpack") <<
+		dragon::utils::Error("vme::Io32::unpack") <<
 			"Bank length: " << bank_len << " != 8, skipping..." << DRAGON_ERR_FILE_LINE;
 		return false;
 	}
@@ -88,16 +88,33 @@ vme::V1190::V1190()
 
 namespace { inline void reset_channel(vme::V1190::Channel* channel)
 {
-		dragon::utils::reset_array(vme::V1190::MAX_HITS, channel->leading_edge);
-		dragon::utils::reset_array(vme::V1190::MAX_HITS, channel->trailing_edge);
-		channel->nleading  = 0;
-		channel->ntrailing = 0;
+	channel->nleading  = 0;
+	channel->ntrailing = 0;
+	channel->fLeading.clear();
+	channel->fTrailing.clear();
 } }	
+
+void vme::V1190::Fifo::push_back(int32_t measurement_, int16_t channel_, int16_t number_)
+{
+	measurement.push_back(measurement_);
+	channel.push_back(channel_);
+	number.push_back(number_);
+}
+
+void vme::V1190::Fifo::clear()
+{
+	measurement.clear();
+	channel.clear();
+	number.clear();
+}
 
 void vme::V1190::reset()
 {
 	for (int ch = 0; ch < MAX_CHANNELS; ++ch)
 		::reset_channel( &(channel[ch]) );
+	
+	fifo0.clear();
+	fifo1.clear();
 
 	dragon::utils::reset_data (type, extended_trigger, n_ch, count,
 						  word_count, trailer_word_count,
@@ -112,30 +129,21 @@ int32_t vme::V1190::get_data(int16_t ch) const
 	 * channel \e ch. If \e ch is out of bounds, prints a warning
 	 * message and returns dragon::NO_DATA.
 	 */
+
 	if (ch >= 0 && ch < MAX_CHANNELS) {
-		// return leading_edge[0][ch];
-		// return leading_edge[ch].hit[0];
-		return channel[ch].leading_edge[0];
+		try {
+			return channel[ch].fLeading.at(0);
+		} catch(std::exception& e) {
+			return dragon::NO_DATA;
+		}
 	}
 	else {
-		dragon::utils::err::Warning("V1190::get_data")
+		dragon::utils::Warning("V1190::get_data")
 			<< "Channel number " << ch << " out of bounds (valid range: [0, "
 			<< MAX_CHANNELS -1 << "]\n";
 		return dragon::NO_DATA;
 	}
 }
-
-
-namespace {
-template<typename T1, typename T2, typename T3>
-inline void report_max_hits(T1 ch, T2 nhits, T3 max, const char* which)
-{
-	dragon::utils::err::Warning("vme::V1190::unpack_data_buffer", false) 
-		<< "Number of " << which << " edge hits received for TDC channel " << ch << " (=="
-		<< nhits << ") is greater than the maximum allowed in the analyzer (== "
-		<< max << "). Ignoring all subsequent hits for this channel... "
-		<< "(You may want to recomiple with vme::V1190::MAX_HITS set to a higer value)." ;
-} }
 
 bool vme::V1190::unpack_data_buffer(const uint32_t* const pbuffer)
 {
@@ -152,13 +160,13 @@ bool vme::V1190::unpack_data_buffer(const uint32_t* const pbuffer)
 	type     = (*pbuffer >> 26) & READ1; /// - Bit 26 tells the measurement type (leading or trailing)
 	int ch   = (*pbuffer >> 19) & READ7; /// - Bits 19-25 tell the channel number
 	if (ch >= MAX_CHANNELS) {
-		dragon::utils::err::Error("vme::V1190::unpack_data_buffer")
+		dragon::utils::Error("vme::V1190::unpack_data_buffer")
 			<< DRAGON_ERR_FILE_LINE << "Read a channel number (" << ch
 			<< ") which is >= the maximum (" << MAX_CHANNELS << "). Skipping...\n";
 		return false;
 	}
 	if ( !(type==1 || type == 0) ) {
-		dragon::utils::err::Error("vme::V1190::unpack_data_buffer")
+		dragon::utils::Error("vme::V1190::unpack_data_buffer")
 			<< "\"type\" bitfield == " << type << ": Should be impossible, skipping event..."
 			<< DRAGON_ERR_FILE_LINE;
 		return false;
@@ -166,26 +174,19 @@ bool vme::V1190::unpack_data_buffer(const uint32_t* const pbuffer)
 
 	int32_t measurement = (*pbuffer >> 0) & READ19; /// - Bits 0 - 18 encode the measurement value
 
-
-	// p_ch points to the correct channel structure based on the read-out channel number
-	V1190::Channel* const p_ch = &(channel[ch]);
-
-
-	// error if over the hard coded hit maximum
-	bool over_max = (type == 0) ? (p_ch->nleading >= MAX_HITS) : (p_ch->ntrailing >= MAX_HITS);
-	if (over_max) {
-		const char* const which = (type == 0) ? "leading" : "trailing";
-		int n_hits_this = (type == 0) ? p_ch->nleading : p_ch->ntrailing;
-		report_max_hits(ch, n_hits_this+1, MAX_HITS, which);
-		std::cerr << DRAGON_ERR_FILE_LINE;
-		return false;
-	}
-
 	if (type == 0) // leading edge
-		p_ch->leading_edge[(p_ch->nleading)++] = measurement;
+	{
+		channel[ch].fLeading.push_back(measurement);
+	}
 	else // trailing edge
-		p_ch->trailing_edge[(p_ch->ntrailing)++] = measurement;
+		channel[ch].fTrailing.push_back(measurement);
 	
+	channel[ch].nleading  = channel[ch].fLeading.size();
+	channel[ch].ntrailing = channel[ch].fTrailing.size();
+
+	if(type == 0) fifo0.push_back(measurement, ch, channel[ch].nleading);
+	else          fifo1.push_back(measurement, ch, channel[ch].ntrailing);
+
 	return true;
 }
 
@@ -202,7 +203,7 @@ void vme::V1190::unpack_footer_buffer(const uint32_t* const pbuffer, const char*
 	int16_t evtId = (*pbuffer >> 12) & READ12; 
 	if(evtId != event_id) { /// Bits 12 - 23 are the event id (event_id), check for consistency w/ header
 		std::cerr << DRAGON_ERR_FILE_LINE;
-		dragon::utils::err::Warning("vme::V1190::unpack_footer_buffer")
+		dragon::utils::Warning("vme::V1190::unpack_footer_buffer")
 			<< DRAGON_ERR_FILE_LINE << "Bank name: \"" << bankName << "\": "
 			<< "Trailer event id (" << evtId << ") != header event Id (" << event_id << ")\n";
 	}
@@ -233,7 +234,7 @@ void vme::V1190::handle_error_buffer(const uint32_t* const pbuffer, const char* 
 		"Event lost (trigger FIFO overflow).",
 		"Internal fatal chip error has been detected."
 	};
-	dragon::utils::err::Error error("vme::handle_error_buffer");
+	dragon::utils::Error error("vme::handle_error_buffer");
 	error << DRAGON_ERR_FILE_LINE << "Bank name: \"" << bankName << 
 		"\": TDC Error buffer: error flags:\n";
 
@@ -285,7 +286,7 @@ bool vme::V1190::unpack_buffer(const uint32_t* const pbuffer, const char* bankNa
 		unpack_footer_buffer(pbuffer, bankName);
 		break;
 	default: /// Bail out if we read an unknown buffer code
-		dragon::utils::err::Error("vme::V1190::unpack_buffer")
+		dragon::utils::Error("vme::V1190::unpack_buffer")
 			<< DRAGON_ERR_FILE_LINE << "Bank name: \"" << bankName
 			<< "\": Unknown TDC buffer code: 0x" << std::hex << type << ". Skipping...\n";
 		success = false;
@@ -313,6 +314,19 @@ bool vme::V1190::unpack(const midas::Event& event, const char* bankName, bool re
     bool success = unpack_buffer(pbank32++, bankName);
 		if(!success) ret = false;
   }
+
+	// for(int i=0; i< MAX_CHANNELS; ++i) {
+	// 	Channel* const pch = &(channel[i]);
+	// 	pch->nleading  = pch->fLeading.size();
+	// 	pch->ntrailing = pch->fTrailing.size();
+
+	// 	pch->leading_edge  = new int32_t[ pch->nleading ];
+	// 	pch->trailing_edge = new int32_t[ pch->ntrailing ];
+
+	// 	std::copy(pch->fLeading.begin(), pch->fLeading.end(), pch->leading_edge);
+	// 	std::copy(pch->fTrailing.begin(), pch->fTrailing.end(), pch->trailing_edge);
+	// }
+
   return ret;
 }
 
@@ -342,7 +356,7 @@ int32_t vme::V792::get_data(int16_t ch) const
 	 */
 	if (ch >= 0 && ch < MAX_CHANNELS) return data [ch];
 	else {
-		dragon::utils::err::Warning("V792::get_data")
+		dragon::utils::Warning("V792::get_data")
 			<< "Channel number " << ch << " out of bounds (valid range: [0, "
 			<< MAX_CHANNELS -1 << "]\n";
 		return dragon::NO_DATA;
@@ -361,7 +375,7 @@ bool vme::V792::unpack_data_buffer(const uint32_t* const pbuffer)
 	underflow    = (*pbuffer >> 13) & READ1; /// Bit 13 is an underflow tag
 	uint16_t ch  = (*pbuffer >> 16) & READ5; /// Bits 16-20 tell the channel number of the conversion
 	if (ch >= MAX_CHANNELS) {
-		dragon::utils::err::Error("vme::V792::unpack_data_buffer")
+		dragon::utils::Error("vme::V792::unpack_data_buffer")
 			<< DRAGON_ERR_FILE_LINE << "Read a channel number (" << ch
 			<< ") which is >= the maximum (" << MAX_CHANNELS << "). Skipping...\n";
 		return false;
@@ -394,13 +408,13 @@ bool vme::V792::unpack_buffer(const uint32_t* const pbuffer, const char* bankNam
 		count = (*pbuffer >> 0) & READ24;
 		break;
 	case INVALID_BITS: /// case INVALID_BITS: bail out
-		dragon::utils::err::Error("vme::V792::unpack_buffer")
+		dragon::utils::Error("vme::V792::unpack_buffer")
 			<< DRAGON_ERR_FILE_LINE << "Bank name: \"" << bankName
 			<< "\": Read INVALID_BITS code from a CAEN ADC output buffer. Skipping...\n";
 		success = false;
 		break;
 	default: /// Bail out if we read an unknown buffer code
-		dragon::utils::err::Error("vme::V792::unpack_buffer")
+		dragon::utils::Error("vme::V792::unpack_buffer")
 			<< DRAGON_ERR_FILE_LINE << "Bank name: \"" << bankName
 			<< "\": Unknown ADC buffer code: 0x" << std::hex << type << ". Skipping...\n";
 		success = false;

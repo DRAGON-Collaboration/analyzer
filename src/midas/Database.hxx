@@ -9,7 +9,7 @@
 #include "Xml.hxx"
 
 #ifdef USE_ROOT
-#define DRAGON_DATABASE Database: public TObject
+#define DRAGON_DATABASE Database: public TNamed
 #else
 #define DRAGON_DATABASE Database
 #endif
@@ -63,7 +63,7 @@ public:
 					fIsZombie = true;
 			}
 			if (fIsZombie) {
-				dragon::utils::err::Error("midas::Database::Database")
+				dragon::utils::Error("midas::Database::Database")
 					<< "Failed opening the database: \"" << filename << "\"";
 			}
 		}
@@ -81,13 +81,25 @@ public:
 				fIsZombie = true;
 			}
 			if (fIsZombie) {
-				dragon::utils::err::Error("midas::Database::Database")
+				dragon::utils::Error("midas::Database::Database")
 					<< "Failed parsing the XML data.";
 			}
 		}
 
 	/// Tell the public if a zombie or not
 	bool IsZombie() const { return fIsZombie; }
+
+	/// Dump odb contents to an output stream
+	void Dump(std::ostream& strm = std::cout)
+		{
+			if(fIsZombie) return;
+			if(fIsOnline) {
+				dragon::utils::Error("Database::Dump")
+					<< "Currently not supported for online database";
+				return;
+			}
+			if(fXml.get()) fXml->Dump(strm);
+		}
 
 	/// Read a single value
 	template <typename T> bool ReadValue(const char* path, T& value) const
@@ -108,6 +120,20 @@ public:
 			else return false;
 		}
 
+	/// Read the length of an array
+	int ReadArrayLength(const char* path) const
+		{
+			/*!
+			 * \param [in] path Path ODB directory path of what is to be read
+			 * \returns The length of the array upon success, -1 upon failure.
+			 */
+			if      (fIsZombie)  return -1;
+			else if (fIsOnline)  return Odb::ReadArraySize(path);
+			else if (fXml.get()) return fXml->GetArrayLength(path);
+			else                 return -1;
+		}
+
+	/// Read an array
 	template <typename T> int ReadArray(const char* path, T* array, int length) const
 		{
 			/*!
@@ -117,8 +143,8 @@ public:
 			 * \tparam T The type of the data in the array to be read
 			 * \returns The length of the array that was read (0 if error)
 			 */
-			if(fIsZombie) return false;
-			if (fIsOnline) return Odb::ReadArray(path, array, length);
+			if(fIsZombie) return 0;
+			if(fIsOnline) return Odb::ReadArray(path, array, length);
 			else if (fXml.get()) {
 				bool success;
 				fXml->GetArray(path, length, array, &success);
@@ -127,8 +153,32 @@ public:
 			else return 0;
 		}
 
+	/// Print value of a parameter
+	void Print(const char* path) const
+		{
+			if(fIsZombie) {
+				std::cout << "Zombie!\n";
+				return;
+			}
+			if(fIsOnline) {
+				std::cout << "Print() not yet available for online data.\n";
+				return;
+			}
+			if (!fXml.get()) {
+				std::cerr << "fXml == 0!\n";
+				return;
+			}
+			if(1) {
+				bool success = fXml->PrintArray(path);
+				if(!success)   success = fXml->PrintValue(path);
+				if(!success) {
+					std::cout << "Path: \"" << path << "\" not found!\n";
+				}
+			}
+		}
+
 #ifdef USE_ROOT
-	ClassDef(midas::Database, 1);
+	ClassDef(midas::Database, 2);
 #endif
 };
 
@@ -145,6 +195,7 @@ public:
 #pragma link C++ function midas::Database::ReadValue (const char*, ULong64_t&);
 #pragma link C++ function midas::Database::ReadValue (const char*, Float_t);
 #pragma link C++ function midas::Database::ReadValue (const char*, Double_t&);
+#pragma link C++ function midas::Database::ReadValue (const char*, std::string&);
 
 #pragma link C++ function midas::Database::ReadArray (const char*, Char_t*, int);
 #pragma link C++ function midas::Database::ReadArray (const char*, Short_t*, int);
@@ -156,6 +207,7 @@ public:
 #pragma link C++ function midas::Database::ReadArray (const char*, ULong64_t*, int);
 #pragma link C++ function midas::Database::ReadArray (const char*, Float_t*, int);
 #pragma link C++ function midas::Database::ReadArray (const char*, Double_t*, int);
+#pragma link C++ function midas::Database::ReadArray (const char*, std::string*, int);
 
 #endif
 

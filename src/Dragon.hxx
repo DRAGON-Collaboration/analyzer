@@ -5,6 +5,7 @@
 /// \brief Defines dragon detector classes
 /// \attention The '//!' or '//#' comments following variable declarations are not
 ///  optional! They are actually used in processing of the file with ROOTCINT.
+/// \todo Add Mini-IC.
 ///
 #ifndef HAVE_DRAGON_HXX
 #define HAVE_DRAGON_HXX
@@ -12,7 +13,6 @@
 #include <string>
 #include <sstream>
 #include "utils/VariableStructs.hxx"
-#include "utils/Banks.hxx"
 #include "midas/Event.hxx"
 #include "Vme.hxx"
 
@@ -35,7 +35,6 @@ class Tail; // forward declaration
 
 
 // ======= Class definitions ======== //
-
 
 ///
 /// Global run parameters
@@ -164,8 +163,10 @@ public:
 	uint32_t hit_front; //#
 	/// Which strip was hit in the back strips
 	uint32_t hit_back;  //#
-	/// Calibrated time signal
-	double tcal;        //#
+	/// Calibrated time signal from the front strips
+	double tfront;      //#
+	/// Calibrated time signal from the back strips
+	double tback;       //#
 
 public: // Subclasses
 	///
@@ -185,8 +186,10 @@ public: // Subclasses
  public: // Data
 		/// Adc variables for the energy signals
 		dragon::utils::AdcVariables<32> adc;
-		/// Tdc variables
-		dragon::utils::TdcVariables<1> tdc;
+		/// Tdc variables (front strips)
+		dragon::utils::TdcVariables<1> tdc_front;
+		/// Tdc variables (back strips)
+		dragon::utils::TdcVariables<1> tdc_back;
 	};
 
 public: // Subclass instances
@@ -200,7 +203,9 @@ public: // Subclass instances
 class IonChamber {
 public: // Constants
 	/// Number of anodes
-	static const int MAX_CHANNELS = 4; //!
+	static const int MAX_CHANNELS = 5; //!
+	/// Number of time signals
+	static const int MAX_TDC = 4; //!
 
 public: // Methods
 	/// Constructor, initialize data
@@ -215,8 +220,8 @@ public: // Methods
 public: // Data
 	/// Calibrated anode signals
 	double anode[MAX_CHANNELS]; //#
-	/// Time signal
-	double tcal; //#
+	/// Time signals
+	double tcal[MAX_TDC]; //#
 	/// Sum of anode signals
 	double sum;  //#
 
@@ -239,7 +244,7 @@ public: // Subclasses
 		/// Anode variables
 		dragon::utils::AdcVariables<MAX_CHANNELS> adc;
 		/// Tdc variables
-		dragon::utils::TdcVariables<1> tdc;
+		dragon::utils::TdcVariables<MAX_TDC> tdc;
 	};
 
 public: // Subclass instances
@@ -496,8 +501,6 @@ public: // Methods
 	void calculate();
 
 public: // Data
-	/// Bank names
-	dragon::utils::EventBanks<1, 1> banks; //!
 	/// Midas event header
 	midas::Event::Header header; //#
 
@@ -521,6 +524,8 @@ public: // Data
 	double tcal0;
 	/// Crossover [tail] trigger time
 	double tcalx;
+	/// RF time
+	double tcal_rf;
 
 public: // Subclasses
 	///
@@ -528,8 +533,20 @@ public: // Subclasses
 	///
 	class Variables {
  public: // Data
+		/// IO32 bank name
+		midas::Bank_t bk_io32;
+		/// Timestamp counter bank name
+		midas::Bank_t bk_tsc;
+		/// ADC bank name
+		midas::Bank_t bk_adc;
+		/// TDC bank name
+		midas::Bank_t bk_tdc;
 		/// Crossover TDC channel variables
 		dragon::utils::TdcVariables<1> xtdc;
+		/// RF TDC channel variables
+		dragon::utils::TdcVariables<1> rf_tdc;
+		/// Trigger TDC channel variables
+		dragon::utils::TdcVariables<1> tdc0;
  public: // Methods
 		/// Sets data to defaults
 		Variables();
@@ -570,8 +587,6 @@ public: // Methods
 	void calculate();
 
 public: // Class data
-	/// Bank names
-	dragon::utils::EventBanks<2, 1> banks; //!
 	/// Midas event header
 	midas::Event::Header header;   //#
 	// Vme modules (write to TTree)
@@ -610,6 +625,8 @@ public: // Class data
 	SurfaceBarrier sb;       //
 	/// Time-of-flights
 	HiTof tof;               //
+	/// RF tdc value
+	double tcal_rf;
 	/// Trigger [tail] tdc value
 	double tcal0;
 	/// Crossover [head] tdc value
@@ -618,6 +635,22 @@ public: // Class data
 public: // Subclasses
 	// Subclasses //
 	class Variables {
+ public: // Data
+		/// IO32 bank name
+		midas::Bank_t bk_io32;
+		/// Timestamp counter bank name
+		midas::Bank_t bk_tsc;
+		/// ADC bank names
+		midas::Bank_t bk_adc[NUM_ADC];
+		/// TDC bank name
+		midas::Bank_t bk_tdc;
+		/// Crossover TDC channel variables
+		dragon::utils::TdcVariables<1> xtdc;
+		/// RF TDC channel variables
+		dragon::utils::TdcVariables<1> rf_tdc;
+		/// Trigger TDC channel variables
+		dragon::utils::TdcVariables<1> tdc0;
+
  public: // Methods
 		/// Sets data to defaults
 		Variables();
@@ -627,10 +660,6 @@ public: // Subclasses
 		bool set(const char* dbfile);
 		///  Set data values from a constructed database
 		bool set(const midas::Database* db);
-
- public: // Data
-		/// Crossover TDC channel variables
-		dragon::utils::TdcVariables<1> xtdc;
 	};
 
 public: // Subclass instances
@@ -710,7 +739,7 @@ public: // Constants
 
 public: // Methods
   /// Initialize data
-  Scaler(const char* name = "head");
+	Scaler();
   /// Reset all data to zero
   void reset();
   /// Unpack Midas event data into scalar data structiures
@@ -718,12 +747,12 @@ public: // Methods
 	/// Returns the name of a given scaler channel
 	const std::string& channel_name(int ch) const;
 	///  Reads all variable values from an database (file or online)
-	bool set_variables(const char* dbfile);
+	bool set_variables(const char* dbfile, const char* dir);
 	///  Reads all variable values from a constructed database
-	bool set_variables(const midas::Database* db);
+	bool set_variables(const midas::Database* db, const char* dir);
 	/// Set branch alises in a ROOT TTree.
 	template <class T>
-	void set_aliases(T* t, const char* branchName) const;
+	void set_aliases(T* t, const char* branchName, bool print = false) const;
 
 public: // Data
 	/// Number of counts in a single read period
@@ -738,30 +767,89 @@ public: // Subclasses
   /// Scalar variables
 	///
   class Variables {
+ public: // Data
+		/// Name of a given channel
+		std::string names[MAX_CHANNELS];
+		/// `count` bank name
+		midas::Bank_t bk_count;
+		/// `rate` bank name
+		midas::Bank_t bk_rate;
+		/// `sum` bank name
+		midas::Bank_t bk_sum;
+		/// Base odb path
+		std::string odb_path;
+
  public: // Methods
     /// Constuctor
-    Variables(const char* name);
+    Variables();
+		/// Resets names to default values
+		void reset();
+		///  Set data values from an database (file or online)
+		bool set(const char* dbfile, const char* dir);
+		///  Set data values from a constructed database
+		bool set(const midas::Database* db, const char* dir);
+  };
+
+public: // Subclass instances
+	/// Variables instance
+	Variables variables; //!
+};
+
+///
+/// DRAGON EPICS parameters
+///
+class Epics {
+public: // Constants
+public: // Methods
+  /// Initialize data
+	Epics();
+  /// Reset all data to zero
+  void reset();
+  /// Unpack Midas event data into scalar data structiures
+  void unpack(const midas::Event& event);
+	/// Returns the name of a given scaler channel
+	const std::string& channel_name(int ch) const;
+	///  Reads all variable values from an database (file or online)
+	bool set_variables(const char* dbfile);
+	///  Reads all variable values from a constructed database
+	bool set_variables(const midas::Database* db);
+	/// Set branch alises in a ROOT TTree.
+	template <class T>
+	void set_aliases(T* t) const;
+
+public: // Data
+	/// Midas event header
+	midas::Event::Header header; //#
+	/// Epics channel number for this event
+	int32_t ch; //#
+	/// EPICS value at `ch` for this event
+	float val;  //#
+
+public: // Subclasses
+	///
+  /// EPICS variables
+	///
+  class Variables {
+ public: // Data
+		/// Name of a given channel
+		std::vector<std::string> names;
+		/// Bank name
+		midas::Bank_t bkname;
+
+ public: // Methods
+    /// Constuctor
+    Variables();
 		/// Resets names to default values
 		void reset();
 		///  Set data values from an database (file or online)
 		bool set(const char* dbfile);
 		///  Set data values from a constructed database
 		bool set(const midas::Database* db);
-		/// Set bank names
-		void set_bank_names(const char* base);
-
- public: // Data
-		/// Name of a given channel
-		std::string names[MAX_CHANNELS]; //!
-		/// Frontend bank names
-		dragon::utils::ScalerBanks bank_names; //!
-		/// Base odb path
-		std::string odb_path; //!
   };
 
 public: // Subclass instances
 	/// Variables instance
-	Variables variables;
+	Variables variables; //!
 };
 
 } // namespace dragon
@@ -771,7 +859,7 @@ public: // Subclass instances
 // ======= Inlined Implementations ======== //
 
 template <class T>
-inline void dragon::Scaler::set_aliases(T* t, const char* branchName) const
+inline void dragon::Scaler::set_aliases(T* t, const char* branchName, bool print) const
 {
 	/*!
 	 * Sets tree branch aliases based on variable values - results in easier to use
@@ -797,7 +885,7 @@ inline void dragon::Scaler::set_aliases(T* t, const char* branchName) const
 	 * t.Branch("scaler", "dragon::Scaler", &pScaler);
 	 * scaler.set_aliases(&t, "scaler");
 	 * t.Fill(); // adds a events worth of data
-	 * t.Draw("scaler_count_bgo_triggers_presented"); // same as doing t.Draw("scaler.count[0]");
+	 * t.Draw("count_bgo_triggers_presented"); // same as doing t.Draw("scaler.count[0]");
 	 * \endcode
 	 */
 	const std::string chNames[3] = { "count", "sum", "rate" };
@@ -805,33 +893,31 @@ inline void dragon::Scaler::set_aliases(T* t, const char* branchName) const
 		for(int j=0; j< 3; ++j) {
 			std::stringstream oldName, newName;
 			oldName << branchName << "." << chNames[j] << "[" << i << "]";
-			newName << branchName << "_" << chNames[j] << "_" << variables.names[i];
-
+			newName << chNames[j] << "_" << variables.names[i];
 			t->SetAlias(newName.str().c_str(), oldName.str().c_str());
+			if(print) {
+				std::cout << "Set alias \"" << newName.str() << "\" == \"" << oldName.str() << "\"\n";
+			}
 		}
 	}
 }
 
+template <class T>
+inline void dragon::Epics::set_aliases(T* t) const
+{
+	/*!
+	 * See dragon::Scaler::set_aliases()
+	 */
+	for(int i=0; i< variables.names.size(); ++i) {
+		std::stringstream oldName;
+		oldName << "1*" << i << "";
 
-// ======= ROOTCINT stuff ======== //
+		std::string newName1 = variables.names[i];
+		for(size_t j=0; j< newName1.size(); ++j) {
+			if(newName1[j] == ' ') newName1[j] = '_';
+		}
+		t->SetAlias(newName1.c_str(), oldName.str().c_str());
+	}
+}
 
-#ifdef __MAKECINT__
-// Create CINT links to template classes //
-#pragma link C++ class dragon::utils::AdcVariables<dragon::Bgo::MAX_CHANNELS>;
-#pragma link C++ class dragon::utils::TdcVariables<dragon::Bgo::MAX_CHANNELS>;
-#pragma link C++ class dragon::utils::PositionVariables<dragon::Bgo::MAX_CHANNELS>;
-
-#pragma link C++ class dragon::utils::AdcVariables<dragon::Dsssd::MAX_CHANNELS>+;
-#pragma link C++ class dragon::utils::TdcVariables<1>+;
-
-#pragma link C++ class dragon::utils::AdcVariables<dragon::IonChamber::MAX_CHANNELS>+;
-#pragma link C++ class dragon::utils::TdcVariables<1>+;
-
-#pragma link C++ class dragon::utils::AdcVariables<dragon::SurfaceBarrier::MAX_CHANNELS>+;
-
-#pragma link C++ class dragon::utils::AdcVariables<dragon::NaI::MAX_CHANNELS>+;
-#pragma link C++ class dragon::utils::AdcVariables<1>+;
-#endif
-
-
-#endif // #ifndef HAVE_DRAGON__HXX
+#endif // #ifndef HAVE_DRAGON_HXX

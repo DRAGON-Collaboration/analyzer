@@ -55,9 +55,9 @@ private:
 
 public:
 	/// Initializes fDir
-	Directory(TDirectory* dir = 0):	fDir(dir) { }
+	Directory(TDirectory* dir = 0);
 	/// Writes directory, deletes histograms, deletes directory
-	~Directory();
+	virtual ~Directory();
 	/// Checks if fDir points to a "good" working directory
 	bool IsOpen() const;
 	/// Resets fDir to a new directory, calling the destructor on the old one.
