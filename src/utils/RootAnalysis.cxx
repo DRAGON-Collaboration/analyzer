@@ -15,6 +15,7 @@
 #include <TString.h>
 #include <TSystem.h>
 #include <TThread.h>
+#include <TFitResult.h>
 #include <TDataMember.h>
 #include <TTreeFormula.h>
 
@@ -24,6 +25,8 @@
 #include "ErrorDragon.hxx"
 #include "RootAnalysis.hxx"
 
+
+namespace { const Int_t NSB = dragon::SurfaceBarrier::MAX_CHANNELS; }
 
 template <class T> void Zap(T*& t) 
 {
@@ -452,14 +455,14 @@ Bool_t dragon::RossumData::ParseFile()
 }
 
 
-TTree* dragon::RossumData::GetTree(Int_t runnum)
+TTree* dragon::RossumData::GetTree(Int_t runnum) const
 {
-	std::map<Int_t, TTree*>::iterator it = fTrees.find(runnum);
+	std::map<Int_t, TTree*>::const_iterator it = fTrees.find(runnum);
 	return it == fTrees.end() ? 0 : it->second;
 }
 
-Double_t dragon::RossumData::AverageCurrent(Int_t run, Int_t cup, Int_t iteration,
-																						Double_t skipBegin, Double_t skipEnd)
+UDouble_t dragon::RossumData::AverageCurrent(Int_t run, Int_t cup, Int_t iteration,
+																						 Double_t skipBegin, Double_t skipEnd)
 {
 	///
 	/// \param run Run number from which to get cup readings; this will look at the
@@ -479,45 +482,32 @@ Double_t dragon::RossumData::AverageCurrent(Int_t run, Int_t cup, Int_t iteratio
 	TTree* tree = GetTree(run);
 	if(!tree) {
 		std::cerr << "Error: invalid run " << run << "\n";
-		return 0.;
+		return UDouble_t(0);
 	}
 
-	tree->SetBranchAddress("cup", &fCup);
-	tree->SetBranchAddress("time", &fTime);
-	tree->SetBranchAddress("current", &fCurrent);
-	tree->SetBranchAddress("iteration", &fIteration); 
-	int entry0 = tree->GetEntries() - 1;
-	while(entry0 >= 0) {
-		tree->GetEntry(entry0);
-		--entry0;
-		if(fCup == cup) break;
-	}
-	Double_t tbegin = -1, tlast = fTime;
-	std::vector<double> readings;
+	char gate[4096];
+	sprintf(gate, "cup == %i && iteration == %i", cup, iteration);
+	Long64_t nval = tree->Draw("current:time", gate, "goff");
+	if(nval < 1) return UDouble_t(0);
 
-	for(Long64_t i=0; i< tree->GetEntries(); ++i) {
-		tree->GetEntry(i);
-		if(fCup != cup) continue;
-		if(tbegin < 0) tbegin = fTime;
-		if(tbegin > 0 &&
-			 fTime > tbegin + skipBegin &&
-			 fTime < tlast  - skipEnd   &&
-			 fIteration == iteration)
-		{
-			readings.push_back(fCurrent);
-		}
+
+	Double_t* time = tree->GetV2();
+	Double_t* current = tree->GetV1();
+
+	Double_t t0 = time[0];
+	Double_t t1 = time[nval-1];
+	Long64_t i0 = -1, i1 = -1;
+	for(Long64_t i=0; i< nval; ++i) {
+		if(i0 < 0 && time[i] - t0 > skipBegin)
+			i0 = i;
+		if(i1 < 0 && t1 - time[i] < skipEnd)
+			i1 = i;
 	}
 
-	Double_t retval = 0;
-	if(!readings.size()) {
-		std::cerr << "No readings for cup " << cup << ", iteration " << iteration << " in run " << run << "\n";
-	}
-	else {
-		retval = TMath::Mean(readings.size(), &readings[0]);
-	}
+	Double_t avg = TMath::Mean(i1-i0, current+i0);
+	Double_t rms = TMath::RMS (i1-i0, current+i0);
 
-	tree->ResetBranchAddresses();
-	return retval;
+	return UDouble_t(avg, rms);
 }
 
 void dragon::RossumData::ListTrees() const
@@ -526,6 +516,28 @@ void dragon::RossumData::ListTrees() const
 		std::cout << it->second->GetName() << "\t" << it->second->GetTitle() << "\n";
 	}
 }
+
+TGraph* dragon::RossumData::PlotTransmission(Int_t* runs, Int_t nruns)
+{
+	std::vector<Double_t>  gruns;
+	std::vector<UDouble_t> gtrans;
+	for(Int_t i=0; i< nruns; ++i) {
+		if(!GetTree(runs[i])) {
+			std::cout << "No data for run " << runs[i] << ", skipping.\n";
+			continue;
+		}
+		UDouble_t fc4 = AverageCurrent(runs[i], 0);
+		UDouble_t fc1 = AverageCurrent(runs[i], 1);
+		gruns.push_back(runs[i]);
+		gtrans.push_back(fc1 / fc4);
+	}
+
+	TGraph* out = PlotUncertainties(gruns.size(), &gruns[0], &gtrans[0]);
+	out->SetMarkerStyle(21);
+	out->Draw("AP");
+	return out;
+}
+
 
 
 // ============ Class dragon::BeamNorm ============ //
@@ -592,19 +604,19 @@ Int_t dragon::BeamNorm::ReadSbCounts(TFile* datafile, Double_t pkLow0, Double_t 
 	dragon::Epics* pEpics = &epics;
 	t20->SetBranchAddress(t20->GetListOfBranches()->At(0)->GetName(), &pEpics);
 		
-	Long64_t ncounts[dragon::SurfaceBarrier::MAX_CHANNELS];
-	Long64_t ncounts_full[dragon::SurfaceBarrier::MAX_CHANNELS];
-	for(int i=0; i< dragon::SurfaceBarrier::MAX_CHANNELS; ++i) {
+	Long64_t ncounts[NSB];
+	Long64_t ncounts_full[NSB];
+	for(int i=0; i< NSB; ++i) {
 		ncounts[i] = 0;
 		ncounts_full[i] = 0;
 	}
 
 	t3->GetEntry(0);
 	Double_t tstart = pTail->header.fTimeStamp;
-	Double_t low[dragon::SurfaceBarrier::MAX_CHANNELS] =  { pkLow0, pkLow1 };
-	Double_t high[dragon::SurfaceBarrier::MAX_CHANNELS] =  { pkHigh0, pkHigh1 };
+	Double_t low[NSB] =  { pkLow0, pkLow1 };
+	Double_t high[NSB] =  { pkHigh0, pkHigh1 };
 
-	for(int i=0; i< dragon::SurfaceBarrier::MAX_CHANNELS; ++i) {
+	for(int i=0; i< NSB; ++i) {
 		std::stringstream cut;
 		cut.precision(20);
 		cut << "sb.ecal[" << i << "] > " << low[i] << " && sb.ecal[" << i << "] < " << high[i];
@@ -613,15 +625,26 @@ Int_t dragon::BeamNorm::ReadSbCounts(TFile* datafile, Double_t pkLow0, Double_t 
 		ncounts[i] = t3->GetPlayer()->GetEntries(cut.str().c_str());
 	}
 
+#if 0
 	if(time < t4->GetEntries())
 		t4->GetEntry(time);
 	else
 		t4->GetEntry(t4->GetEntries() - 1);
-	double live = pScaler->sum[13] / double(pScaler->sum[14] + pScaler->sum[15]);
+	UDouble_t live = UDouble_t(pScaler->sum[13]) / UDouble_t(pScaler->sum[14] + pScaler->sum[15]);
 
 	t4->GetEntry(t4->GetEntries() - 1);
-	double live_full = pScaler->sum[13] / double(pScaler->sum[14] + pScaler->sum[15]);
-
+	UDouble_t live_full = UDouble_t(pScaler->sum[13]) / UDouble_t(double(pScaler->sum[14] + pScaler->sum[15]));
+#else
+	UDouble_t live, live_full;
+	{
+		dragon::LiveTimeCalculator ltc;
+		ltc.SetFile(datafile);
+		ltc.CalculateSub(0, time);
+		live = ltc.GetLivetime("tail");
+		ltc.Calculate();
+		live_full = ltc.GetLivetime("tail");
+	}		
+#endif
 
 	t20->GetEntry(0);
 	Double_t tstart20 = pTail->header.fTimeStamp;
@@ -646,12 +669,14 @@ Int_t dragon::BeamNorm::ReadSbCounts(TFile* datafile, Double_t pkLow0, Double_t 
 	assert(rundata);
 
 	rundata->time = time;
-	for(int i=0; i< dragon::SurfaceBarrier::MAX_CHANNELS; ++i) {
-		rundata->sb_counts[i] = ncounts[i];
-		rundata->sb_counts_full[i] = ncounts_full[i];
+	for(int i=0; i< NSB; ++i) {
+		rundata->sb_counts[i] = UDouble_t(ncounts[i]);
+		rundata->sb_counts_full[i] = UDouble_t(ncounts_full[i]);
 	}
-	rundata->pressure = TMath::Mean(t1, &pressure[0]);
-	rundata->pressure_full = TMath::Mean(pressure.size(), &pressure[0]);
+	rundata->pressure =
+		UDouble_t (TMath::Mean(t1, &pressure[0]), TMath::RMS(t1, &pressure[0]));
+	rundata->pressure_full =
+		UDouble_t (TMath::Mean(pressure.size(), &pressure[0]), TMath::RMS(pressure.size(), &pressure[0]));
 	rundata->live_time = live;
 	rundata->live_time_full = live_full;
 
@@ -679,6 +704,8 @@ void dragon::BeamNorm::ReadFC4(Int_t runnum, Double_t skipBegin, Double_t skipEn
 	for(int i=0; i< 3; ++i) {
 		rundata->fc4[i] = fRossum->AverageCurrent(runnum, 0, i, skipBegin, skipEnd);
 	}
+	
+	rundata->fc1 = fRossum->AverageCurrent(runnum, 1, 0, skipBegin, skipEnd);
 }
 
 void dragon::BeamNorm::CalculateNorm(Int_t run, Int_t chargeState)
@@ -689,13 +716,16 @@ void dragon::BeamNorm::CalculateNorm(Int_t run, Int_t chargeState)
 		return;
 	}
 
-	for(Int_t i=0; i< dragon::SurfaceBarrier::MAX_CHANNELS; ++i) {
-		if(rundata->sb_counts[i] != 0) {
-			Double_t fc4avg = TMath::Mean(3, rundata->fc4);
+	for(Int_t i=0; i< NSB; ++i) {
+		if(rundata->sb_counts[i].GetNominal() != 0) {
+
+			UDouble_t fc4avg = UDouble_t::Mean(3, rundata->fc4);
+
+			UDouble_t qe (TMath::Qe(), TMath::QeUncertainty());
 			rundata->sbnorm[i]  = fc4avg * rundata->pressure * rundata->time;
-			rundata->sbnorm[i] /= (Constants::ElectronCharge() * chargeState * (rundata->sb_counts[i] / rundata->live_time));
+			rundata->sbnorm[i] /= (qe * (double)chargeState * (rundata->sb_counts[i] / rundata->live_time));
 			
-			if(rundata->pressure_full != 0) {
+			if(rundata->pressure_full.GetNominal() != 0) {
 				rundata->nbeam[i] = (rundata->sb_counts_full[i] / rundata->live_time_full) * rundata->sbnorm[i] / rundata->pressure_full;
 			}
 		}
@@ -708,25 +738,39 @@ dragon::BeamNorm::RunData* dragon::BeamNorm::GetRunData(Int_t runnum)
 	return i == fRunData.end() ? 0 : &(i->second);
 }
 
-void dragon::BeamNorm::GetParams(const char* param, std::vector<Double_t> *runnum, std::vector<Double_t> *parval)
+
+namespace {
+void parse_param(const std::string& param, std::string& par0, int& indx)
+{
+	size_t fpos = param.find("[");
+	par0 = fpos < param.size() ? param.substr(0, fpos) : param;
+	indx = fpos < param.size() ? atoi(param.substr(fpos+1).c_str()) : 0;
+} }
+
+
+void dragon::BeamNorm::GetParams(const char* param, std::vector<Double_t> *runnum, std::vector<UDouble_t> *parval)
 {
 	runnum->clear();
 	parval->clear();
 	for(std::map<Int_t, RunData>::iterator it = fRunData.begin(); it != fRunData.end(); ++it) {
 		RunData* rundata = &(it->second);
-
-		TTree t("temptree","");
-		t.SetCircular(0);
-		t.Branch("rundata", "dragon::BeamNorm::RunData", &rundata);
-		t.Fill();
-		TTreeFormula f("f", param, &t);
-		if(f.GetNdim() == 0) {
+		
+		std::string par0;
+		int indx;
+		parse_param(param, par0, indx);
+		TDataMember* member = TClass::GetClass("dragon::BeamNorm::RunData")->GetDataMember(par0.c_str());
+		if(!member || param == "time") {
 			std::cerr << "Invalid parameter: \"" << param << "\".\n";
 			break;
 		}
+
+		Long_t offset = member->GetOffset();
+		offset += indx*sizeof(UDouble_t);
+		offset += (Long_t)rundata;
+		UDouble_t* pdata = (UDouble_t*)offset;
+
 		runnum->push_back(it->first);
-		parval->push_back(f.EvalInstance(0));
-		t.ResetBranchAddresses();
+		parval->push_back(*pdata);
 	}
 }
 
@@ -741,12 +785,13 @@ TGraph* dragon::BeamNorm::Plot(const char* param, Marker_t marker, Color_t marke
 	/// 
 	///  Also draws the returned TGraph in its own window.
 
-	TGraph* gr = 0;
-	std::vector<Double_t> runnum, parval;
+	TGraphAsymmErrors* gr = 0;
+	std::vector<Double_t>  runnum;
+	std::vector<UDouble_t> parval;
 	GetParams(param, &runnum, &parval);
 	
 	if(runnum.size()) {
-		gr = new TGraph(runnum.size(), &runnum[0], &parval[0]);
+		gr = PlotUncertainties(runnum.size(), &runnum[0], &parval[0]);
 		gr->SetMarkerStyle(marker);
 		gr->SetMarkerColor(markerColor);
 		gr->Draw("AP");
@@ -758,38 +803,38 @@ void dragon::BeamNorm::Print(const char* param1, const char* param2, const char*
 														 const char* param5, const char* param6, const char* param7, const char* param8,
 														 const char* param9, const char* param10,const char* param11,const char* param12)
 {
-	std::vector<std::string> par;
-	if(param1)  par.push_back(param1);
-	if(param2)  par.push_back(param2);
-	if(param3)  par.push_back(param3);
-	if(param4)  par.push_back(param4);
-	if(param5)  par.push_back(param5);
-	if(param6)  par.push_back(param6);
-	if(param7)  par.push_back(param7);
-	if(param8)  par.push_back(param8);
-	if(param9)  par.push_back(param9);
-	if(param10) par.push_back(param10);
-	if(param11) par.push_back(param11);
-	if(param12) par.push_back(param12);
+	// std::vector<std::string> par;
+	// if(param1)  par.push_back(param1);
+	// if(param2)  par.push_back(param2);
+	// if(param3)  par.push_back(param3);
+	// if(param4)  par.push_back(param4);
+	// if(param5)  par.push_back(param5);
+	// if(param6)  par.push_back(param6);
+	// if(param7)  par.push_back(param7);
+	// if(param8)  par.push_back(param8);
+	// if(param9)  par.push_back(param9);
+	// if(param10) par.push_back(param10);
+	// if(param11) par.push_back(param11);
+	// if(param12) par.push_back(param12);
 
-	std::vector<Double_t> runnum;
-	std::vector<std::vector<Double_t> > parval;
-	for(size_t i=0; i< par.size(); ++i) {
-		std::vector<Double_t> runnum0, parval0;
-		GetParams(par[i].c_str(), &runnum0, &parval0);
-		if(runnum0.size()) {
-			if(runnum.empty()) runnum = runnum0;
-			parval.push_back(parval0);
-		}
-	}
+	// std::vector<Double_t> runnum;
+	// std::vector<std::vector<UDouble_t> > parval;
+	// for(size_t i=0; i< par.size(); ++i) {
+	// 	std::vector<Double_t> runnum0, parval0;
+	// 	GetParams(par[i].c_str(), &runnum0, &parval0);
+	// 	if(runnum0.size()) {
+	// 		if(runnum.empty()) runnum = runnum0;
+	// 		parval.push_back(parval0);
+	// 	}
+	// }
 
-	for(size_t i=0; i< runnum.size(); ++i) {
-		std::cout << runnum.at(i);
-		for(size_t j=0; j< parval.size(); ++j) {
-			std::cout << "\t" << parval.at(j).at(i);
-		}
-		std::cout << "\n";
-	}
+	// for(size_t i=0; i< runnum.size(); ++i) {
+	// 	std::cout << runnum.at(i);
+	// 	for(size_t j=0; j< parval.size(); ++j) {
+	// 		std::cout << "\t" << parval.at(j).at(i);
+	// 	}
+	// 	std::cout << "\n";
+	// }
 }
 
 void dragon::BeamNorm::CalculateRecoils(TFile* datafile, const char* tree, const char* gate)
@@ -804,6 +849,16 @@ void dragon::BeamNorm::CalculateRecoils(TFile* datafile, const char* tree, const
 		return;
 	}
 
+	// Copy aliases from chain
+	TChain* chain = (TChain*)gROOT->GetListOfSpecials()->FindObject(tree);
+	if(chain && chain->InheritsFrom(TChain::Class())) {
+		for(Int_t i=0; i< chain->GetListOfAliases()->GetEntries(); ++i) {
+			TObject* alias = chain->GetListOfAliases()->At(i);
+			t->SetAlias(alias->GetName(), alias->GetTitle());
+		}
+	}
+
+
 	Bool_t haveRunnum = kFALSE;
 	Int_t runnum = 0;
 	midas::Database* db = static_cast<midas::Database*>(datafile->Get("odbstop"));
@@ -813,7 +868,7 @@ void dragon::BeamNorm::CalculateRecoils(TFile* datafile, const char* tree, const
 		return;
 	}
 
-	Long64_t nrecoil = t->GetPlayer()->GetEntries(gate);
+	UDouble_t nrecoil (t->GetPlayer()->GetEntries(gate));
 
 	RunData* rundata = GetRunData(runnum);
 	if(!rundata) {
@@ -824,9 +879,12 @@ void dragon::BeamNorm::CalculateRecoils(TFile* datafile, const char* tree, const
 	assert(rundata);
 	
 	rundata->nrecoil = nrecoil;
-	for(Int_t i=0; i< dragon::SurfaceBarrier::MAX_CHANNELS; ++i) {
-		if(rundata->nbeam[i] != 0)
-			rundata->yield[i] = nrecoil / rundata->nbeam[i];
+	for(Int_t i=0; i< NSB; ++i) {
+		UDouble_t eff = CalculateEfficiency(kFALSE);
+		if(rundata->nbeam[i].GetNominal() != 0 && eff.GetNominal() != 0) {
+			rundata->yield[i] =
+				nrecoil / rundata->nbeam[i] / eff / rundata->live_time_full / rundata->trans_corr;
+		}
 	}
 }
 
@@ -851,4 +909,503 @@ void dragon::BeamNorm::BatchCalculate(TChain* chain, Int_t chargeBeam, Double_t 
 		std::flush(std::cout);
 	}
 	std::cout << "\n";
+}
+
+
+void dragon::BeamNorm::CorrectTransmission(Int_t reference)
+{
+	RunData* refData = GetRunData(reference);
+	if(!refData) {
+		std::cerr << "Coundn't find run data for reference run " << reference << "\n";
+		return;
+	}
+	UDouble_t transRef = refData->fc1 / UDouble_t::Mean(3, refData->fc4);
+
+	for(std::map<Int_t, RunData>::iterator it = fRunData.begin(); it != fRunData.end(); ++it) {
+		RunData& thisData = it->second;
+		UDouble_t transThis = thisData.fc1 / UDouble_t::Mean(3, thisData.fc4);
+		if(it->first != reference)
+			thisData.trans_corr = (transThis / transRef);
+		else
+			thisData.trans_corr = UDouble_t(1, 0);
+
+		for(int i=0; i< NSB; ++i) {
+			thisData.yield[i] /= thisData.trans_corr;
+		}
+	}
+}
+
+UDouble_t dragon::BeamNorm::CalculateEfficiency(Bool_t print)
+{
+	UDouble_t eff (1, 0);
+	for(std::map<std::string, UDouble_t>::iterator it = fEfficiencies.begin(); it != fEfficiencies.end(); ++it) {
+		eff *= it->second;
+	}	
+	if(print) {
+		std::cout << eff*100. << " %\n";
+	}
+	return eff;
+}
+
+UDouble_t dragon::BeamNorm::CalculateYield(Int_t whichSb, Bool_t print)
+{
+	if(whichSb < 0 || whichSb >= NSB) {
+		std::cerr << "Invalid sb index << " << whichSb << ", valid options are 0 -> " << NSB-1 << "\n";
+		return UDouble_t(0,0);
+	}
+
+	UDouble_t beam(0,0), recoil(0,0);
+	for(std::map<Int_t, RunData>::iterator it = fRunData.begin(); it != fRunData.end(); ++it) {
+		RunData& thisData = it->second;
+		beam += thisData.nbeam[whichSb];
+		recoil += (thisData.nrecoil / thisData.trans_corr / thisData.live_time_full);
+	}
+
+	UDouble_t eff = CalculateEfficiency(kFALSE);
+	UDouble_t out = recoil / beam / eff;
+
+	if(print) {
+		std::cout << "Beam:      \t" << beam   << "\n"
+							<< "Recoil:    \t" << recoil << "\n"
+							<< "Efficiency:\t" << eff    << "\n"
+							<< "Yield:     \t" << out    << "\n";
+	}
+
+	return out;
+}
+
+
+
+// ================ Class LiveTimeCalculator ================ //
+
+dragon::LiveTimeCalculator::LiveTimeCalculator():
+	fFile(0)
+{
+	std::fill_n(fRuntime,  2, 0.);
+	std::fill_n(fBusytime, 2, 0.);
+	std::fill_n(fLivetime, 3, 1.);
+}
+
+dragon::LiveTimeCalculator::LiveTimeCalculator(TFile* file): 
+	fFile(file)
+{
+	Calculate();
+}
+
+Double_t dragon::LiveTimeCalculator::GetBusytime(const char* which) const
+{
+	int indx = -1;
+	if     (!strcmp(which, "head")) indx = 0;
+	else if(!strcmp(which, "tail")) indx = 1;
+	if(indx >= 0) return fBusytime[indx];
+	std::cerr << "Error: invalid specification \"" << which
+						<< "\", please specify \"head\" or \"tail\"\n";
+	return 0;
+}
+
+Double_t dragon::LiveTimeCalculator::GetRuntime(const char*  which) const
+{
+	int indx = -1;
+	if     (!strcmp(which, "head")) indx = 0;
+	else if(!strcmp(which, "tail")) indx = 1;
+	if(indx >= 0) return fRuntime[indx];
+	std::cerr << "Error: invalid specification \"" << which
+						<< "\", please specify \"head\" or \"tail\"\n";
+	return 0;
+}
+
+Double_t dragon::LiveTimeCalculator::GetLivetime(const char* which) const
+{
+	int indx = -1;
+	if     (!strcmp(which, "head"))  indx = 0;
+	else if(!strcmp(which, "tail"))  indx = 1;
+	else if(!strcmp(which, "coinc")) indx = 2;
+	if(indx >= 0) return fLivetime[indx];
+	std::cerr << "Error: invalid specification \"" << which
+						<< "\", please specify \"head\", \"tail\", or \"coinc\"\n";
+	return 0;
+}
+
+Bool_t dragon::LiveTimeCalculator::CheckFile()
+{
+	if(!fFile || fFile->IsZombie()) {
+		std::cerr << "Error: Invalid or no file loaded.\n";
+		return kFALSE;
+	}
+	Bool_t okay = kTRUE;
+	if(okay) okay = fFile->Get("t1") && fFile->Get("t1")->InheritsFrom(TTree::Class());
+	if(okay) okay = fFile->Get("t3") && fFile->Get("t1")->InheritsFrom(TTree::Class());
+	if(okay) okay = fFile->Get("t4") && fFile->Get("t1")->InheritsFrom(TTree::Class());
+	if(!okay) {
+		std::cerr << "Error: missing necessary trees in loaded file\n";
+		return kFALSE;
+	}
+
+	if(okay) okay = ((TTree*)fFile->Get("t1"))->GetLeaf("io32.busy_time");
+	if(okay) okay = ((TTree*)fFile->Get("t3"))->GetLeaf("io32.busy_time");
+	if(!okay) {
+		std::cerr << "Error: missing leaf \"io32.busy_time\" in either \"t1\" or \"t3\"\n";
+		return kFALSE;
+	}
+
+	okay = fFile->Get("odbstop") && fFile->Get("odbstop")->InheritsFrom(midas::Database::Class());
+	if(!okay) {
+		std::cerr << "Error: Loaded file is missing database \"odbstop\"\n";
+		return kFALSE;
+	}
+
+	return kTRUE;
+}
+
+void dragon::LiveTimeCalculator::DoCalculate(Double_t tbegin, Double_t tend)
+{
+	Bool_t isFull = (tbegin < 0 || tend < 0);
+	if (isFull) {
+		if(tbegin > 0 || tend > 0) {
+			std::cerr << "Error: invalid parameters to LiveTimeCalculator::DoCalculate(): "
+								<< "tbegin = " << tbegin <<  ", tend = " << tend << "\n";
+			return;
+		}
+	}
+
+	TTree *t1 = 0, *t3 = 0, *t5 = 0;
+	t1 = (TTree*)fFile->Get("t1");
+	t3 = (TTree*)fFile->Get("t3");
+	t5 = (TTree*)fFile->Get("t5");
+	
+	TTree* trees[3] = { t1, t3, t5 };
+
+	Int_t time0, time1, tclock;
+	midas::Database* db = (midas::Database*)fFile->Get("odbstop");
+	db->ReadValue("/Runinfo/Start time binary", time0);
+	db->ReadValue("/Runinfo/Stop time binary",  time1);
+	tclock = time1 - time0;
+	
+	double rolltime = 0xffffffff / 20e6; // 32-bit clock rollover
+	int nroll = tclock / rolltime;
+	double trigStart[2], trigStop[2];
+	db->ReadArray("/Experiment/Run Parameters/TSC_TriggerStart", trigStart, 2);
+	db->ReadArray("/Experiment/Run Parameters/TSC_TriggerStop",  trigStop,  2);
+
+	for(int i=0; i< 2; ++i) {
+		Long_t n = 0;
+
+		std::stringstream cut;
+		cut.precision(20);
+
+		if(isFull)
+			cut << "";
+		else {
+			ULong64_t rollCorrect = 0;
+			n = trees[i]->Draw("io32.tsc4.trig_time", "", "goff", 1);
+			if(n>0) {
+				if( trees[i]->GetV1()[0] >= ((ULong64_t)1<<36)/20. ) {
+					rollCorrect = ((ULong64_t)1 << 36)/20.;
+				}
+			}
+
+			cut << "    (io32.tsc4.trig_time - " << rollCorrect << ") - " << trigStart[i] << " > " << tbegin*1e6
+					<< " && (io32.tsc4.trig_time - " << rollCorrect << ") - " << trigStart[i] << " < " << tend*1e6;
+		}
+
+		// std::cout << cut.str() << "\n";
+
+		n = trees[i]->Draw("io32.busy_time", cut.str().c_str(), "goff");
+		fBusytime[i] = TMath::Mean(n, trees[i]->GetV1()) * n / 20e6;
+
+		double stoptime = trigStop[i] + nroll*rolltime;
+		fRuntime[i] = isFull ? stoptime - trigStart[i] : tend - tbegin;
+
+		fLivetime[i] = (fRuntime[i] - fBusytime[i]) / fRuntime[i];
+	}
+}
+
+void dragon::LiveTimeCalculator::Calculate()
+{
+	if(!CheckFile()) return;
+	DoCalculate(-1, -1);
+}
+
+
+void dragon::LiveTimeCalculator::CalculateSub(Double_t tbegin, Double_t tend)
+{
+	if(!CheckFile()) return;
+	DoCalculate(tbegin, tend);
+}
+
+
+// ================ class dragon::StoppingPowerCalculator ================ //
+
+Double_t dragon::StoppingPowerCalculator::TorrCgs(Double_t torr)
+{
+	///
+	/// \param torr Pressure in `torr`
+	/// \returns Pressure in `dyn/cm^2`
+
+	return 10 * torr * 101325 / 760;
+}
+
+UDouble_t dragon::StoppingPowerCalculator::TorrCgs(UDouble_t torr)
+{
+	///
+	/// \param torr Pressure in `torr` (with uncertainty)
+	/// \returns Pressure in `dyn/cm^2` (with uncertainty)
+
+	return 10 * torr * 101325 / 760;
+}
+
+Double_t dragon::StoppingPowerCalculator::CalculateDensity(Double_t pressure, Double_t length,
+																													 Int_t nmol, Double_t temp)
+{
+	///
+	/// \param pressure Gas pressure in torr
+	/// \param length Effective target length in cm
+	/// \param nmol Number of atoms per molecule in the gas
+	/// \param temp Temperature in kelvin
+	/// \returns Density in atoms / cm^2
+
+	return nmol * TorrCgs(pressure) * length / TMath::Kcgs() / temp;
+}
+
+UDouble_t dragon::StoppingPowerCalculator::CalculateDensity(UDouble_t pressure, UDouble_t length,
+																														Int_t nmol, Double_t temp)
+{
+	///
+	/// \param pressure Gas pressure in torr (with uncertainty)
+	/// \param length Effective target length in cm (with uncertainty)
+	/// \param nmol Number of atoms per molecule in the gas
+	/// \param temp Temperature in kelvin
+	/// \returns Density in atoms / cm^2 (with uncertainty)
+
+	return nmol * TorrCgs(pressure) * length / TMath::Kcgs() / temp;
+}
+
+UDouble_t dragon::StoppingPowerCalculator::CalculateEnergy(Double_t md1, Double_t md1Err, Int_t q, Double_t m,
+																													 Double_t cmag, Double_t cmagErr)
+{
+	///
+	/// Equation used is from Dave H's NIM paper on BGO z-position (includes relativity):
+	/// `E/m = cmag * (qB/m)^2 - [1/(2*u*c^2)] * (E/m)^2`
+	///
+	/// \param md1 MD1 field in Gauss
+	/// \param md1Err Absolute error on MD1 field
+	/// \param q Beam charge state
+	/// \param m Beam mass in AMU
+	/// \param cmag "Magnetic constant" for MD1 in (keV/u)*G^2
+	/// \param cmagErr Absolute error on _cmag_
+	///
+	/// \returns Beam energy in keV/u
+
+	Double_t  a = 1/(2*dragon::Constants::AMU());
+	Double_t  b = 1.;
+	UDouble_t c = -1 * UDouble_t(cmag, cmagErr) * UDouble_t::pow((Double_t)q * UDouble_t(md1, md1Err) / m, 2);
+
+	return (-b + UDouble_t::sqrt(b*b - 4*a*c)) / (2*a);
+}
+
+dragon::StoppingPowerCalculator::StoppingPowerCalculator(Int_t beamCharge, Double_t beamMass, Int_t nmol,
+																												 Double_t targetLen, Double_t targetLenErr,
+																												 Double_t cmd1, Double_t cmd1Err,
+																												 Double_t temp):
+	fBeamMass(beamMass),
+	fBeamCharge(beamCharge),
+	fNmol(nmol),
+	fTargetLength(targetLen, targetLenErr),
+	fTemp(temp),
+	fMd1Constant(cmd1, cmd1Err)
+{
+	///
+	/// \param beamCharge Beam charge state
+	/// \param beamMass Beam mass in AMU
+	/// \param nmol Number of atoms per molecule in the target
+	/// \param targetLen Effective gas target length in cm
+	/// \param targetLenErr Absolute error on targetLen
+	/// \param cmd1 "Magnetic constant" for MD1 in (keV/u)*G^2
+	/// \param cmd1Err Absolute error on _cmd1_
+	/// \param temp Ambient temperature in kelvin
+	;
+}
+
+
+void dragon::StoppingPowerCalculator::AddMeasurement(Double_t pressure, Double_t pressureErr,
+																										 Double_t md1, Double_t md1Err)
+{
+	/// \param pressure Measured pressure in torr
+	/// \param pressureErr Error (absolute) on the pressure measurement
+	/// \param md1 Measured MD1 field
+	/// \param md1Err Error (absolute) on measured MD1 field
+
+	UDouble_t upressure (pressure, pressureErr);
+	UDouble_t energy = CalculateEnergy(md1, md1Err, fBeamCharge, fBeamMass,
+																		 fMd1Constant.GetNominal(), fMd1Constant.GetErrLow());
+
+	UDouble_t density = CalculateDensity(upressure, fTargetLength, fNmol, fTemp);
+
+	fEnergies.push_back(energy);
+	fDensities.push_back(density);
+	fPressures.push_back(upressure);
+	fMd1.push_back(UDouble_t(md1, md1Err));
+}
+
+dragon::StoppingPowerCalculator::Measurement_t
+dragon::StoppingPowerCalculator::GetMeasurement(Int_t index) const
+{
+	/// \param index Which measurement to return
+
+	Measurement_t retval = {0, 0, 0, 0};
+	size_t index0 = index;
+	if(index0 < fEnergies.size()) {
+		retval.pressure = fPressures.at(index0);
+		retval.energy = fEnergies.at(index0);
+		retval.density = fDensities.at(index0);
+		retval.md1 = fMd1.at(index0);
+	} else {
+		std::cerr << "Error invalid index " << index
+							<< ", valid options are [0, ) " << fEnergies.size() << "\n";
+	}
+	
+	return retval;
+}
+
+void dragon::StoppingPowerCalculator::RemoveMeasurement(Int_t index)
+{
+	/// \param index Which measurement to remove
+
+	size_t index0 = index;
+	if(index0 < fEnergies.size()) {
+		fPressures.erase(fPressures.begin() + index0);
+		fEnergies.erase (fPressures.begin() + index0);
+	} else {
+		std::cerr << "Error invalid index " << index
+							<< ", valid options are [0, ) " << fEnergies.size() << "\n";
+	}
+}
+
+TGraph* dragon::StoppingPowerCalculator::PlotMeasurements(AxisType_t xaxis, Bool_t draw) const
+{
+	///
+	/// \param xaxis Specify the x axis. Valid options are dragon::StoppingPowerCalculator::kPRESSURE (== 0)
+	///  to plot energy vs. pressure, or dragon::StoppingPowerCalculator::kPRESSURE (== 1) to plot energy vs.
+	///  density in atoms/cm^2.
+	/// \param draw Argument `true` plots the graph with option `"AP"` in addition to
+	///  returning it.
+	/// \returns TGraph of pressure vs. energy, with asymmetric error bars on
+	///  both axes. Responsibility is on the user to delete the returned graph.
+
+	TGraph* out = 0;
+	if(!fEnergies.empty()) {
+		if(xaxis == kDENSITY)
+			out = PlotUncertainties(fEnergies.size(), &fDensities[0], &fEnergies[0]);
+		else
+			out = PlotUncertainties(fEnergies.size(), &fPressures[0], &fEnergies[0]);
+	}
+	if(out) {
+		out->SetMarkerStyle(21);
+		if(draw) out->Draw("AP");
+	}
+	return out;
+}
+
+UDouble_t dragon::StoppingPowerCalculator::CalculateEpsilon(TGraph** plot)
+{
+	///
+	/// \param [out] plot Address of a pointer to a TGraph that will contain
+	///  a plot of energy vs. density upon successful return. Passing a non-NULL
+	///  plot argument also causes the plot to be drawn with option "AP". The default
+	///  argument (NULL) bypasses any plotting and simply calculates the epsilon parameter.
+	/// \returns The `epslion` parameter used in calculations of omega-gamma, in units of
+	///  eV / [atoms / cm^2]
+
+
+	UDouble_t out(0,0);
+	std::auto_ptr<TGraph> g (PlotMeasurements(kDENSITY, false));
+	if(!g.get()) return out;
+
+	TFitResultPtr fitresult = plot ? g->Fit("pol1", "FS") : g->Fit("pol1", "QFS");
+	if(fitresult.Get() && fitresult->NPar() == 2) {
+		out.SetNominal(-1*fitresult->GetParams()[1]);
+		out.SetErr(fitresult->GetErrors()[1]);
+
+		out *= fBeamMass; // keV/u -> keV
+		out *= 1e3; // keV -> eV
+	}
+
+	if(plot) {
+		*plot = (TGraph*)g->Clone();
+		(*plot)->SetMarkerStyle(21);
+		char buf[256];
+		if(out.GetErrHigh() != out.GetErrLow()) {
+			sprintf(buf, "Stopping power: %g ^{+%g}_{-%g} eV cm^{2} / atom;Density [atoms/cm^{2}];Energy [keV/u]",
+							out.GetNominal(), out.GetErrLow(), out.GetErrHigh());
+		}
+		else {
+			sprintf(buf, "Stopping power: %g +/-%g eV cm^{2} / atom;Density [atoms/cm^{2}];Energy [keV/u]",
+							out.GetNominal(), out.GetErrLow());
+		}
+		(*plot)->SetTitle(buf);
+		(*plot)->Draw("AP");
+	}
+
+	return out;
+}
+
+
+
+// ================ Class dragon::ResonanceStrengthCalculator ================ //
+
+
+dragon::ResonanceStrengthCalculator::ResonanceStrengthCalculator(Double_t eres, Double_t mbeam, Double_t mtarget,
+																																 dragon::BeamNorm* beamNorm, UDouble_t epsilon):
+	fBeamNorm(beamNorm), fEpsilon(epsilon), fBeamMass(mbeam), fTargetMass(mtarget), fResonanceEnergy(eres)
+{
+	///
+	/// \param eres Resonance energy in keV (center of mass)
+	/// \param mbeam Beam mass in amu
+	/// \param mtarget Target mass in amu
+	/// \param beamNorm Pointer to a constructed dragon::BeamNorm object (takes no ownership)
+	/// \param epsilon "Stopping power" in e*cm^2/atom (see dragon::StoppingPowerCalculator)
+}
+
+UDouble_t dragon::ResonanceStrengthCalculator::CalculateResonanceStrength(Int_t whichSb)
+{
+	/// \param whichSb Specify the sirface barrier detector to use
+	///  for normalization
+	/// \returns Resonance strenght in eV.
+	
+	if(!fBeamNorm) return UDouble_t(0,0);
+	UDouble_t yield = fBeamNorm->CalculateYield(whichSb);
+	UDouble_t wavelength = CalculateWavelength(fResonanceEnergy, fBeamMass, fTargetMass);
+	return CalculateResonanceStrength(yield, fEpsilon, wavelength, fBeamMass, fTargetMass);
+}
+
+TGraph* dragon::ResonanceStrengthCalculator::PlotResonanceStrenght(Int_t whichSb)
+{
+	return 0;
+}
+
+
+UDouble_t dragon::ResonanceStrengthCalculator::CalculateWavelength(UDouble_t eres, Double_t mbeam, Double_t mtarget)
+{
+	/// \param eres Resonance energy in center-of-mass [keV].
+	/// \param mbeam Mass of the beam in AMU
+	/// \param mtarget Mass of the target in AMU
+	/// \returns DeBroglie wavelength in cm.
+
+	Double_t mu = 1000*dragon::Constants::AMU()*mbeam*mtarget / (mbeam + mtarget); // reduced mass in eV/c^2
+	eres *= 1e3; // keV -> eV
+	UDouble_t pc = UDouble_t::sqrt(eres*eres + 2.*eres*mu);
+
+	Double_t hc = TMath::HC() * 1e9 / TMath::Qe(); // eV*nm
+	UDouble_t lambda = 1239.84 / pc; // nm
+	lambda /= 1e7; // cm
+	return lambda;
+}
+
+UDouble_t dragon::ResonanceStrengthCalculator::CalculateResonanceStrength(UDouble_t yield, UDouble_t epsilon,
+																																					UDouble_t wavelength,
+																																					Double_t mbeam, Double_t mtarget)
+{
+	UDouble_t wg = 2.*epsilon*yield / (wavelength*wavelength);
+	wg *= (mtarget / (mbeam+mtarget));
+	return wg;
 }

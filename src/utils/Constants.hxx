@@ -22,6 +22,15 @@ public:
   /// Electron charge in A*s
 	static const double ElectronCharge() { return 1.602176487e-19; }
 
+	/// Electron mass in keV/c^2
+	static const double ElectronMass() { return 0.510998910; }
+
+	/// AMU in keV/c^2
+	static const double AMU()   { return 931494.061; }
+
+	/// AMU in kilograms
+	static const double AMUkg() { return 1.660538921e-27; }
+
 };
 
 }

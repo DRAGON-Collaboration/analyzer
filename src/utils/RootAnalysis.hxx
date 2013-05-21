@@ -13,6 +13,7 @@
 #include <iostream>
 #include <algorithm>
 
+#include <TCut.h>
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
@@ -665,7 +666,7 @@ public:
 	/// Close rossumData file
 	void CloseFile();
 	/// Return the tree containing rossum data for a given run
-	TTree* GetTree(Int_t runnum);
+	TTree* GetTree(Int_t runnum) const;
 	/// List available trees
 	void ListTrees() const;
 	/// Open a rossumData file
@@ -675,8 +676,10 @@ public:
 	/// Check if a rossumData file is currently open
 	Bool_t IsFileOpen() { return fFile.get(); }
 	/// Get the average beam current from a set of cup readings
-	Double_t AverageCurrent(Int_t run, Int_t cup, Int_t iteration = 0,
-													Double_t skipBegin = 10, Double_t skipEnd = 5);
+	UDouble_t AverageCurrent(Int_t run, Int_t cup, Int_t iteration = 0,
+													 Double_t skipBegin = 10, Double_t skipEnd = 5);
+	/// Plot FC4 / FC1 for a series of runs
+	TGraph* PlotTransmission(Int_t* runs, Int_t nruns);
 private:
 	void SetCups();
 	TTree* MakeTree();
@@ -713,6 +716,10 @@ public:
 		UDouble_t pressure_full;
 		/// FC4 current, per iteration
 		UDouble_t fc4[3];
+		/// FC1 current
+		UDouble_t fc1;
+		/// Transmission correction
+		UDouble_t trans_corr;
 		/// Normalization factor `R`, per sb detector
 		UDouble_t sbnorm[dragon::SurfaceBarrier::MAX_CHANNELS];
 		/// Total integrated beam particles for the run
@@ -722,8 +729,8 @@ public:
 		/// Yield, per SB norm
 		UDouble_t yield[dragon::SurfaceBarrier::MAX_CHANNELS];
 		/// Set defaults
-		RunData(): time(0), live_time(0), live_time_full(0), pressure(0), pressure_full(0)
-			{  
+		RunData(): time(0), live_time(0), live_time_full(0), pressure(0), pressure_full(0), trans_corr(1,0)
+			{
 				std::fill_n(sb_counts,      dragon::SurfaceBarrier::MAX_CHANNELS, UDouble_t(0));
 				std::fill_n(sb_counts_full, dragon::SurfaceBarrier::MAX_CHANNELS, UDouble_t(0));
 				std::fill_n(sbnorm,         dragon::SurfaceBarrier::MAX_CHANNELS, UDouble_t(0));
@@ -744,6 +751,16 @@ public:
 											Double_t pkLow1, Double_t pkHigh1,
 											const char* recoilGate = 0,
 											Double_t time = 120, Double_t skipBegin = 10, Double_t skipEnd = 5);
+	/// Batch calculate over a chain of files
+	void BatchCalculate(TChain* chain, Int_t chargeBeam,
+											Double_t pkLow0, Double_t pkHigh0,
+											Double_t pkLow1, Double_t pkHigh1,
+											const TCut& recoilGate,
+											Double_t time = 120, Double_t skipBegin = 10, Double_t skipEnd = 5)
+		{
+			BatchCalculate(chain, chargeBeam, pkLow0, pkHigh0, pkLow1, pkHigh1,
+										 recoilGate.GetTitle(), time, skipBegin, skipEnd);
+		}
 	/// Calculate the number of recoils per run
 	void CalculateRecoils(TFile* datafile, const char* tree, const char* gate);
 	/// Integrate the surface barrier counts at the beginning and end of a run
@@ -762,18 +779,197 @@ public:
 						 const char* param5 = 0, const char* param6 = 0, const char* param7 = 0, const char* param8 = 0,
 						 const char* param9 = 0, const char* param10= 0, const char* param11= 0, const char* param12= 0);
 
+	UDouble_t GetEfficiency(const char* name) const
+		{
+			std::map<std::string, UDouble_t>::const_iterator i = fEfficiencies.find(name);
+			return i != fEfficiencies.end() ? i->second : UDouble_t(1,0);
+		}
+	void SetEfficiency(const char* name, UDouble_t value) { fEfficiencies[name] = value; }
+	void SetEfficiency(const char* name, Double_t value)  { fEfficiencies[name] = UDouble_t(value, 0); }
+	void CorrectTransmission(Int_t reference);
+	UDouble_t CalculateEfficiency(Bool_t print = kTRUE);
+	UDouble_t CalculateYield(Int_t whichSb, Bool_t print = kTRUE);
+
 private:
-	BeamNorm(const BeamNorm&) { }
-	BeamNorm& operator=(const BeamNorm&) { return *this; }
 	Bool_t HaveRossumFile() { return fRossum.get(); }
-	void GetParams(const char* param, std::vector<Double_t> *runnum, std::vector<Double_t> *parval);
+	void GetParams(const char* param, std::vector<Double_t> *runnum, std::vector<UDouble_t> *parval);
 
 private:
 	std::map<Int_t, RunData> fRunData;
 	std::auto_ptr<RossumData> fRossum;
+	std::map<std::string, UDouble_t> fEfficiencies;
+};
+
+
+/// Stopping power calculator
+class StoppingPowerCalculator {
+public:
+	enum AxisType_t {
+		kPRESSURE,
+		kDENSITY
+	};
+	struct Measurement_t { 
+		UDouble_t pressure;
+		UDouble_t density;
+		UDouble_t md1;
+		UDouble_t energy;
+	};
+public:
+	/// Construct a stopping power calculator with parameters
+	StoppingPowerCalculator(Int_t beamCharge, Double_t beamMass, Int_t nmol,
+													Double_t targetLen = 12.3, Double_t targetLenErr = 0.4,
+													Double_t cmd1 = 4.823e-4, Double_t cmd1Err = 7.2345e-7,
+													Double_t temp = 293.15);
+	/// Get the target length
+	UDouble_t GetTargetLength() const { return fTargetLength; } // cm
+	/// Set the target length
+	void SetTargetLength(Double_t len, Double_t err) { fTargetLength = UDouble_t(len, err); } // cm
+	/// Get the temperature
+	Double_t GetTemp() const { return fTemp; }     // kelvin
+	/// Set the temperature
+	void SetTemp(Double_t temp) { fTemp = temp; }  // kelvin
+	/// Get beam charge
+	Int_t GetQbeam() const { return fBeamCharge; } // e
+	/// Set beam charge
+	void SetQbeam(Int_t q) { fBeamCharge = q; }    // e
+	/// Get beam mass
+	Double_t GetBeamMass() const { return fBeamMass; }    // amu
+	/// Set beam mass
+	void SetBeamMass(Double_t mass) { fBeamMass = mass; } // amu
+	/// Get atoms/molecule
+	Int_t GetNmol() const { return fNmol; }        // atoms/molecule
+	/// Set atoms/molecule
+	void SetNmol(Int_t nmol) { fNmol = nmol; }     // atoms/molecule
+	/// Get MD1 constant
+	UDouble_t GetMd1Constant() const { return fMd1Constant; } // keV/u * Gauss^2
+	/// Set MD1 constant
+	void SetMd1Constant(Double_t md1, Double_t md1Err) { fMd1Constant = UDouble_t (md1, md1Err); } // keV/u * Gauss^2
+	/// Add a pressure, energy measurement
+	void AddMeasurement(Double_t pressure, Double_t pressureErr, Double_t md1, Double_t md1Err);
+	/// Get a pressure, energy measurement
+	Measurement_t GetMeasurement(Int_t index) const;
+	/// Remove a pressure, energy measurement
+	void RemoveMeasurement(Int_t index);
+	/// Plot energy vs. pressure or density
+	TGraph* PlotMeasurements(AxisType_t xaxis = kPRESSURE, Bool_t draw = kTRUE) const;
+	/// Calculate the `epsilon` parameter - slope of eloss vs. (atoms/cm^2)
+	UDouble_t CalculateEpsilon(TGraph** plot = 0);
+public:
+	/// Convert pressure in torr to dyn/cm^2
+	static Double_t TorrCgs(Double_t torr); // dyn/cm^2
+	/// Convert pressure in torr to dyn/cm^2 (with uncertainty)
+	static UDouble_t TorrCgs(UDouble_t torr); // dyn/cm^2
+	/// Calculate target density in atoms/cm^2
+	static Double_t CalculateDensity(Double_t pressure, Double_t length, Int_t nmol, Double_t temp = 293.15);
+	/// Calculate target density in atoms/cm^2 (with uncertainty)
+	static UDouble_t CalculateDensity(UDouble_t pressure, UDouble_t length, Int_t nmol, Double_t temp = 293.15);
+	/// Calculate beam energy from MD1 field
+	static UDouble_t CalculateEnergy(Double_t md1, Double_t md1Err, Int_t q, Double_t m,
+																	 Double_t cmag = 4.823e-4, Double_t cmagErr = 0.0015*4.823e-4);
+private:
+	/// Atomic mass of beam
+	Double_t fBeamMass;
+	/// Charge of beam
+	Int_t fBeamCharge;
+	/// Target atoms / gas molecule
+	Int_t fNmol;
+	/// Target effective length
+	UDouble_t fTargetLength;
+	/// Temperature
+	Double_t fTemp;
+	/// MD1 constant
+	UDouble_t fMd1Constant;
+	/// Pressure  measurements
+	std::vector<UDouble_t> fPressures;
+	/// Pressure  measurements
+	std::vector<UDouble_t> fDensities;
+	/// MD1 measurements
+	std::vector<UDouble_t> fMd1;
+	/// Energy measurements
+	std::vector<UDouble_t> fEnergies;
+};
+
+
+/// Live time calculator
+class LiveTimeCalculator {
+public:
+	LiveTimeCalculator();
+	LiveTimeCalculator(TFile* file);
+	void Calculate();
+	void CalculateSub(Double_t tbegin, Double_t tend);
+	Double_t GetBusytime(const char* which) const;
+	Double_t GetRuntime(const char*  which) const;
+	Double_t GetLivetime(const char* which) const;
+	TFile* GetFile() const { return fFile; }
+	void SetFile(TFile* file) { fFile = file; }
+
+private:
+	Bool_t CheckFile();
+	void DoCalculate(Double_t tbegin, Double_t tend);
+
+private:
+	TFile* fFile;
+	Double_t fRuntime[2];
+	Double_t fBusytime[2];
+	Double_t fLivetime[3];
+};
+
+
+/// Class to calculate resonance strength (omega-gamma) from yield & stopping power measurements.
+class ResonanceStrengthCalculator {
+public:
+	/// Ctor
+	ResonanceStrengthCalculator(Double_t eres, Double_t mbeam, Double_t mtarget,
+															dragon::BeamNorm* beamNorm, UDouble_t epsilon);
+
+	/// Returns fBeamNorm
+	BeamNorm* GetBeamNorm() const { return fBeamNorm; }
+	/// Set a new BeamNorm calculator
+	void SetBeamNorm(BeamNorm* norm) { fBeamNorm = norm; }
+	/// Returns fEpsilon
+	UDouble_t GetEpsilon() const { return fEpsilon; }          // eV*cm^2/atom
+	/// Change fEpsilon
+	void SetEpsilon(UDouble_t epsilon) { fEpsilon = epsilon; } // eV*cm^2/atom
+	/// Returns the beam mass in amu
+	Double_t GetBeamMass() const { return fBeamMass; }    // amu
+	/// Set the beam mass in amu
+	void SetBeamMass(Double_t mass) { fBeamMass = mass; } // amu
+	/// Returns the target mass in amu
+	Double_t GetTargetMass() const { return fTargetMass; }    // amu
+	/// Set the target mass in amu
+	void SetTargetMass(Double_t mass) { fTargetMass = mass; } // amu
+	/// Returns the resonance energy in keV
+	Double_t GetResonanceEnergy() const { return fResonanceEnergy; }    // keV
+	/// Set the resonance energy in keV
+	void SetResonanceEnergy(Double_t mass) { fResonanceEnergy = mass; } // keV
+	/// Calculate total resonance strength from all runs.
+	UDouble_t CalculateResonanceStrength(Int_t whichSb);
+	/// Plot resonance strength vs. run number
+	TGraph* PlotResonanceStrenght(Int_t whichSb);
+	
+public:
+	/// Calculate DeBroglie wavelength in the CM system
+	static UDouble_t CalculateWavelength(UDouble_t eres /*keV*/, Double_t mbeam /*amu*/, Double_t mtarget /*amu*/); // cm
+	/// Calculate resonance strength
+	static UDouble_t CalculateResonanceStrength(UDouble_t yield, UDouble_t epsilon, UDouble_t wavelength,
+																							Double_t mbeam, Double_t mtarget); // eV
+
+private:
+	BeamNorm* fBeamNorm;
+	UDouble_t fEpsilon;
+	Double_t fBeamMass;
+	Double_t fTargetMass;
+	Double_t fResonanceEnergy;  ///\todo should have uncertainty
 };
 
 } // namespace dragon
+
+
+
+
+
+
+// ============ INLINED MEMBER FUNCTIONS ============ //
 
 inline void dragon::ASelector::Begin(TTree*)
 {

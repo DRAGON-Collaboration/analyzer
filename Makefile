@@ -53,6 +53,7 @@ OBJ=$(PWD)/obj
 CINT=$(PWD)/cint
 DRLIB=$(PWD)/lib
 
+DEFINITIONS+=-DDRAGON_AME12_FILENAME=\"$(PWD)/src/utils/mass.mas12\"
 DYLIB=-shared
 FPIC=-fPIC
 INCFLAGS=-I$(SRC) -I$(CINT)
@@ -131,7 +132,10 @@ $(OBJ)/Unpack.o				\
 $(OBJ)/TStamp.o		              	\
 $(OBJ)/Vme.o				\
 $(OBJ)/Dragon.o				\
+$(OBJ)/utils/TAtomicMass.o              \
 $(OBJ)/utils/Uncertainty.o
+#$(OBJ)/utils/UDouble.o
+
 
 ifeq ($(USE_ROOT), YES)
 OBJECTS+=$(OBJ)/utils/RootAnalysis.o
