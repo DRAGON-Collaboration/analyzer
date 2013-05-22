@@ -299,9 +299,10 @@ dragon::RossumData::RossumData():
 	SetCups();
 }
 
-dragon::RossumData::RossumData(const char* filename):
+dragon::RossumData::RossumData(const char* name, const char* filename):
 	fFile(0)
 {
+	SetNameTitle(name, filename);
 	SetCups();
 	bool opened = OpenFile(filename, kTRUE);
 	if(!opened) CloseFile();
@@ -542,15 +543,26 @@ TGraph* dragon::RossumData::PlotTransmission(Int_t* runs, Int_t nruns)
 
 // ============ Class dragon::BeamNorm ============ //
 
-dragon::BeamNorm::BeamNorm(const char* rossumFile):
+
+dragon::BeamNorm::BeamNorm():
 	fRossum(0)
 {
+	;
+}
+
+dragon::BeamNorm::BeamNorm(const char* name, const char* rossumFile):
+	fRossum(0)
+{
+	SetNameTitle(name, rossumFile);
 	ChangeRossumFile(rossumFile);
 }
 
 void dragon::BeamNorm::ChangeRossumFile(const char* name)
 {
-	fRossum.reset(new RossumData(name));
+	SetTitle(name);
+	std::string rossumName = GetName();
+	rossumName += "_rossum";
+	fRossum.reset(new RossumData(rossumName.c_str(), name));
 }
 
 Int_t dragon::BeamNorm::ReadSbCounts(TFile* datafile, Double_t pkLow0, Double_t pkHigh0,

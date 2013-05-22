@@ -655,12 +655,12 @@ public :
 };
 
 /// Class to extract data from rossum output files
-class RossumData {
+class RossumData: public TNamed {
 public:
 	/// Empty constructor
 	RossumData();
 	/// Opens a rossumData file
-	RossumData(const char* filename);
+	RossumData(const char* name, const char* filename);
 	/// Free memry allocated to TTrees
 	~RossumData();
 	/// Close rossumData file
@@ -686,17 +686,19 @@ private:
 	RossumData(const RossumData&) { }
 	RossumData& operator= (const RossumData&) { return *this; }
 private:
-	std::auto_ptr<std::ifstream> fFile;
+	std::auto_ptr<std::ifstream> fFile; //!
 	std::map<Int_t, TTree*> fTrees;
 	std::map<std::string, Int_t> fWhichCup;
 	Int_t fCup;
 	Int_t fIteration;
 	Double_t fTime;
 	Double_t fCurrent;
+
+	ClassDef(RossumData, 1);
 };
 
 /// Class to handle calculation of beam normalization
-class BeamNorm {
+class BeamNorm: public TNamed {
 public:
 	/// Summarizes relevant normalization data for a run
 	struct RunData {
@@ -740,7 +742,10 @@ public:
 	};
 
 public:
-	BeamNorm(const char* rossumFile);
+	//// Dummy constructor
+	BeamNorm();
+	/// Construct from rossum file
+	BeamNorm(const char* name, const char* rossumFile);
 	/// Switch to a new rossum file
 	void ChangeRossumFile(const char* name);
 	/// Get a pointer to the rossum file
@@ -798,6 +803,8 @@ private:
 	std::map<Int_t, RunData> fRunData;
 	std::auto_ptr<RossumData> fRossum;
 	std::map<std::string, UDouble_t> fEfficiencies;
+
+	ClassDef(BeamNorm, 1);
 };
 
 
@@ -1280,5 +1287,7 @@ inline void dragon::ScalerSelector::Init(TTree *tree)
 	fChain->SetBranchAddress("sum[17]", sum, &b_sch_sum);
 	fChain->SetBranchAddress("rate[17]", rate, &b_sch_rate);
 }
+
+
 
 #endif // Include guard
