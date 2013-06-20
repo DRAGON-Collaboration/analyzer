@@ -57,6 +57,7 @@ class TTree;
 #pragma link C++ defined_in ../src/utils/Calibration.hxx;
 #pragma link C++ defined_in ../src/utils/Uncertainty.hxx;
 #pragma link C++ defined_in ../src/utils/TAtomicMass.h;
+#pragma link C++ defined_in ../src/utils/LinearFitter.hxx;
 
 #pragma link C++ class std::auto_ptr<dragon::RossumData>+;
 #pragma link C++ class std::auto_ptr<std::ifstream>+;

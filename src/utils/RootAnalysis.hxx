@@ -23,6 +23,7 @@
 
 #include "midas/libMidasInterface/TMidasStructs.h"
 #include "Uncertainty.hxx"
+#include "Constants.hxx"
 #include "Dragon.hxx"
 #include "Vme.hxx"
 
@@ -666,7 +667,7 @@ public:
 	/// Close rossumData file
 	void CloseFile();
 	/// Return the tree containing rossum data for a given run
-	TTree* GetTree(Int_t runnum) const;
+	TTree* GetTree(Int_t runnum, const char* time = 0) const;
 	/// List available trees
 	void ListTrees() const;
 	/// Open a rossumData file
@@ -686,8 +687,13 @@ private:
 	RossumData(const RossumData&) { }
 	RossumData& operator= (const RossumData&) { return *this; }
 private:
+	typedef std::multimap<Int_t, std::pair<TTree*, std::string> > TreeMap_t;
+	static TTree* GetTree_ (TreeMap_t::const_iterator& it) { return it->second.first; }
+	static TTree* GetTree_ (TreeMap_t::iterator& it) { return it->second.first; }
+	static std::string GetTime_ (TreeMap_t::const_iterator& it) { return it->second.second; }
+	static std::string GetTime_ (TreeMap_t::iterator& it) { return it->second.second; }
 	std::auto_ptr<std::ifstream> fFile; //!
-	std::map<Int_t, TTree*> fTrees;
+	TreeMap_t fTrees;
 	std::map<std::string, Int_t> fWhichCup;
 	Int_t fCup;
 	Int_t fIteration;
@@ -695,6 +701,62 @@ private:
 	Double_t fCurrent;
 
 	ClassDef(RossumData, 1);
+};
+
+/// Helper class for lab -> CM conversions (fully relativistic)
+/*!
+ * Calulations are fully relativistic:
+ * For a moving beam (1) and stationary target (2):
+ *       Ecm^2 = m1^2 + m2^2 + 2*m2*E1
+ * or in terms of kinetic energy:
+ *       (Tcm + m1 + m2)^2 = m1^2 + m2^2 + 2*m2*(m1 + T1)
+ */
+class LabCM {
+public:
+	/// Ctor
+	LabCM(int Zbeam, int Abeam, int Ztarget, int Atarget);
+	/// Ctor, w/ CM energy specification
+	LabCM(int Zbeam, int Abeam, int Ztarget, int Atarget, double ecm);
+	/// Ctor, using amu masses
+	LabCM(double mbeam, double mtarget, double ecm = 0.);
+	/// Get CM energy
+	double GetEcm() const { return fTcm; } // keV
+	/// Get beam energy in keV
+	double GetEbeam() const;  // keV
+	/// Get beam energy in keV/u
+	double GetV2beam() const; // keV/u
+	/// Get target frame energy in keV
+	double GetEtarget() const;  // keV
+	/// Get target frame energy in keV/u
+	double GetV2target() const; // keV/u
+	/// Get beam mass in amu
+	double GetM1() const { return fM1 / dragon::Constants::AMU(); }
+	/// Get target mass in amu
+	double GetM2() const { return fM2 / dragon::Constants::AMU(); }
+	/// Set CM energy
+	void SetEcm(double ecm);
+	/// Set beam energy in keV
+	void SetEbeam(double ebeam);
+	/// Set beam energy in keV/u
+	void SetV2beam(double ebeam);
+	/// Set target energy in keV
+	void SetEtarget(double etarget);
+	/// Set target energy in keV/u
+	void SetV2target(double etarget);
+	/// Set beam mass in amu
+	void SetM1(double m1) { fM1 = m1*dragon::Constants::AMU(); }
+	/// Set target mass in amu
+	void SetM2(double m2) { fM2 = m2*dragon::Constants::AMU(); }
+private:
+	/// Ctor helper
+	void Init(int Zbeam, int Abeam, int Ztarget, int Atarget, double ecm);
+private:
+	/// Beam mass [keV/c^2]
+	double fM1;
+	/// Target mass [keV/c^2]
+	double fM2;
+	/// Center of mass kinetic energy [keV]
+	double fTcm;
 };
 
 /// Class to handle calculation of beam normalization
@@ -777,10 +839,12 @@ public:
 	void CalculateNorm(Int_t run, Int_t chargeState);
 	/// Return stored values of run data
 	RunData* GetRunData(Int_t runnum);
+	/// Return a vector of run numbers used in the calculation
+	std::vector<Int_t>& GetRuns() const;
 	/// Plot some parameter as a function of run number
 	TGraph* Plot(const char* param, Marker_t marker = 21, Color_t markerColor = kBlack);
 	/// Print parameters vs run number
-	void Print(const char* param1,     const char* param2 = 0, const char* param2 = 0, const char* param4 = 0,
+	void Print(const char* param1,     const char* param2 = 0, const char* param3 = 0, const char* param4 = 0,
 						 const char* param5 = 0, const char* param6 = 0, const char* param7 = 0, const char* param8 = 0,
 						 const char* param9 = 0, const char* param10= 0, const char* param11= 0, const char* param12= 0);
 
@@ -811,9 +875,13 @@ private:
 /// Stopping power calculator
 class StoppingPowerCalculator {
 public:
-	enum AxisType_t {
+	enum XAxisType_t {
 		kPRESSURE,
 		kDENSITY
+	};
+	enum YAxisType_t {
+		kMD1,
+		kENERGY
 	};
 	struct Measurement_t { 
 		UDouble_t pressure;
@@ -822,11 +890,13 @@ public:
 		UDouble_t energy;
 	};
 public:
+	/// Dummy constructor
+	StoppingPowerCalculator() { }
 	/// Construct a stopping power calculator with parameters
 	StoppingPowerCalculator(Int_t beamCharge, Double_t beamMass, Int_t nmol,
 													Double_t targetLen = 12.3, Double_t targetLenErr = 0.4,
 													Double_t cmd1 = 4.823e-4, Double_t cmd1Err = 7.2345e-7,
-													Double_t temp = 293.15);
+													Double_t temp = 300.);
 	/// Get the target length
 	UDouble_t GetTargetLength() const { return fTargetLength; } // cm
 	/// Set the target length
@@ -855,21 +925,25 @@ public:
 	void AddMeasurement(Double_t pressure, Double_t pressureErr, Double_t md1, Double_t md1Err);
 	/// Get a pressure, energy measurement
 	Measurement_t GetMeasurement(Int_t index) const;
+	/// Get the number of measurements
+	Int_t GetNmeasurements() const { return fPressures.size(); }
 	/// Remove a pressure, energy measurement
 	void RemoveMeasurement(Int_t index);
 	/// Plot energy vs. pressure or density
-	TGraph* PlotMeasurements(AxisType_t xaxis = kPRESSURE, Bool_t draw = kTRUE) const;
+	TGraph* PlotMeasurements(XAxisType_t xaxis = kPRESSURE, YAxisType_t yaxis = kENERGY, Bool_t draw = kTRUE) const;
 	/// Calculate the `epsilon` parameter - slope of eloss vs. (atoms/cm^2)
 	UDouble_t CalculateEpsilon(TGraph** plot = 0);
+	/// Calculate the beam energy (intercept of E vs. P)
+	UDouble_t CalculateEbeam(TGraph** plot = 0);
 public:
 	/// Convert pressure in torr to dyn/cm^2
 	static Double_t TorrCgs(Double_t torr); // dyn/cm^2
 	/// Convert pressure in torr to dyn/cm^2 (with uncertainty)
 	static UDouble_t TorrCgs(UDouble_t torr); // dyn/cm^2
 	/// Calculate target density in atoms/cm^2
-	static Double_t CalculateDensity(Double_t pressure, Double_t length, Int_t nmol, Double_t temp = 293.15);
+	static Double_t CalculateDensity(Double_t pressure, Double_t length, Int_t nmol, Double_t temp = 300.);
 	/// Calculate target density in atoms/cm^2 (with uncertainty)
-	static UDouble_t CalculateDensity(UDouble_t pressure, UDouble_t length, Int_t nmol, Double_t temp = 293.15);
+	static UDouble_t CalculateDensity(UDouble_t pressure, UDouble_t length, Int_t nmol, Double_t temp = 300.);
 	/// Calculate beam energy from MD1 field
 	static UDouble_t CalculateEnergy(Double_t md1, Double_t md1Err, Int_t q, Double_t m,
 																	 Double_t cmag = 4.823e-4, Double_t cmagErr = 0.0015*4.823e-4);
@@ -950,9 +1024,9 @@ public:
 	/// Set the resonance energy in keV
 	void SetResonanceEnergy(Double_t mass) { fResonanceEnergy = mass; } // keV
 	/// Calculate total resonance strength from all runs.
-	UDouble_t CalculateResonanceStrength(Int_t whichSb);
+	UDouble_t CalculateResonanceStrength(Int_t whichSb, Bool_t print = kTRUE);
 	/// Plot resonance strength vs. run number
-	TGraph* PlotResonanceStrenght(Int_t whichSb);
+	TGraph* PlotResonanceStrength(Int_t whichSb);
 	
 public:
 	/// Calculate DeBroglie wavelength in the CM system
