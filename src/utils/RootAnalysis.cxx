@@ -23,6 +23,8 @@
 #include "Dragon.hxx"
 #include "Constants.hxx"
 #include "ErrorDragon.hxx"
+#include "LinearFitter.hxx"
+#include "TAtomicMass.h"
 #include "RootAnalysis.hxx"
 
 
@@ -310,10 +312,8 @@ dragon::RossumData::RossumData(const char* name, const char* filename):
 
 dragon::RossumData::~RossumData()
 {
-	for(std::map<Int_t, TTree*>::iterator it = fTrees.begin();
-			it != fTrees.end(); ++it) {
-		if(it->second)
-			it->second->Delete();
+	for(TreeMap_t::iterator it = fTrees.begin(); it != fTrees.end(); ++it) {
+		if(GetTree_(it)) GetTree_(it)->Delete();
 	}
 }
 
@@ -366,6 +366,7 @@ Bool_t dragon::RossumData::ParseFile()
 		return kFALSE;
 	}
 
+	Int_t runnum = 0;
 	Bool_t retval = kTRUE;
 	fFile->seekg(0);
 	while (1) {
@@ -374,6 +375,10 @@ Bool_t dragon::RossumData::ParseFile()
 		if(!fFile->good())
 			break;
 		if(line0.substr(0, 5) == "START") {
+			std::string strTime = "Thu Jan  1 00:00:00 1970";
+			size_t posTime = line0.rfind("\t");
+			if(posTime+1 < line0.size()) strTime = line0.substr(posTime+1);
+
 			TTree* tree = MakeTree();
 			tree->SetDirectory(0);
 			std::map<Int_t, Int_t> cupIteration;
@@ -438,16 +443,20 @@ Bool_t dragon::RossumData::ParseFile()
 				else if(line0.find("STARTED midas run") < line0.size()) {
 					TString line =
 						line0.substr(line0.find("STARTED")+std::string("STARTED midas run ").size()).c_str();
-
-					Int_t runnum = line.Atoi();
-					fTrees.insert(std::make_pair(runnum, tree));
-					fullRun = kTRUE;
-					std::stringstream ssname, sstitle;
-					ssname << "tcup" << runnum;
-					sstitle << "Farady cup readings proceeding run " << runnum;
-					tree->SetNameTitle(ssname.str().c_str(), sstitle.str().c_str());
+					runnum = line.Atoi();
 				}
 			}
+			fTrees.insert(std::make_pair(runnum, std::make_pair(tree, strTime)));
+			fullRun = kTRUE;
+			std::stringstream ssname, sstitle;
+			ssname << "tcup" << runnum;
+			if(runnum == 0) {
+				static int i = 0;
+				ssname << "_" << i++ ;
+			}
+			sstitle << "Farady cup readings proceeding run " << runnum;
+			tree->SetNameTitle(ssname.str().c_str(), sstitle.str().c_str());
+
 			tree->ResetBranchAddresses();
 			if(!fullRun) tree->Delete();
 		}
@@ -456,10 +465,22 @@ Bool_t dragon::RossumData::ParseFile()
 }
 
 
-TTree* dragon::RossumData::GetTree(Int_t runnum) const
+TTree* dragon::RossumData::GetTree(Int_t runnum, const char* time) const
 {
-	std::map<Int_t, TTree*>::const_iterator it = fTrees.find(runnum);
-	return it == fTrees.end() ? 0 : it->second;
+	std::pair<TreeMap_t::const_iterator, TreeMap_t::const_iterator>
+		range = fTrees.equal_range(runnum);
+
+	if(range.first == range.second) return 0;
+	if(!time) return GetTree_(range.first);
+
+	for(TreeMap_t::const_iterator it = range.first; it != range.second; ++it) {
+		if ( GetTime_(it) == std::string(time) )
+			return GetTree_(it);
+	}
+	return 0;
+
+	// std::map<Int_t, TTree*>::const_iterator it = fTrees.find(runnum);
+	// return it == fTrees.end() ? 0 : it->second;
 }
 
 UDouble_t dragon::RossumData::AverageCurrent(Int_t run, Int_t cup, Int_t iteration,
@@ -513,8 +534,8 @@ UDouble_t dragon::RossumData::AverageCurrent(Int_t run, Int_t cup, Int_t iterati
 
 void dragon::RossumData::ListTrees() const
 {
-	for (std::map<Int_t, TTree*>::const_iterator it = fTrees.begin(); it != fTrees.end(); ++it) {
-		std::cout << it->second->GetName() << "\t" << it->second->GetTitle() << "\n";
+	for (TreeMap_t::const_iterator it = fTrees.begin(); it != fTrees.end(); ++it) {
+		std::cout << GetTree_(it)->GetName() << "\t" << GetTree_(it)->GetTitle() << ", DATIME: " << GetTime_(it) << "\n";
 	}
 }
 
@@ -748,6 +769,16 @@ dragon::BeamNorm::RunData* dragon::BeamNorm::GetRunData(Int_t runnum)
 {
 	std::map<Int_t, RunData>::iterator i = fRunData.find(runnum);
 	return i == fRunData.end() ? 0 : &(i->second);
+}
+
+std::vector<Int_t>& dragon::BeamNorm::GetRuns() const
+{
+	static std::vector<Int_t> runs;
+	runs.clear();
+	for(std::map<Int_t, RunData>::const_iterator it = fRunData.begin(); it != fRunData.end(); ++it) {
+		runs.push_back(it->first);
+	}
+	return runs;
 }
 
 
@@ -1163,7 +1194,7 @@ UDouble_t dragon::StoppingPowerCalculator::TorrCgs(UDouble_t torr)
 	/// \param torr Pressure in `torr` (with uncertainty)
 	/// \returns Pressure in `dyn/cm^2` (with uncertainty)
 
-	return 10 * torr * 101325 / 760;
+	return 10. * torr * 101325. / 760.;
 }
 
 Double_t dragon::StoppingPowerCalculator::CalculateDensity(Double_t pressure, Double_t length,
@@ -1208,9 +1239,11 @@ UDouble_t dragon::StoppingPowerCalculator::CalculateEnergy(Double_t md1, Double_
 	///
 	/// \returns Beam energy in keV/u
 
+	UDouble_t ucmag (cmag, cmagErr);
+
 	Double_t  a = 1/(2*dragon::Constants::AMU());
 	Double_t  b = 1.;
-	UDouble_t c = -1 * UDouble_t(cmag, cmagErr) * UDouble_t::pow((Double_t)q * UDouble_t(md1, md1Err) / m, 2);
+	UDouble_t c = -1 * ucmag * UDouble_t::pow((Double_t)q * UDouble_t(md1, md1Err) / m, 2);
 
 	return (-b + UDouble_t::sqrt(b*b - 4*a*c)) / (2*a);
 }
@@ -1238,7 +1271,6 @@ dragon::StoppingPowerCalculator::StoppingPowerCalculator(Int_t beamCharge, Doubl
 	;
 }
 
-
 void dragon::StoppingPowerCalculator::AddMeasurement(Double_t pressure, Double_t pressureErr,
 																										 Double_t md1, Double_t md1Err)
 {
@@ -1256,7 +1288,9 @@ void dragon::StoppingPowerCalculator::AddMeasurement(Double_t pressure, Double_t
 	fEnergies.push_back(energy);
 	fDensities.push_back(density);
 	fPressures.push_back(upressure);
-	fMd1.push_back(UDouble_t(md1, md1Err));
+
+	UDouble_t umd1(md1, md1Err);
+	fMd1.push_back(umd1);
 }
 
 dragon::StoppingPowerCalculator::Measurement_t
@@ -1293,12 +1327,15 @@ void dragon::StoppingPowerCalculator::RemoveMeasurement(Int_t index)
 	}
 }
 
-TGraph* dragon::StoppingPowerCalculator::PlotMeasurements(AxisType_t xaxis, Bool_t draw) const
+TGraph* dragon::StoppingPowerCalculator::PlotMeasurements(XAxisType_t xaxis, YAxisType_t yaxis, Bool_t draw) const
 {
 	///
 	/// \param xaxis Specify the x axis. Valid options are dragon::StoppingPowerCalculator::kPRESSURE (== 0)
-	///  to plot energy vs. pressure, or dragon::StoppingPowerCalculator::kPRESSURE (== 1) to plot energy vs.
+	///  to plot pressure (torr), or dragon::StoppingPowerCalculator::kDENSITY (== 1) to plot
 	///  density in atoms/cm^2.
+	/// \param xaxis Specify the y axis. Valid options are dragon::StoppingPowerCalculator::kMD1 (== 0)
+	///  to plot MD1 field (gauss) or dragon::StoppingPowerCalculator::kENERGY (== 1) to plot energy
+	///  in keV/u.
 	/// \param draw Argument `true` plots the graph with option `"AP"` in addition to
 	///  returning it.
 	/// \returns TGraph of pressure vs. energy, with asymmetric error bars on
@@ -1306,16 +1343,65 @@ TGraph* dragon::StoppingPowerCalculator::PlotMeasurements(AxisType_t xaxis, Bool
 
 	TGraph* out = 0;
 	if(!fEnergies.empty()) {
-		if(xaxis == kDENSITY)
-			out = PlotUncertainties(fEnergies.size(), &fDensities[0], &fEnergies[0]);
-		else
-			out = PlotUncertainties(fEnergies.size(), &fPressures[0], &fEnergies[0]);
+		
+		const UDouble_t* x = xaxis == kDENSITY ? &fDensities[0] : &fPressures[0];
+		const UDouble_t* y = yaxis == kMD1     ? &fMd1[0]       : &fEnergies[0];
+
+		out = PlotUncertainties(fEnergies.size(), x, y);
 	}
 	if(out) {
 		out->SetMarkerStyle(21);
 		if(draw) out->Draw("AP");
 	}
 	return out;
+}
+
+UDouble_t dragon::StoppingPowerCalculator::CalculateEbeam(TGraph** plot)
+{
+	///
+	/// \param [out] plot Address of a pointer to a TGraph that will contain
+	///  a plot of energy vs. pressure upon successful return. Passing a non-NULL
+	///  plot argument also causes the plot to be drawn with option "AP". The default
+	///  argument (NULL) bypasses any plotting and simply calculates the epsilon parameter.
+	/// \returns The beam energy at zero pressure from a linear fit of E vs. P.
+
+	UDouble_t out(0,0);
+	std::auto_ptr<TGraph> g(new TGraphAsymmErrors(GetNmeasurements()));
+	
+	//
+	// calculate density, energy w/ random errors only
+	std::vector<UDouble_t> pres(GetNmeasurements()), energy(GetNmeasurements());
+	for(Int_t i=0; i< GetNmeasurements(); ++i) {
+
+		double md1err = fMd1[i].GetErrLow() < fMd1[i].GetErrHigh() ?
+			fMd1[i].GetErrHigh() : fMd1[i].GetErrLow();
+
+		pres[i] = fPressures[i];
+		energy[i] = CalculateEnergy(fMd1[i].GetNominal(), md1err, fBeamCharge, fBeamMass, fMd1Constant.GetNominal(), 0);
+	}
+	//
+	// plot and fit to get dE/d[n/A]
+	g.reset(PlotUncertainties(GetNmeasurements(), &pres[0], &energy[0]));
+	dragon::LinearFitter fit;
+	fit.Fit(g.get());
+	out = fit.GetOffset();
+
+	//
+  // plot if requested
+	if(plot) {
+		*plot = (TGraph*)g->Clone();
+		(*plot)->SetMarkerStyle(21);
+		(*plot)->SetTitle(Form("Beam energy: %.2f +/- %f keV/u;Presure [T];E [keV/u]", out.GetNominal(), out.GetErrLow()));
+		(*plot)->Draw("AP");
+		if(fit.GetFunction()) {
+			TF1* ffit2 = (TF1*)fit.GetFunction()->Clone();
+			ffit2->Draw("SAME");
+		}
+		else std::cerr << "No function!\n";
+	}
+
+	return out;
+	
 }
 
 UDouble_t dragon::StoppingPowerCalculator::CalculateEpsilon(TGraph** plot)
@@ -1327,35 +1413,58 @@ UDouble_t dragon::StoppingPowerCalculator::CalculateEpsilon(TGraph** plot)
 	///  argument (NULL) bypasses any plotting and simply calculates the epsilon parameter.
 	/// \returns The `epslion` parameter used in calculations of omega-gamma, in units of
 	///  eV / [atoms / cm^2]
-
+	///
+	/// \note For treatment of errors, we should only include random errors in the plot to
+	///  be fit. Systematic errors (i.e target pressure and c_md1) will pull all points in
+	///  the same direction and should only be added back after the linear fit is done.
 
 	UDouble_t out(0,0);
-	std::auto_ptr<TGraph> g (PlotMeasurements(kDENSITY, false));
-	if(!g.get()) return out;
+	std::auto_ptr<TGraph> g(new TGraphAsymmErrors(GetNmeasurements()));
+	
+	//
+	// calculate density, energy w/ random errors only
+	std::vector<UDouble_t> dens(GetNmeasurements()), energy(GetNmeasurements());
+	for(Int_t i=0; i< GetNmeasurements(); ++i) {
 
-	TFitResultPtr fitresult = plot ? g->Fit("pol1", "FS") : g->Fit("pol1", "QFS");
-	if(fitresult.Get() && fitresult->NPar() == 2) {
-		out.SetNominal(-1*fitresult->GetParams()[1]);
-		out.SetErr(fitresult->GetErrors()[1]);
+		double md1err = fMd1[i].GetErrLow() < fMd1[i].GetErrHigh() ?
+			fMd1[i].GetErrHigh() : fMd1[i].GetErrLow();
 
-		out *= fBeamMass; // keV/u -> keV
-		out *= 1e3; // keV -> eV
+		dens[i] = CalculateDensity(fPressures[i], UDouble_t(fTargetLength.GetNominal(), 0), fNmol, fTemp);
+		energy[i] = CalculateEnergy(fMd1[i].GetNominal(), md1err, fBeamCharge, fBeamMass, fMd1Constant.GetNominal(), 0);
 	}
-
+	//
+	// plot and fit to get dE/d[n/A]
+	g.reset(PlotUncertainties(GetNmeasurements(), &dens[0], &energy[0]));
+	dragon::LinearFitter fit;
+	fit.Fit(g.get());
+	out = -1*fit.GetSlope();
+	out *= fBeamMass; // keV/u -> keV
+	out *= 1e3; // keV -> eV
+	//
+	// add back systematic errors
+	out *= fMd1Constant / fMd1Constant.GetNominal();
+	out *= fTargetLength / fTargetLength.GetNominal();
+	//
+  // plot if requested
 	if(plot) {
 		*plot = (TGraph*)g->Clone();
 		(*plot)->SetMarkerStyle(21);
 		char buf[256];
 		if(out.GetErrHigh() != out.GetErrLow()) {
-			sprintf(buf, "Stopping power: %g ^{+%g}_{-%g} eV cm^{2} / atom;Density [atoms/cm^{2}];Energy [keV/u]",
+			sprintf(buf, "Stopping power: %g ^{+%g}_{-%g} eV cm^{2} / atom;Density [atoms/cm^{2}];Beam energy [keV/u]",
 							out.GetNominal(), out.GetErrLow(), out.GetErrHigh());
 		}
 		else {
-			sprintf(buf, "Stopping power: %g +/-%g eV cm^{2} / atom;Density [atoms/cm^{2}];Energy [keV/u]",
+			sprintf(buf, "Stopping power: %g +/-%g eV cm^{2} / atom;Density [atoms/cm^{2}];Beam energy [keV/u]",
 							out.GetNominal(), out.GetErrLow());
 		}
 		(*plot)->SetTitle(buf);
 		(*plot)->Draw("AP");
+		if(fit.GetFunction()) {
+			TF1* ffit2 = (TF1*)fit.GetFunction()->Clone();
+			ffit2->Draw("SAME");
+		}
+		else std::cerr << "No function!\n";
 	}
 
 	return out;
@@ -1378,21 +1487,47 @@ dragon::ResonanceStrengthCalculator::ResonanceStrengthCalculator(Double_t eres, 
 	/// \param epsilon "Stopping power" in e*cm^2/atom (see dragon::StoppingPowerCalculator)
 }
 
-UDouble_t dragon::ResonanceStrengthCalculator::CalculateResonanceStrength(Int_t whichSb)
+UDouble_t dragon::ResonanceStrengthCalculator::CalculateResonanceStrength(Int_t whichSb, Bool_t print)
 {
-	/// \param whichSb Specify the sirface barrier detector to use
+	/// \param whichSb Specify the surface barrier detector to use
 	///  for normalization
 	/// \returns Resonance strenght in eV.
 	
 	if(!fBeamNorm) return UDouble_t(0,0);
-	UDouble_t yield = fBeamNorm->CalculateYield(whichSb);
+	UDouble_t yield = fBeamNorm->CalculateYield(whichSb, print);
 	UDouble_t wavelength = CalculateWavelength(fResonanceEnergy, fBeamMass, fTargetMass);
-	return CalculateResonanceStrength(yield, fEpsilon, wavelength, fBeamMass, fTargetMass);
+	UDouble_t wg = CalculateResonanceStrength(yield, fEpsilon, wavelength, fBeamMass, fTargetMass);
+	if(print) std::cout << "Resonance Strength [eV]: " << wg << "\n";
+	return wg;
 }
 
-TGraph* dragon::ResonanceStrengthCalculator::PlotResonanceStrenght(Int_t whichSb)
+TGraph* dragon::ResonanceStrengthCalculator::PlotResonanceStrength(Int_t whichSb)
 {
-	return 0;
+	if((unsigned)whichSb > 1) {
+		std::cerr << "Error: invalid SB: " << whichSb << ", valid are 0 or 1\n";
+		return 0;
+	}
+
+	std::vector<Int_t>& runs = fBeamNorm->GetRuns();
+	int nruns = runs.size();
+
+	std::vector<Double_t> runnum(nruns);
+	for(int i=0; i< nruns; ++i)
+		runnum[i] = runs[i];
+
+	UDouble_t wavelength = CalculateWavelength(fResonanceEnergy, fBeamMass, fTargetMass);
+	std::vector<UDouble_t> strengths(nruns);
+	for(int i=0; i< nruns; ++i) {
+		UDouble_t yield = fBeamNorm->GetRunData(runs[i])->yield[whichSb];
+		UDouble_t wg = CalculateResonanceStrength(yield, fEpsilon, wavelength, fBeamMass, fTargetMass);
+		strengths[i] = wg;
+	}
+
+	TGraph* out = PlotUncertainties(nruns, &runnum[0], &strengths[0]);
+	out->SetTitle(";Run number;#omega#gamma [eV]");
+	out->SetMarkerStyle(21);
+	out->Draw("AP");
+	return out;
 }
 
 
@@ -1408,7 +1543,7 @@ UDouble_t dragon::ResonanceStrengthCalculator::CalculateWavelength(UDouble_t ere
 	UDouble_t pc = UDouble_t::sqrt(eres*eres + 2.*eres*mu);
 
 	Double_t hc = TMath::HC() * 1e9 / TMath::Qe(); // eV*nm
-	UDouble_t lambda = 1239.84 / pc; // nm
+	UDouble_t lambda = hc / pc; // nm
 	lambda /= 1e7; // cm
 	return lambda;
 }
@@ -1420,4 +1555,120 @@ UDouble_t dragon::ResonanceStrengthCalculator::CalculateResonanceStrength(UDoubl
 	UDouble_t wg = 2.*epsilon*yield / (wavelength*wavelength);
 	wg *= (mtarget / (mbeam+mtarget));
 	return wg;
+}
+
+
+// ================ class dragon::LabCM ================ //
+
+dragon::LabCM::LabCM(int Zbeam, int Abeam, int Ztarget, int Atarget)
+{
+	/// Sets beam and target masses from AME12 compilation.
+	/// Energies are initially unset, use SetE*() functions to specify an
+	/// energy.
+	/// \param Zbeam Beam charge
+	/// \param Abeam Beam mass number
+	/// \param Ztarget Target charge
+	/// \param Atarget Target mass number
+	/// \attention Uses "nuclear" (fully ionized) masses.
+	
+	Init(Zbeam, Abeam, Ztarget, Atarget, 0.);
+}
+
+
+dragon::LabCM::LabCM(int Zbeam, int Abeam, int Ztarget, int Atarget, double ecm)
+{
+	/// Sets beam and target masses from AME12 compilation.
+	/// Energies are initially unset, use SetE*() functions to specify an
+	/// energy.
+	/// \param Zbeam Beam charge
+	/// \param Abeam Beam mass number
+	/// \param Ztarget Target charge
+	/// \param Atarget Target mass number
+	/// \param ecm Center-of-mass kinetic energy in keV
+	/// \attention Uses "nuclear" (fully ionized) masses.
+	
+	Init(Zbeam, Abeam, Ztarget, Atarget, ecm);
+}
+
+dragon::LabCM::LabCM(double mbeam, double mtarget, double ecm)
+{
+	/// Uses specified masses directly
+	/// \param mbeam Beam mass in AMU
+	/// \param mtarget Taret mass in AMU
+	/// \param ecm Center of mass energy in keV
+	SetM1(mbeam);
+	SetM2(mtarget);
+	fTcm = ecm;
+}
+
+void dragon::LabCM::Init(int Zbeam, int Abeam, int Ztarget, int Atarget, double ecm)
+{
+	TAtomicMassTable mt; // AME12
+	fM1 = mt.NuclearMass(Zbeam, Abeam);
+	fM2 = mt.NuclearMass(Ztarget, Atarget);
+	fTcm = ecm;
+}
+
+void dragon::LabCM::SetEcm(double ecm)
+{
+	/// \param ecm Center-of-mass kinetic energy in keV
+	fTcm = ecm;
+}
+
+void dragon::LabCM::SetEbeam(double ebeam)
+{
+	/// \param ebeam Beam energy in keV
+	
+	double E1tot = ebeam + fM1; // total energy
+	double Ecmtot = sqrt(fM1*fM1 + fM2*fM2 + 2*fM2*E1tot);
+	fTcm = Ecmtot - fM1 - fM2;
+}
+
+void dragon::LabCM::SetV2beam(double ebeam)
+{
+	/// \param ebeam Beam energy in keV/u
+	
+	SetEbeam(ebeam*fM1/dragon::Constants::AMU()); // keV/u -> keV
+}
+
+void dragon::LabCM::SetEtarget(double etarget)
+{
+	/// \param etarget Target energy in keV
+	
+	double E2tot = etarget + fM2; // total energy
+	double Ecmtot = sqrt(fM1*fM1 + fM2*fM2 + 2*fM1*E2tot);
+	fTcm = Ecmtot - fM1 - fM2;
+}
+
+void dragon::LabCM::SetV2target(double etarget)
+{
+	/// \param etarget Target energy in keV/u
+	
+	SetEbeam(etarget*fM2/dragon::Constants::AMU()); // keV/u -> keV
+}
+
+double dragon::LabCM::GetV2beam() const
+{
+	return GetEbeam() / (fM1/dragon::Constants::AMU());
+}
+
+double dragon::LabCM::GetEbeam() const
+{
+	double Ecm = fTcm + fM1 + fM2; // total energy
+	double E1 = (Ecm*Ecm - fM1*fM1 - fM2*fM2) / (2*fM2); // total energy
+	double T1 = E1 - fM1; // kinetic energy
+	return T1;
+}
+
+double dragon::LabCM::GetV2target() const
+{
+	return GetEtarget() / (fM2/dragon::Constants::AMU());
+}
+
+double dragon::LabCM::GetEtarget() const
+{
+	double Ecm = fTcm + fM1 + fM2; // total energy
+	double E2 = (Ecm*Ecm - fM1*fM1 - fM2*fM2) / (2*fM1); // total energy
+	double T2 = E2 - fM2; // kinetic energy
+	return T2;
 }

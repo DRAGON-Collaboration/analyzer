@@ -66,10 +66,10 @@ ROOTLIBS=
 ifeq ($(USE_ROOT),YES)
 DEFINITIONS+= -DUSE_ROOT
 ifdef ROOTSYS
-ROOTLIBS= -L$(ROOTSYS)/lib $(shell $(ROOTSYS)/bin/root-config --cflags --libs --glibs) -I$(ROOTSYS)/include -lXMLParser -lSpectrum
+ROOTLIBS= -L$(ROOTSYS)/lib $(shell $(ROOTSYS)/bin/root-config --cflags --libs --glibs) -I$(ROOTSYS)/include -lXMLParser -lSpectrum -lMinuit
 CXXFLAGS += -I$(ROOTSYS)/include
 else
-ROOTLIBS= - $(shell $(ROOTSYS)/bin/root-config --cflags --libs --glibs) -lXMLParser -lThread -lTreePlayer -lSpectrum
+ROOTLIBS= - $(shell $(ROOTSYS)/bin/root-config --cflags --libs --glibs) -lXMLParser -lThread -lTreePlayer -lSpectrum -lMinuit
 endif
 else
 USE_ROOTBEER=NO
@@ -144,6 +144,7 @@ endif
 ifeq ($(USE_ROOT), YES)
 OBJECTS+=$(OBJ)/utils/RootAnalysis.o
 OBJECTS+=$(OBJ)/utils/Calibration.o
+OBJECTS+=$(OBJ)/utils/LinearFitter.o
 endif
 
 

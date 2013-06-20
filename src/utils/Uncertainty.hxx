@@ -8,8 +8,9 @@
 
 class UDouble_t {
 public:
+	UDouble_t(double nominal, double err_low, double err_high, double sys_low, double sys_high);
 	UDouble_t(double nominal, double err_low, double err_high = 0.);
-	UDouble_t(double nomilal = 0.);
+	UDouble_t(double nominal = 0.);
 
 	UDouble_t operator+(const UDouble_t& rhs) const;
 	UDouble_t operator-(const UDouble_t& rhs) const;
@@ -35,19 +36,29 @@ public:
 
 	UDouble_t& operator= (const double& val) { SetNominal(val); SetRelErr(0); return *this; }
 
-	double GetNominal()    const { return fNominal;       }
-	double GetErrLow()     const { return fLow;           }
-	double GetErrHigh()    const { return fHigh;          }
-	double GetRelErrLow()  const { return fLow/fNominal;  }
-	double GetRelErrHigh() const { return fHigh/fNominal; }
+	double GetNominal()    const { return fNominal;         }
+	double GetErrLow()     const { return fErr[0];          }
+	double GetErrHigh()    const { return fErr[1];          }
+	double GetRelErrLow()  const { return fErr[0]/fNominal; }
+	double GetRelErrHigh() const { return fErr[1]/fNominal; }
 
-	void SetNominal(double nominal) { fNominal = nominal;   }
-	void SetErrLow(double err)      { fLow  = err;          }
-	void SetErrHigh(double err)     { fHigh = err;          }
-	void SetRelErrLow(double err)   { fLow  = err*fNominal; }
-	void SetRelErrHigh(double err)  { fHigh = err*fNominal; }
+	void SetNominal(double nominal) { fNominal = nominal;      }
+	void SetErrLow(double err)      { fErr[0]  = err;          }
+	void SetErrHigh(double err)     { fErr[1] = err;           }
+	void SetRelErrLow(double err)   { fErr[0]  = err*fNominal; }
+	void SetRelErrHigh(double err)  { fErr[1] = err*fNominal;  }
 	void SetErr(double err)    { SetErrLow(err);    SetErrHigh(err);    }
 	void SetRelErr(double err) { SetRelErrLow(err); SetRelErrHigh(err); }
+
+	double GetSysErrLow()  const { return fSys[0]; }
+	double GetSysErrHigh() const { return fSys[1]; }
+	double GetRelSysErrLow() const  { return GetSysErrLow()  / fNominal; }
+	double GetRelSysErrHigh() const { return GetSysErrHigh() / fNominal; }
+
+	void SetSysErr(double low, double high = -1)
+		{ fSys[0] = low; fSys[1] = high < 0 ? fSys[0] : high; }
+	void SetRelSysErr(double low, double high = -1)
+		{ fSys[0] = low*fNominal; fSys[1] = high < 0 ? fSys[0] : high*fNominal; }
 
 	void Print() const;
 
@@ -63,8 +74,8 @@ public:
 
 private:
 	double fNominal;
-	double fLow;
-	double fHigh;
+	double fErr[2]; // 0 = low, 1 = high
+	double fSys[2]; // 0 = low, 1 = high
 	
 	friend std::ostream& operator<< (std::ostream&, const UDouble_t&);
 };
