@@ -79,7 +79,7 @@ inline UDouble_t operator/ (const double& lhs, const UDouble_t& rhs) { return  l
 
 #ifdef USE_ROOT
 #include <TMath.h>
-#include <RTypes.h>
+#include <Rtypes.h>
 #include <TGraphAsymmErrors.h>
 
 TGraphAsymmErrors* PlotUncertainties(Int_t npoints, const Double_t*  x, const UDouble_t* y);

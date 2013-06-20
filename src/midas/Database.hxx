@@ -4,6 +4,7 @@
 #ifndef DRAGON_MIDAS_DATABASE_HXX
 #define DRAGON_MIDAS_DATABASE_HXX
 #include <memory>
+#include <TNamed.h>
 #include "utils/ErrorDragon.hxx"
 #include "Odb.hxx"
 #include "Xml.hxx"

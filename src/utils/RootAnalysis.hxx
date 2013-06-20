@@ -780,7 +780,7 @@ public:
 	/// Plot some parameter as a function of run number
 	TGraph* Plot(const char* param, Marker_t marker = 21, Color_t markerColor = kBlack);
 	/// Print parameters vs run number
-	void Print(const char* param1,     const char* param2 = 0, const char* param2 = 0, const char* param4 = 0,
+	void Print(const char* param1,     const char* param2 = 0, const char* param3 = 0, const char* param4 = 0,
 						 const char* param5 = 0, const char* param6 = 0, const char* param7 = 0, const char* param8 = 0,
 						 const char* param9 = 0, const char* param10= 0, const char* param11= 0, const char* param12= 0);
 

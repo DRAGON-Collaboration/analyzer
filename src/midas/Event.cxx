@@ -204,7 +204,7 @@ double midas::Event::TimeDiff(const Event& other) const
 	 */
 	return fTriggerTime - other.fTriggerTime;
 }
-#include "midas.h"
+
 midas::CoincEvent::CoincEvent(const Event& event1, const Event& event2):
 	fGamma(0), fHeavyIon(0)
 {
