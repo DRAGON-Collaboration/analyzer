@@ -20,8 +20,9 @@ DEFINITIONS+=-DDISPLAY_MODULES
 
 ### Set to YES (NO) to turn on (off) root [or rootbeer, or rootana, or ...] usage ###
 USE_ROOT=YES
-USE_ROOTANA=YES
-USE_ROOTBEER=YES
+USE_ROOTANA=NO
+USE_ROOTBEER=NO
+USE_MIDAS=NO
 
 ## Automatically turn off rootana if on jabberwock
 THE_HOST := $(shell hostname)
@@ -74,12 +75,13 @@ else
 USE_ROOTBEER=NO
 endif
 
+ifeq ($(USE_MIDAS),YES)
 ifdef MIDASSYS
 CXXFLAGS += -DMIDASSYS
 MIDASLIBS = -lmidas -L$(MIDAS_LIB_DIR)
 INCFLAGS += -I$(MIDASSYS)/include
 endif
-
+endif
 
 UNAME=$(shell uname)
 ifeq ($(UNAME),Darwin)
@@ -125,7 +127,6 @@ $(OBJ)/midas/Odb.o                  		\
 $(OBJ)/midas/Xml.o                  		\
 $(OBJ)/midas/libMidasInterface/TMidasFile.o  	\
 $(OBJ)/midas/libMidasInterface/TMidasEvent.o 	\
-$(OBJ)/midas/libMidasInterface/TMidasOnline.o 	\
 $(OBJ)/midas/Event.o                	\
 					\
 $(OBJ)/Unpack.o				\
@@ -136,6 +137,9 @@ $(OBJ)/utils/TAtomicMass.o              \
 $(OBJ)/utils/Uncertainty.o
 #$(OBJ)/utils/UDouble.o
 
+ifeq ($(USE_MIDAS), YES)
+OBJECTS+=$(OBJ)/midas/libMidasInterface/TMidasOnline.o
+endif
 
 ifeq ($(USE_ROOT), YES)
 OBJECTS+=$(OBJ)/utils/RootAnalysis.o
