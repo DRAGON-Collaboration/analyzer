@@ -127,21 +127,21 @@ int32_t vme::V1190::get_data(int16_t ch) const
 	 * \param ch Channel number to get data from
 	 * \returns the leading edge time value of the first hit on
 	 * channel \e ch. If \e ch is out of bounds, prints a warning
-	 * message and returns dragon::NO_DATA.
+	 * message and returns dragon::DR_NO_DATA.
 	 */
 
 	if (ch >= 0 && ch < MAX_CHANNELS) {
 		try {
 			return channel[ch].fLeading.at(0);
 		} catch(std::exception& e) {
-			return dragon::NO_DATA;
+			return dragon::DR_NO_DATA;
 		}
 	}
 	else {
 		dragon::utils::Warning("V1190::get_data")
 			<< "Channel number " << ch << " out of bounds (valid range: [0, "
 			<< MAX_CHANNELS -1 << "]\n";
-		return dragon::NO_DATA;
+		return dragon::DR_NO_DATA;
 	}
 }
 
@@ -352,14 +352,14 @@ int32_t vme::V792::get_data(int16_t ch) const
 	/*!
 	 * \param ch Channel number to get data from
 	 * Returns the data value stored at \e ch. If \e ch is out of bounds
-	 * of the internal array, prints a warning message and returns dragon::NO_DATA.
+	 * of the internal array, prints a warning message and returns dragon::DR_NO_DATA.
 	 */
 	if (ch >= 0 && ch < MAX_CHANNELS) return data [ch];
 	else {
 		dragon::utils::Warning("V792::get_data")
 			<< "Channel number " << ch << " out of bounds (valid range: [0, "
 			<< MAX_CHANNELS -1 << "]\n";
-		return dragon::NO_DATA;
+		return dragon::DR_NO_DATA;
 	}
 }
 
