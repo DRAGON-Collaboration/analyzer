@@ -175,6 +175,9 @@ template<> inline int Odb::GetTID<bool>()           { return tid_bool;   }
 template<> inline int Odb::GetTID<float>()          { return tid_float;  }
 template<> inline int Odb::GetTID<double>()         { return tid_double; }
 template<> inline int Odb::GetTID<std::string>()    { return tid_string; }
+/* edit UH 2013-07-24: the next 2 lines were necessary to compile on Fedora 17 using gcc 4.7.2 */
+template<> inline int Odb::GetTID<unsigned long long>()       { return -1;  }
+template<> inline int Odb::GetTID<long long>()        { return -1;    }
 
 #ifdef MIDASSYS
 template<> inline bool Odb::ReadValue<std::string>(const char* path, std::string& value)

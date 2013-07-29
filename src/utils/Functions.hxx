@@ -42,12 +42,12 @@ inline double calculate_tof(const T1& t1, const T2& t2)
 	/*!
 	 * \param t1 Later time
 	 * \param t2 Earlier time
-	 * \returns <c>t1 - t2</c> if both parameters are valid; otherwise: \c dragon::NO_DATA
+	 * \returns <c>t1 - t2</c> if both parameters are valid; otherwise: \c dragon::DR_NO_DATA
 	 */
 	if (utils::is_valid(t1) && utils::is_valid(t2))
 		return t1 - t2;
 	else
-		return dragon::NO_DATA;
+		return dragon::DR_NO_DATA;
 }
 
 /// Sums all values in an array, <e>ignoring "null" values</e>
@@ -57,7 +57,7 @@ inline double calculate_sum(T begin, T end)
 	/*!
 	 * Example:
 	 * \code
-	 * double anodes = { 300., 200., 100., 1., 0., -1. }; // dragon::NO_DATA == -1
+	 * double anodes = { 300., 200., 100., 1., 0., -1. }; // dragon::DR_NO_DATA == -1
 	 * double sum = utils::sum(anodes, anodes + 6);
 	 * // sum = 601.
 	 * \endcode
@@ -212,7 +212,7 @@ struct less_and_valid {
 template <class T, class Order>
 inline void index_sort(T begin, T end, int* indices, Order order)
 {
-	ptrdiff_t size = end - begin;
+	std::ptrdiff_t size = end - begin;
 	index_fill(indices, indices + size);
 	std::sort(indices, indices + size, 	Isort<T, Order>(begin, order));
 }
@@ -225,7 +225,7 @@ inline void index_sort(T begin, T end, int* indices, Order order)
 template <class T>
 inline void index_sort(T begin, T end, int* indices)
 {
-	ptrdiff_t size = end - begin;
+	std::ptrdiff_t size = end - begin;
 	index_fill(indices, indices + size);
 	std::sort(indices, indices + size, 	IsortLess<T> (begin));
 }
@@ -397,7 +397,7 @@ inline void transform(T& output, TR transform)
  * utils::pedestal_subtract(value1, vars);
  * utils::pedestal_subtract(value2, vars);
  * // value1 = 100., value2 = -1.
- * // n.b. dragon::NO_DATA == -1.
+ * // n.b. dragon::DR_NO_DATA == -1.
  * \endcode
  */
 template <class T, class V>
@@ -422,7 +422,7 @@ inline void pedestal_subtract(T& value, const V& variables)
  * double values = { 13., 16., 21., 444. };
  * utils::pedestal_subtract(values, 4, vars);
  * // values = { -1., -1., 21., 444. }
- * // n.b. dragon::NO_DATA == -1.
+ * // n.b. dragon::DR_NO_DATA == -1.
  * \endcode
  */
 template <class T, class L, class V>
@@ -452,7 +452,7 @@ inline void pedestal_subtract(T* array, L length, const V& variables)
  * // values = { 2., 3., 2. }
  * \endcode
  *
- * \note Any values initially set to dragon::NO_DATA are left untouched
+ * \note Any values initially set to dragon::DR_NO_DATA are left untouched
  */
 template <class T, class L, class V>
 inline void linear_calibrate(T* array, L length, const V& variables)
@@ -536,7 +536,7 @@ inline void zero_suppress1(T* values, L length, const T2& threshold)
  * \tparam V variables class, must have public \c slope[] and \c offset[] fields
  *
  * See array version for more information.
- * \note Any values initially set to dragon::NO_DATA are left untouched
+ * \note Any values initially set to dragon::DR_NO_DATA are left untouched
  */
 template <class T,  class V>
 inline void linear_calibrate(T& value, const V& variables)
@@ -555,7 +555,7 @@ inline void linear_calibrate(T& value, const V& variables)
  * \tparam V variables class, must have public <tt>slope2[]</tt>, <tt>slope[]</tt>, and \c offset[] fields
  *
  * Behaves identically to linear_calibrate(), except performing a quadratic calibration instead
- * \note Any values initially set to dragon::NO_DATA are left untouched
+ * \note Any values initially set to dragon::DR_NO_DATA are left untouched
  */
 template <class T, class L, class V>
 inline void quadratic_calibrate(T* array, L length, const V& variables)
@@ -574,7 +574,7 @@ inline void quadratic_calibrate(T* array, L length, const V& variables)
  * \tparam V variables class, must have public <tt>slope2</tt>, <tt>slope</tt>, and \c offset fields
  *
  * See array version for more information.
- * \note Any values initially set to dragon::NO_DATA are left untouched
+ * \note Any values initially set to dragon::DR_NO_DATA are left untouched
  */
 template <class T, class V>
 inline void quadratic_calibrate(T& value, const V& variables)
@@ -593,7 +593,7 @@ inline void quadratic_calibrate(T& value, const V& variables)
  * \tparam V variables class, must have public \c coeff[][] fiels
  *
  * Behaves identically to linear_calibrate(), except performing a quadratic calibration instead
- * \note Any values initially set to dragon::NO_DATA are left untouched
+ * \note Any values initially set to dragon::DR_NO_DATA are left untouched
  */
 template <class T, class L, class V>
 inline void polynomial_calibrate(int order, T* array, L length, const V& variables)
@@ -617,7 +617,7 @@ inline void polynomial_calibrate(int order, T* array, L length, const V& variabl
  * \tparam V variables class, must have public \c coeff[] field
  *
  * See array version for more information.
- * \note Any values initially set to dragon::NO_DATA are left untouched
+ * \note Any values initially set to dragon::DR_NO_DATA are left untouched
  */
 template <class T, class V>
 inline void polynomial_calibrate(int order, T& value, const V& variables)

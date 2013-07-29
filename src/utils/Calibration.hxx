@@ -6,7 +6,7 @@
 #ifndef DRAGON_CALIB_HEADER
 #define DRAGON_CALIB_HEADER
 #include <vector>
-#include <RTypes.h>
+#include <Rtypes.h>
 #include "Dragon.hxx"
 
 class TH1;

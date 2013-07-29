@@ -29,7 +29,6 @@ doc/.DS_Store
 lib/*.dsym
 lib/.*
 .nfs*
-bin/*
 test.xml
 examples/*.d
 examples/*.so
