@@ -974,6 +974,7 @@ void dragon::BeamNorm::CorrectTransmission(Int_t reference)
 
 		for(int i=0; i< NSB; ++i) {
 			thisData.yield[i] /= thisData.trans_corr;
+			thisData.nbeam[i] /= thisData.trans_corr;
 		}
 	}
 }
@@ -997,21 +998,33 @@ UDouble_t dragon::BeamNorm::CalculateYield(Int_t whichSb, Bool_t print)
 		return UDouble_t(0,0);
 	}
 
-	UDouble_t beam(0,0), recoil(0,0);
+	UDouble_t beam(0,0), recoil(0,0), recoilCounted(0,0), recoilTrans(0,0);
+	std::vector<Double_t> recoilV, liveV;
 	for(std::map<Int_t, RunData>::iterator it = fRunData.begin(); it != fRunData.end(); ++it) {
 		RunData& thisData = it->second;
 		beam += thisData.nbeam[whichSb];
 		recoil += (thisData.nrecoil / thisData.trans_corr / thisData.live_time_full);
+		recoilCounted += thisData.nrecoil;
+		recoilTrans   += thisData.nrecoil / thisData.trans_corr;
+
+		// for recoil-weighted livetime
+		recoilV.push_back(thisData.nrecoil.GetNominal());
+		liveV.push_back(thisData.live_time_full.GetNominal());
 	}
 
 	UDouble_t eff = CalculateEfficiency(kFALSE);
 	UDouble_t out = recoil / beam / eff;
 
+	Double_t liveAvg = TMath::Mean(liveV.size(), &liveV[0], &recoilV[0]);
+
 	if(print) {
-		std::cout << "Beam:      \t" << beam   << "\n"
-							<< "Recoil:    \t" << recoil << "\n"
-							<< "Efficiency:\t" << eff    << "\n"
-							<< "Yield:     \t" << out    << "\n";
+		std::cout << "Beam:            \t" << beam   << "\n"
+							<< "Recoil:          \t" << recoil << "\n"
+							<< "Recoil (counted):\t" << recoilCounted << "\n"
+							<< "Recoil (trans corr):\t" << recoilTrans << "\n"
+							<< "Avg. Livetime (nrecoil weighted):\t" << liveAvg << "\n"
+							<< "Efficiency:      \t" << eff    << "\n"
+							<< "Yield:           \t" << out    << "\n";
 	}
 
 	return out;
@@ -1176,6 +1189,31 @@ void dragon::LiveTimeCalculator::CalculateSub(Double_t tbegin, Double_t tend)
 	DoCalculate(tbegin, tend);
 }
 
+void dragon::LiveTimeCalculator::CalculateChain(TChain* chain)
+{
+	TFile* file0 = GetFile();
+	Double_t sumbusy[2] = {0,0}, sumrun[2] = {0,0};
+
+	for (Int_t i=0; i< chain->GetListOfFiles()->GetEntries(); ++i) {
+		TFile* f = TFile::Open ( chain->GetListOfFiles()->At(i)->GetTitle() );
+		if(f->IsZombie()) { f->Close(); continue; }
+
+		SetFile(f);
+		Calculate();
+		sumrun[0] += GetRuntime("head");
+		sumrun[1] += GetRuntime("tail");
+		sumbusy[0] += GetBusytime("head");
+		sumbusy[1] += GetBusytime("tail");
+
+		f->Close();
+	}
+
+	for(int i=0; i< 2; ++i) {
+		fBusytime[i] = sumbusy[i];
+		fRuntime[i]  = sumrun[i];
+		fLivetime[i] = (sumrun[i] - sumbusy[i]) / sumrun[i];
+	}
+}
 
 // ================ class dragon::StoppingPowerCalculator ================ //
 

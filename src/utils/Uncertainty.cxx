@@ -166,6 +166,8 @@ std::ostream& operator<< (std::ostream& strm, const UDouble_t& ud)
 		else
 			strm << " +/- " << ud.fSys[1] << " (sys)";
 	}
+
+	return strm;
 }
 
 UDouble_t UDouble_t::pow(const UDouble_t& z, double x)

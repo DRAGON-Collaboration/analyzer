@@ -977,6 +977,7 @@ public:
 	LiveTimeCalculator();
 	LiveTimeCalculator(TFile* file);
 	void Calculate();
+	void CalculateChain(TChain* chain);
 	void CalculateSub(Double_t tbegin, Double_t tend);
 	Double_t GetBusytime(const char* which) const;
 	Double_t GetRuntime(const char*  which) const;
