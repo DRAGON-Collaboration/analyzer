@@ -225,7 +225,28 @@
 	It is convenient to create a default `rootlogon.C` file and add the above line to it so that the library is loaded automatically
 	every time you start ROOT.
   .
-2. _How do I convert MIDAS files into ROOT files?_
+2. _How do I commit my code changes to the git repository?_
+
+  There are a few ways to do this, but this one is probably the easiest. First, commit your changes locally:
+  \code
+  git commit -a
+  \endcode
+  (this will bring up an editor in which you should write a commit message, then save it). Then log in to isdaq07
+	as user `dragon` and go to the `~/packages/dragon/analyzer` directory. Make sure that you are on the `master` branch
+	by doing `git branch`; this will list all available branches, and there should be a `*` next to `master`. If this is
+	not on the master branch, do `git checkout master` to switch to it.  Make sure this branch is up-to-date
+	(`git status`), and if not commmit the current changes after verifying that they won't break anything.
+
+  Now you can pull in the changes from your remote repository:
+	\code
+	git pull myusername@myhost:/path/to/dragon/analyzer branch
+	\endcode
+  (where `branch` is the banch name on your local repository - typically this will be `master` unless you have changed things).
+  This will pull in your changes and commit them (i.e. you'll be done at this point), unless there are conflicts. If there are
+	conflicts, git will tell you. Open up the offending files and find the lines with `>>>>>>>>>`. These denote the location of
+	conflicts. Consider the options and choose the desired resolution and save the file(s). Then do a commit to save the changes.
+  .
+3. _How do I convert MIDAS files into ROOT files?_
 
   Run the `mid2root` utility that is distributed as part of this software package (it should be located in the
 	`/bin` directory). For information on running the programs, first do `mid2root --help`.
@@ -235,7 +256,7 @@
 	`/Logger/Data dir` setting at the time of the run. Note that variables used in these conversions are reflect
 	the state of the ODB when the run was started.
 	.
-3. _How can I re-analyze a MIDAS file using different variables?_
+4. _How can I re-analyze a MIDAS file using different variables?_
 
   The `mid2root` program allows users to specify an XML file containing the variables to be used for analysis
 	and unpacking into ROOT trees. This is done by using the `-v` flag to specify the desired XML file. The supplied
@@ -243,7 +264,7 @@
 	to generate by hand, it is suggested to first copy one of the `run***.xml` files from the logger data directory
 	and then edit this to update variables as desired.
 	.
-4. _Now that I've converted MIDAS files into ROOT format, how can I see the data?_
+5. _Now that I've converted MIDAS files into ROOT format, how can I see the data?_
 
   There are a few options here. One is to create a <a href=http://root.cern.ch/root/html/TChain.html>
 	TChain</a> linking the events in all of your ROOT files together, and then start viewing data using
@@ -259,7 +280,7 @@
 	The other classes available are a set of TSelector classes specific to DRAGON data. By deriving from these,
 	you can code your analysis routines in C++. See the documentation on RootAnalysis.hxx for further information.
 	.
-4. _I'm really new to C++/ROOT and have no idea how to even get started looking at data. Any advice?_
+6. _I'm really new to C++/ROOT and have no idea how to even get started looking at data. Any advice?_
 
   ROOT does indeed have a steep learning curve, and most of the documentation on their website assumes a certain
 	level of familiarity with C++. For the true beginners, I wrote a ROOT guide a few years ago for a different group
@@ -270,13 +291,13 @@
 	though this often is not the best for beginners. Often,
 	a good reference is the ROOT class documentation, e.g. for TTree http://root.cern.ch/root/html/TTree.html.
 	.
-5. _I can never remember all of the parameter names in the ROOT trees. Is there a way to find this out easily?_
+7. _I can never remember all of the parameter names in the ROOT trees. Is there a way to find this out easily?_
 
   Use the TTree::StartViewer() command, e.g. `t3->StartViewer()` to see a complete graphical listing of all avaiable
 	parameters in a given tree. Alternatively, you can use TTree::Print, e.g. `t3->Print()` to see a textual listing
 	of available parameters.
   .
-6. _How do you make plots of energy vs. channel in offline analysis from Trees. For example: DSSSD energy vs channel?_
+8. _How do you make plots of energy vs. channel in offline analysis from Trees. For example: DSSSD energy vs channel?_
 
   Take advantage of `TTree::Draw()` and its features for parsing arrays. To draw DSSSD energy vs. channel just do the
 	following:
