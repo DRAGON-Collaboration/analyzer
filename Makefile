@@ -20,8 +20,9 @@ DEFINITIONS+=-DDISPLAY_MODULES
 
 ### Set to YES (NO) to turn on (off) root [or rootbeer, or rootana, or ...] usage ###
 USE_ROOT=YES
-USE_ROOTANA=YES
-USE_ROOTBEER=YES
+USE_ROOTANA=NO
+USE_ROOTBEER=NO
+USE_MIDAS=YES
 
 ## Automatically turn off rootana if on jabberwock
 THE_HOST := $(shell hostname)
@@ -31,7 +32,7 @@ endif
 
 
 ### Set ROOTBEER home directory (ignore if USE_ROOTBEER=NO) ###
-RB_HOME=$(HOME)/packages/rootbeer
+RB_HOME=$(HOME)/usr/packages/rootbeer
 
 
 ### CHOOSE YOUR COMPILER IF YOU WANT ###
@@ -53,32 +54,38 @@ OBJ=$(PWD)/obj
 CINT=$(PWD)/cint
 DRLIB=$(PWD)/lib
 
+DEFINITIONS+=-DDRAGON_AME12_FILENAME=\"$(PWD)/src/utils/mass.mas12\" 
 DYLIB=-shared
 FPIC=-fPIC
 INCFLAGS=-I$(SRC) -I$(CINT)
+
 DEBUG=-ggdb -O3 -DDEBUG
-CXXFLAGS=$(DEBUG) $(INCFLAGS) $(DEFINITIONS)
+#CXXFLAGS = -g -O2 -Wall -Wuninitialized
+CXXFLAGS = $(DEBUG) $(INCFLAGS) $(DEFINITIONS)
+CXXFLAGS += -DHAVE_ZLIB
 
 
 ROOTLIBS=
 ifeq ($(USE_ROOT),YES)
 DEFINITIONS+= -DUSE_ROOT
 ifdef ROOTSYS
-ROOTLIBS= -L$(ROOTSYS)/lib $(shell $(ROOTSYS)/bin/root-config --cflags --libs --glibs) -I$(ROOTSYS)/include -lXMLParser -lSpectrum
+ROOTLIBS= -L$(ROOTSYS)/lib $(shell $(ROOTSYS)/bin/root-config --cflags --libs --glibs) -I$(ROOTSYS)/include -lXMLParser -lSpectrum -lMinuit
 CXXFLAGS += -I$(ROOTSYS)/include
 else
-ROOTLIBS= - $(shell $(ROOTSYS)/bin/root-config --cflags --libs --glibs) -lXMLParser -lThread -lTreePlayer -lSpectrum
+ROOTLIBS= - $(shell $(ROOTSYS)/bin/root-config --cflags --libs --glibs) -lXMLParser -lThread -lTreePlayer -lSpectrum -lMinuit
 endif
 else
 USE_ROOTBEER=NO
 endif
 
+ifeq ($(USE_MIDAS),YES)
+$(info ************  USE_MIDAS ************)
 ifdef MIDASSYS
 CXXFLAGS += -DMIDASSYS
 MIDASLIBS = -lmidas -L$(MIDAS_LIB_DIR)
 INCFLAGS += -I$(MIDASSYS)/include
 endif
-
+endif
 
 UNAME=$(shell uname)
 ifeq ($(UNAME),Darwin)
@@ -98,7 +105,6 @@ MIDAS_LIB_DIR=$(MIDASSYS)/linux/lib
 MIDASLIBS+= -lm -lz -lutil -lnsl -lrt
 endif
 endif
-
 
 
 CXX+=$(CXXFLAGS)
@@ -124,17 +130,24 @@ $(OBJ)/midas/Odb.o                  		\
 $(OBJ)/midas/Xml.o                  		\
 $(OBJ)/midas/libMidasInterface/TMidasFile.o  	\
 $(OBJ)/midas/libMidasInterface/TMidasEvent.o 	\
-$(OBJ)/midas/libMidasInterface/TMidasOnline.o 	\
 $(OBJ)/midas/Event.o                	\
 					\
 $(OBJ)/Unpack.o				\
 $(OBJ)/TStamp.o		              	\
 $(OBJ)/Vme.o				\
-$(OBJ)/Dragon.o					
+$(OBJ)/Dragon.o				\
+$(OBJ)/utils/TAtomicMass.o              \
+$(OBJ)/utils/Uncertainty.o
+#$(OBJ)/utils/UDouble.o
+
+ifeq ($(USE_MIDAS), YES)
+OBJECTS+=$(OBJ)/midas/libMidasInterface/TMidasOnline.o
+endif
 
 ifeq ($(USE_ROOT), YES)
 OBJECTS+=$(OBJ)/utils/RootAnalysis.o
 OBJECTS+=$(OBJ)/utils/Calibration.o
+OBJECTS+=$(OBJ)/utils/LinearFitter.o
 endif
 
 
@@ -153,6 +166,7 @@ $(SRC)/*.hxx
 ### DRAGON LIBRARY ###
 MAKE_ALL=$(DRLIB)/libDragon.so $(PWD)/bin/mid2root
 ifeq ($(USE_ROOTBEER),YES)
+$(info ************  USE_ROOTBEER ************)
 MAKE_ALL+=$(PWD)/bin/rbdragon
 endif
 ifeq ($(USE_ROOTANA),YES)
@@ -170,8 +184,9 @@ $(OBJECTS) $(DR_DICT) \
 \
 -o $@ \
 
+mid2root: $(PWD)/bin/mid2root
 $(PWD)/bin/mid2root: src/mid2root.cxx $(DRLIB)/libDragon.so
-	$(LINK) -lDragon $< \
+	$(LINK) -lDragon $(MIDASLIBS) $< \
 -o $@ \
 
 mid2root: $(PWD)/bin/mid2root
@@ -180,7 +195,7 @@ rbdragon.o: $(OBJ)/rootbeer/rbdragon.o
 
 ### OBJECT FILES ###
 
-$(OBJ)/rootbeer/%.o: $(SRC)/rootbeer/%.cxx $(SRC)/rootbeer/*.hxx $(DR_DICT_DEP) $(HOME)/packages/rootbeer/cint/RBDictionary.cxx
+$(OBJ)/rootbeer/%.o: $(SRC)/rootbeer/%.cxx $(SRC)/rootbeer/*.hxx $(DR_DICT_DEP) $(HOME)/usr/packages/rootbeer/cint/RBDictionary.cxx
 	$(CXX) $(RB_DEFS) $(RBINC) $(FPIC) -c \
 -o $@ $< \
 
@@ -217,9 +232,9 @@ $(CINT)/DragonDictionary.cxx:  $(HEADERS) $(CINT)/Linkdef.h
 
 
 ### FOR ROOTANA ###
-ROOTANA=$(HOME)/packages/rootana
+ROOTANA=$(HOME)/usr/packages/rootana
 ROOTANA_FLAGS=-ansi -Df2cFortran -I$(ROOTANA)
-ROOTANA_DEFS=-DROOTANA_DEFAULT_HISTOS=$(HOME)/packages/dragon/analyzer/histos.dat
+ROOTANA_DEFS=-DROOTANA_DEFAULT_HISTOS=$(HOME)/usr/packages/dragon/analyzer/histos.dat
 
 ROOTANA_REMOTE_OBJS=				\
 $(ROOTANA)/libNetDirectory/netDirectoryServer.o
@@ -232,7 +247,7 @@ $(OBJ)/rootana/Directory.o
 
 ROOTANA_HEADERS= $(SRC)/rootana/Globals.h $(SRC)/rootana/*.hxx
 
-ROOTANA_LIBS=-lrootana -lNetDirectory -L$(HOME)/packages/rootana/libNetDirectory/ -L$(HOME)/packages/rootana/lib
+ROOTANA_LIBS=-lrootana -lNetDirectory -L$(HOME)/usr/packages/rootana/libNetDirectory/ -L$(HOME)/usr/packages/rootana/lib
 
 $(CINT)/rootana/Dict.cxx: $(ROOTANA_HEADERS) $(SRC)/rootana/Linkdef.h $(CINT)/DragonDictionary.cxx
 	rootcint -f $@ -c $(CXXFLAGS) $(ROOTANA_FLAGS) -p $(ROOTANA_HEADERS) $(SRC)/rootana/Linkdef.h \

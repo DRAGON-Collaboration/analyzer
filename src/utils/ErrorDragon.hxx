@@ -105,6 +105,7 @@ struct Warning: public Strm { Warning(const char* where, bool = true) :
 #include <sstream>
 #ifndef __MAKECINT__
 #include "midas.h"
+#include "msystem.h"
 #endif
 
 namespace dragon { namespace utils {

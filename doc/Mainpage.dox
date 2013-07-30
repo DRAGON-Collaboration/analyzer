@@ -510,27 +510,8 @@
 	<a href=http://www.boost.org/doc/libs/1_51_0/libs/python/doc/>boost::python</a> library.
 
 	\subsection download Download and Compile
-	The latest version of the code can be downloaded from github:
-	<a href=https://github.com/gchristian321/dragon_analyzer/tree/dev>
-	https://github.com/gchristian321/dragon_analyzer/tree/dev</a>. You can either download the current version
-	of the code as a .zip file, or if you are familiar with
-	git, you can clone it into a local repository (note that you want to be on the 'dev' branch):
-	
-      git clone git@github.com:gchristian321/dragon_analyzer.git
 
-
-	Before compiling, you may need to customize the Makefile to work on your system. If you open the file,
-	you will see a section at the top where you can customize things. There are comments explaining what each of
-	the optional features are and how you can change them.
-
-	One you have set up the makefile as appropriate for your system, compiling should be as simple as typing
-
-      make
-
-	at the command line.  This will install the generated binaries in your local directory (shared libraries in
-	$PWD/lib, binaries in $PWD). There is no "install" option, so you should either copy/link the binaries and
-	libraries into a system-wide directory or update the necessary environment variables to allow your shell
-	to find what it needs.
+	See the \link faq Offline Analysis Section of the FAQ \endlink for download and compilation instructions.
 
 	If you run into any problems compiling this package, do not hesitate to contact the package maintainer
 	for help. If do you find a solution to your problems on your own, please alert the package maintainer

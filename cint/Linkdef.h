@@ -47,9 +47,7 @@ class TTree;
 #pragma link C++ class midas::Xml+;
 #pragma link C++ class midas::Odb+;
 #pragma link C++ class midas::Database+;
-#ifdef USE_ROOT
 #pragma link C++ class std::auto_ptr<midas::Xml>+;
-#endif
 #pragma link C++ class mxml_struct+;
 
 #pragma link C++ class tstamp::Diagnostics+;
@@ -57,6 +55,12 @@ class TTree;
 #pragma link C++ defined_in ../src/utils/ErrorDragon.hxx;
 #pragma link C++ defined_in ../src/utils/RootAnalysis.hxx;
 #pragma link C++ defined_in ../src/utils/Calibration.hxx;
+#pragma link C++ defined_in ../src/utils/Uncertainty.hxx;
+#pragma link C++ defined_in ../src/utils/TAtomicMass.h;
+#pragma link C++ defined_in ../src/utils/LinearFitter.hxx;
+
+#pragma link C++ class std::auto_ptr<dragon::RossumData>+;
+#pragma link C++ class std::auto_ptr<std::ifstream>+;
 
 #pragma link C++ class dragon::utils::AdcVariables<dragon::Bgo::MAX_CHANNELS>+;
 #pragma link C++ class dragon::utils::TdcVariables<dragon::Bgo::MAX_CHANNELS>+;
@@ -69,5 +73,6 @@ class TTree;
 #pragma link C++ class dragon::utils::AdcVariables<dragon::NaI::MAX_CHANNELS>+;
 #pragma link C++ class dragon::utils::AdcVariables<1>+;
 
+#pragma link C++ class dragon::Constants+;
 
 #endif

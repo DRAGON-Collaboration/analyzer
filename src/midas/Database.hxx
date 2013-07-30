@@ -4,6 +4,7 @@
 #ifndef DRAGON_MIDAS_DATABASE_HXX
 #define DRAGON_MIDAS_DATABASE_HXX
 #include <memory>
+#include <TNamed.h>
 #include "utils/ErrorDragon.hxx"
 #include "Odb.hxx"
 #include "Xml.hxx"
@@ -153,6 +154,30 @@ public:
 			else return 0;
 		}
 
+	/// Print value of a parameter
+	void Print(const char* path) const
+		{
+			if(fIsZombie) {
+				std::cout << "Zombie!\n";
+				return;
+			}
+			if(fIsOnline) {
+				std::cout << "Print() not yet available for online data.\n";
+				return;
+			}
+			if (!fXml.get()) {
+				std::cerr << "fXml == 0!\n";
+				return;
+			}
+			if(1) {
+				bool success = fXml->PrintArray(path);
+				if(!success)   success = fXml->PrintValue(path);
+				if(!success) {
+					std::cout << "Path: \"" << path << "\" not found!\n";
+				}
+			}
+		}
+
 #ifdef USE_ROOT
 	ClassDef(midas::Database, 2);
 #endif
@@ -171,6 +196,7 @@ public:
 #pragma link C++ function midas::Database::ReadValue (const char*, ULong64_t&);
 #pragma link C++ function midas::Database::ReadValue (const char*, Float_t);
 #pragma link C++ function midas::Database::ReadValue (const char*, Double_t&);
+#pragma link C++ function midas::Database::ReadValue (const char*, std::string&);
 
 #pragma link C++ function midas::Database::ReadArray (const char*, Char_t*, int);
 #pragma link C++ function midas::Database::ReadArray (const char*, Short_t*, int);
@@ -182,6 +208,7 @@ public:
 #pragma link C++ function midas::Database::ReadArray (const char*, ULong64_t*, int);
 #pragma link C++ function midas::Database::ReadArray (const char*, Float_t*, int);
 #pragma link C++ function midas::Database::ReadArray (const char*, Double_t*, int);
+#pragma link C++ function midas::Database::ReadArray (const char*, std::string*, int);
 
 #endif
 

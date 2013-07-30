@@ -259,21 +259,21 @@ std::string get_xml_path(const char* path, const char* node_type) {
 	return xmlPath.str();
 } }
 
-midas::Xml::Node midas::Xml::FindKey(const char* path)
+midas::Xml::Node midas::Xml::FindKey(const char* path, bool silent)
 {
 	if(!Check()) return 0;
 	Node out = mxml_find_node(fOdb, get_xml_path(path, "key").c_str());
-	if(!out) {
+	if(!out && !silent) {
 		std::cerr << "Error: XML path: " << path << " was not found.\n";
 	}
 	return out;
 }
 
-midas::Xml::Node midas::Xml::FindKeyArray(const char* path)
+midas::Xml::Node midas::Xml::FindKeyArray(const char* path, bool silent)
 {
 	if(!Check()) return 0;
 	Node out = mxml_find_node(fOdb, get_xml_path(path, "keyarray").c_str());
-	if(!out) {
+	if(!out && !silent) {
 		std::cerr << "Error: XML path: " << path << " was not found.\n";
 	}
 	return out;

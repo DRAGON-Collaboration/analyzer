@@ -3,6 +3,7 @@
 //! \brief Defines a class to parse MIDAS XML files from the ODB.
 #ifndef MIDAS_XML_HXX
 #define MIDAS_XML_HXX
+#include <stdint.h>
 #include <cstdlib>
 #include <cstring>
 #include <vector>
@@ -75,12 +76,12 @@ public:
 	/// \brief Find the node location of a specific key element within the xml file
 	/// \param [in] path String specifying the "directory" path of the element, e.g.
 	/// "Equipment/gTrigger/Variables/Pedestals".
-	Node FindKey(const char* path);
+	Node FindKey(const char* path, bool silent = false);
 
 	/// \brief Find the node location of a specific keyarray element within the xml file
 	/// \param [in] path String specifying the "directory" path of the element, e.g.
 	/// "Equipment/gTrigger/Variables/Pedestals".
-	Node FindKeyArray(const char* path);
+	Node FindKeyArray(const char* path, bool silent = false);
 
 	/// Get the value of key element
 	template <typename T> T GetValue(const char* path, bool* success = 0)
@@ -255,6 +256,43 @@ public:
 				array[i] = value;
 
 			}
+		}
+
+	/// Print an array
+	bool PrintArray(const char* path)
+		{
+			Node node = FindKeyArray(path, true);
+			if(!node) {
+				return false;
+			}
+			char* pAttribute = mxml_get_attribute(node, "num_values");
+			if(!pAttribute) {
+				std::cerr << "Error: \"num_values\" attribute not found for array: " << path << "\n";
+				return false;
+			}
+			int size = atoi(pAttribute);
+			for(int i=0; i< size; ++i) {
+				std::stringstream valPath;
+				valPath << "/value[" << i+1 << "]";
+				Node valNode = mxml_find_node(node, valPath.str().c_str());
+				if(!valNode) {
+					std::cerr << "Error: Unable to find value node for array index " << i << "\n";
+					continue;
+				}
+				std::cout << path << "[" << i << "] = " << valNode->value << "\n";
+			}
+			return true;
+		}
+
+	/// Print a value
+	bool PrintValue(const char* path)
+		{
+			Node node = FindKey(path, true);
+			if(!node) {
+				return false;
+			}
+			std::cout << path << " = " << node->value << "\n";
+			return true;
 		}
 
 private:

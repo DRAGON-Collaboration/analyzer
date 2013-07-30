@@ -668,9 +668,9 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories
 # with spaces.
 
-INPUT                  = /Users/dragon/packages//dragon/analyzer/src \
-                         /Users/dragon/packages//dragon/analyzer/doc \
-		         /Users/dragon/packages//dragon/analyzer/examples
+INPUT                  = $(HOME)/packages//dragon/analyzer/src \
+                         $(HOME)/packages//dragon/analyzer/doc \
+		         $(HOME)/packages//dragon/analyzer/examples
 
 
 # This tag can be used to specify the character encoding of the source files
@@ -760,7 +760,7 @@ EXAMPLE_RECURSIVE      = NO
 # directories that contain image that are included in the documentation (see
 # the \image command).
 
-IMAGE_PATH             = /Users/dragon/packages/dragon/analyzer/doc/images
+IMAGE_PATH             = $(HOME)/packages/dragon/analyzer/doc/images
 
 # The INPUT_FILTER tag can be used to specify a program that doxygen should
 # invoke to filter for each input file. Doxygen will invoke the filter program
