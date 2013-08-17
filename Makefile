@@ -21,7 +21,7 @@ DEFINITIONS+=-DDISPLAY_MODULES
 ### Set to YES (NO) to turn on (off) root [or rootbeer, or rootana, or ...] usage ###
 USE_ROOT=YES
 USE_ROOTANA=NO
-USE_ROOTBEER=NO
+USE_ROOTBEER=YES
 USE_MIDAS=YES
 
 ## Automatically turn off rootana if on jabberwock
@@ -32,7 +32,7 @@ endif
 
 
 ### Set ROOTBEER home directory (ignore if USE_ROOTBEER=NO) ###
-RB_HOME=$(HOME)/usr/packages/rootbeer
+RB_HOME=$(HOME)/packages/rootbeer
 
 
 ### CHOOSE YOUR COMPILER IF YOU WANT ###
@@ -195,10 +195,6 @@ rbdragon.o: $(OBJ)/rootbeer/rbdragon.o
 
 ### OBJECT FILES ###
 
-$(OBJ)/rootbeer/%.o: $(SRC)/rootbeer/%.cxx $(SRC)/rootbeer/*.hxx $(DR_DICT_DEP) $(HOME)/usr/packages/rootbeer/cint/RBDictionary.cxx
-	$(CXX) $(RB_DEFS) $(RBINC) $(FPIC) -c \
--o $@ $< \
-
 $(OBJ)/utils/%.o: $(SRC)/utils/%.cxx $(DR_DICT_DEP)
 	$(CXX) $(FPIC) -c \
 -o $@ $< \
@@ -282,6 +278,10 @@ $(OBJ)/rootbeer/rbdragon.o
 RB_HEADERS= $(SRC)/rootbeer/rbdragon.hxx
 
 RB_DEFS=-DRB_DRAGON_HOMEDIR=$(PWD)
+
+$(OBJ)/rootbeer/rbdragon.o: $(SRC)/rootbeer/rbdragon.cxx $(SRC)/rootbeer/*.hxx $(DR_DICT_DEP) 
+	$(CXX) $(RB_DEFS) $(RBINC) $(FPIC) -c \
+-o $@ $< \
 
 $(PWD)/bin/rbdragon: $(RB_OBJECTS)
 	$(LINK) $(RB_OBJECTS) -L$(PWD)/../../rootbeer/lib  -lDragon -lRootbeer -lrbMidas \
