@@ -11,15 +11,28 @@ inline Nucleus_t make_nucleus_az(int Z, int A) {
 
 
 TAtomicMassTable::TAtomicMassTable(const char* file):
-	fFile(new std::ifstream(file))
+	fFile(0)
 {
-	ParseFile(file);
+	SetFile(file);
 }
 
 TAtomicMassTable::TAtomicMassTable():
-	fFile(new std::ifstream(DRAGON_AME12_FILENAME))
+	fFile(0)
 {
-	ParseFile(DRAGON_AME12_FILENAME);
+#ifdef DRAGON_AME12_FILENAME
+	SetFile(DRAGON_AME12_FILENAME);
+#endif
+}
+
+bool TAtomicMassTable::SetFile(const char* filename)
+{
+	fFile.reset(new std::ifstream(filename));
+	if(fFile->good())
+		ParseFile(filename);
+	else {
+		ParseFile(filename);
+		fFile.reset(0);
+	}
 }
 
 const Nucleus_t* TAtomicMassTable::GetNucleus(int Z, int A) const

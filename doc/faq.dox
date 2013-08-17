@@ -228,7 +228,7 @@
   http://root.cern.ch  You will also need to be sure that the $ROOTSYS environment variable is set and that $ROOTSYS/bin
 	is in your search path. Once you have this, you can obtain the analysis package from the git repository as follows:
 	\code
-	`git clone dragon@isdaq07:~/packages/dragon/analyzer`
+	git clone dragon@isdaq07:~/packages/dragon/analyzer
 	\endcode
 	The password is the standard one for dragon accounts. If you don't have git installed or prefer to just get a tarball, 
 	then log into isdaq07 as user `dragon` and copy one of the tarballs from `~/packages/dragon` to your local machine.
@@ -332,6 +332,10 @@
 
 1. _What do all the parameter names mean? How can I find the parameter name corresponding to xyz signal?_
 
+  Short answer: see the \link params Parameter Names \endlink page for a description of the most commonly used
+	TTree parameters
+
+  Long answer:
   Each detector element in DRAGON is represented by a C++ class in the analyzer. Each detector class contains
 	data members which correspond to experimental parameters recorded by the corresponding detector. By arranging
 	the various detector classes in a hierarchy, we create a tree-like structure describing experiment parameters.
@@ -369,10 +373,6 @@
 	Thus the full hierarchy for, say, the energy of channel 16 is `tail.dsssd.ecal[16]`.	When using ROOT, the class
 	hierarchy is parsed into a TTree branch structure, meaning that the parameter name for
 	DSSSD energy, channel 16 is exactly as noted.
-
-	Perhaps the simplest way to figure out parameter names, then, is to look in the <a href=namespacedragon.html>dragon
-	namespace documentation</a>, which has links to documentation on each of the DRAGON detector classes. Within the
-	documentation, the physical measurement corresponding to each data member is explained.
   .
 2. _What am I looking at when I look at the TDC (tcal) or tof parameters?_
 

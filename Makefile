@@ -21,7 +21,11 @@ DEFINITIONS+=-DDISPLAY_MODULES
 ### Set to YES (NO) to turn on (off) root [or rootbeer, or rootana, or ...] usage ###
 USE_ROOT=YES
 USE_ROOTANA=NO
+<<<<<<< HEAD
 USE_ROOTBEER=YES
+USE_MIDAS=YES
+=======
+USE_ROOTBEER=NO
 USE_MIDAS=YES
 
 ## Automatically turn off rootana if on jabberwock
@@ -279,7 +283,7 @@ RB_HEADERS= $(SRC)/rootbeer/rbdragon.hxx
 
 RB_DEFS=-DRB_DRAGON_HOMEDIR=$(PWD)
 
-$(OBJ)/rootbeer/rbdragon.o: $(SRC)/rootbeer/rbdragon.cxx $(SRC)/rootbeer/*.hxx $(DR_DICT_DEP) 
+$(OBJ)/rootbeer/rbdragon.o: $(SRC)/rootbeer/rbdragon.cxx $(SRC)/rootbeer/*.hxx $(DR_DICT_DEP)
 	$(CXX) $(RB_DEFS) $(RBINC) $(FPIC) -c \
 -o $@ $< \
 
