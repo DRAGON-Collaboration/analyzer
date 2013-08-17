@@ -21,7 +21,7 @@ DEFINITIONS+=-DDISPLAY_MODULES
 ### Set to YES (NO) to turn on (off) root [or rootbeer, or rootana, or ...] usage ###
 USE_ROOT=YES
 USE_ROOTANA=NO
-USE_ROOTBEER=NO
+USE_ROOTBEER=YES
 USE_MIDAS=YES
 
 ## Automatically turn off rootana if on jabberwock
@@ -32,7 +32,7 @@ endif
 
 
 ### Set ROOTBEER home directory (ignore if USE_ROOTBEER=NO) ###
-RB_HOME=$(HOME)/usr/packages/rootbeer
+RB_HOME=$(HOME)/packages/rootbeer
 
 
 ### CHOOSE YOUR COMPILER IF YOU WANT ###
