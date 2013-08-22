@@ -506,12 +506,15 @@ UDouble_t dragon::RossumData::AverageCurrent(Int_t run, Int_t cup, Int_t iterati
 		std::cerr << "Error: invalid run " << run << "\n";
 		return UDouble_t(0);
 	}
+	
+	// Note: the following line is required to use GetV1(), etc. if the tree
+	// has more than 10,000 entries!!!
+	tree->SetEstimate(tree->GetEntries());
 
 	char gate[4096];
 	sprintf(gate, "cup == %i && iteration == %i", cup, iteration);
 	Long64_t nval = tree->Draw("current:time", gate, "goff");
 	if(nval < 1) return UDouble_t(0);
-
 
 	Double_t* time = tree->GetV2();
 	Double_t* current = tree->GetV1();
@@ -802,7 +805,7 @@ void dragon::BeamNorm::GetParams(const char* param, std::vector<Double_t> *runnu
 		int indx;
 		parse_param(param, par0, indx);
 		TDataMember* member = TClass::GetClass("dragon::BeamNorm::RunData")->GetDataMember(par0.c_str());
-		if(!member || param == "time") {
+		if(!member || std::string(param) == "time") {
 			std::cerr << "Invalid parameter: \"" << param << "\".\n";
 			break;
 		}
@@ -895,9 +898,11 @@ void dragon::BeamNorm::CalculateRecoils(TFile* datafile, const char* tree, const
 	// Copy aliases from chain
 	TChain* chain = (TChain*)gROOT->GetListOfSpecials()->FindObject(tree);
 	if(chain && chain->InheritsFrom(TChain::Class())) {
-		for(Int_t i=0; i< chain->GetListOfAliases()->GetEntries(); ++i) {
-			TObject* alias = chain->GetListOfAliases()->At(i);
-			t->SetAlias(alias->GetName(), alias->GetTitle());
+		if(chain->GetListOfAliases()) {
+			for(Int_t i=0; i< chain->GetListOfAliases()->GetEntries(); ++i) {
+				TObject* alias = chain->GetListOfAliases()->At(i);
+				if(alias) t->SetAlias(alias->GetName(), alias->GetTitle());
+			}
 		}
 	}
 
@@ -1130,6 +1135,12 @@ void dragon::LiveTimeCalculator::DoCalculate(Double_t tbegin, Double_t tend)
 	t5 = (TTree*)fFile->Get("t5");
 	
 	TTree* trees[3] = { t1, t3, t5 };
+
+	// Note: the following line is required to use GetV1(), etc. if the tree
+	// has more than 10,000 entries!!!
+	for(int i=0; i< 3; ++i) {
+		trees[i]->SetEstimate(trees[i]->GetEntries());
+	}
 
 	Int_t time0, time1, tclock;
 	midas::Database* db = (midas::Database*)fFile->Get("odbstop");
