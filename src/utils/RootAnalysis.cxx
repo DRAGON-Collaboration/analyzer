@@ -805,7 +805,7 @@ void dragon::BeamNorm::GetParams(const char* param, std::vector<Double_t> *runnu
 		int indx;
 		parse_param(param, par0, indx);
 		TDataMember* member = TClass::GetClass("dragon::BeamNorm::RunData")->GetDataMember(par0.c_str());
-		if(!member || param == "time") {
+		if(!member || std::string(param) == "time") {
 			std::cerr << "Invalid parameter: \"" << param << "\".\n";
 			break;
 		}
@@ -898,9 +898,11 @@ void dragon::BeamNorm::CalculateRecoils(TFile* datafile, const char* tree, const
 	// Copy aliases from chain
 	TChain* chain = (TChain*)gROOT->GetListOfSpecials()->FindObject(tree);
 	if(chain && chain->InheritsFrom(TChain::Class())) {
-		for(Int_t i=0; i< chain->GetListOfAliases()->GetEntries(); ++i) {
-			TObject* alias = chain->GetListOfAliases()->At(i);
-			t->SetAlias(alias->GetName(), alias->GetTitle());
+		if(chain->GetListOfAliases()) {
+			for(Int_t i=0; i< chain->GetListOfAliases()->GetEntries(); ++i) {
+				TObject* alias = chain->GetListOfAliases()->At(i);
+				if(alias) t->SetAlias(alias->GetName(), alias->GetTitle());
+			}
 		}
 	}
 
