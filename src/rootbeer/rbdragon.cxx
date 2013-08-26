@@ -6,6 +6,8 @@
 #include <ctime>
 #include <cassert>
 
+#include <TFile.h>
+
 // ROOTBEER includes //
 #include <TString.h>
 #include "Rint.hxx"
@@ -34,6 +36,7 @@ namespace { void process_events(const std::vector<Int_t>& codes)
 		if(event) event->Process(0, 0);
 	}
 } }
+
 
 // ============ Class rbdragon::MidasBuffer ============ //
 
@@ -78,23 +81,37 @@ void rbdragon::MidasBuffer::RunStartTransition(Int_t runnum)
 		ReadVariables(&db);
 	}
 
-	/// - Zero all histograms if online [currently disabled!]
-	/// \todo Make this a user-configurable option.
-	// if (fType == rb::MidasBuffer::ONLINE)
-	// 	rb::hist::ClearAll();
+	/// - Zero all histograms if online and option is selected 
+	if (fType == rb::MidasBuffer::ONLINE && gAutoZero == kTRUE)
+		rb::hist::ClearAll();
 
 	/// - Call parent class implementation (prints a message)
 	rb::MidasBuffer::RunStartTransition(runnum);
 }
 
+namespace {
+void IterateDir(TDirectory* dir, TDirectory* newdir)
+{
+	for(Int_t i=0; i< dir->GetList()->GetEntries(); ++i) {
+		newdir->cd();
+		TObject* obj = dir->GetList()->At(i);
+		if(obj->InheritsFrom(TDirectory::Class())) {
+			TDirectory* newdir1 = gDirectory->mkdir(obj->GetName(), obj->GetTitle());
+			IterateDir(static_cast<TDirectory*>(obj), static_cast<TDirectory*>(newdir1));
+		}
+		else if(obj->InheritsFrom(rb::hist::Base::Class())) {
+			static_cast<rb::hist::Base*>(obj)->GetHist()->Write(obj->GetName());
+		}
+	}
+} }
 
 void rbdragon::MidasBuffer::RunStopTransition(Int_t runnum)
 {
 	///
 	/// Does the following:
 
-	/// - Flush timestamp queue (max 60 seconds for online)
-	Int_t flush_time = fType == ONLINE ? 60 : -1;
+	/// - Flush timestamp queue (max 15 seconds for online)
+	Int_t flush_time = fType == ONLINE ? 15 : -1;
 	time_t t_begin = time(0);
 	size_t qsize;
 	while (1) {
@@ -109,6 +126,20 @@ void rbdragon::MidasBuffer::RunStopTransition(Int_t runnum)
 		std::vector<Int_t> v = fUnpacker.GetUnpackedCodes();
 		process_events(v);
 	} 
+	if (qsize) {
+		fUnpacker.GetQueue()->FlushTimeoutMessage(flush_time);
+		fUnpacker.GetQueue()->Clear();
+	}
+
+	/// - Write histograms to rootfiles/histosrun*****.root
+	TDirectory* dc = gDirectory;
+	{
+		TString foutname = Form("$RB_SAVEDIR/histos%d.root", runnum);
+		gSystem->ExpandPathName(foutname);
+		TFile fHistos(foutname, "RECREATE");
+		IterateDir(gROOT, &fHistos);	
+	}
+	dc->cd();
 
 	/// - Call parent class implementation (prints a message)
 	rb::MidasBuffer::RunStopTransition(runnum);
@@ -188,7 +219,7 @@ void rbdragon::TStampDiagnostics::HandleBadEvent()
 // ======== Class rbdragon::GammaEvent ======== //
 
 rbdragon::GammaEvent::GammaEvent():
-	fGamma("gamma", this, true, "") { }
+	fGamma("head", this, true, "") { }
 
 void rbdragon::GammaEvent::HandleBadEvent()
 {
@@ -205,7 +236,7 @@ void rbdragon::GammaEvent::ReadVariables(midas::Database* db)
 // ======== Class rbdragon::HeavyIonEvent ======== //
 
 rbdragon::HeavyIonEvent::HeavyIonEvent():
-	fHeavyIon("hi", this, true, "") { }
+	fHeavyIon("tail", this, true, "") { }
 
 void rbdragon::HeavyIonEvent::HandleBadEvent()
 {

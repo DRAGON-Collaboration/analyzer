@@ -101,6 +101,12 @@ public:
 	/// Check the maximum queue time
 	double GetMaxDelta() const { return fMaxDelta; }
 
+	/// Prints a message telling that Flush() timeout has been reached
+	virtual void FlushTimeoutMessage(int max_time) const;
+
+	/// Manually clear the event buffer
+	void Clear() { fEvents.clear(); }
+
 protected:
 	/// Check whether the maximum size has been reached
 	bool IsFull() const { return MaxTimeDiff() > fMaxDelta; }
@@ -124,9 +130,6 @@ private:
 
 	/// What to do with a diagnostics event
 	virtual void HandleDiagnostics(tstamp::Diagnostics* diagnostics) const;
-	
-	/// Prints a message telling that Flush() timeout has been reached
-	virtual void FlushTimeoutMessage(int max_time) const;
 
 	/// Internal helper function for flushing routines
 	void DoFlushEvent(tstamp::Diagnostics*);
