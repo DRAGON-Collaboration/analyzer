@@ -23,7 +23,10 @@ USE_ROOT=YES
 USE_ROOTANA=NO
 USE_ROOTBEER=YES
 USE_MIDAS=YES
+<<<<<<< HEAD
 
+=======
+>>>>>>> f6b42af77bc1104d607f8eb7d101e6d774d3668f
 
 ## Automatically turn off rootana if on jabberwock
 THE_HOST := $(shell hostname)
@@ -280,12 +283,16 @@ RB_HEADERS= $(SRC)/rootbeer/rbdragon.hxx
 
 RB_DEFS=-DRB_DRAGON_HOMEDIR=$(PWD)
 
+
+$(CINT)/rootbeer/rootbeerDict.cxx: $(SRC)/rootbeer/rbsymbols.hxx $(DR_DICT_DEP)
+	rootcint -f $@ -c $(CXXFLAGS) $(RBINC) -p $< $(CINT)/rootbeer/rblinkdef.h \
+
 $(OBJ)/rootbeer/rbdragon.o: $(SRC)/rootbeer/rbdragon.cxx $(SRC)/rootbeer/*.hxx $(DR_DICT_DEP)
 	$(CXX) $(RB_DEFS) $(RBINC) $(FPIC) -c \
 -o $@ $< \
 
-$(PWD)/bin/rbdragon: $(RB_OBJECTS)
-	$(LINK) $(RB_OBJECTS) -L$(PWD)/../../rootbeer/lib  -lDragon -lRootbeer -lrbMidas \
+$(PWD)/bin/rbdragon: $(CINT)/rootbeer/rootbeerDict.cxx $(RB_OBJECTS) 
+	$(LINK) $^ $(RBINC) -L$(PWD)/../../rootbeer/lib  -lDragon -lRootbeer -lrbMidas \
 -o $@ \
 
 

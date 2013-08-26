@@ -24,9 +24,6 @@ namespace rb { namespace hist { void ClearAll(); } }
 #include "rbdragon.hxx"
 
 
-
-
-
 //
 // Helper function to process unpacked events
 namespace { void process_events(const std::vector<Int_t>& codes)
@@ -36,6 +33,22 @@ namespace { void process_events(const std::vector<Int_t>& codes)
 		if(event) event->Process(0, 0);
 	}
 } }
+
+
+namespace { Bool_t gAutoZero = kFALSE; }
+
+
+// ============ Free Functions ============ //
+
+void rbdragon::SetAutoZero(Bool_t on)
+{
+	gAutoZero = on;
+}
+
+Bool_t rbdragon::GetAutoZero()
+{
+	return gAutoZero;
+}
 
 
 // ============ Class rbdragon::MidasBuffer ============ //
@@ -81,8 +94,8 @@ void rbdragon::MidasBuffer::RunStartTransition(Int_t runnum)
 		ReadVariables(&db);
 	}
 
-	/// - Zero all histograms if online and option is selected 
-	if (fType == rb::MidasBuffer::ONLINE && gAutoZero == kTRUE)
+	/// - Zero all histograms if online and enabled
+	if (fType == rb::MidasBuffer::ONLINE && ::gAutoZero == kTRUE)
 		rb::hist::ClearAll();
 
 	/// - Call parent class implementation (prints a message)

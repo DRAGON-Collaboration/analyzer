@@ -32,3 +32,4 @@ lib/.*
 test.xml
 examples/*.d
 examples/*.so
+bin/*

@@ -10,6 +10,7 @@
 #include "Main.hxx"
 #include "Data.hxx"
 #include "Event.hxx"
+
 #include "midas/TMidasFile.h"
 #include "midas/TMidasEvent.h"
 #include "midas/MidasBuffer.hxx"
@@ -19,13 +20,14 @@
 #include "Unpack.hxx"
 #include "TStamp.hxx"
 #include "Dragon.hxx"
-
+#include "rbsymbols.hxx"
 
 namespace midas { class Database; }
 
 
 /// Encloses DRAGON-related rootbeer stuff.
 namespace rbdragon {
+
 
 /// Dragon-specific r::MidasBuffer class
 class MidasBuffer: public rb::MidasBuffer {
