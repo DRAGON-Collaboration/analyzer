@@ -22,11 +22,8 @@ DEFINITIONS+=-DDISPLAY_MODULES
 USE_ROOT=YES
 USE_ROOTANA=NO
 USE_ROOTBEER=YES
-USE_MIDAS=YES
-<<<<<<< HEAD
+USE_MIDAS=NO
 
-=======
->>>>>>> f6b42af77bc1104d607f8eb7d101e6d774d3668f
 
 ## Automatically turn off rootana if on jabberwock
 THE_HOST := $(shell hostname)
