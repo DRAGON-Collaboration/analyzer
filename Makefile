@@ -21,12 +21,9 @@ DEFINITIONS+=-DDISPLAY_MODULES
 ### Set to YES (NO) to turn on (off) root [or rootbeer, or rootana, or ...] usage ###
 USE_ROOT=YES
 USE_ROOTANA=NO
-<<<<<<< HEAD
 USE_ROOTBEER=YES
 USE_MIDAS=YES
-=======
-USE_ROOTBEER=NO
-USE_MIDAS=YES
+
 
 ## Automatically turn off rootana if on jabberwock
 THE_HOST := $(shell hostname)
