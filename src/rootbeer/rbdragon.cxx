@@ -34,6 +34,15 @@ namespace { void process_events(const std::vector<Int_t>& codes)
 	}
 } }
 
+#define G_ERROR_RESET(level) ErrorReset err_reset_dummy_123456789 (level)
+namespace { class ErrorReset {
+	Int_t fIgnore;
+public:
+	ErrorReset(Int_t level): fIgnore(gErrorIgnoreLevel)
+		{ gErrorIgnoreLevel = level; }
+	~ErrorReset()
+		{ gErrorIgnoreLevel = fIgnore; }
+}; }
 
 namespace { Bool_t gAutoZero = kFALSE; }
 
@@ -147,10 +156,20 @@ void rbdragon::MidasBuffer::RunStopTransition(Int_t runnum)
 	/// - Write histograms to rootfiles/histosrun*****.root
 	TDirectory* dc = gDirectory;
 	{
+		Bool_t result;
 		TString foutname = Form("$RB_SAVEDIR/histos%d.root", runnum);
-		gSystem->ExpandPathName(foutname);
-		TFile fHistos(foutname, "RECREATE");
-		IterateDir(gROOT, &fHistos);	
+		{
+			G_ERROR_RESET(9002);
+			result = gSystem->ExpandPathName(foutname);
+		}
+		if(result == kFALSE) {
+			TFile fHistos(foutname, "RECREATE");
+			IterateDir(gROOT, &fHistos);	
+		} else {
+			std::cerr << "Warning in <RunStopTransition>: "
+				<< "Couldn't write histogram output to directory: \"" << foutname
+				<< "\", try setting $RB_SAVEDIR environment variable.\n";
+		}
 	}
 	dc->cd();
 
