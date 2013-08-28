@@ -281,10 +281,10 @@ RB_HEADERS= $(SRC)/rootbeer/rbdragon.hxx
 RB_DEFS=-DRB_DRAGON_HOMEDIR=$(PWD)
 
 
-$(CINT)/rootbeer/rootbeerDict.cxx: $(SRC)/rootbeer/rbsymbols.hxx $(DR_DICT_DEP)
+$(CINT)/rootbeer/rootbeerDict.cxx: $(SRC)/rootbeer/rbsymbols.hxx $(DR_DICT_DEP) $(RB_HOME)/cint/RBDictionary.cxx $(RB_HOME)/cint/MidasDict.cxx
 	rootcint -f $@ -c $(CXXFLAGS) $(RBINC) -p $< $(CINT)/rootbeer/rblinkdef.h \
 
-$(OBJ)/rootbeer/rbdragon.o: $(SRC)/rootbeer/rbdragon.cxx $(SRC)/rootbeer/*.hxx $(DR_DICT_DEP)
+$(OBJ)/rootbeer/rbdragon.o: $(SRC)/rootbeer/rbdragon.cxx $(SRC)/rootbeer/*.hxx $(DR_DICT_DEP) $(CINT)/rootbeer/rootbeerDict.cxx
 	$(CXX) $(RB_DEFS) $(RBINC) $(FPIC) -c \
 -o $@ $< \
 

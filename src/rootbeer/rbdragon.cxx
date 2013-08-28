@@ -153,9 +153,10 @@ void rbdragon::MidasBuffer::RunStopTransition(Int_t runnum)
 		fUnpacker.GetQueue()->Clear();
 	}
 
-	/// - Write histograms to rootfiles/histosrun*****.root
-	TDirectory* dc = gDirectory;
-	{
+	/// - Write histograms to rootfiles/histosrun*****.root (if online)
+	if (fType == rb::MidasBuffer::ONLINE) {
+		TDirectory* dc = gDirectory;
+
 		Bool_t result;
 		TString foutname = Form("$RB_SAVEDIR/histos%d.root", runnum);
 		{
@@ -167,11 +168,11 @@ void rbdragon::MidasBuffer::RunStopTransition(Int_t runnum)
 			IterateDir(gROOT, &fHistos);	
 		} else {
 			std::cerr << "Warning in <RunStopTransition>: "
-				<< "Couldn't write histogram output to directory: \"" << foutname
-				<< "\", try setting $RB_SAVEDIR environment variable.\n";
+								<< "Couldn't write histogram output to directory: \"" << foutname
+								<< "\", try setting $RB_SAVEDIR environment variable.\n";
 		}
+		dc->cd();
 	}
-	dc->cd();
 
 	/// - Call parent class implementation (prints a message)
 	rb::MidasBuffer::RunStopTransition(runnum);
@@ -413,15 +414,9 @@ int rbdragon::Main::Run(int argc, char** argv)
 	 gROOT->ProcessLine("gStyle->SetOptStat(\"emri\")");
 
 	 /// - Load standard histograms if the file exists
-	 Int_t processed;
 	 {
 		 dragon::utils::ChangeErrorIgnore err_ignore(8001);
-		 processed = gROOT->ProcessLine(".x $RB_CONFIGDIR/dragon_hists.C");
-	 }
-	 if(processed == 0) {
-		 dragon::utils::Error("Main")
-			 << "Couldn't load macro file: \"$RB_CONFIGDIR/dragon_hists.C\": "
-			 << "Check that the RB_CONFIGDIR environment variable is set and dragon_hists.C exists.";
+		 rb::ReadHistXML("$RB_CONFIGDIR/dragon_hists.xml");
 	 }
 
 	 rbApp.Run();
