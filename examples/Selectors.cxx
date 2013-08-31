@@ -25,9 +25,9 @@ public:
 	/// Set fHist to a new histogram
 	void Begin(TTree*)
 		{
-			fHist = new TH1F("ecal0", "", 410, 0, 4100);
+			fHist = new TH1F("esort0", "", 320, 0, 16);
 		}
-	/// Read the current entry from the chain, fill fHist with `bgo.ecal[0]`
+	/// Read the current entry from the chain, fill fHist with `bgo.esort[0]`
 	/// if it passes a cut condition.
 	Bool_t Process(Long64_t entry)
 		{
@@ -35,9 +35,9 @@ public:
 			if(!fHist)  Abort("fHist == 0");
 
 			// this->GetEntry(entry); // slower, reads all branches
-			b_gamma_bgo_ecal->GetEntry(entry); // faster, reads only the branch we want
-			if(bgo_ecal[0] > 0) {
-				fHist->Fill(bgo_ecal[0]);
+			b_gamma_bgo_esort->GetEntry(entry); // faster, reads only the branch we want
+			if(bgo_esort[0] > 0) {
+				fHist->Fill(bgo_esort[0]);
 			}
 			return kTRUE; // (ignored)
 		}
@@ -59,7 +59,7 @@ void Selectors()
 {
 	MyHeadSelector *selector1 = new MyHeadSelector();
 	TChain ch1("t1");
-	ch1.AddFile("$DH/rootfiles/run146.root");
-	ch1.AddFile("$DH/rootfiles/run169.root");
+	ch1.AddFile("$DH/rootfiles/run399.root");
+//	ch1.AddFile("$DH/rootfiles/run169.root");
 	ch1.Process(selector1);
 }

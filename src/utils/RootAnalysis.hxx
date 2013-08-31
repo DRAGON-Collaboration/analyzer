@@ -127,7 +127,7 @@ public :
 	TTree          *fChain;   //! <pointer to the analyzed TTree or TChain
 public:
 	ASelector(TTree * /*tree*/ =0) : fChain(0) { }
-	virtual ~ASelector() { }
+	virtual ~ASelector() { if(fChain) fChain->ResetBranchAddresses(); }
 	virtual Int_t   Version() const { return 2; }
 	virtual void    Begin(TTree *tree);
 	virtual void    SlaveBegin(TTree *) { }
@@ -197,7 +197,12 @@ public :
 	Short_t         v1190_status;
 	Short_t         v1190_type;
 	Int_t           v1190_extended_trigger;
-	vme::V1190::Channel v1190_channel[64];
+	std::vector<unsigned int> v1190_fifo0_measurement;
+	std::vector<unsigned short> v1190_fifo0_channel;
+	std::vector<unsigned short> v1190_fifo0_number;
+	std::vector<unsigned int> v1190_fifo1_measurement;
+	std::vector<unsigned short> v1190_fifo1_channel;
+	std::vector<unsigned short> v1190_fifo1_number;
 	Double_t        bgo_ecal[30];
 	Double_t        bgo_tcal[30];
 	Double_t        bgo_esort[30];
@@ -209,6 +214,7 @@ public :
 	Double_t        bgo_t0;
 	Double_t        tcal0;
 	Double_t        tcalx;
+	Double_t        tcal_rf;
 
 	// List of branches
 	TBranch        *b_gamma_header_fEventId;   //!
@@ -242,7 +248,12 @@ public :
 	TBranch        *b_gamma_v1190_status;   //!
 	TBranch        *b_gamma_v1190_type;   //!
 	TBranch        *b_gamma_v1190_extended_trigger;   //!
-	TBranch        *b_gamma_v1190_channel;   //!
+	TBranch        *b_gamma_v1190_fifo0_measurement;   //!
+	TBranch        *b_gamma_v1190_fifo0_channel;   //!
+	TBranch        *b_gamma_v1190_fifo0_number;   //!
+	TBranch        *b_gamma_v1190_fifo1_measurement;   //!
+	TBranch        *b_gamma_v1190_fifo1_channel;   //!
+	TBranch        *b_gamma_v1190_fifo1_number;   //!
 	TBranch        *b_gamma_bgo_ecal;   //!
 	TBranch        *b_gamma_bgo_tcal;   //!
 	TBranch        *b_gamma_bgo_esort;   //!
@@ -254,6 +265,7 @@ public :
 	TBranch        *b_gamma_bgo_t0;   //!
 	TBranch        *b_gamma_tcal0;   //!
 	TBranch        *b_gamma_tcalx;   //!
+	TBranch        *b_gamma_tcal_rf;   //!
 
 	HeadSelector(TTree * /*tree*/ =0) : ASelector(0) { }
 	virtual ~HeadSelector() { }
@@ -310,15 +322,21 @@ public :
 	Short_t         v1190_status;
 	Short_t         v1190_type;
 	Int_t           v1190_extended_trigger;
-	vme::V1190::Channel v1190_channel[64];
+	std::vector<unsigned int> v1190_fifo0_measurement;
+	std::vector<unsigned short> v1190_fifo0_channel;
+	std::vector<unsigned short> v1190_fifo0_number;
+	std::vector<unsigned int> v1190_fifo1_measurement;
+	std::vector<unsigned short> v1190_fifo1_channel;
+	std::vector<unsigned short> v1190_fifo1_number;
 	Double_t        dsssd_ecal[32];
 	Double_t        dsssd_efront;
 	Double_t        dsssd_eback;
 	UInt_t          dsssd_hit_front;
 	UInt_t          dsssd_hit_back;
-	Double_t        dsssd_tcal;
-	Double_t        ic_anode[4];
-	Double_t        ic_tcal;
+	Double_t        dsssd_tfront;
+	Double_t        dsssd_tback;
+	Double_t        ic_anode[5];
+	Double_t        ic_tcal[4];
 	Double_t        ic_sum;
 	Double_t        nai_ecal[2];
 	Double_t        ge_ecal;
@@ -332,6 +350,7 @@ public :
 	Double_t        tof_mcp;
 	Double_t        tof_mcp_dsssd;
 	Double_t        tof_mcp_ic;
+	Double_t        tcal_rf;
 	Double_t        tcal0;
 	Double_t        tcalx;
 
@@ -363,13 +382,19 @@ public :
 	TBranch        *b_hi_v1190_status;   //!
 	TBranch        *b_hi_v1190_type;   //!
 	TBranch        *b_hi_v1190_extended_trigger;   //!
-	TBranch        *b_hi_v1190_channel;   //!
+	TBranch        *b_hi_v1190_fifo0_measurement;   //!
+	TBranch        *b_hi_v1190_fifo0_channel;   //!
+	TBranch        *b_hi_v1190_fifo0_number;   //!
+	TBranch        *b_hi_v1190_fifo1_measurement;   //!
+	TBranch        *b_hi_v1190_fifo1_channel;   //!
+	TBranch        *b_hi_v1190_fifo1_number;   //!
 	TBranch        *b_hi_dsssd_ecal;   //!
 	TBranch        *b_hi_dsssd_efront;   //!
 	TBranch        *b_hi_dsssd_eback;   //!
 	TBranch        *b_hi_dsssd_hit_front;   //!
 	TBranch        *b_hi_dsssd_hit_back;   //!
-	TBranch        *b_hi_dsssd_tcal;   //!
+	TBranch        *b_hi_dsssd_tfront;   //!
+	TBranch        *b_hi_dsssd_tback;   //!
 	TBranch        *b_hi_ic_anode;   //!
 	TBranch        *b_hi_ic_tcal;   //!
 	TBranch        *b_hi_ic_sum;   //!
@@ -385,6 +410,7 @@ public :
 	TBranch        *b_hi_tof_mcp;   //!
 	TBranch        *b_hi_tof_mcp_dsssd;   //!
 	TBranch        *b_hi_tof_mcp_ic;   //!
+	TBranch        *b_hi_tcal_rf;   //!
 	TBranch        *b_hi_tcal0;   //!
 	TBranch        *b_hi_tcalx;   //!
 
@@ -447,7 +473,12 @@ public :
 	Short_t         head_v1190_status;
 	Short_t         head_v1190_type;
 	Int_t           head_v1190_extended_trigger;
-	vme::V1190::Channel head_v1190_channel[64];
+	std::vector<unsigned int> head_v1190_fifo0_measurement;
+	std::vector<unsigned short> head_v1190_fifo0_channel;
+	std::vector<unsigned short> head_v1190_fifo0_number;
+	std::vector<unsigned int> head_v1190_fifo1_measurement;
+	std::vector<unsigned short> head_v1190_fifo1_channel;
+	std::vector<unsigned short> head_v1190_fifo1_number;
 	Double_t        head_bgo_ecal[30];
 	Double_t        head_bgo_tcal[30];
 	Double_t        head_bgo_esort[30];
@@ -459,6 +490,7 @@ public :
 	Double_t        head_bgo_t0;
 	Double_t        head_tcal0;
 	Double_t        head_tcalx;
+	Double_t        head_tcal_rf;
 	UShort_t        tail_header_fEventId;
 	UShort_t        tail_header_fTriggerMask;
 	UInt_t          tail_header_fSerialNumber;
@@ -486,15 +518,21 @@ public :
 	Short_t         tail_v1190_status;
 	Short_t         tail_v1190_type;
 	Int_t           tail_v1190_extended_trigger;
-	vme::V1190::Channel tail_v1190_channel[64];
+	std::vector<unsigned int> tail_v1190_fifo0_measurement;
+	std::vector<unsigned short> tail_v1190_fifo0_channel;
+	std::vector<unsigned short> tail_v1190_fifo0_number;
+	std::vector<unsigned int> tail_v1190_fifo1_measurement;
+	std::vector<unsigned short> tail_v1190_fifo1_channel;
+	std::vector<unsigned short> tail_v1190_fifo1_number;
 	Double_t        tail_dsssd_ecal[32];
 	Double_t        tail_dsssd_efront;
 	Double_t        tail_dsssd_eback;
 	UInt_t          tail_dsssd_hit_front;
 	UInt_t          tail_dsssd_hit_back;
-	Double_t        tail_dsssd_tcal;
-	Double_t        tail_ic_anode[4];
-	Double_t        tail_ic_tcal;
+	Double_t        tail_dsssd_tfront;
+	Double_t        tail_dsssd_tback;
+	Double_t        tail_ic_anode[5];
+	Double_t        tail_ic_tcal[4];
 	Double_t        tail_ic_sum;
 	Double_t        tail_nai_ecal[2];
 	Double_t        tail_ge_ecal;
@@ -508,6 +546,7 @@ public :
 	Double_t        tail_tof_mcp;
 	Double_t        tail_tof_mcp_dsssd;
 	Double_t        tail_tof_mcp_ic;
+	Double_t        tail_tcal_rf;
 	Double_t        tail_tcal0;
 	Double_t        tail_tcalx;
 	Double_t        xtrig;
@@ -546,7 +585,12 @@ public :
 	TBranch        *b_coinc_head_v1190_status;   //!
 	TBranch        *b_coinc_head_v1190_type;   //!
 	TBranch        *b_coinc_head_v1190_extended_trigger;   //!
-	TBranch        *b_coinc_head_v1190_channel;   //!
+	TBranch        *b_coinc_head_v1190_fifo0_measurement;   //!
+	TBranch        *b_coinc_head_v1190_fifo0_channel;   //!
+	TBranch        *b_coinc_head_v1190_fifo0_number;   //!
+	TBranch        *b_coinc_head_v1190_fifo1_measurement;   //!
+	TBranch        *b_coinc_head_v1190_fifo1_channel;   //!
+	TBranch        *b_coinc_head_v1190_fifo1_number;   //!
 	TBranch        *b_coinc_head_bgo_ecal;   //!
 	TBranch        *b_coinc_head_bgo_tcal;   //!
 	TBranch        *b_coinc_head_bgo_esort;   //!
@@ -558,6 +602,7 @@ public :
 	TBranch        *b_coinc_head_bgo_t0;   //!
 	TBranch        *b_coinc_head_tcal0;   //!
 	TBranch        *b_coinc_head_tcalx;   //!
+	TBranch        *b_coinc_head_tcal_rf;   //!
 	TBranch        *b_coinc_tail_header_fEventId;   //!
 	TBranch        *b_coinc_tail_header_fTriggerMask;   //!
 	TBranch        *b_coinc_tail_header_fSerialNumber;   //!
@@ -585,13 +630,19 @@ public :
 	TBranch        *b_coinc_tail_v1190_status;   //!
 	TBranch        *b_coinc_tail_v1190_type;   //!
 	TBranch        *b_coinc_tail_v1190_extended_trigger;   //!
-	TBranch        *b_coinc_tail_v1190_channel;   //!
+	TBranch        *b_coinc_tail_v1190_fifo0_measurement;   //!
+	TBranch        *b_coinc_tail_v1190_fifo0_channel;   //!
+	TBranch        *b_coinc_tail_v1190_fifo0_number;   //!
+	TBranch        *b_coinc_tail_v1190_fifo1_measurement;   //!
+	TBranch        *b_coinc_tail_v1190_fifo1_channel;   //!
+	TBranch        *b_coinc_tail_v1190_fifo1_number;   //!
 	TBranch        *b_coinc_tail_dsssd_ecal;   //!
 	TBranch        *b_coinc_tail_dsssd_efront;   //!
 	TBranch        *b_coinc_tail_dsssd_eback;   //!
 	TBranch        *b_coinc_tail_dsssd_hit_front;   //!
 	TBranch        *b_coinc_tail_dsssd_hit_back;   //!
-	TBranch        *b_coinc_tail_dsssd_tcal;   //!
+	TBranch        *b_coinc_tail_dsssd_tfront;   //!
+	TBranch        *b_coinc_tail_dsssd_tback;   //!
 	TBranch        *b_coinc_tail_ic_anode;   //!
 	TBranch        *b_coinc_tail_ic_tcal;   //!
 	TBranch        *b_coinc_tail_ic_sum;   //!
@@ -607,6 +658,7 @@ public :
 	TBranch        *b_coinc_tail_tof_mcp;   //!
 	TBranch        *b_coinc_tail_tof_mcp_dsssd;   //!
 	TBranch        *b_coinc_tail_tof_mcp_ic;   //!
+	TBranch        *b_coinc_tail_tcal_rf;   //!
 	TBranch        *b_coinc_tail_tcal0;   //!
 	TBranch        *b_coinc_tail_tcalx;   //!
 	TBranch        *b_coinc_xtrig;   //!
@@ -1171,7 +1223,12 @@ inline void dragon::HeadSelector::Init(TTree *tree)
 	fChain->SetBranchAddress("v1190.status", &v1190_status, &b_gamma_v1190_status);
 	fChain->SetBranchAddress("v1190.type", &v1190_type, &b_gamma_v1190_type);
 	fChain->SetBranchAddress("v1190.extended_trigger", &v1190_extended_trigger, &b_gamma_v1190_extended_trigger);
-	fChain->SetBranchAddress("v1190.channel[64]", v1190_channel, &b_gamma_v1190_channel);
+	fChain->SetBranchAddress("v1190.fifo0.measurement", &v1190_fifo0_measurement, &b_gamma_v1190_fifo0_measurement);
+	fChain->SetBranchAddress("v1190.fifo0.channel", &v1190_fifo0_channel, &b_gamma_v1190_fifo0_channel);
+	fChain->SetBranchAddress("v1190.fifo0.number", &v1190_fifo0_number, &b_gamma_v1190_fifo0_number);
+	fChain->SetBranchAddress("v1190.fifo1.measurement", &v1190_fifo1_measurement, &b_gamma_v1190_fifo1_measurement);
+	fChain->SetBranchAddress("v1190.fifo1.channel", &v1190_fifo1_channel, &b_gamma_v1190_fifo1_channel);
+	fChain->SetBranchAddress("v1190.fifo1.number", &v1190_fifo1_number, &b_gamma_v1190_fifo1_number);
 	fChain->SetBranchAddress("bgo.ecal[30]", bgo_ecal, &b_gamma_bgo_ecal);
 	fChain->SetBranchAddress("bgo.tcal[30]", bgo_tcal, &b_gamma_bgo_tcal);
 	fChain->SetBranchAddress("bgo.esort[30]", bgo_esort, &b_gamma_bgo_esort);
@@ -1183,6 +1240,7 @@ inline void dragon::HeadSelector::Init(TTree *tree)
 	fChain->SetBranchAddress("bgo.t0", &bgo_t0, &b_gamma_bgo_t0);
 	fChain->SetBranchAddress("tcal0", &tcal0, &b_gamma_tcal0);
 	fChain->SetBranchAddress("tcalx", &tcalx, &b_gamma_tcalx);
+	fChain->SetBranchAddress("tcal_rf", &tcal_rf, &b_gamma_tcal_rf);
 }
 
 inline void dragon::TailSelector::Init(TTree *tree)
@@ -1219,15 +1277,21 @@ inline void dragon::TailSelector::Init(TTree *tree)
 	fChain->SetBranchAddress("v1190.status", &v1190_status, &b_hi_v1190_status);
 	fChain->SetBranchAddress("v1190.type", &v1190_type, &b_hi_v1190_type);
 	fChain->SetBranchAddress("v1190.extended_trigger", &v1190_extended_trigger, &b_hi_v1190_extended_trigger);
-	fChain->SetBranchAddress("v1190.channel[64]", v1190_channel, &b_hi_v1190_channel);
+	fChain->SetBranchAddress("v1190.fifo0.measurement", &v1190_fifo0_measurement, &b_hi_v1190_fifo0_measurement);
+	fChain->SetBranchAddress("v1190.fifo0.channel", &v1190_fifo0_channel, &b_hi_v1190_fifo0_channel);
+	fChain->SetBranchAddress("v1190.fifo0.number", &v1190_fifo0_number, &b_hi_v1190_fifo0_number);
+	fChain->SetBranchAddress("v1190.fifo1.measurement", &v1190_fifo1_measurement, &b_hi_v1190_fifo1_measurement);
+	fChain->SetBranchAddress("v1190.fifo1.channel", &v1190_fifo1_channel, &b_hi_v1190_fifo1_channel);
+	fChain->SetBranchAddress("v1190.fifo1.number", &v1190_fifo1_number, &b_hi_v1190_fifo1_number);
 	fChain->SetBranchAddress("dsssd.ecal[32]", dsssd_ecal, &b_hi_dsssd_ecal);
 	fChain->SetBranchAddress("dsssd.efront", &dsssd_efront, &b_hi_dsssd_efront);
 	fChain->SetBranchAddress("dsssd.eback", &dsssd_eback, &b_hi_dsssd_eback);
 	fChain->SetBranchAddress("dsssd.hit_front", &dsssd_hit_front, &b_hi_dsssd_hit_front);
 	fChain->SetBranchAddress("dsssd.hit_back", &dsssd_hit_back, &b_hi_dsssd_hit_back);
-	fChain->SetBranchAddress("dsssd.tcal", &dsssd_tcal, &b_hi_dsssd_tcal);
-	fChain->SetBranchAddress("ic.anode[4]", ic_anode, &b_hi_ic_anode);
-	fChain->SetBranchAddress("ic.tcal", &ic_tcal, &b_hi_ic_tcal);
+	fChain->SetBranchAddress("dsssd.tfront", &dsssd_tfront, &b_hi_dsssd_tfront);
+	fChain->SetBranchAddress("dsssd.tback", &dsssd_tback, &b_hi_dsssd_tback);
+	fChain->SetBranchAddress("ic.anode[5]", ic_anode, &b_hi_ic_anode);
+	fChain->SetBranchAddress("ic.tcal[4]", ic_tcal, &b_hi_ic_tcal);
 	fChain->SetBranchAddress("ic.sum", &ic_sum, &b_hi_ic_sum);
 	fChain->SetBranchAddress("nai.ecal[2]", nai_ecal, &b_hi_nai_ecal);
 	fChain->SetBranchAddress("ge.ecal", &ge_ecal, &b_hi_ge_ecal);
@@ -1241,6 +1305,7 @@ inline void dragon::TailSelector::Init(TTree *tree)
 	fChain->SetBranchAddress("tof.mcp", &tof_mcp, &b_hi_tof_mcp);
 	fChain->SetBranchAddress("tof.mcp_dsssd", &tof_mcp_dsssd, &b_hi_tof_mcp_dsssd);
 	fChain->SetBranchAddress("tof.mcp_ic", &tof_mcp_ic, &b_hi_tof_mcp_ic);
+	fChain->SetBranchAddress("tcal_rf", &tcal_rf, &b_hi_tcal_rf);
 	fChain->SetBranchAddress("tcal0", &tcal0, &b_hi_tcal0);
 	fChain->SetBranchAddress("tcalx", &tcalx, &b_hi_tcalx);
 }
@@ -1283,7 +1348,12 @@ inline void dragon::CoincSelector::Init(TTree *tree)
 	fChain->SetBranchAddress("head.v1190.status", &head_v1190_status, &b_coinc_head_v1190_status);
 	fChain->SetBranchAddress("head.v1190.type", &head_v1190_type, &b_coinc_head_v1190_type);
 	fChain->SetBranchAddress("head.v1190.extended_trigger", &head_v1190_extended_trigger, &b_coinc_head_v1190_extended_trigger);
-	fChain->SetBranchAddress("head.v1190.channel[64]", head_v1190_channel, &b_coinc_head_v1190_channel);
+	fChain->SetBranchAddress("head.v1190.fifo0.measurement", &head_v1190_fifo0_measurement, &b_coinc_head_v1190_fifo0_measurement);
+	fChain->SetBranchAddress("head.v1190.fifo0.channel", &head_v1190_fifo0_channel, &b_coinc_head_v1190_fifo0_channel);
+	fChain->SetBranchAddress("head.v1190.fifo0.number", &head_v1190_fifo0_number, &b_coinc_head_v1190_fifo0_number);
+	fChain->SetBranchAddress("head.v1190.fifo1.measurement", &head_v1190_fifo1_measurement, &b_coinc_head_v1190_fifo1_measurement);
+	fChain->SetBranchAddress("head.v1190.fifo1.channel", &head_v1190_fifo1_channel, &b_coinc_head_v1190_fifo1_channel);
+	fChain->SetBranchAddress("head.v1190.fifo1.number", &head_v1190_fifo1_number, &b_coinc_head_v1190_fifo1_number);
 	fChain->SetBranchAddress("head.bgo.ecal[30]", head_bgo_ecal, &b_coinc_head_bgo_ecal);
 	fChain->SetBranchAddress("head.bgo.tcal[30]", head_bgo_tcal, &b_coinc_head_bgo_tcal);
 	fChain->SetBranchAddress("head.bgo.esort[30]", head_bgo_esort, &b_coinc_head_bgo_esort);
@@ -1295,6 +1365,7 @@ inline void dragon::CoincSelector::Init(TTree *tree)
 	fChain->SetBranchAddress("head.bgo.t0", &head_bgo_t0, &b_coinc_head_bgo_t0);
 	fChain->SetBranchAddress("head.tcal0", &head_tcal0, &b_coinc_head_tcal0);
 	fChain->SetBranchAddress("head.tcalx", &head_tcalx, &b_coinc_head_tcalx);
+	fChain->SetBranchAddress("head.tcal_rf", &head_tcal_rf, &b_coinc_head_tcal_rf);
 	fChain->SetBranchAddress("tail.header.fEventId", &tail_header_fEventId, &b_coinc_tail_header_fEventId);
 	fChain->SetBranchAddress("tail.header.fTriggerMask", &tail_header_fTriggerMask, &b_coinc_tail_header_fTriggerMask);
 	fChain->SetBranchAddress("tail.header.fSerialNumber", &tail_header_fSerialNumber, &b_coinc_tail_header_fSerialNumber);
@@ -1322,15 +1393,21 @@ inline void dragon::CoincSelector::Init(TTree *tree)
 	fChain->SetBranchAddress("tail.v1190.status", &tail_v1190_status, &b_coinc_tail_v1190_status);
 	fChain->SetBranchAddress("tail.v1190.type", &tail_v1190_type, &b_coinc_tail_v1190_type);
 	fChain->SetBranchAddress("tail.v1190.extended_trigger", &tail_v1190_extended_trigger, &b_coinc_tail_v1190_extended_trigger);
-	fChain->SetBranchAddress("tail.v1190.channel[64]", tail_v1190_channel, &b_coinc_tail_v1190_channel);
+	fChain->SetBranchAddress("tail.v1190.fifo0.measurement", &tail_v1190_fifo0_measurement, &b_coinc_tail_v1190_fifo0_measurement);
+	fChain->SetBranchAddress("tail.v1190.fifo0.channel", &tail_v1190_fifo0_channel, &b_coinc_tail_v1190_fifo0_channel);
+	fChain->SetBranchAddress("tail.v1190.fifo0.number", &tail_v1190_fifo0_number, &b_coinc_tail_v1190_fifo0_number);
+	fChain->SetBranchAddress("tail.v1190.fifo1.measurement", &tail_v1190_fifo1_measurement, &b_coinc_tail_v1190_fifo1_measurement);
+	fChain->SetBranchAddress("tail.v1190.fifo1.channel", &tail_v1190_fifo1_channel, &b_coinc_tail_v1190_fifo1_channel);
+	fChain->SetBranchAddress("tail.v1190.fifo1.number", &tail_v1190_fifo1_number, &b_coinc_tail_v1190_fifo1_number);
 	fChain->SetBranchAddress("tail.dsssd.ecal[32]", tail_dsssd_ecal, &b_coinc_tail_dsssd_ecal);
 	fChain->SetBranchAddress("tail.dsssd.efront", &tail_dsssd_efront, &b_coinc_tail_dsssd_efront);
 	fChain->SetBranchAddress("tail.dsssd.eback", &tail_dsssd_eback, &b_coinc_tail_dsssd_eback);
 	fChain->SetBranchAddress("tail.dsssd.hit_front", &tail_dsssd_hit_front, &b_coinc_tail_dsssd_hit_front);
 	fChain->SetBranchAddress("tail.dsssd.hit_back", &tail_dsssd_hit_back, &b_coinc_tail_dsssd_hit_back);
-	fChain->SetBranchAddress("tail.dsssd.tcal", &tail_dsssd_tcal, &b_coinc_tail_dsssd_tcal);
-	fChain->SetBranchAddress("tail.ic.anode[4]", tail_ic_anode, &b_coinc_tail_ic_anode);
-	fChain->SetBranchAddress("tail.ic.tcal", &tail_ic_tcal, &b_coinc_tail_ic_tcal);
+	fChain->SetBranchAddress("tail.dsssd.tfront", &tail_dsssd_tfront, &b_coinc_tail_dsssd_tfront);
+	fChain->SetBranchAddress("tail.dsssd.tback", &tail_dsssd_tback, &b_coinc_tail_dsssd_tback);
+	fChain->SetBranchAddress("tail.ic.anode[5]", tail_ic_anode, &b_coinc_tail_ic_anode);
+	fChain->SetBranchAddress("tail.ic.tcal[4]", tail_ic_tcal, &b_coinc_tail_ic_tcal);
 	fChain->SetBranchAddress("tail.ic.sum", &tail_ic_sum, &b_coinc_tail_ic_sum);
 	fChain->SetBranchAddress("tail.nai.ecal[2]", tail_nai_ecal, &b_coinc_tail_nai_ecal);
 	fChain->SetBranchAddress("tail.ge.ecal", &tail_ge_ecal, &b_coinc_tail_ge_ecal);
@@ -1344,6 +1421,7 @@ inline void dragon::CoincSelector::Init(TTree *tree)
 	fChain->SetBranchAddress("tail.tof.mcp", &tail_tof_mcp, &b_coinc_tail_tof_mcp);
 	fChain->SetBranchAddress("tail.tof.mcp_dsssd", &tail_tof_mcp_dsssd, &b_coinc_tail_tof_mcp_dsssd);
 	fChain->SetBranchAddress("tail.tof.mcp_ic", &tail_tof_mcp_ic, &b_coinc_tail_tof_mcp_ic);
+	fChain->SetBranchAddress("tail.tcal_rf", &tail_tcal_rf, &b_coinc_tail_tcal_rf);
 	fChain->SetBranchAddress("tail.tcal0", &tail_tcal0, &b_coinc_tail_tcal0);
 	fChain->SetBranchAddress("tail.tcalx", &tail_tcalx, &b_coinc_tail_tcalx);
 	fChain->SetBranchAddress("xtrig", &xtrig, &b_coinc_xtrig);
