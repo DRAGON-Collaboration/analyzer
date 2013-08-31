@@ -416,7 +416,7 @@ int rbdragon::Main::Run(int argc, char** argv)
 	 /// - Load standard histograms if the file exists
 	 {
 		 dragon::utils::ChangeErrorIgnore err_ignore(8001);
-		 rb::ReadHistXML("$RB_CONFIGDIR/dragon_hists.xml");
+		 rb::ReadHistXML("$RB_CONFIGDIR/histograms/dragon_hists.xml");
 	 }
 
 	 rbApp.Run();
