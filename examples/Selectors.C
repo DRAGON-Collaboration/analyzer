@@ -1,11 +1,11 @@
 ///
-/// \file Selectors.cxx
+/// \file Selectors.C
 /// \author G. Christian
 /// \brief Contains example code for using the DRAGON selector classes
 /// \details To run (from within a ROOT session):
 /// \code
 ///  .include "$DRAGONSYS/src"
-///  .x Selector.cxx+
+///  .x Selector.C+
 /// \endcode
 ///
 #include <TH1F.h>

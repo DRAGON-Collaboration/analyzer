@@ -147,6 +147,7 @@ endif
 
 ifeq ($(USE_ROOT), YES)
 OBJECTS+=$(OBJ)/utils/RootAnalysis.o
+OBJECTS+=$(OBJ)/utils/Selectors.o
 OBJECTS+=$(OBJ)/utils/Calibration.o
 OBJECTS+=$(OBJ)/utils/LinearFitter.o
 endif

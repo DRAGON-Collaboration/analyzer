@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- created by MXML on Thu Apr 18 20:08:27 2013 -->
+<odb root="/" filename="/data2/dragon/DAQ_test/data/run399.xml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="/Users/dragon/packages/midas/odb.xsd">
+  <dir name="dragon">
+    <dir name="dsssd">
+      <dir name="variables">
+        <dir name="adc">
+          <keyarray name="channel" type="INT" num_values="32">
+            <value index="0">0</value>
+            <value index="1">1</value>
+            <value index="2">2</value>
+            <value index="3">3</value>
+            <value index="4">4</value>
+            <value index="5">5</value>
+            <value index="6">6</value>
+            <value index="7">7</value>
+            <value index="8">8</value>
+            <value index="9">9</value>
+            <value index="10">10</value>
+            <value index="11">11</value>
+            <value index="12">12</value>
+            <value index="13">13</value>
+            <value index="14">14</value>
+            <value index="15">15</value>
+            <value index="16">16</value>
+            <value index="17">17</value>
+            <value index="18">18</value>
+            <value index="19">19</value>
+            <value index="20">20</value>
+            <value index="21">21</value>
+            <value index="22">22</value>
+            <value index="23">23</value>
+            <value index="24">24</value>
+            <value index="25">25</value>
+            <value index="26">26</value>
+            <value index="27">27</value>
+            <value index="28">28</value>
+            <value index="29">29</value>
+            <value index="30">30</value>
+            <value index="31">31</value>
+          </keyarray>
+          <keyarray name="module" type="INT" num_values="32">
+            <value index="0">1</value>
+            <value index="1">1</value>
+            <value index="2">1</value>
+            <value index="3">1</value>
+            <value index="4">1</value>
+            <value index="5">1</value>
+            <value index="6">1</value>
+            <value index="7">1</value>
+            <value index="8">1</value>
+            <value index="9">1</value>
+            <value index="10">1</value>
+            <value index="11">1</value>
+            <value index="12">1</value>
+            <value index="13">1</value>
+            <value index="14">1</value>
+            <value index="15">1</value>
+            <value index="16">1</value>
+            <value index="17">1</value>
+            <value index="18">1</value>
+            <value index="19">1</value>
+            <value index="20">1</value>
+            <value index="21">1</value>
+            <value index="22">1</value>
+            <value index="23">1</value>
+            <value index="24">1</value>
+            <value index="25">1</value>
+            <value index="26">1</value>
+            <value index="27">1</value>
+            <value index="28">1</value>
+            <value index="29">1</value>
+            <value index="30">1</value>
+            <value index="31">1</value>
+          </keyarray>
+          <keyarray name="slope" type="DOUBLE" num_values="32">
+            <value index="0">0.1</value>
+            <value index="1">0.1</value>
+            <value index="2">0.1</value>
+            <value index="3">0.1</value>
+            <value index="4">0.1</value>
+            <value index="5">0.1</value>
+            <value index="6">0.1</value>
+            <value index="7">0.1</value>
+            <value index="8">0.1</value>
+            <value index="9">0.1</value>
+            <value index="10">0.1</value>
+            <value index="11">0.1</value>
+            <value index="12">0.1</value>
+            <value index="13">0.1</value>
+            <value index="14">0.1</value>
+            <value index="15">0.1</value>
+            <value index="16">0.1</value>
+            <value index="17">0.1</value>
+            <value index="18">0.1</value>
+            <value index="19">0.1</value>
+            <value index="20">0.1</value>
+            <value index="21">0.1</value>
+            <value index="22">0.1</value>
+            <value index="23">0.1</value>
+            <value index="24">0.1</value>
+            <value index="25">0.1</value>
+            <value index="26">0.1</value>
+            <value index="27">0.1</value>
+            <value index="28">0.1</value>
+            <value index="29">0.1</value>
+            <value index="30">0.1</value>
+            <value index="31">0.1</value>
+          </keyarray>
+          <keyarray name="offset" type="DOUBLE" num_values="32">
+            <value index="0">0</value>
+            <value index="1">0</value>
+            <value index="2">0</value>
+            <value index="3">0</value>
+            <value index="4">0</value>
+            <value index="5">0</value>
+            <value index="6">0</value>
+            <value index="7">0</value>
+            <value index="8">0</value>
+            <value index="9">0</value>
+            <value index="10">0</value>
+            <value index="11">0</value>
+            <value index="12">0</value>
+            <value index="13">0</value>
+            <value index="14">0</value>
+            <value index="15">0</value>
+            <value index="16">0</value>
+            <value index="17">0</value>
+            <value index="18">0</value>
+            <value index="19">0</value>
+            <value index="20">0</value>
+            <value index="21">0</value>
+            <value index="22">0</value>
+            <value index="23">0</value>
+            <value index="24">0</value>
+            <value index="25">0</value>
+            <value index="26">0</value>
+            <value index="27">0</value>
+            <value index="28">0</value>
+            <value index="29">0</value>
+            <value index="30">0</value>
+            <value index="31">0</value>
+          </keyarray>
+        </dir>
+        <dir name="tdc_front">
+          <key name="channel" type="INT">4</key>
+          <key name="slope" type="DOUBLE">0.1</key>
+          <key name="offset" type="DOUBLE">0</key>
+        </dir>
+        <dir name="tdc_back">
+          <key name="channel" type="INT">5</key>
+          <key name="slope" type="DOUBLE">0.1</key>
+          <key name="offset" type="DOUBLE">0</key>
+        </dir>
+      </dir>
+    </dir>
+  </dir>
+</odb>
