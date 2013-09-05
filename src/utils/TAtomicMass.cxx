@@ -24,7 +24,7 @@ TAtomicMassTable::TAtomicMassTable():
 #endif
 }
 
-bool TAtomicMassTable::SetFile(const char* filename)
+void TAtomicMassTable::SetFile(const char* filename)
 {
 	fFile.reset(new std::ifstream(filename));
 	if(fFile->good())

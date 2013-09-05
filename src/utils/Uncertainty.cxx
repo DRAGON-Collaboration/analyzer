@@ -211,6 +211,8 @@ UDouble_t UDouble_t::log(const UDouble_t& z)
 	out.fSys[1] = z.fSys[1] / z.fNominal;
 
 	out.fNominal = ::log(z.fNominal);
+
+	return out;
 }
 
 UDouble_t UDouble_t::exp(const UDouble_t& z)
@@ -224,6 +226,8 @@ UDouble_t UDouble_t::exp(const UDouble_t& z)
 
 	out.fSys[1]  = z.fSys[1]  / out.fNominal;
 	out.fSys[1] = z.fSys[1] / out.fNominal;
+
+	return out;
 }
 
 UDouble_t UDouble_t::Mean(long n, const UDouble_t* u)
