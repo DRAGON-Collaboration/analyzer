@@ -46,7 +46,7 @@ public:
 	/// Construct and open AME file
 	TAtomicMassTable(const char* file);
 	/// Opens a new AME file
-	bool SetFile(const char* filename);
+	void SetFile(const char* filename);
 
 	/// Returns struct containing nucleas information w/ Z, A
 	const Nucleus_t* GetNucleus(int Z, int A) const;

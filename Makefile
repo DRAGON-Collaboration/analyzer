@@ -22,7 +22,7 @@ DEFINITIONS+=-DDISPLAY_MODULES
 USE_ROOT=YES
 USE_ROOTANA=NO
 USE_ROOTBEER=YES
-USE_MIDAS=NO
+USE_MIDAS=YES
 
 
 ## Automatically turn off rootana if on jabberwock
