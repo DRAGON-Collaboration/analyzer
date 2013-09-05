@@ -22,7 +22,7 @@ DEFINITIONS+=-DDISPLAY_MODULES
 USE_ROOT=YES
 USE_ROOTANA=NO
 USE_ROOTBEER=YES
-USE_MIDAS=YES
+USE_MIDAS=NO
 
 
 ## Automatically turn off rootana if on jabberwock
@@ -147,6 +147,7 @@ endif
 
 ifeq ($(USE_ROOT), YES)
 OBJECTS+=$(OBJ)/utils/RootAnalysis.o
+OBJECTS+=$(OBJ)/utils/Selectors.o
 OBJECTS+=$(OBJ)/utils/Calibration.o
 OBJECTS+=$(OBJ)/utils/LinearFitter.o
 endif
@@ -281,10 +282,10 @@ RB_HEADERS= $(SRC)/rootbeer/rbdragon.hxx
 RB_DEFS=-DRB_DRAGON_HOMEDIR=$(PWD)
 
 
-$(CINT)/rootbeer/rootbeerDict.cxx: $(SRC)/rootbeer/rbsymbols.hxx $(DR_DICT_DEP)
+$(CINT)/rootbeer/rootbeerDict.cxx: $(SRC)/rootbeer/rbsymbols.hxx $(DR_DICT_DEP) $(RB_HOME)/cint/RBDictionary.cxx $(RB_HOME)/cint/MidasDict.cxx
 	rootcint -f $@ -c $(CXXFLAGS) $(RBINC) -p $< $(CINT)/rootbeer/rblinkdef.h \
 
-$(OBJ)/rootbeer/rbdragon.o: $(SRC)/rootbeer/rbdragon.cxx $(SRC)/rootbeer/*.hxx $(DR_DICT_DEP)
+$(OBJ)/rootbeer/rbdragon.o: $(SRC)/rootbeer/rbdragon.cxx $(SRC)/rootbeer/*.hxx $(DR_DICT_DEP) $(CINT)/rootbeer/rootbeerDict.cxx
 	$(CXX) $(RB_DEFS) $(RBINC) $(FPIC) -c \
 -o $@ $< \
 

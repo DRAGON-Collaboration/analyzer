@@ -15,6 +15,7 @@
 #include <TString.h>
 #include <TSystem.h>
 #include <TThread.h>
+#include <TRegexp.h>
 #include <TFitResult.h>
 #include <TDataMember.h>
 #include <TTreeFormula.h>
@@ -60,7 +61,7 @@ void dragon::MakeChains(const Int_t* runnumbers, Int_t nruns, const char* format
 		new TChain("t7", "Glocal run parameters.")
 	};
 	Int_t nchains = sizeof(chain) / sizeof(TChain*);
-
+	
 	for(Int_t i=0; i< nruns; ++i) {
 		char fname[4096];
 		sprintf(fname, format, runnumbers[i]);
@@ -80,7 +81,40 @@ void dragon::MakeChains(const Int_t* runnumbers, Int_t nruns, const char* format
 
 void dragon::MakeChains(const std::vector<Int_t>& runnumbers, const char* format)
 {
+	///
+	/// \param runnumbers vector of desired run numbers
+	/// \param format same as the other version
+	///
 	MakeChains(&runnumbers[0], runnumbers.size(), format);
+}
+
+void dragon::FriendChain(TChain* chain, const char* friend_name, const char* friend_alias,
+												 const char* format, const char* friend_format)
+{
+	///
+	/// \param chain Initial chain, the one to which we are adding friends.
+	/// \param friend_name Name of the TTree inside the friend files that you want to friend with
+	///  _chain_
+	/// \param friend_alias Desired alias that you want to give to the friend tree
+	/// \param format printf style format for the _original_ file names
+	/// \param friend_format printf style format for the _friend_ file names
+	///
+	Int_t runnum;
+	TChain* friendchain = new TChain(friend_name);
+	
+	TString format0(format);
+	gSystem->ExpandPathName(format0);
+	for(Int_t i=0; i< chain->GetNtrees(); ++i) {
+		TString filename0 = chain->GetListOfFiles()->At(i)->GetTitle();
+		gSystem->ExpandPathName(filename0);
+
+		sscanf(filename0, format0, &runnum);
+		TString filename1 = Form(friend_format, runnum);
+		gSystem->ExpandPathName(filename1);
+		friendchain->AddFile(filename1);
+	}
+
+	chain->AddFriend(friendchain, friend_alias, kTRUE);
 }
 
 
@@ -501,6 +535,13 @@ UDouble_t dragon::RossumData::AverageCurrent(Int_t run, Int_t cup, Int_t iterati
 	///  to take the average of (0 == first iteration).
 	/// \param skipBegin Length of time in seconds to skip at the beginning of the cup readings
 	/// \param skipEnd Length of time in seconds to skip at the end of the cup readings
+	/// \returns Average current value for the parameters specified. This is returned as a class
+	/// that holds both the nominal average value and the 1-sigma error. The 1-sigma error is
+	/// calculated as the standard deviation of each individual cup reading over the specified 
+	/// diration. Note that to see the mean & error as part of a ROOT session, you can do
+	/// \code
+	/// rossumData->AverageCurrent(1000, 0, 0)->Print();
+	/// \endcode
 	///
 	TTree* tree = GetTree(run);
 	if(!tree) {
@@ -1722,3 +1763,85 @@ double dragon::LabCM::GetEtarget() const
 	double T2 = E2 - fM2; // kinetic energy
 	return T2;
 }
+
+
+
+#if 0
+// ============ Calibration ============ //
+
+Int_t dragon::CalibrateDsssd(Int_t runnum, double* slopes, double* offsets, const char* form)
+{
+	///
+	/// \param runnum Run number of the run you wish to calibrate
+	/// \param slopes Array of 32 slopes to be used for a linear calibration
+	/// \param offsets Array of 32 offsets to be used for a linear calibration
+	/// 
+	TFile f(Form(form, runnum), "UPDATE");
+	if(f.IsZombie()) {
+		std::cerr << "Error: the file \"" << Form(form, runnum) << "\" does not exist or is not writable.\n";
+		return -1;
+	}
+
+	TTree* t3 = static_cast<TTree*>(f.Get("t3"));
+	TTree* t5 = static_cast<TTree*>(f.Get("t5"));
+	if(!t3) {
+		std::cerr << "Error: the file \"" << Form(form, runnum) << "\" does not contain a tree called \"t3\""
+							<< " (heavy-ion singles data).\n";
+		return -1;
+	}
+	if(!t5) {
+		std::cerr << "Error: the file \"" << Form(form, runnum) << "\" does not contain a tree called \"t5\""
+							<< " (coincidence data).\n";
+		return -1;
+	}
+
+	dragon::Tail tail, *ptail = &tail;
+	dragon::Coinc coinc, *pcoinc = &coinc;
+	t3->SetBranchAddress(t3->GetListOfBranches()->At(0)->GetName(), &ptail);
+	t5->SetBranchAddress(t5->GetListOfBranches()->At(0)->GetName(), &pcoinc);
+
+	TTree* t3new = t3->CloneTree(0);
+	TTree* t5new = t5->CloneTree(0);
+
+	Long64_t nentries3 = t3->GetEntries(), nentries5 = t5->GetEntries();
+	assert(nentries3 >= nentries5);
+
+	std::cout << "Recalibrating: events 0... ";
+	std::flush(std::cout);
+	
+	Long64_t entry;
+	for(entry = 0; entry< nentries3; ++entry) {
+		if(entry%1000 == 0) {
+			std::cout << entry << "... ";
+			std::flush(std::cout);
+		}
+		if(1) t3->GetEntry(entry);
+		if(entry < nentries5)	t5->GetEntry(entry);
+
+		for(Int_t i=0; i< dragon::Dsssd::MAX_CHANNELS; ++i) {
+			if(1)
+				ptail->dsssd.ecal[i] = ptail->dsssd.ecal[i] * slopes[i] + offsets[i];
+			if(entry < nentries5) 
+				pcoinc->tail.dsssd.ecal[i] = pcoinc->tail.dsssd.ecal[i] * slopes[i] + offsets[i];
+		}
+
+		if(1) t3new->Fill();
+		if(entry < nentries5)	t5new->Fill();
+	}
+	
+	std::cout << entry << "... Done!\n";
+
+	t3new->Write("", TObject::kOverwrite);
+	t5new->Write("", TObject::kOverwrite);
+	return 0;
+}
+
+void dragon::RecalibDsssd(Int_t* runs, Int_t nruns, double* slopes, double* offsets, const char* form)
+{
+	Int_t* lastrun = runs + nruns;
+	while(runs < lastrun) {
+		if(!Recalib(Dsssd(*runs++, slopes, offsets, form)))
+			break;
+	}
+}
+#endif

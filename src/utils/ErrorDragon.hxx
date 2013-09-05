@@ -189,8 +189,10 @@ private:
 
 #endif // #ifndef MIDASSYS
 
+#ifndef __CINT__
 /// For printing in-place file & line messages
 #define DRAGON_ERR_FILE_LINE "\nFile, line: " << __FILE__ << ", " << __LINE__ << "." << "\n"
+#endif
 
 
 #ifdef __MAKECINT__

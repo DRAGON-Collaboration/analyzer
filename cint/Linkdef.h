@@ -54,6 +54,7 @@ class TTree;
 #pragma link C++ defined_in ../src/TStamp.hxx;
 #pragma link C++ defined_in ../src/utils/ErrorDragon.hxx;
 #pragma link C++ defined_in ../src/utils/RootAnalysis.hxx;
+#pragma link C++ defined_in ../src/utils/Selectors.hxx;
 #pragma link C++ defined_in ../src/utils/Calibration.hxx;
 #pragma link C++ defined_in ../src/utils/Uncertainty.hxx;
 #pragma link C++ defined_in ../src/utils/TAtomicMass.h;

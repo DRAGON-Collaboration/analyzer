@@ -668,9 +668,9 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories
 # with spaces.
 
-INPUT                  = $(HOME)/packages//dragon/analyzer/src \
-                         $(HOME)/packages//dragon/analyzer/doc \
-		         $(HOME)/packages//dragon/analyzer/examples
+INPUT                  = $(HOME)/packages/dragon/analyzer/src \
+                         $(HOME)/packages/dragon/analyzer/doc \
+		         $(HOME)/packages/dragon/analyzer/examples
 
 
 # This tag can be used to specify the character encoding of the source files
@@ -685,11 +685,11 @@ INPUT_ENCODING         = UTF-8
 # FILE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp
 # and *.h) to filter out the source-files in the directories. If left
 # blank the following patterns are tested:
-# *.c *.cc *.cxx *.cpp *.c++ *.d *.java *.ii *.ixx *.ipp *.i++ *.inl *.h *.hh
+# *.C *.c *.cc *.cxx *.cpp *.c++ *.d *.java *.ii *.ixx *.ipp *.i++ *.inl *.h *.hh
 # *.hxx *.hpp *.h++ *.idl *.odl *.cs *.php *.php3 *.inc *.m *.mm *.dox *.py
 # *.f90 *.f *.for *.vhd *.vhdl
 
-FILE_PATTERNS          = *.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl *.h *.hh \
+FILE_PATTERNS          = *.C *.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl *.h *.hh \
  *.hxx *.hpp *.h++ *.idl *.odl *.cs *.php *.php3 *.inc *.m *.mm *.dox *.py \
  *.f90 *.f *.for *.vhd *.vhdl \
 
