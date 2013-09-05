@@ -141,14 +141,14 @@ private:
  * // The above line constructs a dragon::RossumData instance to read information from the specified file
  *
  * rossumData.ListTrees(); // get a listing of all trees parsed from the file
- * TTree* tree = rossumData->GetTree(1000); // get a pointer to the tree proceeding run 1000
+ * TTree* tree = rossumData.GetTree(1000); // get a pointer to the tree proceeding run 1000
  *
  * tree->Draw("current:time", "", "L"); // draw all cup readings vs. time, for the query proceeding run 1000
- * tree->Draw("current:time, "cup == 0", ""): // only draw FC4 readings [see AverageCurrent() for more about the cup id]
- * tree->Draw("current:time, "cup == 0 && iteration == 0", ""): // only draw the first iteration of FC4 readings
+ * tree->Draw("current:time", "cup == 0", ""); // only draw FC4 readings [see AverageCurrent() for more about the cup id]
+ * tree->Draw("current:time", "cup == 0 && iteration == 0", ""); // only draw the first iteration of FC4 readings
  *
- * rossumData->AverageCurrent(1000, 0, 0).Print(); // print the average current in the first FC4 iteration
- * rossumData->AverageCurrent(1000, 1, 0).Print(); // print the average current in the first FC1 iteration
+ * rossumData.AverageCurrent(1000, 0, 0).Print(); // print the average current in the first FC4 iteration
+ * rossumData.AverageCurrent(1000, 1, 0).Print(); // print the average current in the first FC1 iteration
  *
  * \endcode 
  */
