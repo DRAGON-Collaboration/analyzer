@@ -391,6 +391,7 @@ Bool_t dragon::RossumData::ParseFile()
 				else if(line0.substr(0, 4) == "STOP")
 					break;
 				else if(line0.substr(0, 5) == "begin") {
+					runnum = 0;
 					size_t curpos = line0.find("Current");
 					if(curpos > line0.size()) {
 						std::cerr << "Error: couldn't parse cup name from line: "
