@@ -4,17 +4,30 @@
 #ifndef DRAGON_MIDAS_DATABASE_HXX
 #define DRAGON_MIDAS_DATABASE_HXX
 #include <memory>
-#include <TNamed.h>
+#include "utils/AutoPtr.hxx"
 #include "utils/ErrorDragon.hxx"
 #include "Odb.hxx"
 #include "Xml.hxx"
 
 #ifdef USE_ROOT
-#define DRAGON_DATABASE Database: public TNamed
+#include <RVersion.h>
+#include <TNamed.h>
+
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,30,0)
+#define NO_AUTO_PTR1
+
+//
+// ROOT doesn't play nice with std::auto_ptr until version 5.30 or so.
+// Workaround is to fake the auto ptr for those who have earlier versions.
+// This will disable reading of midas::Database objects from files created
+// w/ other versions, though.
+
+#define MIDAS_XML_CLASS_VERSION 3
 #else
-#define DRAGON_DATABASE Database
+#define MIDAS_XML_CLASS_VERSION 2
 #endif
 
+#endif // #ifdef USE_ROOT
 
 namespace midas {
 
@@ -26,11 +39,21 @@ namespace midas {
  * is either the path to a file containing XML data, or "online" to read
  * from the ODB.
  */
-class DRAGON_DATABASE {
+class Database
+#ifdef USE_ROOT
+	: public TNamed
+#endif
+{
+public:
+#ifdef NO_AUTO_PTR1
+#define XML_POINTER_t dragon::utils::AutoPtr<midas::Xml>
+#else
+#define XML_POINTER_t std::auto_ptr<midas::Xml>
+#endif
 
 private:
 	/// Pointer to Xml reader (NULL if in 'online mode')
-	std::auto_ptr<Xml> fXml;
+	XML_POINTER_t fXml;
 
 	/// Flag specifying online mode
 	bool fIsOnline;
@@ -179,7 +202,7 @@ public:
 		}
 
 #ifdef USE_ROOT
-	ClassDef(midas::Database, 2);
+	ClassDef(midas::Database, MIDAS_XML_CLASS_VERSION);
 #endif
 };
 

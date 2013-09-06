@@ -13,12 +13,8 @@
 #include "mxml.h"
 #include "strlcpy.h"
 
-
 #ifdef USE_ROOT
 #include <TObject.h>
-#define DRAGON_MIDAS_XML Xml: public TObject
-#else
-#define DRAGON_MIDAS_XML Xml
 #endif
 
 namespace midas {
@@ -31,8 +27,11 @@ namespace midas {
  * All of the "work" to read from an XML (or .mid) file is handled by the
  * template functions of this class.
  */
-
-class DRAGON_MIDAS_XML {
+class Xml
+#ifdef USE_ROOT
+	: public TObject
+#endif
+{
 public:
 	/// Pointer to an XML node.
 	typedef PMXML_NODE Node;

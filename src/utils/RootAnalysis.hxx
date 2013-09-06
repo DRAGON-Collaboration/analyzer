@@ -24,6 +24,7 @@
 #include "midas/libMidasInterface/TMidasStructs.h"
 #include "Uncertainty.hxx"
 #include "Constants.hxx"
+#include "AutoPtr.hxx"
 #include "Dragon.hxx"
 #include "Vme.hxx"
 
@@ -188,7 +189,7 @@ private:
 	static TTree* GetTree_ (TreeMap_t::iterator& it) { return it->second.first; }
 	static std::string GetTime_ (TreeMap_t::const_iterator& it) { return it->second.second; }
 	static std::string GetTime_ (TreeMap_t::iterator& it) { return it->second.second; }
-	std::auto_ptr<std::ifstream> fFile; //!
+	dragon::utils::AutoPtr<std::ifstream> fFile; //!
 	TreeMap_t fTrees;
 	std::map<std::string, Int_t> fWhichCup;
 	Int_t fCup;
@@ -358,10 +359,12 @@ public:
 private:
 	Bool_t HaveRossumFile() { return fRossum.get(); }
 	void GetParams(const char* param, std::vector<Double_t> *runnum, std::vector<UDouble_t> *parval);
+	BeamNorm(const BeamNorm&) { }
+	BeamNorm& operator= (const BeamNorm&) { return *this; }
 
 private:
 	std::map<Int_t, RunData> fRunData;
-	std::auto_ptr<RossumData> fRossum;
+	dragon::utils::AutoPtr<RossumData> fRossum;
 	std::map<std::string, UDouble_t> fEfficiencies;
 
 	ClassDef(BeamNorm, 1);

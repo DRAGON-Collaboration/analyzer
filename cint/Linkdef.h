@@ -23,6 +23,7 @@
 //! \endcode
 //! (note that the '+' at the end is required except in special cases).
 #ifdef __MAKECINT__
+#include <RVersion.h>
 
 #pragma link off all globals;
 #pragma link off all classes;
@@ -47,7 +48,6 @@ class TTree;
 #pragma link C++ class midas::Xml+;
 #pragma link C++ class midas::Odb+;
 #pragma link C++ class midas::Database+;
-#pragma link C++ class std::auto_ptr<midas::Xml>+;
 #pragma link C++ class mxml_struct+;
 
 #pragma link C++ class tstamp::Diagnostics+;
@@ -60,8 +60,17 @@ class TTree;
 #pragma link C++ defined_in ../src/utils/TAtomicMass.h;
 #pragma link C++ defined_in ../src/utils/LinearFitter.hxx;
 
+
+
+#pragma link C++ class dragon::utils::AutoPtr<midas::Xml>+;
+#pragma link C++ class dragon::utils::AutoPtr<dragon::RossumData>+;
+#pragma link C++ class dragon::utils::AutoPtr<std::ifstream>+;
+
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,30,0)
+#pragma link C++ class std::auto_ptr<midas::Xml>+;
 #pragma link C++ class std::auto_ptr<dragon::RossumData>+;
 #pragma link C++ class std::auto_ptr<std::ifstream>+;
+#endif
 
 #pragma link C++ class dragon::utils::AdcVariables<dragon::Bgo::MAX_CHANNELS>+;
 #pragma link C++ class dragon::utils::TdcVariables<dragon::Bgo::MAX_CHANNELS>+;
