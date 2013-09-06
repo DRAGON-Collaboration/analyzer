@@ -496,30 +496,75 @@
 
 	\n\n
 	\section installation Installation
+
 	This section gives an overwiew of how to obtain and install the latest version of the DRAGON data analysis
 	package.
 	
 	\subsection dependencies Dependencies
 	For the "core" functionality, all that you will need is a working C++ compiler; there is no dependence on
-	any third-party libraries. The optional rootbeer or rootana extensions each require ROOT to be installed
-	(and, of course, the rootana and/or rootbeer packages themselves). To look at online data, you will
+	any third-party libraries. However, you will likely want to make use of the analysis package in ROOT, in
+	which case you will need a fairly recent installation of ROOT on your system. For instructions on installing
+	ROOT, go <a href="http://root.cern.ch/drupal/content/downloading-root">here</a>. It is suggested that you install
+	a relatively recent version of ROOT (say, >= 5.30) to ensure combatibilty between the ROOT release and the
+	package code. You will also need to be sure that the $ROOTSYS environment variable is set and that $ROOTSYS/bin
+	is in your search path.
+
+	The optional rootbeer or rootana extensions each require ROOT to be installed
+	(and, of course, the rootana and/or rootbeer packages themselves). To look at _online_ data, you will
 	need MIDAS installed, and, if using the rootana system,
 	<a href=https://daq-plone.triumf.ca/SR/ROODY>roody</a> is required for online histogram viewing.
 
-	The optional python wrapper extension requires <a href=http://boost.org>boost</a>, in particular the
-	<a href=http://www.boost.org/doc/libs/1_51_0/libs/python/doc/>boost::python</a> library.
-
 	\subsection download Download and Compile
 
-	See the \link faq Offline Analysis Section of the FAQ \endlink for download and compilation instructions.
+	You can obtain the analysis package from the git repository as follows:
+	\code
+	git clone dragon@isdaq07:~/packages/dragon/analyzer
+	\endcode
+	The password is the standard one for dragon accounts. If you don't have git installed or prefer to just get a tarball, 
+	then log into isdaq07 as user `dragon` (with the "standard" password) and copy one of the tarballs from
+  `~/packages/dragon` to your local machine:
+	\code
+	ssh dragon@isdaq07
+	cd ~/packages/dragon
+	scp dragon_analyzer.0.1.5.tar.gz me@myhost.ca:/path/to/somewhere/
+	\endcode
 
-	If you run into any problems compiling this package, do not hesitate to contact the package maintainer
-	for help. If do you find a solution to your problems on your own, please alert the package maintainer
-	and describe 1) your problem; 2) what you did to fix it. The intent is for installation/compilation to be
-	a very quick and painless process for everyone using this package, so any problems and solutions that you
-	discover should be reflected in the standard version of the codes.
+	Once you have the package, open up the Makefile and take a look at the lines underneath
+	\code
+	 ### Set to YES (NO) to turn on (off) root [or rootbeer, or rootana, or ...] usage ###
+	 \endcode
+	
+	For a typical installation, these should be set as follows:
+	\code
+	USE_ROOT=YES
+	USE_ROOTANA=NO
+	USE_ROOTBEER=NO
+	USE_MIDAS=NO
+	\endcode
+
+	unless you want to use rootbeer for gui-based offline analysis, in which case set `USE_ROOTBEER=YES`. At this point,
+	compilation _should_ be as simple as typing `make`. If not, please let me (G.C.) know, and
+	we can try to fix the problem permanently so others don't run into it.
+
+  Compilation creates a shared library `lib/libDragon.so`
+	as well as an executable `bin/mid2root`. The executable lets you convert MIDAS files into ROOT trees. The library can
+	be loaded into a ROOT session by doing the following:
+	\code
+	.include ~/packages/dragon/analyzer/src
+	gSystem->Load("~/packages/dragon/analyzer/lib/libDragon.so");
+	\endcode
+
+	It is suggested that you add these lines to your root logon script if you have one. If you don't, create the file
+	`~/.rootlogon.C` and include the above lines in it.
+	This will give you access to all of the classes and functions in the software package from within a ROOT session or macro.
+
 
 	\subsection pyext Python Extension
+
+	NOTE: I have not kept up with maintaining the python extension in quite a while and it is not a 
+	priority for me to do so. Really, it was just a "fun" project to play around with using `Py++` and 
+	`boost::python`. But it shouldn't take too much to get it running again if anyone is interested...
+
 	If you wish to compile or use the optional (and somewhat experimental) python extension, you will first
 	need to install the boost::python library. For information on this, see:
 	<a href=http://www.boost.org/doc/libs/1_51_0/libs/python/doc/>http://www.boost.org/doc/libs/1_51_0/libs/python/doc/</a>.

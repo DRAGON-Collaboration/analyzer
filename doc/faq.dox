@@ -224,26 +224,7 @@
 
 1. _How do I obtain the software package to do offline analysis using ROOT?_
 
-  First, the prerequisites: you will need to install a fairly recent version of ROOT. For more information see
-  http://root.cern.ch  You will also need to be sure that the $ROOTSYS environment variable is set and that $ROOTSYS/bin
-	is in your search path. Once you have this, you can obtain the analysis package from the git repository as follows:
-	\code
-	git clone dragon@isdaq07:~/packages/dragon/analyzer
-	\endcode
-	The password is the standard one for dragon accounts. If you don't have git installed or prefer to just get a tarball, 
-	then log into isdaq07 as user `dragon` and copy one of the tarballs from `~/packages/dragon` to your local machine.
-
-	Once you have the package, compilation _should_ be as simple as typing `make`. If not, please let me (G.C.) know, and
-	we can try to fix the problem permanently so others don't run into it. You can also fiddle with other options as explained
-	in the makefile, but typically these are only useful for online analysis. Compilation creates a shared library `lib/libDragon.so`
-	as well as an executable `bin/mid2root`. The executable lets you convert MIDAS files into ROOT trees, while the library can
-	be loaded into a ROOT session by doing the following:
-	\code
-	gSystem->Load("~/packages/dragon/analyzer/lib/libDragon.so");
-	\endcode
-	This will give you access to all of the classes and functions in the software package from within a ROOT session or macro.
-	It is convenient to create a default `rootlogon.C` file and add the above line to it so that the library is loaded automatically
-	every time you start ROOT.
+  See the installation instructions <a href="index.html#installation">here.</a>
   .
 2. _How do I commit my code changes to the git repository?_
 
