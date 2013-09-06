@@ -8,11 +8,10 @@
 /// .include "/path/to/dragon/analyzer/src"
 /// gSystem->Load("/path/to/dragon/analyzer/lib/libDragon.so");
 /// 
-/// .x DragonChain.C // Creates the initial chain
 /// .x FriendChain.C
 /// \endcode
 /// Note that the first two lines only have to be called once in a ROOT session. You may want
-/// to create a file in your home directory called `.rootrc` and add those lines to it so that
+/// to create a file in your home directory called `.rootlogon.C` and add those lines to it so that
 /// you don't have to worry about them every time you start ROOT.
 ///
 /// When you have successfully executed this file, you will have full access to the "friended" branches,

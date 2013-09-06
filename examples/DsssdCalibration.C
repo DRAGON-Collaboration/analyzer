@@ -10,7 +10,7 @@
 /// .x DsssdCalibration.C
 /// \endcode
 /// Note that the first two lines only have to be called once in a ROOT session. You may want
-/// to create a file in your home directory called `.rootrc` and add those lines to it so that
+/// to create a file in your home directory called `.rootlogon.C` and add those lines to it so that
 /// you don't have to worry about them every time you start ROOT.
 ///
 /// The result of successful running of this script is a series of new ROOT files, with the

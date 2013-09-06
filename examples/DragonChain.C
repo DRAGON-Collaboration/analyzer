@@ -9,7 +9,7 @@
 /// .x DragonChain.C
 /// \endcode
 /// Note that the first two lines only have to be called once in a ROOT session. You may want
-/// to create a file in your home directory called `.rootrc` and add those lines to it so that
+/// to create a file in your home directory called `.rootlogon.C` and add those lines to it so that
 /// you don't have to worry about them every time you start ROOT.
 ///
 /// If you have successfully loaded this file as shown above, you will then have access to the
