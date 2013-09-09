@@ -1098,10 +1098,13 @@ dragon::LiveTimeCalculator::LiveTimeCalculator(TFile* file):
 Double_t dragon::LiveTimeCalculator::GetBusytime(const char* which) const
 {
 	int indx = -1;
-	if     (!strcmp(which, "head")) indx = 0;
-	else if(!strcmp(which, "tail")) indx = 1;
+	TString which1 = which;
+	which1.ToLower();
+
+	if     (!which1.CompareTo("head")) indx = 0;
+	else if(!which1.CompareTo("tail")) indx = 1;
 	if(indx >= 0) return fBusytime[indx];
-	std::cerr << "Error: invalid specification \"" << which
+	std::cerr << "Error: invalid specification \"" << which1
 						<< "\", please specify \"head\" or \"tail\"\n";
 	return 0;
 }
