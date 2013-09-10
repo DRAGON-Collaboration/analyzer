@@ -479,8 +479,9 @@ public:
 	void CalculateChain(TChain* chain);
 	void CalculateSub(Double_t tbegin, Double_t tend);
 	Double_t GetBusytime(const char* which) const;
-	Double_t GetRuntime(const char*  which) const;
+	Double_t GetRuntime (const char* which) const;
 	Double_t GetLivetime(const char* which) const;
+	Double_t GetLivetimeError(const char* which) const { return GetLivetime(which) * 50/1e6; }
 	TFile* GetFile() const { return fFile; }
 	void SetFile(TFile* file) { fFile = file; }
 
@@ -490,9 +491,66 @@ private:
 
 private:
 	TFile* fFile;
-	Double_t fRuntime[2];
-	Double_t fBusytime[2];
+	Double_t fRuntime [3];
+	Double_t fBusytime[3];
 	Double_t fLivetime[3];
+};
+
+/// Class to calculate total busy time for coincidence events
+/*!
+ * For coincidence events, the total busy time is the sum or times during which the head _or_
+ * tail DAQ is busy. Any genuine coincidence triggers arriving when either the head or tail is
+ * busy will not be marked as such. This covers all possible classes of lost coincidence events:
+ *   - Coincidences arriving when both the head and tail are busy: the trigger is simply not recorded.
+ *   - Coincidences arriving when either the head or is tail is busy but not the other: the coincidence
+ *     will be incorrectly marked as a singles event.
+ *   - Coincidences whose match window is interrupted by an uncorrelated singles event. For example, a 
+ *     capture reaction happens, triggers the BGOs and then uncorrelated leaky beam triggers the end
+ *     detector before the recoil gets there. This will still be marked as a coincidence event in the
+ *     analysis, but the head event will not be correlated with the correct tail one. Thus the _real_
+ *     coincidence has been lost, albeit to a false (random) coincidence.
+ *
+ * The coincidence dead time is then the sum the time during which the head or tail is busy divided by
+ * the "coincidence runtime", i.e. the time during which both the head and tail are accepting triggers.
+ *
+ * For information about how the busy time is calculated in practice, see the documentation on
+ * the Calculate() member funcion.
+ */
+class CoincBusytime {
+public:
+	/// Helper class to store relevant information about a triggered event.
+	class Event {
+ public:
+		/// Trigger time
+		Double_t fTrigger;
+		/// Busy time
+		Double_t fBusy;
+ public:
+		/// Initialize data
+		Event(Double_t trig = 0, Double_t busy = 0):
+			fTrigger(trig), fBusy(busy) { }
+		/// Calculate the end time of event processing (trigger + busy)
+		Double_t End() const { return fTrigger + fBusy; }
+		/// Compare two events by the _trigger_ time: `return lhs.fTrigger < rhs.fTrigger;`
+		static Bool_t TriggerCompare(const Event& lhs, const Event rhs)
+			{	return lhs.fTrigger < rhs.fTrigger;	}
+	};
+public:	
+	/// Set flag specifying that events are not yet sorted by trigger time
+	CoincBusytime(): fIsSorted(false) { }
+	/// Insert event into the colletion of triggered events
+	void AddEvent(Double_t trigger, Double_t busy);
+	/// Calculate the total time during which the head or tail is busy
+	Double_t Calculate(); // seconds
+private:
+	/// Sort events by the trigger time.
+	void Sort();
+private:
+	typedef std::vector<Event> Vector_t;
+	/// Collection of triggered events
+	Vector_t fEvents;
+	/// Flag specifying whether or not events are sorted
+	Bool_t fIsSorted;
 };
 
 
@@ -547,4 +605,4 @@ private:
 
 
 
-#endif // Include guard
+#endif

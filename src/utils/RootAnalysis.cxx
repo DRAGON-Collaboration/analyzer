@@ -7,6 +7,7 @@
 #include <string>
 #include <cassert>
 #include <sstream>
+#include <numeric>
 #include <algorithm>
 
 #include <TMath.h>
@@ -634,6 +635,20 @@ void dragon::BeamNorm::ChangeRossumFile(const char* name)
 Int_t dragon::BeamNorm::ReadSbCounts(TFile* datafile, Double_t pkLow0, Double_t pkHigh0,
 																		 Double_t pkLow1, Double_t pkHigh1,Double_t time)
 {
+	///
+	/// Calculates the "R-value" to normalize SB readings to Faraday cup data.
+	/// Stores the result in fRunData, they can be accessed by using GetRunData()
+	///
+	/// \param datafile Pointer to the run's ROOT file
+	/// \param pkLow0 Low end of the SB0 good peak
+	/// \param pkHigh0 High end of the SB0 good peak
+	/// \param pkLow1 Low end of the SB1 good peak
+	/// \param pkHigh1 High end of the SB1 good peak
+	/// \param time Number of seconds at the beginning of the run to use for
+	///  calculating the normalization
+	///
+	/// \returns The run number of the specified file.
+
 	if(!HaveRossumFile()) {
 		std::cerr << "Error: no rossum file loaded.\n";
 		return 0;
@@ -658,12 +673,6 @@ Int_t dragon::BeamNorm::ReadSbCounts(TFile* datafile, Double_t pkLow0, Double_t 
 		return 0;
 	}
 
-	TTree* t4 = static_cast<TTree*>(datafile->Get("t4"));
-	if(t4 == 0 || t4->GetListOfBranches()->At(0) == 0) {
-		std::cerr << "Error: no heavy-ion scaler tree in file" << datafile->GetName() << "\n";
-		return 0;
-	}
-
 	TTree* t20 = static_cast<TTree*>(datafile->Get("t20"));
 	if(t20 == 0 || t20->GetListOfBranches()->At(0) == 0) {
 		std::cerr << "Error: no EPICS tree in file" << datafile->GetName() << "\n";
@@ -673,10 +682,6 @@ Int_t dragon::BeamNorm::ReadSbCounts(TFile* datafile, Double_t pkLow0, Double_t 
 	dragon::Tail tail;
 	dragon::Tail *pTail = &tail;
 	t3->SetBranchAddress(t3->GetListOfBranches()->At(0)->GetName(), &pTail);
-
-	dragon::Scaler scaler;
-	dragon::Scaler* pScaler = &scaler;
-	t4->SetBranchAddress(t4->GetListOfBranches()->At(0)->GetName(), &pScaler);
 
 	dragon::Epics epics;
 	dragon::Epics* pEpics = &epics;
@@ -691,28 +696,19 @@ Int_t dragon::BeamNorm::ReadSbCounts(TFile* datafile, Double_t pkLow0, Double_t 
 
 	t3->GetEntry(0);
 	Double_t tstart = pTail->header.fTimeStamp;
-	Double_t low[NSB] =  { pkLow0, pkLow1 };
-	Double_t high[NSB] =  { pkHigh0, pkHigh1 };
+	Double_t low[NSB] =  { pkLow0,  pkLow1  };
+	Double_t high[NSB] = { pkHigh0, pkHigh1 };
 
 	for(int i=0; i< NSB; ++i) {
 		std::stringstream cut;
 		cut.precision(20);
 		cut << "sb.ecal[" << i << "] > " << low[i] << " && sb.ecal[" << i << "] < " << high[i];
 		ncounts_full[i] = t3->GetPlayer()->GetEntries(cut.str().c_str());
+
 		cut << " && header.fTimeStamp - " << tstart << " < " << time;
 		ncounts[i] = t3->GetPlayer()->GetEntries(cut.str().c_str());
 	}
 
-#if 0
-	if(time < t4->GetEntries())
-		t4->GetEntry(time);
-	else
-		t4->GetEntry(t4->GetEntries() - 1);
-	UDouble_t live = UDouble_t(pScaler->sum[13]) / UDouble_t(pScaler->sum[14] + pScaler->sum[15]);
-
-	t4->GetEntry(t4->GetEntries() - 1);
-	UDouble_t live_full = UDouble_t(pScaler->sum[13]) / UDouble_t(double(pScaler->sum[14] + pScaler->sum[15]));
-#else
 	UDouble_t live, live_full;
 	{
 		dragon::LiveTimeCalculator ltc;
@@ -722,7 +718,6 @@ Int_t dragon::BeamNorm::ReadSbCounts(TFile* datafile, Double_t pkLow0, Double_t 
 		ltc.Calculate();
 		live_full = ltc.GetLivetime("tail");
 	}		
-#endif
 
 	t20->GetEntry(0);
 	Double_t tstart20 = pTail->header.fTimeStamp;
@@ -759,7 +754,6 @@ Int_t dragon::BeamNorm::ReadSbCounts(TFile* datafile, Double_t pkLow0, Double_t 
 	rundata->live_time_full = live_full;
 
 	t3->ResetBranchAddresses();
-	t4->ResetBranchAddresses();
 	t20->ResetBranchAddresses();
 	return runnum;
 }
@@ -983,20 +977,23 @@ void dragon::BeamNorm::BatchCalculate(TChain* chain, Int_t chargeBeam, Double_t 
 																			const char* recoilGate,
 																			Double_t time, Double_t skipBegin, Double_t skipEnd)
 {
-	std::cout << "Calculating normalization for runs... ";
-	std::flush(std::cout);
 	TObjArray* flist = chain->GetListOfFiles();
 	for(Int_t i=0; i< flist->GetEntries(); ++i) {
+		if(!i) 
+			std::cout << "Calculating normalization for runs ";
+
 		std::auto_ptr<TFile> file (TFile::Open(flist->At(i)->GetTitle()));
 		Int_t runnum = ReadSbCounts(file.get(), pkLow0, pkHigh0, pkLow1, pkHigh1, time);
 		if(!runnum) continue;
+
+		std::cout << runnum << "... ";
+		std::flush(std::cout);
+
 		ReadFC4(runnum, skipBegin, skipEnd);
 		CalculateNorm(runnum, chargeBeam);
 		if(recoilGate) {
 			CalculateRecoils(file.get(), chain->GetName(), recoilGate);
 		}
-		std::cout << runnum << "... ";
-		std::flush(std::cout);
 	}
 	std::cout << "\n";
 }
@@ -1095,41 +1092,38 @@ dragon::LiveTimeCalculator::LiveTimeCalculator(TFile* file):
 	Calculate();
 }
 
-Double_t dragon::LiveTimeCalculator::GetBusytime(const char* which) const
-{
+namespace { Double_t get_from_array(const Double_t* arr, const char* which, const char* func) {
 	int indx = -1;
 	TString which1 = which;
 	which1.ToLower();
+	
+	if     (!which1.CompareTo("head"))  indx = 0;
+	else if(!which1.CompareTo("tail"))  indx = 1;
+	else if(!which1.CompareTo("coinc")) indx = 2;
 
-	if     (!which1.CompareTo("head")) indx = 0;
-	else if(!which1.CompareTo("tail")) indx = 1;
-	if(indx >= 0) return fBusytime[indx];
-	std::cerr << "Error: invalid specification \"" << which1
-						<< "\", please specify \"head\" or \"tail\"\n";
-	return 0;
+	if(indx < 0) {
+		dragon::utils::Error(func)
+			<< "Invalid specification \"" << which
+			<< "\", please specify \"head\" or \"tail\"\n";
+		return 0;
+	}
+
+	return *(arr+indx);
+} }
+
+Double_t dragon::LiveTimeCalculator::GetBusytime(const char* which) const
+{
+	return get_from_array(fBusytime, which, "GetBusytime");
 }
 
 Double_t dragon::LiveTimeCalculator::GetRuntime(const char*  which) const
 {
-	int indx = -1;
-	if     (!strcmp(which, "head")) indx = 0;
-	else if(!strcmp(which, "tail")) indx = 1;
-	if(indx >= 0) return fRuntime[indx];
-	std::cerr << "Error: invalid specification \"" << which
-						<< "\", please specify \"head\" or \"tail\"\n";
-	return 0;
+	return get_from_array(fRuntime, which, "GetRuntime");
 }
 
 Double_t dragon::LiveTimeCalculator::GetLivetime(const char* which) const
 {
-	int indx = -1;
-	if     (!strcmp(which, "head"))  indx = 0;
-	else if(!strcmp(which, "tail"))  indx = 1;
-	else if(!strcmp(which, "coinc")) indx = 2;
-	if(indx >= 0) return fLivetime[indx];
-	std::cerr << "Error: invalid specification \"" << which
-						<< "\", please specify \"head\", \"tail\", or \"coinc\"\n";
-	return 0;
+	return get_from_array(fLivetime, which, "GetLivetime");
 }
 
 Bool_t dragon::LiveTimeCalculator::CheckFile()
@@ -1140,8 +1134,8 @@ Bool_t dragon::LiveTimeCalculator::CheckFile()
 	}
 	Bool_t okay = kTRUE;
 	if(okay) okay = fFile->Get("t1") && fFile->Get("t1")->InheritsFrom(TTree::Class());
-	if(okay) okay = fFile->Get("t3") && fFile->Get("t1")->InheritsFrom(TTree::Class());
-	if(okay) okay = fFile->Get("t4") && fFile->Get("t1")->InheritsFrom(TTree::Class());
+	if(okay) okay = fFile->Get("t3") && fFile->Get("t3")->InheritsFrom(TTree::Class());
+	if(okay) okay = fFile->Get("t4") && fFile->Get("t4")->InheritsFrom(TTree::Class());
 	if(!okay) {
 		std::cerr << "Error: missing necessary trees in loaded file\n";
 		return kFALSE;
@@ -1193,12 +1187,15 @@ void dragon::LiveTimeCalculator::DoCalculate(Double_t tbegin, Double_t tend)
 	db->ReadValue("/Runinfo/Stop time binary",  time1);
 	tclock = time1 - time0;
 	
+	double stoptime[2];
 	double rolltime = 0xffffffff / 20e6; // 32-bit clock rollover
 	int nroll = tclock / rolltime;
 	double trigStart[2], trigStop[2];
 	db->ReadArray("/Experiment/Run Parameters/TSC_TriggerStart", trigStart, 2);
 	db->ReadArray("/Experiment/Run Parameters/TSC_TriggerStop",  trigStop,  2);
-
+	
+	CoincBusytime coincBusy;
+	
 	for(int i=0; i< 2; ++i) {
 		Long_t n = 0;
 
@@ -1222,14 +1219,23 @@ void dragon::LiveTimeCalculator::DoCalculate(Double_t tbegin, Double_t tend)
 
 		// std::cout << cut.str() << "\n";
 
-		n = trees[i]->Draw("io32.busy_time", cut.str().c_str(), "goff");
+		n = trees[i]->Draw("io32.busy_time:io32.tsc4.trig_time", cut.str().c_str(), "goff");
 		fBusytime[i] = TMath::Mean(n, trees[i]->GetV1()) * n / 20e6;
 
-		double stoptime = trigStop[i] + nroll*rolltime;
-		fRuntime[i] = isFull ? stoptime - trigStart[i] : tend - tbegin;
+		stoptime[i] = trigStop[i] + nroll*rolltime;
+		fRuntime[i] = isFull ? stoptime[i] - trigStart[i] : tend - tbegin;
 
 		fLivetime[i] = (fRuntime[i] - fBusytime[i]) / fRuntime[i];
+
+		for(Long64_t event=0; event< n; ++event) {
+			coincBusy.AddEvent(trees[i]->GetV2()[event], trees[i]->GetV1()[event] / 20.);
+		}
 	}
+
+	fRuntime[2]  = isFull ? 
+		std::min(stoptime[0], stoptime[1]) - std::max(trigStart[0], trigStart[1]) : tend - tbegin;
+	fBusytime[2] = coincBusy.Calculate();
+	fLivetime[2] = (fRuntime[2] - fBusytime[2]) / fRuntime[2];
 }
 
 void dragon::LiveTimeCalculator::Calculate()
@@ -1248,7 +1254,7 @@ void dragon::LiveTimeCalculator::CalculateSub(Double_t tbegin, Double_t tend)
 void dragon::LiveTimeCalculator::CalculateChain(TChain* chain)
 {
 	TFile* file0 = GetFile();
-	Double_t sumbusy[2] = {0,0}, sumrun[2] = {0,0};
+	Double_t sumbusy[3] = {0,0,0}, sumrun[3] = {0,0,0};
 
 	for (Int_t i=0; i< chain->GetListOfFiles()->GetEntries(); ++i) {
 		TFile* f = TFile::Open ( chain->GetListOfFiles()->At(i)->GetTitle() );
@@ -1256,20 +1262,132 @@ void dragon::LiveTimeCalculator::CalculateChain(TChain* chain)
 
 		SetFile(f);
 		Calculate();
-		sumrun[0] += GetRuntime("head");
-		sumrun[1] += GetRuntime("tail");
+		sumrun[0]  += GetRuntime("head");
+		sumrun[1]  += GetRuntime("tail");
+		sumrun[2]  += GetRuntime("coinc");
 		sumbusy[0] += GetBusytime("head");
 		sumbusy[1] += GetBusytime("tail");
+		sumbusy[2] += GetBusytime("coinc");
 
 		f->Close();
 	}
 
-	for(int i=0; i< 2; ++i) {
+	for(int i=0; i< 3; ++i) {
 		fBusytime[i] = sumbusy[i];
 		fRuntime[i]  = sumrun[i];
 		fLivetime[i] = (sumrun[i] - sumbusy[i]) / sumrun[i];
 	}
 }
+
+
+// ============ class dragon::CoincBusytime ============ //
+
+// ====== Helper class ====== // 
+namespace {
+struct AccumulateBusy {
+	struct Output_t {
+		Double_t fEnd;
+		Double_t fTotalBusy;
+	};
+
+	Output_t operator() (const Output_t& current, const dragon::CoincBusytime::Event& additional);
+};
+
+AccumulateBusy::Output_t AccumulateBusy::operator() (const Output_t& current, const dragon::CoincBusytime::Event& additional)
+{
+	Output_t out = current;
+
+	if( current.fEnd < additional.fTrigger ) { // no overlap
+		out.fTotalBusy += additional.fBusy;
+		out.fEnd = additional.End();
+	}
+	else if( current.fEnd < additional.End() ) { // incomplete overlap
+		out.fTotalBusy += (additional.End() - current.fEnd);
+		out.fEnd = additional.End();
+	}
+	else { // complete overlap
+		;
+	}
+
+	return out;
+}
+} // namespace 
+
+void dragon::CoincBusytime::AddEvent(Double_t trigger, Double_t busy)
+{
+	/// \param trigger Trigger time in microseconds
+	/// \param busy Busy time in microseconds
+ 
+	fIsSorted = false;
+	dragon::CoincBusytime::Event evt(trigger, busy);
+	fEvents.push_back(evt);
+}
+
+
+void dragon::CoincBusytime::Sort()
+{
+	std::sort(fEvents.begin(), fEvents.end(), dragon::CoincBusytime::Event::TriggerCompare);
+	fIsSorted = true;
+}
+
+
+Double_t dragon::CoincBusytime::Calculate()
+{
+	/// \returns Total "coincidence busy time" in seconds.
+	///
+	/// Calcluation of the busy time is done as follows:
+	/// First, sort the collection of events by the trigger time. Then sum up all of
+	/// the busy times, but ignoring any overlap. To accomplish this, use the
+	/// `std::accumulate` algorithm, with a custom "accumulator" function which
+  /// ignores overlap by storing the last "end time" of an event and removing
+	/// any overlap between the begin time of the present event and the previous
+	/// end time. The code below shows how this is accomplished.
+	/// \code
+  /// struct AccumulateBusy {
+  /// 	struct Output_t {
+  /// 		Double_t fEnd;
+  /// 		Double_t fTotalBusy;
+  /// 	};
+  /// 
+  /// 	Output_t operator() (const Output_t& current, const dragon::CoincBusytime::Event& additional);
+  /// };
+  /// 
+  /// AccumulateBusy::Output_t AccumulateBusy::operator() (const Output_t& current, const dragon::CoincBusytime::Event& additional)
+  /// {
+  /// 	Output_t out = current;
+  /// 
+  /// 	if( current.fEnd < additional.fTrigger ) { // no overlap
+  /// 		out.fTotalBusy += additional.fBusy;
+  /// 		out.fEnd = additional.End();
+  /// 	}
+  /// 	else if( current.fEnd < additional.End() ) { // incomplete overlap
+  /// 		out.fTotalBusy += (additional.End() - current.fEnd);
+  /// 		out.fEnd = additional.End();
+  /// 	}
+  /// 	else { // complete overlap
+  /// 		;
+  /// 	}
+  /// 
+  /// 	return out;
+  /// }
+	///
+	/// Double_t dragon::CoincBusytime::Calculate()
+	/// {
+	///   if(!fIsSorted) Sort();
+	///   AccumulateBusy::Output_t accum = { 0., 0. };
+	///   accum = std::accumulate(fEvents.begin(), fEvents.end(), accum, AccumulateBusy());
+	///   return accum.fTotalBusy / 1e6;
+	/// }
+	/// \endcode
+	///
+
+	if(!fIsSorted) Sort();
+	AccumulateBusy::Output_t accum = { 0., 0. };
+	accum = std::accumulate(fEvents.begin(), fEvents.end(), accum, AccumulateBusy());
+	return accum.fTotalBusy / 1e6;
+}
+
+
 
 // ================ class dragon::StoppingPowerCalculator ================ //
 
@@ -1767,84 +1885,3 @@ double dragon::LabCM::GetEtarget() const
 	return T2;
 }
 
-
-
-#if 0
-// ============ Calibration ============ //
-
-Int_t dragon::CalibrateDsssd(Int_t runnum, double* slopes, double* offsets, const char* form)
-{
-	///
-	/// \param runnum Run number of the run you wish to calibrate
-	/// \param slopes Array of 32 slopes to be used for a linear calibration
-	/// \param offsets Array of 32 offsets to be used for a linear calibration
-	/// 
-	TFile f(Form(form, runnum), "UPDATE");
-	if(f.IsZombie()) {
-		std::cerr << "Error: the file \"" << Form(form, runnum) << "\" does not exist or is not writable.\n";
-		return -1;
-	}
-
-	TTree* t3 = static_cast<TTree*>(f.Get("t3"));
-	TTree* t5 = static_cast<TTree*>(f.Get("t5"));
-	if(!t3) {
-		std::cerr << "Error: the file \"" << Form(form, runnum) << "\" does not contain a tree called \"t3\""
-							<< " (heavy-ion singles data).\n";
-		return -1;
-	}
-	if(!t5) {
-		std::cerr << "Error: the file \"" << Form(form, runnum) << "\" does not contain a tree called \"t5\""
-							<< " (coincidence data).\n";
-		return -1;
-	}
-
-	dragon::Tail tail, *ptail = &tail;
-	dragon::Coinc coinc, *pcoinc = &coinc;
-	t3->SetBranchAddress(t3->GetListOfBranches()->At(0)->GetName(), &ptail);
-	t5->SetBranchAddress(t5->GetListOfBranches()->At(0)->GetName(), &pcoinc);
-
-	TTree* t3new = t3->CloneTree(0);
-	TTree* t5new = t5->CloneTree(0);
-
-	Long64_t nentries3 = t3->GetEntries(), nentries5 = t5->GetEntries();
-	assert(nentries3 >= nentries5);
-
-	std::cout << "Recalibrating: events 0... ";
-	std::flush(std::cout);
-	
-	Long64_t entry;
-	for(entry = 0; entry< nentries3; ++entry) {
-		if(entry%1000 == 0) {
-			std::cout << entry << "... ";
-			std::flush(std::cout);
-		}
-		if(1) t3->GetEntry(entry);
-		if(entry < nentries5)	t5->GetEntry(entry);
-
-		for(Int_t i=0; i< dragon::Dsssd::MAX_CHANNELS; ++i) {
-			if(1)
-				ptail->dsssd.ecal[i] = ptail->dsssd.ecal[i] * slopes[i] + offsets[i];
-			if(entry < nentries5) 
-				pcoinc->tail.dsssd.ecal[i] = pcoinc->tail.dsssd.ecal[i] * slopes[i] + offsets[i];
-		}
-
-		if(1) t3new->Fill();
-		if(entry < nentries5)	t5new->Fill();
-	}
-	
-	std::cout << entry << "... Done!\n";
-
-	t3new->Write("", TObject::kOverwrite);
-	t5new->Write("", TObject::kOverwrite);
-	return 0;
-}
-
-void dragon::RecalibDsssd(Int_t* runs, Int_t nruns, double* slopes, double* offsets, const char* form)
-{
-	Int_t* lastrun = runs + nruns;
-	while(runs < lastrun) {
-		if(!Recalib(Dsssd(*runs++, slopes, offsets, form)))
-			break;
-	}
-}
-#endif
