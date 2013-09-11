@@ -926,7 +926,7 @@ void dragon::BeamNorm::CalculateRecoils(TFile* datafile, const char* tree, const
 		return;
 	}
 	TTree* t = (TTree*)datafile->Get(tree);
-	if(!t) {
+	if(!t || t->IsA() != TTree::Class()) {
 		std::cerr << "Error: no tree named \"" << tree << "\" in the specified file!\n";
 		return;
 	}
@@ -968,6 +968,7 @@ void dragon::BeamNorm::CalculateRecoils(TFile* datafile, const char* tree, const
 		if(rundata->nbeam[i].GetNominal() != 0 && eff.GetNominal() != 0) {
 			rundata->yield[i] =
 				nrecoil / rundata->nbeam[i] / eff / rundata->live_time_full / rundata->trans_corr;
+			///\todo Currently only uses singles livetime - should have all 3 options.
 		}
 	}
 }

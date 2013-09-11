@@ -51,16 +51,16 @@ public: // Methods
 	bool read_data(const midas::Database* db);
 
 public: // Data
-	/// Run start time from the tsc
+	/// Run start time from the tsc (in seconds)
 	/*! [0]: head, [1]: tail */
 	double run_start[MAX_FRONTENDS];
-	/// Run stop time from the tsc
+	/// Run stop time from the tsc (in seconds)
 	/*! [0]: head, [1]: tail */
 	double run_stop[MAX_FRONTENDS];
-	/// Trigger start time from the tsc
+	/// Trigger start time from the tsc (in seconds)
 	/*! [0]: head, [1]: tail */
 	double trigger_start[MAX_FRONTENDS];
-	/// Trigger stop time from the tsc
+	/// Trigger stop time from the tsc (in seconds)
 	/*! [0]: head, [1]: tail */
 	double trigger_stop[MAX_FRONTENDS];
 };
