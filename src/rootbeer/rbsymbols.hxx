@@ -8,11 +8,15 @@
 
 namespace rbdragon {
 
-/// Turn on/off histogram auto-zeroing at run start.
-void SetAutoZero(Bool_t on = kTRUE);
+/// \brief Turn on/off histogram auto-zeroing at run start.
+/// \param level Integer specifying auto zero level:
+///    - 0: No auto zeroing
+///    - 1: Auto zero scalers only
+///    - 2: Auto zero all histograms
+void SetAutoZero(Int_t level = 1);
 
-/// Check if auto-zeroing is on or off
-Bool_t GetAutoZero();
+/// Check auto-zeroing level
+Int_t GetAutoZero();
 
 }
 

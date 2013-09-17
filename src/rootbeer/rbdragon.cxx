@@ -13,7 +13,7 @@
 #include "Rint.hxx"
 #include "Attach.hxx"
 #include "Rootbeer.hxx"
-namespace rb { namespace hist { void ClearAll(); } }
+#include "Event.hxx"
 
 // DRAGON includes //
 #include "utils/ErrorDragon.hxx"
@@ -44,17 +44,19 @@ public:
 		{ gErrorIgnoreLevel = fIgnore; }
 }; }
 
-namespace { Bool_t gAutoZero = kFALSE; }
+namespace { Int_t gAutoZero = 1; }
 
 
 // ============ Free Functions ============ //
 
-void rbdragon::SetAutoZero(Bool_t on)
+void rbdragon::SetAutoZero(Int_t level)
 {
-	gAutoZero = on;
+	if      (level > 2) gAutoZero = 2;
+	else if (level < 0) gAutoZero = 0;
+	else                gAutoZero = level;
 }
 
-Bool_t rbdragon::GetAutoZero()
+Int_t rbdragon::GetAutoZero()
 {
 	return gAutoZero;
 }
@@ -104,8 +106,24 @@ void rbdragon::MidasBuffer::RunStartTransition(Int_t runnum)
 	}
 
 	/// - Zero all histograms if online and enabled
-	if (fType == rb::MidasBuffer::ONLINE && ::gAutoZero == kTRUE)
-		rb::hist::ClearAll();
+	if (fType == rb::MidasBuffer::ONLINE) {
+		switch (GetAutoZero()) {
+//		case 0: break;
+		case 1: 
+			{
+				Int_t codes[] = { DRAGON_HEAD_SCALER, DRAGON_TAIL_SCALER };
+				Int_t ncodes = sizeof(codes) / sizeof(Int_t);
+				for(Int_t i=0; i< ncodes; ++i) {
+					rb::Event* evt = rb::Rint::gApp()->GetEvent (codes[i]);
+					if(!evt) continue;
+					rb::hist::Manager* manager = evt->GetHistManager();
+					if(manager) manager->ClearAll();
+				}
+			}
+		case 2: rb::hist::ClearAll();
+		default: break;
+		}
+	}
 
 	/// - Call parent class implementation (prints a message)
 	rb::MidasBuffer::RunStartTransition(runnum);
