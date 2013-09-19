@@ -5,41 +5,39 @@
 #include <fstream>
 #include <iostream>
 
-/// Contains information on a nucleus
-struct Nucleus_t {
-	/// Symbol, e.g. 3He
-	char fSymbol[3];
-	/// Mass number
-	int fA;
-	/// Proton number
-	int fZ;
-	/// Neutron number
-	int fN;
-};
-
-/// Contains mass excess information from AME file
-struct MassExcess_t {
-	/// Nominal value of the mass excess (in keV)
-	double fValue; // keV
-	/// Error of the mass excess (in keV)
-	double fError; // keV
-	/// True if the AME entry is an extrapolation, false if not
-	bool fExtrapolated;
-};
-
-/// Helper for comparing Nucleus_t objects
-struct CompareNucleus_t {
-	bool operator() (const Nucleus_t& lhs, const Nucleus_t& rhs) const
-		{ 
-			if(lhs.fZ == rhs.fZ)
-				return lhs.fA < rhs.fA;
-			return lhs.fZ < rhs.fZ;
-		}
-};
 
 /// Class to extract and calculate atomic mass information from an AME file
 class TAtomicMassTable {
 public:
+
+  /// Contains information on a nucleus
+	struct Nucleus_t {
+		/// Symbol, e.g. 3He
+		char fSymbol[3];
+		/// Mass number
+		int fA;
+		/// Proton number
+		int fZ;
+		/// Neutron number
+		int fN;
+	};
+
+  /// Contains mass excess information from AME file
+	struct MassExcess_t {
+		/// Nominal value of the mass excess (in keV)
+		double fValue; // keV
+		/// Error of the mass excess (in keV)
+		double fError; // keV
+		/// True if the AME entry is an extrapolation, false if not
+		bool fExtrapolated;
+	};
+	
+private:
+	/// Functor for map comparison
+	struct CompareNucleus_t {
+		bool operator() (const Nucleus_t& lhs, const Nucleus_t& rhs) const;
+	};
+
 	typedef std::map<Nucleus_t, MassExcess_t, CompareNucleus_t> Map_t;
 
 public:
@@ -58,34 +56,34 @@ public:
 	void SetMassExcess(int Z, int A, double value, double error, bool extrapolated = false);
 
 	/// Returns the _atomic_ mass excess value for a given nucleus, in keV/c^2
-	double AtomicMassExcess(int Z, int A) const;
+	double AtomicMassExcess(int Z, int A) const; //keV/c^2
 	/// Returns the _atomic_ mass excess error for a given nucleus, in keV/c^2
-	double AtomicMassExcessError(int Z, int A) const;
+	double AtomicMassExcessError(int Z, int A) const; // keV/c^2
 
 	/// Returns the _nuclear_ (fully ionized) mass value for a given nucleus, in keV/c^2
-	double NuclearMass(int Z, int A) const;
+	double NuclearMass(int Z, int A) const; // keV/c^2
 	/// Returns the _nuclear_ (fully ionized) mass error for a given nucleus, in keV/c^2
-	double NuclearMassError(int Z, int A) const;
+	double NuclearMassError(int Z, int A) const; // keV/c^2
 
 	/// Returns te _nuclear_ (fully ionized) mass value for a given nucleus, in AMU
-	double NuclearMassAMU(int Z, int A) const { return NuclearMass(Z, A) / AMU(); }
+	double NuclearMassAMU(int Z, int A) const { return NuclearMass(Z, A) / AMU(); } // AMU
 	/// Returns te _nuclear_ (fully ionized) mass error for a given nucleus, in AMU
-	double NuclearMassErrorAMU(int Z, int A) const { return NuclearMassError(Z, A) / AMU(); }
+	double NuclearMassErrorAMU(int Z, int A) const { return NuclearMassError(Z, A) / AMU(); } //AMU
 
 	/// Returns te ion (partially ionized) mass value for a given nucleus, in keV/c^2
-	double IonMass(int Z, int A, int chargeState) const { return NuclearMass(Z, A) + ElectronMass()*(Z-chargeState); }
+	double IonMass(int Z, int A, int chargeState) const { return NuclearMass(Z, A) + ElectronMass()*(Z-chargeState); } // keV/c^2
 	/// Returns te ion (partially ionized) mass error for a given nucleus, in keV/c^2
-	double IonMassError(int Z, int A, int charge) const { return NuclearMassError(Z, A); }
+	double IonMassError(int Z, int A, int charge) const { return NuclearMassError(Z, A); } // keV/c^2
 
 	/// Returns te ion (partially ionized) mass value for a given nucleus, in AMU
-	double IonMassAMU(int Z, int A, int chargeState) const { return IonMass(Z, A, chargeState) / AMU(); }
+	double IonMassAMU(int Z, int A, int chargeState) const { return IonMass(Z, A, chargeState) / AMU(); } // AMU
 	/// Returns te ion (partially ionized) mass error for a given nucleus, in AMU
-	double IonMassErrorAMU(int Z, int A, int chargeState) const { return NuclearMassErrorAMU(Z, A); }
+	double IonMassErrorAMU(int Z, int A, int chargeState) const { return NuclearMassErrorAMU(Z, A); } // AMU
 
 	/// Returns the AMU -> keV/c^2 conversion
-	static double AMU() { return 931494.061; }
+	static double AMU() { return 931494.061; } // AMU->keV/c^2
 	/// Returns the electron mass in keV/c^2
-	static double ElectronMass() { return 510.998910; }
+	static double ElectronMass() { return 510.998910; } // keV/c^2
 
 private:
 	void ParseFile(const char* = 0);
@@ -95,5 +93,8 @@ private:
 	Map_t fMassData;
 	std::auto_ptr<std::istream> fFile;
 };
+
+
+extern TAtomicMassTable* gAtomicMassTable;
 
 #endif

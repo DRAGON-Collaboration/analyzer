@@ -1082,26 +1082,41 @@ UDouble_t dragon::BeamNorm::CalculateYield(Int_t whichSb, Bool_t print)
 dragon::LiveTimeCalculator::LiveTimeCalculator():
 	fFile(0)
 {
+	Reset();
+}
+
+dragon::LiveTimeCalculator::LiveTimeCalculator(TFile* file, Bool_t calculate): 
+	fFile(file)
+{
+	/// \param file Pointer to TFile containing run data. Takes no ownership.
+	/// \param calculate If set to true, performs a full-run live time calculation
+	///  on initialization
+	
+	Reset();
+	if(calculate) Calculate();
+}
+
+void dragon::LiveTimeCalculator::Reset()
+{
 	std::fill_n(fRuntime,  2, 0.);
 	std::fill_n(fBusytime, 2, 0.);
 	std::fill_n(fLivetime, 3, 1.);
 }
 
-dragon::LiveTimeCalculator::LiveTimeCalculator(TFile* file): 
-	fFile(file)
-{
-	Calculate();
-}
-
-namespace { Double_t get_from_array(const Double_t* arr, const char* which, const char* func) {
+namespace {
+inline int get_which_indx(const char* which) {
 	int indx = -1;
 	TString which1 = which;
 	which1.ToLower();
-	
 	if     (!which1.CompareTo("head"))  indx = 0;
 	else if(!which1.CompareTo("tail"))  indx = 1;
 	else if(!which1.CompareTo("coinc")) indx = 2;
+	return indx;
+}
 
+inline Double_t get_from_array(const Double_t* arr, const char* which, const char* func) {
+	int indx = get_which_indx(which);
+	
 	if(indx < 0) {
 		dragon::utils::Error(func)
 			<< "Invalid specification \"" << which
@@ -1127,25 +1142,37 @@ Double_t dragon::LiveTimeCalculator::GetLivetime(const char* which) const
 	return get_from_array(fLivetime, which, "GetLivetime");
 }
 
-Bool_t dragon::LiveTimeCalculator::CheckFile()
+Bool_t dragon::LiveTimeCalculator::CheckFile(TTree*& t1, TTree*& t3, midas::Database*& db)
 {
+	///
+	/// Also sets tree and DB pointers
+
 	if(!fFile || fFile->IsZombie()) {
 		std::cerr << "Error: Invalid or no file loaded.\n";
 		return kFALSE;
 	}
 	Bool_t okay = kTRUE;
-	if(okay) okay = fFile->Get("t1") && fFile->Get("t1")->InheritsFrom(TTree::Class());
-	if(okay) okay = fFile->Get("t3") && fFile->Get("t3")->InheritsFrom(TTree::Class());
-	if(okay) okay = fFile->Get("t4") && fFile->Get("t4")->InheritsFrom(TTree::Class());
+	if(okay) okay = fFile->Get("t1") && fFile->Get("t1")->IsA() == TTree::Class();
+	if(okay) okay = fFile->Get("t3") && fFile->Get("t3")->IsA() == TTree::Class();
 	if(!okay) {
 		std::cerr << "Error: missing necessary trees in loaded file\n";
 		return kFALSE;
+	} else {
+		t1 = static_cast<TTree*>(fFile->Get("t1"));
+		t3 = static_cast<TTree*>(fFile->Get("t3"));
 	}
 
-	if(okay) okay = ((TTree*)fFile->Get("t1"))->GetLeaf("io32.busy_time");
-	if(okay) okay = ((TTree*)fFile->Get("t3"))->GetLeaf("io32.busy_time");
+	if(okay) okay = t1->GetLeaf("io32.busy_time");
+	if(okay) okay = t3->GetLeaf("io32.busy_time");
 	if(!okay) {
 		std::cerr << "Error: missing leaf \"io32.busy_time\" in either \"t1\" or \"t3\"\n";
+		return kFALSE;
+	}
+
+	if(okay) okay = t1->GetLeaf("io32.tsc4.trig_time");
+	if(okay) okay = t3->GetLeaf("io32.tsc4.trig_time");
+	if(!okay) {
+		std::cerr << "Error: missing leaf \"io32.tsc4.trig_time\" in either \"t1\" or \"t3\"\n";
 		return kFALSE;
 	}
 
@@ -1155,105 +1182,233 @@ Bool_t dragon::LiveTimeCalculator::CheckFile()
 		return kFALSE;
 	}
 
+	db = static_cast<midas::Database*>(fFile->Get("odbstop"));
 	return kTRUE;
 }
 
+Double_t dragon::LiveTimeCalculator::CalculateRuntime(midas::Database* db, const char* which,
+																											Double_t& start, Double_t& stop)
+{
+	///
+	/// \param [in] db Pointer to the "odbstop" database for the current run
+	/// \param [in] which "head", "tail", or "coinc"
+	/// \param [out] start Run start time (relative to TSC reset)
+	/// \param [out] stop Run stop time (relative to TSC reset)
+	/// \returns Total run time in seconds. Note that in the case of
+	/// "coinc", the runtime is calculated as
+	/// < largest stop time > - < smallest start time >, i.e. it is the
+	/// total time during which one or the other acquisition is taking triggers.
+	///
+
+	// TSC stop is stored in the ODB with rollover, so first figure
+	// out rollover time from comparison w/ the computer clock
+	/// \attention In some cases this could fail to correctly calculate
+	/// the rollover due to mismatches in the clocks... I think. This will
+	/// be extremely rare but is something to keep in the back of your mind.
+	Int_t time0, time1, tclock;
+	db->ReadValue("/Runinfo/Start time binary", time0); // computer clock start
+	db->ReadValue("/Runinfo/Stop time binary",  time1); // computer clock stop
+	tclock = time1 - time0;
+
+	// Read TSC start, stop times from the ODB
+	double trigStart[2], trigStop[2];
+	db->ReadArray("/Experiment/Run Parameters/TSC_TriggerStart", trigStart, 2);
+	db->ReadArray("/Experiment/Run Parameters/TSC_TriggerStop",  trigStop,  2);
+
+	// Append rollovers to stop time
+	const Double_t rolltime = 0xffffffff / 20e6; // 32-bit clock rollover in seconds	
+	int nroll = tclock / rolltime;
+	for(int i=0; i<2; ++i) trigStop[i] += nroll*rolltime;	
+
+	// now calculte the appropriate run time
+	switch(get_which_indx(which)) {
+	case 0: // "head"
+		stop  = trigStop[0];
+		start = trigStart[0];
+		break;
+	case 1: // "tail"
+		stop  = trigStop[1];
+		start = trigStart[1];
+		break;
+	case 2: // "coinc"
+		stop  = *std::max_element(trigStop, trigStop + 2);
+		start = *std::min_element(trigStart, trigStart + 2);
+	default:
+		utils::Error("CalculateRuntime")
+			<< "Invalid \"which\" specification: \"" << which << "\", valid options "
+			<< "are \"head\", \"tail\", or \"coinc\"";
+		stop = 0;
+		start = 0;
+	}
+
+	return stop - start;
+}
+
+namespace {
+
+template <typename T>
+TBranch* get_branch(TTree* t, T& valref, const char* name, const char* funcname = "") {
+	TBranch* branch;
+	Int_t code = t->SetBranchAddress(name, &valref, &branch);
+	if(code < 0) {
+		dragon::utils::Error(funcname)
+			<< "Couldn't set Branch \"" << name << "\" in TTree \"" << t->GetName() << "\"";
+		return 0;
+	}
+	return branch;
+}
+
+// fix for an early frontend bug where the tsc4 36-bit rollover counter
+// started from 1 instead of 0
+inline Double_t correct_rollover_fe_bug(TBranch* trigBranch, UInt_t trig_time)
+{
+	Double_t rollCorrect = 0;
+	const ULong_t roll36 = (ULong64_t)1<<36;
+	trigBranch->GetEntry(0);
+
+	if(trig_time >= roll36/20.) { // the bug was present
+		rollCorrect = roll36/20.; // microseconds
+
+		// This should only be present in files analyzed on jabberwock,
+		// so warn otherwise
+		TString hostname = "$HOSTNAME1";
+		gSystem->ExpandPathName(hostname);
+		if(hostname.CompareTo("jabberwock.triumf.ca")) {
+			dragon::utils::Warning("DoCalculate")
+				<< "rollCorrect != 0 and host is not jabberwock!";
+		}
+	}
+	
+	return rollCorrect;
+}
+
+class SetMakeClass_t {
+	TTree* fTree;
+	Int_t fMakeClass;
+public:
+	SetMakeClass_t(TTree* tree, Int_t make): fTree(tree)
+		{
+			if(fTree) {
+				fMakeClass = fTree->GetMakeClass();
+				fTree->SetMakeClass(make);
+			}
+		}
+	~SetMakeClass_t() { if(fTree) fTree->SetMakeClass(fMakeClass); }
+}; }
+
 void dragon::LiveTimeCalculator::DoCalculate(Double_t tbegin, Double_t tend)
 {
+	///
+	/// Generic function called by public functions
+	/// Calculate() and CalculateSub()
+
+	// reset to default values
+	Reset();
+
+	// make sure arguments are workable, checkif full calculation or not
 	Bool_t isFull = (tbegin < 0 || tend < 0);
 	if (isFull) {
 		if(tbegin > 0 || tend > 0) {
-			std::cerr << "Error: invalid parameters to LiveTimeCalculator::DoCalculate(): "
-								<< "tbegin = " << tbegin <<  ", tend = " << tend << "\n";
+			utils::Error("LiveTimeCalculator::DoCalculate")
+				<< "Invalid parameters to LiveTimeCalculator::DoCalculate(): "
+				<< "tbegin = " << tbegin <<  ", tend = " << tend;
 			return;
 		}
 	}
 
-	TTree *t1 = 0, *t3 = 0, *t5 = 0;
-	t1 = (TTree*)fFile->Get("t1");
-	t3 = (TTree*)fFile->Get("t3");
-	t5 = (TTree*)fFile->Get("t5");
-	
-	TTree* trees[3] = { t1, t3, t5 };
-
-	// Note: the following line is required to use GetV1(), etc. if the tree
-	// has more than 10,000 entries!!!
-	for(int i=0; i< 3; ++i) {
-		trees[i]->SetEstimate(trees[i]->GetEntries());
-	}
-
-	Int_t time0, time1, tclock;
-	midas::Database* db = (midas::Database*)fFile->Get("odbstop");
-	db->ReadValue("/Runinfo/Start time binary", time0);
-	db->ReadValue("/Runinfo/Stop time binary",  time1);
-	tclock = time1 - time0;
-	
-	double stoptime[2];
-	double rolltime = 0xffffffff / 20e6; // 32-bit clock rollover
-	int nroll = tclock / rolltime;
-	double trigStart[2], trigStop[2];
-	db->ReadArray("/Experiment/Run Parameters/TSC_TriggerStart", trigStart, 2);
-	db->ReadArray("/Experiment/Run Parameters/TSC_TriggerStop",  trigStop,  2);
-	
+	// Initialize midas database, TTrees, etc
 	CoincBusytime coincBusy;
-	
+	midas::Database* db = 0;
+	TTree* trees[2] = { 0, 0 };
+	if(!CheckFile(trees[0], trees[1], db)) // CheckFile now sets trees[i], db if they're valid
+		return;
+
+	// Get run times
+	double trigStart[3], trigStop[3];
+	CalculateRuntime(db, "head",  trigStart[0], trigStop[0]);
+	CalculateRuntime(db, "tail",  trigStart[1], trigStop[1]);
+	CalculateRuntime(db, "coinc", trigStart[2], trigStop[2]);
+
+	// Loop over trees
 	for(int i=0; i< 2; ++i) {
-		Long_t n = 0;
+		// Set MakeClass to 1 (resets at end of loop or return)
+		SetMakeClass_t dummy(trees[i], 1);
 
-		std::stringstream cut;
-		cut.precision(20);
+		// Find branches
+		UInt_t busy_time;
+		Double_t trig_time;
+		TBranch* trigBranch = get_branch(trees[i], trig_time, "io32.tsc4.trig_time", "LiveTimeCalculator::DoCalculate");
+		TBranch* busyBranch = get_branch(trees[i], busy_time, "io32.busy_time", "LiveTimeCalculator::DoCalculate");
+		if(!trigBranch || !busyBranch) return;
 
-		if(isFull)
-			cut << "";
-		else {
-			ULong64_t rollCorrect = 0;
-			n = trees[i]->Draw("io32.tsc4.trig_time", "", "goff", 1);
-			if(n>0) {
-				if( trees[i]->GetV1()[0] >= ((ULong64_t)1<<36)/20. ) {
-					rollCorrect = ((ULong64_t)1 << 36)/20.;
-				}
-			}
+		// Correct TSC4 rollover for early runs taken with a frontend bug
+		Double_t rollCorrect = correct_rollover_fe_bug(trigBranch, trig_time);
+		
+		Long64_t busyTotal = 0;
+		Long64_t nentries = trees[i]->GetEntries();
+		for(Long64_t entry = 0; entry< nentries; ++entry) {
 
-			cut << "    (io32.tsc4.trig_time - " << rollCorrect << ") - " << trigStart[i] << " > " << tbegin*1e6
-					<< " && (io32.tsc4.trig_time - " << rollCorrect << ") - " << trigStart[i] << " < " << tend*1e6;
+			// read entries
+			trigBranch->GetEntry(entry);
+			busyBranch->GetEntry(entry);
+			const Double_t trigtime = trig_time - rollCorrect - trigStart[i];
+
+			// check cut condition
+			if (!isFull && !(trigtime > tbegin*1e6 && trigtime < tend*1e6))
+				continue;
+
+			// accuulate busy time
+			busyTotal += busy_time;
+			coincBusy.AddEvent(trigtime, busy_time/20.);
 		}
 
-		// std::cout << cut.str() << "\n";
-
-		n = trees[i]->Draw("io32.busy_time:io32.tsc4.trig_time", cut.str().c_str(), "goff");
-		fBusytime[i] = TMath::Mean(n, trees[i]->GetV1()) * n / 20e6;
-
-		stoptime[i] = trigStop[i] + nroll*rolltime;
-		fRuntime[i] = isFull ? stoptime[i] - trigStart[i] : tend - tbegin;
-
+		// calculate variables
+		fBusytime[i] = busyTotal / 20e6;
+		fRuntime[i]  = isFull ? trigStop[i] - trigStart[i] : tend - tbegin;
 		fLivetime[i] = (fRuntime[i] - fBusytime[i]) / fRuntime[i];
-
-		for(Long64_t event=0; event< n; ++event) {
-			coincBusy.AddEvent(trees[i]->GetV2()[event], trees[i]->GetV1()[event] / 20.);
-		}
 	}
 
-	fRuntime[2]  = isFull ? 
-		std::min(stoptime[0], stoptime[1]) - std::max(trigStart[0], trigStart[1]) : tend - tbegin;
+	fRuntime[2]  = isFull ? trigStop[2] - trigStart[2] : tend - tbegin;
 	fBusytime[2] = coincBusy.Calculate();
 	fLivetime[2] = (fRuntime[2] - fBusytime[2]) / fRuntime[2];
 }
 
 void dragon::LiveTimeCalculator::Calculate()
 {
-	if(!CheckFile()) return;
+	///
+	/// Results can be viewed with GetLivetime(), GetBusytime(), etc.
+
 	DoCalculate(-1, -1);
 }
 
 
 void dragon::LiveTimeCalculator::CalculateSub(Double_t tbegin, Double_t tend)
 {
-	if(!CheckFile()) return;
+	///
+	/// \param tbegin Beginning of the run sub section (in seconds)
+	/// \param tend End of the run sub section (seconds). If specified greater than
+	///  the end of the run, this will just calculate up to the end of the run.
+	///
+	/// The parameters _tbegin_ and _tend_ are both relative to the "trigger
+	/// start", which is the time at which the frontend begins to accept
+	/// triggers (this is ~2 seconds later than the "run start" time, which
+	/// would be when the user pushed start on the MIDAS page. The difference
+	/// is due to the time it takes for the frontend programs to complete
+	/// their startup routines.
+	///
+	/// Results can be viewed with GetLivetime(), GetBusytime(), etc.
+
 	DoCalculate(tbegin, tend);
 }
 
 void dragon::LiveTimeCalculator::CalculateChain(TChain* chain)
 {
+	///
+	/// Calculate overall times across a chain of runs.
+	/// For this, the sum of running time and busy time across
+	/// the chain are calculated and then used to figure out the
+	/// live time fraction.
+
 	TFile* file0 = GetFile();
 	Double_t sumbusy[3] = {0,0,0}, sumrun[3] = {0,0,0};
 
@@ -1294,7 +1449,8 @@ struct AccumulateBusy {
 	Output_t operator() (const Output_t& current, const dragon::CoincBusytime::Event& additional);
 };
 
-AccumulateBusy::Output_t AccumulateBusy::operator() (const Output_t& current, const dragon::CoincBusytime::Event& additional)
+inline AccumulateBusy::Output_t AccumulateBusy::operator()
+	(const Output_t& current, const dragon::CoincBusytime::Event& additional)
 {
 	Output_t out = current;
 
@@ -1311,11 +1467,11 @@ AccumulateBusy::Output_t AccumulateBusy::operator() (const Output_t& current, co
 	}
 
 	return out;
-}
-} // namespace 
+} }
 
 void dragon::CoincBusytime::AddEvent(Double_t trigger, Double_t busy)
 {
+	///
 	/// \param trigger Trigger time in microseconds
 	/// \param busy Busy time in microseconds
  
@@ -1334,6 +1490,7 @@ void dragon::CoincBusytime::Sort()
 
 Double_t dragon::CoincBusytime::Calculate()
 {
+	///
 	/// \returns Total "coincidence busy time" in seconds.
 	///
 	/// Calcluation of the busy time is done as follows:

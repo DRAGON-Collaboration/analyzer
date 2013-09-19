@@ -43,7 +43,6 @@ void FriendChain(TChain* chain, const char* friend_name, const char* friend_alia
 								 const char* format = "$DH/rootfiles/run%d.root",
 								 const char* friend_format = "$DH/rootfiles/run%d_dsssd_recal.root");
 
-
 /// Filters TChains (or TTrees) based on cut conditions.
 /*!
  *  Example use:
@@ -471,28 +470,75 @@ private:
 
 
 /// Live time calculator
+/*!
+ * Calculates the live time by looking at the measured
+ * run time (with the IO32 clock, so 50 ns precision) and
+ * sum of measured busy times for each event. The live time is
+ * defined as:
+ *      (<run time> - <busy time>) / <run time>
+ * 
+ * Calculations can be performed for a complete run, subset of a
+ * run or a chain of runs. This class also calculates the live
+ * time for coincidences. For more information about how this is
+ * done, see the dragon::CoincBusytime class documentation
+ */
 class LiveTimeCalculator {
 public:
+	/// Empty
 	LiveTimeCalculator();
-	LiveTimeCalculator(TFile* file);
+	/// Initialize with a run file and perform optional calculation
+	LiveTimeCalculator(TFile* file, Bool_t calculate = kTRUE);
+
+	/// Perform live time calculation across an entire run
 	void Calculate();
-	void CalculateChain(TChain* chain);
+	/// Perform live time calculation across a subset of the run
 	void CalculateSub(Double_t tbegin, Double_t tend);
-	Double_t GetBusytime(const char* which) const;
-	Double_t GetRuntime (const char* which) const;
-	Double_t GetLivetime(const char* which) const;
-	Double_t GetLivetimeError(const char* which) const { return GetLivetime(which) * 50/1e6; }
+	/// Perform live time calculation across a chain of runs
+	void CalculateChain(TChain* chain);
+
+	/// Returns the sum of busy times during the run (or subrun) in seconds
+	Double_t GetBusytime(const char* which) const; // seconds
+	/// Returns the run time in seconds
+	Double_t GetRuntime (const char* which) const; // seconds
+	/// Returns the live time fraction
+	Double_t GetLivetime(const char* which) const; // fraction
+
+	/// \brief Returns the error on the livetime
+	/// \details The relative error should 
+	Double_t GetLivetimeError(const char* which) const
+		{ return GetLivetime(which) * 50/1e6; } // seconds
+
+	/// Reuturn pointer to the currently set run file
 	TFile* GetFile() const { return fFile; }
+	/// \brief Change the run file
+	/// \atention Does not clear previous calculations
 	void SetFile(TFile* file) { fFile = file; }
 
+	/// Reset all stored data (livetimes, etc.) to zero
+	void Reset();
+
+public:
+	/// Calculate the run time from saved ODB file
+	static Double_t CalculateRuntime(midas::Database* db, const char* which,
+																	 Double_t& start, Double_t& stop); // seconds (static function)
+	/// Calculate the run time from saved ODB file
+	static Double_t CalculateRuntime(midas::Database* db, const char* which) 
+		{ Double_t a,b; return CalculateRuntime(db, which, a, b); } // seconds (static function)
+
 private:
-	Bool_t CheckFile();
+	/// Make sure fFile is valid
+	Bool_t CheckFile(TTree*& t1, TTree*& t3, midas::Database*& db);
+	/// Does the work of live time calculations
 	void DoCalculate(Double_t tbegin, Double_t tend);
 
 private:
+	/// Run file (no ownership)
 	TFile* fFile;
+	/// Run times
 	Double_t fRuntime [3];
+	/// Busy times
 	Double_t fBusytime[3];
+	/// Live times
 	Double_t fLivetime[3];
 };
 

@@ -4,11 +4,24 @@
 
 
 namespace {
-inline Nucleus_t make_nucleus_az(int Z, int A) {
-	Nucleus_t nuc; nuc.fA = A; nuc.fZ = Z;
+inline TAtomicMassTable::Nucleus_t make_nucleus_az(int Z, int A) {
+	TAtomicMassTable::Nucleus_t nuc; nuc.fA = A; nuc.fZ = Z;
 	return nuc;
 } }
 
+#ifdef DRAGON_AME12_FILENAME
+TAtomicMassTable* gAtomicMassTable = new TAtomicMassTable();
+#else
+TAtomicMassTable* gAtomicMassTable = NULL;
+#endif
+
+bool TAtomicMassTable::CompareNucleus_t::operator()
+	(const Nucleus_t& lhs, const Nucleus_t& rhs) const
+{ 
+	if(lhs.fZ == rhs.fZ)
+		return lhs.fA < rhs.fA;
+	return lhs.fZ < rhs.fZ;
+}
 
 TAtomicMassTable::TAtomicMassTable(const char* file):
 	fFile(0)
@@ -35,14 +48,16 @@ void TAtomicMassTable::SetFile(const char* filename)
 	}
 }
 
-const Nucleus_t* TAtomicMassTable::GetNucleus(int Z, int A) const
+const TAtomicMassTable::Nucleus_t*
+TAtomicMassTable::GetNucleus(int Z, int A) const
 {
 	Nucleus_t nuc = make_nucleus_az(Z, A);
 	Map_t::const_iterator it = fMassData.find(nuc);
 	return it == fMassData.end() ? 0 : &(it->first);
 }
 
-const MassExcess_t* TAtomicMassTable::GetMassExcess(int Z, int A) const
+const TAtomicMassTable::MassExcess_t*
+TAtomicMassTable::GetMassExcess(int Z, int A) const
 {
 	Nucleus_t nuc = make_nucleus_az(Z, A);
 	Map_t::const_iterator it = fMassData.find(nuc);
