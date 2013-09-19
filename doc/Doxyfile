@@ -669,6 +669,8 @@ WARN_LOGFILE           =
 # with spaces.
 
 INPUT                  = $(HOME)/packages/dragon/analyzer/src \
+		         $(HOME)/packages/dragon/analyzer/src/utils \
+		         $(HOME)/packages/dragon/analyzer/src/midas \
                          $(HOME)/packages/dragon/analyzer/doc \
 		         $(HOME)/packages/dragon/analyzer/examples
 
@@ -697,7 +699,7 @@ FILE_PATTERNS          = *.C *.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp 
 # should be searched for input files as well. Possible values are YES and NO.
 # If left blank NO is used.
 
-RECURSIVE              = YES
+RECURSIVE              = NO
 
 # The EXCLUDE tag can be used to specify files and/or directories that should be
 # excluded from the INPUT source files. This way you can easily exclude a
@@ -705,7 +707,7 @@ RECURSIVE              = YES
 # Note that relative paths are relative to the directory from which doxygen is
 # run.
 
-EXCLUDE                = src/midas/libMidasInterface \
+EXCLUDE                = src/midas/libMidasInterface/ \
                          src/midas/mxml.c \
                          src/midas/mxml.h \
                          src/midas/strlcpy.c \

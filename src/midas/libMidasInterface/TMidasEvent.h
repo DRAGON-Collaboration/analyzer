@@ -1,7 +1,7 @@
 //
 // TMidasEvent.h
 //
-
+#ifndef DOXYGEN_SKIP
 #ifndef TMIDASEVENT_H
 #define TMIDASEVENT_H
 
@@ -74,3 +74,4 @@ protected:
 };
 
 #endif // TMidasEvent.h
+#endif

@@ -1,7 +1,7 @@
 //
 // TMidasStructs.h
 //
-
+#ifndef DOXYGEN_SKIP
 #ifndef INCLUDE_TMidasBanksH
 #define INCLUDE_TMidasBanksH
 
@@ -44,5 +44,6 @@ struct TMidas_BANK32 {
   uint32_t fDataSize;
 };
 
+#endif
 #endif
 //end

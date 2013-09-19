@@ -1,3 +1,4 @@
+#ifndef DOXYGEN_SKIP
 #ifndef TMidasOnline_hxx_seen
 #define TMidasOnline_hxx_seen
 /********************************************************************\
@@ -119,4 +120,5 @@ public:
 };
 
 //end
+#endif
 #endif
