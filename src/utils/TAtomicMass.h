@@ -1,3 +1,5 @@
+#ifndef T_ATOMIC_MASS_H
+#define T_ATOMIC_MASS_H
 #include <map>
 #include <memory>
 #include <fstream>
@@ -93,3 +95,5 @@ private:
 	Map_t fMassData;
 	std::auto_ptr<std::istream> fFile;
 };
+
+#endif
