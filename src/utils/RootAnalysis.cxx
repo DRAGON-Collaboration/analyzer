@@ -1196,8 +1196,8 @@ Double_t dragon::LiveTimeCalculator::CalculateRuntime(midas::Database* db, const
 	/// \param [out] stop Run stop time (relative to TSC reset)
 	/// \returns Total run time in seconds. Note that in the case of
 	/// "coinc", the runtime is calculated as
-	/// < largest stop time > - < smallest start time >, i.e. it is the
-	/// total time during which one or the other acquisition is taking triggers.
+	/// < smallest stop time > - < largest start time >, i.e. it is the
+	/// total time during which _both_ acquisitions are taking triggers.
 	///
 
 	// TSC stop is stored in the ODB with rollover, so first figure
@@ -1231,14 +1231,16 @@ Double_t dragon::LiveTimeCalculator::CalculateRuntime(midas::Database* db, const
 		start = trigStart[1];
 		break;
 	case 2: // "coinc"
-		stop  = *std::max_element(trigStop, trigStop + 2);
-		start = *std::min_element(trigStart, trigStart + 2);
+		stop  = *std::min_element(trigStop, trigStop + 2);
+		start = *std::max_element(trigStart, trigStart + 2);
+		break;
 	default:
 		utils::Error("CalculateRuntime")
 			<< "Invalid \"which\" specification: \"" << which << "\", valid options "
 			<< "are \"head\", \"tail\", or \"coinc\"";
 		stop = 0;
 		start = 0;
+		break;
 	}
 
 	return stop - start;
