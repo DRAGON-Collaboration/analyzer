@@ -550,6 +550,7 @@ UDouble_t dragon::RossumData::AverageCurrent(Int_t run, Int_t cup, Int_t iterati
 		return UDouble_t(0);
 	}
 	
+	/// \todo Get rid of GetV1() method here as well.
 	// Note: the following line is required to use GetV1(), etc. if the tree
 	// has more than 10,000 entries!!!
 	tree->SetEstimate(tree->GetEntries());
