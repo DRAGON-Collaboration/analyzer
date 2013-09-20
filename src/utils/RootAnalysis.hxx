@@ -267,10 +267,14 @@ public:
 		UDouble_t sb_counts[dragon::SurfaceBarrier::MAX_CHANNELS];
 		/// Number of sb counts in the whole run
 		UDouble_t sb_counts_full[dragon::SurfaceBarrier::MAX_CHANNELS];
-		/// Live time in _time_
+		/// Live time in _time_ used for SB normalization
 		UDouble_t live_time;
-		/// Live time across the whole run
-		UDouble_t live_time_full;
+		/// Tail live time across the whole run
+		UDouble_t live_time_tail;
+		/// Head live time across the whole run
+		UDouble_t live_time_head;
+		/// Coinc live time across the whole run
+		UDouble_t live_time_coinc;
 		/// Average pressure in sb_time
 		UDouble_t pressure;
 		/// Average pressure across the whole run
@@ -290,7 +294,7 @@ public:
 		/// Yield, per SB norm
 		UDouble_t yield[dragon::SurfaceBarrier::MAX_CHANNELS];
 		/// Set defaults
-		RunData(): time(0), live_time(0), live_time_full(0), pressure(0), pressure_full(0), trans_corr(1,0)
+		RunData(): time(0), live_time(0), live_time_tail(0), pressure(0), pressure_full(0), trans_corr(1,0)
 			{
 				std::fill_n(sb_counts,      dragon::SurfaceBarrier::MAX_CHANNELS, UDouble_t(0));
 				std::fill_n(sb_counts_full, dragon::SurfaceBarrier::MAX_CHANNELS, UDouble_t(0));

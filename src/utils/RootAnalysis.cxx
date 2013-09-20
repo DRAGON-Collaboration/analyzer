@@ -30,14 +30,68 @@
 #include "RootAnalysis.hxx"
 
 
-namespace { const Int_t NSB = dragon::SurfaceBarrier::MAX_CHANNELS; }
+namespace { 
+//
+// Alias for surface barrier max channels
+const Int_t NSB = dragon::SurfaceBarrier::MAX_CHANNELS;
 
+//
+// Get a branch from a tree and print an error message if input is bad
+template <typename T>
+TBranch* get_branch(TTree* t, T& valref, const char* name, const char* funcname = "") {
+	TBranch* branch;
+	Int_t code = t->SetBranchAddress(name, &valref, &branch);
+	if(code < 0) {
+		dragon::utils::Error(funcname)
+			<< "Couldn't set Branch \"" << name << "\" in TTree \"" << t->GetName() << "\"";
+		return 0;
+	}
+	return branch;
+}
+
+//
+// RAII class to change the MakeClass() option of a tree and reset it when done
+class SetMakeClass_t {
+	TTree* fTree;
+	Int_t fMakeClass;
+public:
+	SetMakeClass_t(TTree* tree, Int_t make): fTree(tree)
+		{
+			if(fTree) {
+				fMakeClass = fTree->GetMakeClass();
+				fTree->SetMakeClass(make);
+			}
+		}
+	~SetMakeClass_t() { if(fTree) fTree->SetMakeClass(fMakeClass); }
+};
+
+//
+// Class to automatially reset TTree branch addresses
+class AutoResetBranchAddresses {
+	TObjArray fTrees;
+public:
+	AutoResetBranchAddresses(TTree* t) { fTrees.Add(t); }
+	AutoResetBranchAddresses(TTree** tarr, Int_t n) {
+		for(Int_t i=0; i< n; ++i) fTrees.Add(tarr[i]);
+	}
+	~AutoResetBranchAddresses() {
+		for(Int_t i=0; i< fTrees.GetEntries(); ++i) {
+			TTree* tree = static_cast<TTree*>(fTrees.At(i));
+			if(tree) tree->ResetBranchAddresses();
+		}
+	}
+};
+
+//
+// Delete a pointer and reset to NULL
 template <class T> void Zap(T*& t) 
 {
 	if(!t) return;
 	delete t;
 	t = 0;
 }
+
+} // namespace
 
 
 // ============ dragon::MakeChains ============ //
@@ -415,6 +469,7 @@ Bool_t dragon::RossumData::ParseFile()
 			if(posTime+1 < line0.size()) strTime = line0.substr(posTime+1);
 
 			TTree* tree = MakeTree();
+			AutoResetBranchAddresses Rst_(tree);
 			tree->SetDirectory(0);
 			std::map<Int_t, Int_t> cupIteration;
 			Bool_t fullRun = kFALSE;
@@ -493,7 +548,6 @@ Bool_t dragon::RossumData::ParseFile()
 			sstitle << "Farady cup readings proceeding run " << runnum;
 			tree->SetNameTitle(ssname.str().c_str(), sstitle.str().c_str());
 
-			tree->ResetBranchAddresses();
 			if(!fullRun) tree->Delete();
 		}
 	}
@@ -513,10 +567,8 @@ TTree* dragon::RossumData::GetTree(Int_t runnum, const char* time) const
 		if ( GetTime_(it) == std::string(time) )
 			return GetTree_(it);
 	}
-	return 0;
 
-	// std::map<Int_t, TTree*>::const_iterator it = fTrees.find(runnum);
-	// return it == fTrees.end() ? 0 : it->second;
+	return 0;
 }
 
 UDouble_t dragon::RossumData::AverageCurrent(Int_t run, Int_t cup, Int_t iteration,
@@ -546,36 +598,54 @@ UDouble_t dragon::RossumData::AverageCurrent(Int_t run, Int_t cup, Int_t iterati
 	///
 	TTree* tree = GetTree(run);
 	if(!tree) {
-		std::cerr << "Error: invalid run " << run << "\n";
+		utils::Error("RossumData::AverageCurrent")
+			<< "Invalid run " << run;
 		return UDouble_t(0);
 	}
-	
-	/// \todo Get rid of GetV1() method here as well.
-	// Note: the following line is required to use GetV1(), etc. if the tree
-	// has more than 10,000 entries!!!
-	tree->SetEstimate(tree->GetEntries());
 
-	char gate[4096];
-	sprintf(gate, "cup == %i && iteration == %i", cup, iteration);
-	Long64_t nval = tree->Draw("current:time", gate, "goff");
-	if(nval < 1) return UDouble_t(0);
+	Double_t time_, current_;
+	Int_t cup_, iteration_, success;
+	success = tree->SetBranchAddress("current", &current_);
+	success = tree->SetBranchAddress("time", &time_);
+	success = tree->SetBranchAddress("cup", &cup_);
+	success = tree->SetBranchAddress("iteration", &iteration_);
+	if(success) {
+		utils::Error("RossumData::AverageCurrent")
+			<< "Failure to set branch addresses";
+		return UDouble_t(0);
+	}
+	AutoResetBranchAddresses Rst_(tree);
 
-	Double_t* time = tree->GetV2();
-	Double_t* current = tree->GetV1();
+	Double_t t0 = -1;
+	std::vector<Double_t> current, time;
+	for(Long64_t entry = 0; entry< tree->GetEntries(); ++entry) {
+		tree->GetEntry(entry);
 
-	Double_t t0 = time[0];
-	Double_t t1 = time[nval-1];
-	Long64_t i0 = -1, i1 = -1;
-	for(Long64_t i=0; i< nval; ++i) {
-		if(i0 < 0 && time[i] - t0 > skipBegin)
-			i0 = i;
-		if(i1 < 0 && t1 - time[i] < skipEnd)
-			i1 = i;
+		if(cup_ != cup || iteration_ != iteration)
+			continue; // failed cut
+
+		assert(time_ >= 0);
+		if(t0 < 0) t0 = time_;
+
+		if(time_ - t0 > skipBegin) {
+			if(!(time.empty() || time_ >= time.back()))
+				std::cout << "\nERROR: " << time.empty() << " " << time_ << " > " << time.back() << "\n";
+			assert(time.empty() || time_ >= time.back());
+			current.push_back(current_);
+			time.push_back(time_);
+		}
 	}
 
-	Double_t avg = TMath::Mean(i1-i0, current+i0);
-	Double_t rms = TMath::RMS (i1-i0, current+i0);
+	//
+	// Find last time
+	const std::vector<Double_t>::iterator::difference_type diffLast =
+		std::lower_bound(time.begin(), time.end(), time.back() - skipEnd) - time.begin();
+	
+	const std::vector<Double_t>::iterator lastCurrent = 
+		current.begin() + diffLast;
 
+	Double_t avg = TMath::Mean(current.begin(), lastCurrent);
+	Double_t rms = TMath::RMS (current.begin(), lastCurrent); // actually std dev
 	return UDouble_t(avg, rms);
 }
 
@@ -610,7 +680,6 @@ TGraph* dragon::RossumData::PlotTransmission(Int_t* runs, Int_t nruns)
 
 
 // ============ Class dragon::BeamNorm ============ //
-
 
 dragon::BeamNorm::BeamNorm():
 	fRossum(0)
@@ -687,7 +756,10 @@ Int_t dragon::BeamNorm::ReadSbCounts(TFile* datafile, Double_t pkLow0, Double_t 
 	dragon::Epics epics;
 	dragon::Epics* pEpics = &epics;
 	t20->SetBranchAddress(t20->GetListOfBranches()->At(0)->GetName(), &pEpics);
-		
+
+	AutoResetBranchAddresses Rst3_(t3);
+	AutoResetBranchAddresses Rst20_(t20);
+			
 	Long64_t ncounts[NSB];
 	Long64_t ncounts_full[NSB];
 	for(int i=0; i< NSB; ++i) {
@@ -710,14 +782,17 @@ Int_t dragon::BeamNorm::ReadSbCounts(TFile* datafile, Double_t pkLow0, Double_t 
 		ncounts[i] = t3->GetPlayer()->GetEntries(cut.str().c_str());
 	}
 
-	UDouble_t live, live_full;
+	UDouble_t live, live_full[3]; // [3]: head,tail,coinc
 	{
+		///\bug Live times have wrong error!!
 		dragon::LiveTimeCalculator ltc;
 		ltc.SetFile(datafile);
 		ltc.CalculateSub(0, time);
 		live = ltc.GetLivetime("tail");
 		ltc.Calculate();
-		live_full = ltc.GetLivetime("tail");
+		live_full[0] = ltc.GetLivetime("head");
+		live_full[1] = ltc.GetLivetime("tail");
+		live_full[3] = ltc.GetLivetime("coinc");
 	}		
 
 	t20->GetEntry(0);
@@ -751,11 +826,12 @@ Int_t dragon::BeamNorm::ReadSbCounts(TFile* datafile, Double_t pkLow0, Double_t 
 		UDouble_t (TMath::Mean(t1, &pressure[0]), TMath::RMS(t1, &pressure[0]));
 	rundata->pressure_full =
 		UDouble_t (TMath::Mean(pressure.size(), &pressure[0]), TMath::RMS(pressure.size(), &pressure[0]));
-	rundata->live_time = live;
-	rundata->live_time_full = live_full;
 
-	t3->ResetBranchAddresses();
-	t20->ResetBranchAddresses();
+	rundata->live_time = live;
+	rundata->live_time_head  = live_full[0];
+	rundata->live_time_tail  = live_full[1];
+	rundata->live_time_coinc = live_full[2];
+
 	return runnum;
 }
 
@@ -799,7 +875,7 @@ void dragon::BeamNorm::CalculateNorm(Int_t run, Int_t chargeState)
 			rundata->sbnorm[i] /= (qe * (double)chargeState * (rundata->sb_counts[i] / rundata->live_time));
 			
 			if(rundata->pressure_full.GetNominal() != 0) {
-				rundata->nbeam[i] = (rundata->sb_counts_full[i] / rundata->live_time_full) * rundata->sbnorm[i] / rundata->pressure_full;
+				rundata->nbeam[i] = (rundata->sb_counts_full[i] / rundata->live_time_tail) * rundata->sbnorm[i] / rundata->pressure_full;
 			}
 		}
 	}
@@ -920,20 +996,20 @@ void dragon::BeamNorm::Print(const char* param1, const char* param2, const char*
 	// }
 }
 
-void dragon::BeamNorm::CalculateRecoils(TFile* datafile, const char* tree, const char* gate)
+void dragon::BeamNorm::CalculateRecoils(TFile* datafile, const char* treename, const char* gate)
 {
 	if(datafile == 0 || datafile->IsZombie()) {
 		std::cerr << "Invalid datafile!\n";
 		return;
 	}
-	TTree* t = (TTree*)datafile->Get(tree);
+	TTree* t = (TTree*)datafile->Get(treename);
 	if(!t || t->IsA() != TTree::Class()) {
-		std::cerr << "Error: no tree named \"" << tree << "\" in the specified file!\n";
+		std::cerr << "Error: no tree named \"" << treename << "\" in the specified file!\n";
 		return;
 	}
 
 	// Copy aliases from chain
-	TChain* chain = (TChain*)gROOT->GetListOfSpecials()->FindObject(tree);
+	TChain* chain = (TChain*)gROOT->GetListOfSpecials()->FindObject(treename);
 	if(chain && chain->InheritsFrom(TChain::Class())) {
 		if(chain->GetListOfAliases()) {
 			for(Int_t i=0; i< chain->GetListOfAliases()->GetEntries(); ++i) {
@@ -942,7 +1018,6 @@ void dragon::BeamNorm::CalculateRecoils(TFile* datafile, const char* tree, const
 			}
 		}
 	}
-
 
 	Bool_t haveRunnum = kFALSE;
 	Int_t runnum = 0;
@@ -962,14 +1037,27 @@ void dragon::BeamNorm::CalculateRecoils(TFile* datafile, const char* tree, const
 		rundata = GetRunData(runnum);
 	}
 	assert(rundata);
+
+	static std::map<std::string, UDouble_t> which_live_time;
+	if(which_live_time.empty()) {
+		which_live_time["t1"] = rundata->live_time_head;
+		which_live_time["t3"] = rundata->live_time_tail;
+		which_live_time["t5"] = rundata->live_time_coinc;
+	}
+	std::map<std::string, UDouble_t>::iterator iLive = 
+		which_live_time.find(treename);
+	if(iLive == which_live_time.end()) {
+		utils::Error("CalculateRecoils")
+			<< "Invalid TTree: \"" << treename << "\", must be \"t1\", \"t3\", or \"t5\"";
+		return;
+	}
 	
 	rundata->nrecoil = nrecoil;
 	for(Int_t i=0; i< NSB; ++i) {
 		UDouble_t eff = CalculateEfficiency(kFALSE);
 		if(rundata->nbeam[i].GetNominal() != 0 && eff.GetNominal() != 0) {
 			rundata->yield[i] =
-				nrecoil / rundata->nbeam[i] / eff / rundata->live_time_full / rundata->trans_corr;
-			///\todo Currently only uses singles livetime - should have all 3 options.
+				nrecoil / rundata->nbeam[i] / eff / iLive->second / rundata->trans_corr;
 		}
 	}
 }
@@ -1049,13 +1137,13 @@ UDouble_t dragon::BeamNorm::CalculateYield(Int_t whichSb, Bool_t print)
 	for(std::map<Int_t, RunData>::iterator it = fRunData.begin(); it != fRunData.end(); ++it) {
 		RunData& thisData = it->second;
 		beam += thisData.nbeam[whichSb];
-		recoil += (thisData.nrecoil / thisData.trans_corr / thisData.live_time_full);
+		recoil += (thisData.nrecoil / thisData.trans_corr / thisData.live_time_tail);
 		recoilCounted += thisData.nrecoil;
 		recoilTrans   += thisData.nrecoil / thisData.trans_corr;
 
 		// for recoil-weighted livetime
 		recoilV.push_back(thisData.nrecoil.GetNominal());
-		liveV.push_back(thisData.live_time_full.GetNominal());
+		liveV.push_back(thisData.live_time_tail.GetNominal());
 	}
 
 	UDouble_t eff = CalculateEfficiency(kFALSE);
@@ -1248,19 +1336,6 @@ Double_t dragon::LiveTimeCalculator::CalculateRuntime(midas::Database* db, const
 }
 
 namespace {
-
-template <typename T>
-TBranch* get_branch(TTree* t, T& valref, const char* name, const char* funcname = "") {
-	TBranch* branch;
-	Int_t code = t->SetBranchAddress(name, &valref, &branch);
-	if(code < 0) {
-		dragon::utils::Error(funcname)
-			<< "Couldn't set Branch \"" << name << "\" in TTree \"" << t->GetName() << "\"";
-		return 0;
-	}
-	return branch;
-}
-
 // fix for an early frontend bug where the tsc4 36-bit rollover counter
 // started from 1 instead of 0
 inline Double_t correct_rollover_fe_bug(TBranch* trigBranch, UInt_t trig_time)
@@ -1283,21 +1358,7 @@ inline Double_t correct_rollover_fe_bug(TBranch* trigBranch, UInt_t trig_time)
 	}
 	
 	return rollCorrect;
-}
-
-class SetMakeClass_t {
-	TTree* fTree;
-	Int_t fMakeClass;
-public:
-	SetMakeClass_t(TTree* tree, Int_t make): fTree(tree)
-		{
-			if(fTree) {
-				fMakeClass = fTree->GetMakeClass();
-				fTree->SetMakeClass(make);
-			}
-		}
-	~SetMakeClass_t() { if(fTree) fTree->SetMakeClass(fMakeClass); }
-}; }
+} }
 
 void dragon::LiveTimeCalculator::DoCalculate(Double_t tbegin, Double_t tend)
 {
@@ -1325,6 +1386,9 @@ void dragon::LiveTimeCalculator::DoCalculate(Double_t tbegin, Double_t tend)
 	TTree* trees[2] = { 0, 0 };
 	if(!CheckFile(trees[0], trees[1], db)) // CheckFile now sets trees[i], db if they're valid
 		return;
+
+	// Ensure to reset branch addresses when done
+	AutoResetBranchAddresses Rst_(trees, 2);
 
 	// Get run times
 	double trigStart[3], trigStop[3];
