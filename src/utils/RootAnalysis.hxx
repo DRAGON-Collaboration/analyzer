@@ -13,6 +13,7 @@
 #include <iostream>
 #include <algorithm>
 
+#include <TH1.h>
 #include <TCut.h>
 #include <TROOT.h>
 #include <TChain.h>
