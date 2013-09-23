@@ -356,6 +356,7 @@ public:
 		}
 	void SetEfficiency(const char* name, UDouble_t value) { fEfficiencies[name] = value; }
 	void SetEfficiency(const char* name, Double_t value)  { fEfficiencies[name] = UDouble_t(value, 0); }
+	/// Correct for FC4->FC1 transmission changes relative to a single "good" run
 	void CorrectTransmission(Int_t reference);
 	UDouble_t CalculateEfficiency(Bool_t print = kTRUE);
 	UDouble_t CalculateYield(Int_t whichSb, Bool_t print = kTRUE);

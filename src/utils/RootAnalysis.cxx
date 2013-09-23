@@ -628,19 +628,23 @@ UDouble_t dragon::RossumData::AverageCurrent(Int_t run, Int_t cup, Int_t iterati
 		if(t0 < 0) t0 = time_;
 
 		if(time_ - t0 > skipBegin) {
-			if(!(time.empty() || time_ >= time.back()))
-				std::cout << "\nERROR: " << time.empty() << " " << time_ << " > " << time.back() << "\n";
-			assert(time.empty() || time_ >= time.back());
+			if(!time.empty() && !(time_ >= time.back())) {
+				utils::Error("RossumData::AverageCurrent")
+					<< "Non sequential current readings: " << "this, last = "
+					<< time_ << ", " << time.back() << "\n";
+				return UDouble_t(0, 0);
+			}
+
 			current.push_back(current_);
 			time.push_back(time_);
 		}
 	}
-
+	
 	//
 	// Find last time
 	const std::vector<Double_t>::iterator::difference_type diffLast =
-		std::lower_bound(time.begin(), time.end(), time.back() - skipEnd) - time.begin();
-	
+		std::lower_bound(time.begin(), time.end(), time.back() - skipEnd, std::less_equal<Double_t>()) - time.begin();
+
 	const std::vector<Double_t>::iterator lastCurrent = 
 		current.begin() + diffLast;
 
@@ -784,7 +788,7 @@ Int_t dragon::BeamNorm::ReadSbCounts(TFile* datafile, Double_t pkLow0, Double_t 
 
 	UDouble_t live, live_full[3]; // [3]: head,tail,coinc
 	{
-		///\bug Live times have wrong error!!
+		///\bug Live times have wrong error!! (MAYBE....)
 		dragon::LiveTimeCalculator ltc;
 		ltc.SetFile(datafile);
 		ltc.CalculateSub(0, time);
@@ -792,8 +796,8 @@ Int_t dragon::BeamNorm::ReadSbCounts(TFile* datafile, Double_t pkLow0, Double_t 
 		ltc.Calculate();
 		live_full[0] = ltc.GetLivetime("head");
 		live_full[1] = ltc.GetLivetime("tail");
-		live_full[3] = ltc.GetLivetime("coinc");
-	}		
+		live_full[2] = ltc.GetLivetime("coinc");
+	}
 
 	t20->GetEntry(0);
 	Double_t tstart20 = pTail->header.fTimeStamp;
@@ -996,6 +1000,24 @@ void dragon::BeamNorm::Print(const char* param1, const char* param2, const char*
 	// }
 }
 
+namespace {
+void null_rundata(dragon::BeamNorm::RunData* rundata) {
+	if(!rundata) return;
+	rundata->nrecoil  = UDouble_t(0,0);
+	for(int i=0; i< NSB; ++i) {
+		rundata->yield[i] = UDouble_t(0,0);
+		rundata->nbeam[i] = UDouble_t(0,0);
+	}
+}
+const UDouble_t& get_livetime(const std::string& treename, const dragon::BeamNorm::RunData* rundata) {
+	if(!rundata) { }
+	else if(treename == "t1") return rundata->live_time_head;
+	else if(treename == "t3") return rundata->live_time_tail;
+	else if(treename == "t5") return rundata->live_time_coinc;
+	throw rundata;
+} }
+
+
 void dragon::BeamNorm::CalculateRecoils(TFile* datafile, const char* treename, const char* gate)
 {
 	if(datafile == 0 || datafile->IsZombie()) {
@@ -1038,28 +1060,19 @@ void dragon::BeamNorm::CalculateRecoils(TFile* datafile, const char* treename, c
 	}
 	assert(rundata);
 
-	static std::map<std::string, UDouble_t> which_live_time;
-	if(which_live_time.empty()) {
-		which_live_time["t1"] = rundata->live_time_head;
-		which_live_time["t3"] = rundata->live_time_tail;
-		which_live_time["t5"] = rundata->live_time_coinc;
-	}
-	std::map<std::string, UDouble_t>::iterator iLive = 
-		which_live_time.find(treename);
-	if(iLive == which_live_time.end()) {
-		utils::Error("CalculateRecoils")
-			<< "Invalid TTree: \"" << treename << "\", must be \"t1\", \"t3\", or \"t5\"";
-		return;
-	}
-	
-	rundata->nrecoil = nrecoil;
-	for(Int_t i=0; i< NSB; ++i) {
-		UDouble_t eff = CalculateEfficiency(kFALSE);
-		if(rundata->nbeam[i].GetNominal() != 0 && eff.GetNominal() != 0) {
-			rundata->yield[i] =
-				nrecoil / rundata->nbeam[i] / eff / iLive->second / rundata->trans_corr;
+	try {
+		const UDouble_t& livetime = get_livetime(treename, rundata);
+		rundata->nrecoil = nrecoil;
+		for(Int_t i=0; i< NSB; ++i) {
+			UDouble_t eff = CalculateEfficiency(kFALSE);
+			if(rundata->nbeam[i].GetNominal() != 0 && eff.GetNominal() != 0) {
+				rundata->yield[i] =
+					nrecoil / rundata->nbeam[i] / eff / livetime / rundata->trans_corr;
+			}
 		}
-	}
+	} catch (RunData*) {
+		null_rundata(rundata);
+	}	
 }
 
 void dragon::BeamNorm::BatchCalculate(TChain* chain, Int_t chargeBeam, Double_t pkLow0, Double_t pkHigh0,
@@ -1091,6 +1104,14 @@ void dragon::BeamNorm::BatchCalculate(TChain* chain, Int_t chargeBeam, Double_t 
 
 void dragon::BeamNorm::CorrectTransmission(Int_t reference)
 {
+	///
+	/// Corrects the `yield` and `nbeam` values for each run such that the transmission matches
+	/// the reference run.
+	///
+	/// \param reference Run number of the reference run.
+	/// \todo Change `nbeam` to `nbeam_fc4` and `nbeam_fc1` or something like that becuse now it's
+	/// confusing to change both yield and nbeam and not explicit enough what's going on.
+	///
 	RunData* refData = GetRunData(reference);
 	if(!refData) {
 		std::cerr << "Coundn't find run data for reference run " << reference << "\n";
