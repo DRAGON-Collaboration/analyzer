@@ -686,16 +686,20 @@ TGraph* dragon::RossumData::PlotTransmission(Int_t* runs, Int_t nruns)
 // ============ Class dragon::BeamNorm ============ //
 
 dragon::BeamNorm::BeamNorm():
-	fRossum(0)
+	fRossum(0), fRunDataTree("t_rundata", "")
 {
-	;
+	fRunDataTree.SetMarkerStyle(21);
+	fRunDataTree.Branch("rundata", "dragon::BeamNorm::RunData", &fRunDataBranchAddr);
 }
 
 dragon::BeamNorm::BeamNorm(const char* name, const char* rossumFile):
-	fRossum(0)
+	fRossum(0), fRunDataTree("t_rundata", "")
 {
 	SetNameTitle(name, rossumFile);
 	ChangeRossumFile(rossumFile);
+
+	fRunDataTree.SetMarkerStyle(21);
+	fRunDataTree.Branch("rundata", "dragon::BeamNorm::RunData", &fRunDataBranchAddr);
 }
 
 void dragon::BeamNorm::ChangeRossumFile(const char* name)
@@ -813,13 +817,7 @@ Int_t dragon::BeamNorm::ReadSbCounts(TFile* datafile, Double_t pkLow0, Double_t 
 		}
 	}
 
-	RunData* rundata = GetRunData(runnum);
-	if(!rundata) {
-		RunData ddd;
-		fRunData.insert(std::make_pair(runnum, ddd));
-		rundata = GetRunData(runnum);
-	}
-	assert(rundata);
+	RunData* rundata = GetOrCreateRunData(runnum);
 
 	rundata->time = time;
 	for(int i=0; i< NSB; ++i) {
@@ -846,14 +844,7 @@ void dragon::BeamNorm::ReadFC4(Int_t runnum, Double_t skipBegin, Double_t skipEn
 		return;
 	}
 
-	RunData* rundata = GetRunData(runnum);
-	if(!rundata) {
-		RunData ddd;
-		fRunData.insert(std::make_pair(runnum, ddd));
-		rundata = GetRunData(runnum);
-	}
-	assert(rundata);
-
+	RunData* rundata = GetOrCreateRunData(runnum);
 	for(int i=0; i< 3; ++i) {
 		rundata->fc4[i] = fRossum->AverageCurrent(runnum, 0, i, skipBegin, skipEnd);
 	}
@@ -889,6 +880,23 @@ dragon::BeamNorm::RunData* dragon::BeamNorm::GetRunData(Int_t runnum)
 {
 	std::map<Int_t, RunData>::iterator i = fRunData.find(runnum);
 	return i == fRunData.end() ? 0 : &(i->second);
+}
+
+dragon::BeamNorm::RunData* dragon::BeamNorm::GetOrCreateRunData(Int_t runnum)
+{
+	RunData* rundata = GetRunData(runnum);
+	if(!rundata) { // Doesn't exist yet, create
+		RunData ddd;
+		ddd.runnum = runnum;
+		fRunData.insert(std::make_pair(runnum, ddd));
+		rundata = GetRunData(runnum);
+
+		fRunDataBranchAddr = rundata;
+		if(fRunDataTree.GetListOfBranches()->GetEntries() == 0) {
+			fRunDataTree.Branch("rundata", "dragon::BeamNorm::RunData", &fRunDataBranchAddr);
+		}
+	}
+	return rundata;
 }
 
 std::vector<Int_t>& dragon::BeamNorm::GetRuns() const
@@ -962,44 +970,6 @@ TGraph* dragon::BeamNorm::Plot(const char* param, Marker_t marker, Color_t marke
 	return gr;
 }	
 
-void dragon::BeamNorm::Print(const char* param1, const char* param2, const char* param3, const char* param4,
-														 const char* param5, const char* param6, const char* param7, const char* param8,
-														 const char* param9, const char* param10,const char* param11,const char* param12)
-{
-	// std::vector<std::string> par;
-	// if(param1)  par.push_back(param1);
-	// if(param2)  par.push_back(param2);
-	// if(param3)  par.push_back(param3);
-	// if(param4)  par.push_back(param4);
-	// if(param5)  par.push_back(param5);
-	// if(param6)  par.push_back(param6);
-	// if(param7)  par.push_back(param7);
-	// if(param8)  par.push_back(param8);
-	// if(param9)  par.push_back(param9);
-	// if(param10) par.push_back(param10);
-	// if(param11) par.push_back(param11);
-	// if(param12) par.push_back(param12);
-
-	// std::vector<Double_t> runnum;
-	// std::vector<std::vector<UDouble_t> > parval;
-	// for(size_t i=0; i< par.size(); ++i) {
-	// 	std::vector<Double_t> runnum0, parval0;
-	// 	GetParams(par[i].c_str(), &runnum0, &parval0);
-	// 	if(runnum0.size()) {
-	// 		if(runnum.empty()) runnum = runnum0;
-	// 		parval.push_back(parval0);
-	// 	}
-	// }
-
-	// for(size_t i=0; i< runnum.size(); ++i) {
-	// 	std::cout << runnum.at(i);
-	// 	for(size_t j=0; j< parval.size(); ++j) {
-	// 		std::cout << "\t" << parval.at(j).at(i);
-	// 	}
-	// 	std::cout << "\n";
-	// }
-}
-
 namespace {
 void null_rundata(dragon::BeamNorm::RunData* rundata) {
 	if(!rundata) return;
@@ -1052,14 +1022,7 @@ void dragon::BeamNorm::CalculateRecoils(TFile* datafile, const char* treename, c
 
 	UDouble_t nrecoil (t->GetPlayer()->GetEntries(gate));
 
-	RunData* rundata = GetRunData(runnum);
-	if(!rundata) {
-		RunData ddd;
-		fRunData.insert(std::make_pair(runnum, ddd));
-		rundata = GetRunData(runnum);
-	}
-	assert(rundata);
-
+	RunData* rundata = GetOrCreateRunData(runnum);
 	try {
 		const UDouble_t& livetime = get_livetime(treename, rundata);
 		rundata->nrecoil = nrecoil;
@@ -1073,6 +1036,22 @@ void dragon::BeamNorm::CalculateRecoils(TFile* datafile, const char* treename, c
 	} catch (RunData*) {
 		null_rundata(rundata);
 	}	
+}
+
+Long64_t dragon::BeamNorm::Draw(const char* varexp, const char* selection, Option_t* option,
+																Long64_t nentries, Long64_t firstentry)
+{
+	//
+	// Fill tree w/ latest data (circular)
+	fRunDataTree.SetCircular(fRunData.size());
+	for(std::map<Int_t, RunData>::iterator it = fRunData.begin();
+			it != fRunData.end(); ++it) {
+		fRunDataBranchAddr = &(it->second);
+		fRunDataTree.Fill();
+	}
+
+	// Then draw from tree
+	fRunDataTree.Draw(varexp, selection, option, nentries, firstentry);
 }
 
 void dragon::BeamNorm::BatchCalculate(TChain* chain, Int_t chargeBeam, Double_t pkLow0, Double_t pkHigh0,
@@ -1402,11 +1381,12 @@ void dragon::LiveTimeCalculator::DoCalculate(Double_t tbegin, Double_t tend)
 	}
 
 	// Initialize midas database, TTrees, etc
-	CoincBusytime coincBusy;
 	midas::Database* db = 0;
 	TTree* trees[2] = { 0, 0 };
 	if(!CheckFile(trees[0], trees[1], db)) // CheckFile now sets trees[i], db if they're valid
 		return;
+	size_t nentries = trees[0]->GetEntries() + trees[1]->GetEntries();
+	CoincBusytime coincBusy(nentries);
 
 	// Ensure to reset branch addresses when done
 	AutoResetBranchAddresses Rst_(trees, 2);
@@ -1557,6 +1537,17 @@ inline AccumulateBusy::Output_t AccumulateBusy::operator()
 	return out;
 } }
 
+dragon::CoincBusytime::CoincBusytime(size_t reserve):
+	fIsSorted(false)
+{
+	///
+	/// \param reserve If nonzero, reserve memory space for this many events
+	/// (calls std::vector::reserve()).
+
+	if(reserve) fEvents.reserve(reserve);
+}
+
+
 void dragon::CoincBusytime::AddEvent(Double_t trigger, Double_t busy)
 {
 	///
@@ -1565,9 +1556,15 @@ void dragon::CoincBusytime::AddEvent(Double_t trigger, Double_t busy)
  
 	fIsSorted = false;
 	dragon::CoincBusytime::Event evt(trigger, busy);
-	fEvents.push_back(evt);
+	try {
+		fEvents.push_back(evt);
+	} catch (std::bad_alloc& err) {
+		utils::Error("CoincBusytime::AddEvent")
+			<< "Failed to allocate memory for event: trigger, busy = "
+			<< trigger << ", " << busy;
+		throw err;
+	}
 }
-
 
 void dragon::CoincBusytime::Sort()
 {

@@ -7,7 +7,6 @@
 #ifndef DRAGON_ROOT_ANALYSIS_HEADER
 #define DRAGON_ROOT_ANALYSIS_HEADER
 #include <map>
-#include <map>
 #include <memory>
 #include <fstream>
 #include <iostream>
@@ -261,38 +260,40 @@ class BeamNorm: public TNamed {
 public:
 	/// Summarizes relevant normalization data for a run
 	struct RunData {
+		/// The run number
+		Int_t runnum; // run numner
 		/// Time of sb readings (how many sec used for normalization)
-		Double_t time;
+		Double_t time; // sb read time
 		/// Number of surface barrier counts in _time_, per detector
-		UDouble_t sb_counts[dragon::SurfaceBarrier::MAX_CHANNELS];
+		UDouble_t sb_counts[dragon::SurfaceBarrier::MAX_CHANNELS]; // sb counts for norm period
 		/// Number of sb counts in the whole run
-		UDouble_t sb_counts_full[dragon::SurfaceBarrier::MAX_CHANNELS];
+		UDouble_t sb_counts_full[dragon::SurfaceBarrier::MAX_CHANNELS]; // sb counts whole run
 		/// Live time in _time_ used for SB normalization
-		UDouble_t live_time;
+		UDouble_t live_time; // live time in norm period
 		/// Tail live time across the whole run
-		UDouble_t live_time_tail;
+		UDouble_t live_time_tail; // live time for tail, whole run
 		/// Head live time across the whole run
-		UDouble_t live_time_head;
+		UDouble_t live_time_head; // live time for head, whole run
 		/// Coinc live time across the whole run
-		UDouble_t live_time_coinc;
+		UDouble_t live_time_coinc; // live time for coinc, whole run
 		/// Average pressure in sb_time
-		UDouble_t pressure;
+		UDouble_t pressure; // avg. pressure in sb norm period
 		/// Average pressure across the whole run
-		UDouble_t pressure_full;
+		UDouble_t pressure_full; // avg. pressure for whole run
 		/// FC4 current, per iteration
-		UDouble_t fc4[3];
+		UDouble_t fc4[3]; // fc4 current, per reading (proceeding run)
 		/// FC1 current
-		UDouble_t fc1;
+		UDouble_t fc1; // fc1 current proceeding run
 		/// Transmission correction
-		UDouble_t trans_corr;
+		UDouble_t trans_corr; // transmission correction
 		/// Normalization factor `R`, per sb detector
-		UDouble_t sbnorm[dragon::SurfaceBarrier::MAX_CHANNELS];
+		UDouble_t sbnorm[dragon::SurfaceBarrier::MAX_CHANNELS]; // R-factor
 		/// Total integrated beam particles for the run
-		UDouble_t nbeam[dragon::SurfaceBarrier::MAX_CHANNELS];
+		UDouble_t nbeam[dragon::SurfaceBarrier::MAX_CHANNELS]; // number of incoming beam
 		/// Number of recoils
-		UDouble_t nrecoil;
+		UDouble_t nrecoil; // number of detected recoils
 		/// Yield, per SB norm
-		UDouble_t yield[dragon::SurfaceBarrier::MAX_CHANNELS];
+		UDouble_t yield[dragon::SurfaceBarrier::MAX_CHANNELS]; // yield
 		/// Set defaults
 		RunData(): time(0), live_time(0), live_time_tail(0), pressure(0), pressure_full(0), trans_corr(1,0)
 			{
@@ -344,11 +345,10 @@ public:
 	std::vector<Int_t>& GetRuns() const;
 	/// Plot some parameter as a function of run number
 	TGraph* Plot(const char* param, Marker_t marker = 21, Color_t markerColor = kBlack);
-	/// Print parameters vs run number
-	void Print(const char* param1,     const char* param2 = 0, const char* param3 = 0, const char* param4 = 0,
-						 const char* param5 = 0, const char* param6 = 0, const char* param7 = 0, const char* param8 = 0,
-						 const char* param9 = 0, const char* param10= 0, const char* param11= 0, const char* param12= 0);
-
+	/// Draw run data information
+	Long64_t Draw(const char* varexp, const char* selection = "", Option_t* option = "",
+								Long64_t nentries = 1000000000, Long64_t firstentry = 0);
+	///
 	UDouble_t GetEfficiency(const char* name) const
 		{
 			std::map<std::string, UDouble_t>::const_iterator i = fEfficiencies.find(name);
@@ -362,12 +362,17 @@ public:
 	UDouble_t CalculateYield(Int_t whichSb, Bool_t print = kTRUE);
 
 private:
+	/// Private GetRunData(), creates new if it's not made
+	RunData* GetOrCreateRunData(Int_t runnum);
 	Bool_t HaveRossumFile() { return fRossum.get(); }
 	void GetParams(const char* param, std::vector<Double_t> *runnum, std::vector<UDouble_t> *parval);
 	BeamNorm(const BeamNorm&) { }
 	BeamNorm& operator= (const BeamNorm&) { return *this; }
 
+public:
+	TTree fRunDataTree;
 private:
+	RunData* fRunDataBranchAddr;
 	std::map<Int_t, RunData> fRunData;
 	dragon::utils::AutoPtr<RossumData> fRossum;
 	std::map<std::string, UDouble_t> fEfficiencies;
@@ -587,20 +592,26 @@ public:
 		static Bool_t TriggerCompare(const Event& lhs, const Event rhs)
 			{	return lhs.fTrigger < rhs.fTrigger;	}
 	};
+
 public:	
 	/// Set flag specifying that events are not yet sorted by trigger time
-	CoincBusytime(): fIsSorted(false) { }
+	CoincBusytime(size_t reserve = 0);
 	/// Insert event into the colletion of triggered events
 	void AddEvent(Double_t trigger, Double_t busy);
 	/// Calculate the total time during which the head or tail is busy
 	Double_t Calculate(); // seconds
+
 private:
 	/// Sort events by the trigger time.
 	void Sort();
+
+public:
+		/// Type of the event collection
+	typedef std::vector<Event> Container_t;
+
 private:
-	typedef std::vector<Event> Vector_t;
 	/// Collection of triggered events
-	Vector_t fEvents;
+	Container_t fEvents;
 	/// Flag specifying whether or not events are sorted
 	Bool_t fIsSorted;
 };
