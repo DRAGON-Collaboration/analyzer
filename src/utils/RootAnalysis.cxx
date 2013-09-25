@@ -22,6 +22,7 @@
 #include <TTreeFormula.h>
 
 #include "midas/Database.hxx"
+#include "utils/Functions.hxx"
 #include "Dragon.hxx"
 #include "Constants.hxx"
 #include "ErrorDragon.hxx"
@@ -648,9 +649,9 @@ UDouble_t dragon::RossumData::AverageCurrent(Int_t run, Int_t cup, Int_t iterati
 	const std::vector<Double_t>::iterator lastCurrent = 
 		current.begin() + diffLast;
 
-	Double_t avg = TMath::Mean(current.begin(), lastCurrent);
-	Double_t rms = TMath::RMS (current.begin(), lastCurrent); // actually std dev
-	return UDouble_t(avg, rms);
+	Double_t avg = utils::calculate_mean(current.begin(), lastCurrent);
+	Double_t stddev = utils::calculate_stddev(current.begin(), lastCurrent, avg);
+	return UDouble_t(avg, stddev);
 }
 
 void dragon::RossumData::ListTrees() const
@@ -823,11 +824,21 @@ Int_t dragon::BeamNorm::ReadSbCounts(TFile* datafile, Double_t pkLow0, Double_t 
 		rundata->sb_counts[i] = UDouble_t(ncounts[i]);
 		rundata->sb_counts_full[i] = UDouble_t(ncounts_full[i]);
 	}
-	rundata->pressure =
-		UDouble_t (TMath::Mean(t1, &pressure[0]), TMath::RMS(t1, &pressure[0]));
-	rundata->pressure_full =
-		UDouble_t (TMath::Mean(pressure.size(), &pressure[0]), TMath::RMS(pressure.size(), &pressure[0]));
-
+	//
+	// Pressure over SB norm time
+	{
+		const Double_t pressureMean = utils::calculate_mean(pressure.begin(), pressure.begin() + t1);
+		const Double_t pressureSigma = utils::calculate_stddev(pressure.begin(), pressure.begin() + t1, pressureMean);
+		rundata->pressure = UDouble_t (pressureMean, pressureSigma);
+	}
+	//
+	// Pressure over full run
+	{
+		const Double_t pressureMean = utils::calculate_mean(pressure.begin(), pressure.end());
+		const Double_t pressureSigma = utils::calculate_stddev(pressure.begin(), pressure.end(), pressureMean);
+		rundata->pressure_full = UDouble_t (pressureMean, pressureSigma);
+	}
+	
 	rundata->live_time = live;
 	rundata->live_time_head  = live_full[0];
 	rundata->live_time_tail  = live_full[1];
@@ -1154,8 +1165,7 @@ UDouble_t dragon::BeamNorm::CalculateYield(Int_t whichSb, Bool_t print)
 
 	UDouble_t eff = CalculateEfficiency(kFALSE);
 	UDouble_t out = recoil / beam / eff;
-
-	Double_t liveAvg = TMath::Mean(liveV.size(), &liveV[0], &recoilV[0]);
+	Double_t liveAvg = utils::calculate_weighted_mean(liveV.begin(), liveV.end(), recoilV.begin());
 
 	if(print) {
 		std::cout << "Beam:            \t" << beam   << "\n"
