@@ -159,11 +159,10 @@ int32_t vme::V1190::get_data(int16_t ch) const
 	 */
 
 	if (ch >= 0 && ch < MAX_CHANNELS) {
-		try {
-			return channel[ch].fLeading.at(0);
-		} catch(std::exception& e) {
+		if(!channel[ch].fLeading.empty())
+			return channel[ch].fLeading[0];
+		else
 			return dragon::DR_NO_DATA;
-		}
 	}
 	else {
 		dragon::utils::Warning("V1190::get_data")
