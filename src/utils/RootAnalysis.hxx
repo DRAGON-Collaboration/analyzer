@@ -365,7 +365,7 @@ private:
 	/// Private GetRunData(), creates new if it's not made
 	RunData* GetOrCreateRunData(Int_t runnum);
 	Bool_t HaveRossumFile() { return fRossum.get(); }
-	void GetParams(const char* param, std::vector<Double_t> *runnum, std::vector<UDouble_t> *parval);
+	UInt_t GetParams(const char* param, std::vector<Double_t> *runnum, std::vector<UDouble_t> *parval);
 	BeamNorm(const BeamNorm&) { }
 	BeamNorm& operator= (const BeamNorm&) { return *this; }
 

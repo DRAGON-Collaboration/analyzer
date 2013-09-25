@@ -792,7 +792,6 @@ Int_t dragon::BeamNorm::ReadSbCounts(TFile* datafile, Double_t pkLow0, Double_t 
 
 	UDouble_t live, live_full[3]; // [3]: head,tail,coinc
 	{
-		///\bug Live times have wrong error!! (MAYBE....)
 		dragon::LiveTimeCalculator ltc;
 		ltc.SetFile(datafile);
 		ltc.CalculateSub(0, time);
@@ -909,40 +908,47 @@ std::vector<Int_t>& dragon::BeamNorm::GetRuns() const
 	return runs;
 }
 
-
-namespace {
-void parse_param(const std::string& param, std::string& par0, int& indx)
+UInt_t dragon::BeamNorm::GetParams(const char* param, std::vector<Double_t> *runnum, std::vector<UDouble_t> *parval)
 {
-	size_t fpos = param.find("[");
-	par0 = fpos < param.size() ? param.substr(0, fpos) : param;
-	indx = fpos < param.size() ? atoi(param.substr(fpos+1).c_str()) : 0;
-} }
-
-
-void dragon::BeamNorm::GetParams(const char* param, std::vector<Double_t> *runnum, std::vector<UDouble_t> *parval)
-{
-	runnum->clear();
-	parval->clear();
-	for(std::map<Int_t, RunData>::iterator it = fRunData.begin(); it != fRunData.end(); ++it) {
-		RunData* rundata = &(it->second);
-		
-		std::string par0;
-		int indx;
-		parse_param(param, par0, indx);
-		TDataMember* member = TClass::GetClass("dragon::BeamNorm::RunData")->GetDataMember(par0.c_str());
-		if(!member || std::string(param) == "time") {
-			std::cerr << "Invalid parameter: \"" << param << "\".\n";
-			break;
-		}
-
-		Long_t offset = member->GetOffset();
-		offset += indx*sizeof(UDouble_t);
-		offset += (Long_t)rundata;
-		UDouble_t* pdata = (UDouble_t*)offset;
-
-		runnum->push_back(it->first);
-		parval->push_back(*pdata);
+	TTreeFormula formula("formula", param, &fRunDataTree);
+	if(formula.GetNdim() == 0) return 0;
+	TLeaf* leaf = formula.GetLeaf(0);
+	if(!leaf) return 0;
+	
+	TString form = param, form1, form2;
+	if(!strcmp(leaf->GetTypeName(), "UDouble_t")) {
+		form1 = form2 = param;
+		form  += ".GetNominal()";
+		form1 += ".GetErrLow()";
+		form2 += ".GetErrHigh()";
 	}
+	 
+	std::vector<Double_t> central, low, high;
+	
+	this->Draw("runnum", "", "goff");
+	for(Int_t i=0; i< fRunDataTree.GetEntries(); ++i)
+		runnum->push_back(fRunDataTree.GetV1()[i]);
+
+	this->Draw(form, "", "goff");
+	for(Int_t i=0; i< fRunDataTree.GetEntries(); ++i)
+		central.push_back(fRunDataTree.GetV1()[i]);
+
+	if(form1.IsNull() == 0) {
+		this->Draw(Form("%s:%s", form1.Data(), form2.Data()), "", "goff");
+		for(Int_t i=0; i< fRunDataTree.GetEntries(); ++i) {
+			low.push_back(fRunDataTree.GetV1()[i]);
+			high.push_back(fRunDataTree.GetV2()[i]);
+		}
+	} else {
+		for(Int_t i=0; i< fRunDataTree.GetEntries(); ++i) {
+			low.push_back(0);
+			high.push_back(0);
+		}
+	}
+	for(Int_t i=0; i< fRunDataTree.GetEntries(); ++i)
+		parval->push_back(UDouble_t(central[i], low[i], high[i]));
+	
+	return runnum->size();
 }
 
 TGraph* dragon::BeamNorm::Plot(const char* param, Marker_t marker, Color_t markerColor)
@@ -955,13 +961,13 @@ TGraph* dragon::BeamNorm::Plot(const char* param, Marker_t marker, Color_t marke
 	///  user to delete this. In case of error, returns 0.
 	/// 
 	///  Also draws the returned TGraph in its own window.
-
+	
 	TGraphAsymmErrors* gr = 0;
 	std::vector<Double_t>  runnum;
 	std::vector<UDouble_t> parval;
-	GetParams(param, &runnum, &parval);
+	UInt_t npar = GetParams(param, &runnum, &parval);
 	
-	if(runnum.size()) {
+	if(npar) {
 		gr = PlotUncertainties(runnum.size(), &runnum[0], &parval[0]);
 		gr->SetMarkerStyle(marker);
 		gr->SetMarkerColor(markerColor);
