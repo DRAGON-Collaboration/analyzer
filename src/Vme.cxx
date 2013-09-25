@@ -92,7 +92,35 @@ namespace { inline void reset_channel(vme::V1190::Channel* channel)
 	channel->ntrailing = 0;
 	channel->fLeading.clear();
 	channel->fTrailing.clear();
-} }	
+}
+
+template <class T> class hitmatch {
+public:
+	hitmatch(const T& t, int16_t n):
+		fN(n), fT(t) { }
+	bool operator()(const T& t)
+		{ return t == fT && fN-- == 0; }
+private:
+	T fT;
+	int16_t fN;
+};
+
+template <class ch_t, class hit_t, class vch_t, class vmeas_t>
+int32_t find_hit(ch_t ch, hit_t hit, const vch_t& vch, const vmeas_t& vmeas) {
+	typename vch_t::const_iterator ich =
+		std::find_if (vch.begin(), vch.end(), hitmatch<ch_t> (ch, hit));
+	return ich != vch.end() ? *(vmeas.begin() + (ich - vch.begin())) : -1;
+} }
+
+int32_t vme::V1190::get_leading(int16_t ch, int16_t hit) const
+{
+	return find_hit(ch, hit, fifo0.channel, fifo0.measurement);
+}
+
+int32_t vme::V1190::get_trailing(int16_t ch, int16_t hit) const
+{
+	return find_hit(ch, hit, fifo1.channel, fifo1.measurement);
+}
 
 void vme::V1190::Fifo::push_back(int32_t measurement_, int16_t channel_, int16_t number_)
 {
