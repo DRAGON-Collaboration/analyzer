@@ -105,9 +105,9 @@ public: // Methods
 	/// Get a data value, with bounds checking
 	int32_t get_data(int16_t ch) const;
 	/// Find leading edge hit
-	int32_t get_leading(int16_t ch, int16_t hit) const;
+	int32_t get_leading(int16_t ch, int16_t hit = 0) const;
 	/// Find trailing edge hit
-	int32_t get_trailing(int16_t ch, int16_t hit) const;
+	int32_t get_trailing(int16_t ch, int16_t hit = 0) const;
 
 public: // Data
   /// Number of channels present in an event
