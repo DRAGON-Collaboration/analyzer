@@ -1068,7 +1068,7 @@ Long64_t dragon::BeamNorm::Draw(const char* varexp, const char* selection, Optio
 	}
 
 	// Then draw from tree
-	fRunDataTree.Draw(varexp, selection, option, nentries, firstentry);
+	return fRunDataTree.Draw(varexp, selection, option, nentries, firstentry);
 }
 
 void dragon::BeamNorm::BatchCalculate(TChain* chain, Int_t chargeBeam, Double_t pkLow0, Double_t pkHigh0,
