@@ -606,6 +606,7 @@ int main_(int argc, char** argv)
 	//
 	// Close output file
 	fout.Close();
+	return 0;
 }
 
 } // namespace m2r
