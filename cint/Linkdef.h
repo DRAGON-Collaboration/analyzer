@@ -39,8 +39,10 @@
 #pragma link C++ defined_in ../src/Dragon.hxx;
 #pragma link C++ defined_in ../src/utils/VariableStructs.hxx;
 
+class TH1;
 class TTree;
-#pragma link C++ function dragon::Scaler::set_aliases(TTree*, const char*);
+#pragma link C++ function dragon::Scaler::plot<TTree, TH1>(TTree*, const char*, const char*, Option_t*);
+#pragma link C++ function dragon::Scaler::set_aliases(TTree*, Bool_t);
 #pragma link C++ function dragon::Epics::set_aliases(TTree*);
 
 #pragma link C++ class midas::Event::Header+;

@@ -7,12 +7,12 @@
 #ifndef DRAGON_ROOT_ANALYSIS_HEADER
 #define DRAGON_ROOT_ANALYSIS_HEADER
 #include <map>
-#include <map>
 #include <memory>
 #include <fstream>
 #include <iostream>
 #include <algorithm>
 
+#include <TH1.h>
 #include <TCut.h>
 #include <TROOT.h>
 #include <TChain.h>
@@ -42,7 +42,6 @@ void MakeChains(const std::vector<Int_t>& runnumbers, const char* format = "$DH/
 void FriendChain(TChain* chain, const char* friend_name, const char* friend_alias,
 								 const char* format = "$DH/rootfiles/run%d.root",
 								 const char* friend_format = "$DH/rootfiles/run%d_dsssd_recal.root");
-
 
 /// Filters TChains (or TTrees) based on cut conditions.
 /*!
@@ -261,36 +260,42 @@ class BeamNorm: public TNamed {
 public:
 	/// Summarizes relevant normalization data for a run
 	struct RunData {
+		/// The run number
+		Int_t runnum; // run numner
 		/// Time of sb readings (how many sec used for normalization)
-		Double_t time;
+		Double_t time; // sb read time
 		/// Number of surface barrier counts in _time_, per detector
-		UDouble_t sb_counts[dragon::SurfaceBarrier::MAX_CHANNELS];
+		UDouble_t sb_counts[dragon::SurfaceBarrier::MAX_CHANNELS]; // sb counts for norm period
 		/// Number of sb counts in the whole run
-		UDouble_t sb_counts_full[dragon::SurfaceBarrier::MAX_CHANNELS];
-		/// Live time in _time_
-		UDouble_t live_time;
-		/// Live time across the whole run
-		UDouble_t live_time_full;
+		UDouble_t sb_counts_full[dragon::SurfaceBarrier::MAX_CHANNELS]; // sb counts whole run
+		/// Live time in _time_ used for SB normalization
+		UDouble_t live_time; // live time in norm period
+		/// Tail live time across the whole run
+		UDouble_t live_time_tail; // live time for tail, whole run
+		/// Head live time across the whole run
+		UDouble_t live_time_head; // live time for head, whole run
+		/// Coinc live time across the whole run
+		UDouble_t live_time_coinc; // live time for coinc, whole run
 		/// Average pressure in sb_time
-		UDouble_t pressure;
+		UDouble_t pressure; // avg. pressure in sb norm period
 		/// Average pressure across the whole run
-		UDouble_t pressure_full;
+		UDouble_t pressure_full; // avg. pressure for whole run
 		/// FC4 current, per iteration
-		UDouble_t fc4[3];
+		UDouble_t fc4[3]; // fc4 current, per reading (proceeding run)
 		/// FC1 current
-		UDouble_t fc1;
+		UDouble_t fc1; // fc1 current proceeding run
 		/// Transmission correction
-		UDouble_t trans_corr;
+		UDouble_t trans_corr; // transmission correction
 		/// Normalization factor `R`, per sb detector
-		UDouble_t sbnorm[dragon::SurfaceBarrier::MAX_CHANNELS];
+		UDouble_t sbnorm[dragon::SurfaceBarrier::MAX_CHANNELS]; // R-factor
 		/// Total integrated beam particles for the run
-		UDouble_t nbeam[dragon::SurfaceBarrier::MAX_CHANNELS];
+		UDouble_t nbeam[dragon::SurfaceBarrier::MAX_CHANNELS]; // number of incoming beam
 		/// Number of recoils
-		UDouble_t nrecoil;
+		UDouble_t nrecoil; // number of detected recoils
 		/// Yield, per SB norm
-		UDouble_t yield[dragon::SurfaceBarrier::MAX_CHANNELS];
+		UDouble_t yield[dragon::SurfaceBarrier::MAX_CHANNELS]; // yield
 		/// Set defaults
-		RunData(): time(0), live_time(0), live_time_full(0), pressure(0), pressure_full(0), trans_corr(1,0)
+		RunData(): time(0), live_time(0), live_time_tail(0), pressure(0), pressure_full(0), trans_corr(1,0)
 			{
 				std::fill_n(sb_counts,      dragon::SurfaceBarrier::MAX_CHANNELS, UDouble_t(0));
 				std::fill_n(sb_counts_full, dragon::SurfaceBarrier::MAX_CHANNELS, UDouble_t(0));
@@ -340,11 +345,10 @@ public:
 	std::vector<Int_t>& GetRuns() const;
 	/// Plot some parameter as a function of run number
 	TGraph* Plot(const char* param, Marker_t marker = 21, Color_t markerColor = kBlack);
-	/// Print parameters vs run number
-	void Print(const char* param1,     const char* param2 = 0, const char* param3 = 0, const char* param4 = 0,
-						 const char* param5 = 0, const char* param6 = 0, const char* param7 = 0, const char* param8 = 0,
-						 const char* param9 = 0, const char* param10= 0, const char* param11= 0, const char* param12= 0);
-
+	/// Draw run data information
+	Long64_t Draw(const char* varexp, const char* selection = "", Option_t* option = "",
+								Long64_t nentries = 1000000000, Long64_t firstentry = 0);
+	///
 	UDouble_t GetEfficiency(const char* name) const
 		{
 			std::map<std::string, UDouble_t>::const_iterator i = fEfficiencies.find(name);
@@ -352,17 +356,23 @@ public:
 		}
 	void SetEfficiency(const char* name, UDouble_t value) { fEfficiencies[name] = value; }
 	void SetEfficiency(const char* name, Double_t value)  { fEfficiencies[name] = UDouble_t(value, 0); }
+	/// Correct for FC4->FC1 transmission changes relative to a single "good" run
 	void CorrectTransmission(Int_t reference);
 	UDouble_t CalculateEfficiency(Bool_t print = kTRUE);
 	UDouble_t CalculateYield(Int_t whichSb, Bool_t print = kTRUE);
 
 private:
+	/// Private GetRunData(), creates new if it's not made
+	RunData* GetOrCreateRunData(Int_t runnum);
 	Bool_t HaveRossumFile() { return fRossum.get(); }
-	void GetParams(const char* param, std::vector<Double_t> *runnum, std::vector<UDouble_t> *parval);
+	UInt_t GetParams(const char* param, std::vector<Double_t> *runnum, std::vector<UDouble_t> *parval);
 	BeamNorm(const BeamNorm&) { }
 	BeamNorm& operator= (const BeamNorm&) { return *this; }
 
+public:
+	TTree fRunDataTree;
 private:
+	RunData* fRunDataBranchAddr;
 	std::map<Int_t, RunData> fRunData;
 	dragon::utils::AutoPtr<RossumData> fRossum;
 	std::map<std::string, UDouble_t> fEfficiencies;
@@ -471,28 +481,139 @@ private:
 
 
 /// Live time calculator
+/*!
+ * Calculates the live time by looking at the measured
+ * run time (with the IO32 clock, so 50 ns precision) and
+ * sum of measured busy times for each event. The live time is
+ * defined as:
+ *      (<run time> - <busy time>) / <run time>
+ * 
+ * Calculations can be performed for a complete run, subset of a
+ * run or a chain of runs. This class also calculates the live
+ * time for coincidences. For more information about how this is
+ * done, see the dragon::CoincBusytime class documentation
+ */
 class LiveTimeCalculator {
 public:
+	/// Empty
 	LiveTimeCalculator();
-	LiveTimeCalculator(TFile* file);
+	/// Initialize with a run file and perform optional calculation
+	LiveTimeCalculator(TFile* file, Bool_t calculate = kTRUE);
+
+	/// Perform live time calculation across an entire run
 	void Calculate();
-	void CalculateChain(TChain* chain);
+	/// Perform live time calculation across a subset of the run
 	void CalculateSub(Double_t tbegin, Double_t tend);
-	Double_t GetBusytime(const char* which) const;
-	Double_t GetRuntime(const char*  which) const;
-	Double_t GetLivetime(const char* which) const;
+	/// Perform live time calculation across a chain of runs
+	void CalculateChain(TChain* chain);
+
+	/// Returns the sum of busy times during the run (or subrun) in seconds
+	Double_t GetBusytime(const char* which) const; // seconds
+	/// Returns the run time in seconds
+	Double_t GetRuntime (const char* which) const; // seconds
+	/// Returns the live time fraction
+	Double_t GetLivetime(const char* which) const; // fraction
+
+	/// \brief Returns the error on the livetime
+	/// \details The relative error should 
+	Double_t GetLivetimeError(const char* which) const
+		{ return GetLivetime(which) * 50/1e6; } // seconds
+
+	/// Reuturn pointer to the currently set run file
 	TFile* GetFile() const { return fFile; }
+	/// \brief Change the run file
+	/// \atention Does not clear previous calculations
 	void SetFile(TFile* file) { fFile = file; }
 
+	/// Reset all stored data (livetimes, etc.) to zero
+	void Reset();
+
+public:
+	/// Calculate the run time from saved ODB file
+	static Double_t CalculateRuntime(midas::Database* db, const char* which,
+																	 Double_t& start, Double_t& stop); // seconds (static function)
+	/// Calculate the run time from saved ODB file
+	static Double_t CalculateRuntime(midas::Database* db, const char* which) 
+		{ Double_t a,b; return CalculateRuntime(db, which, a, b); } // seconds (static function)
+
 private:
-	Bool_t CheckFile();
+	/// Make sure fFile is valid
+	Bool_t CheckFile(TTree*& t1, TTree*& t3, midas::Database*& db);
+	/// Does the work of live time calculations
 	void DoCalculate(Double_t tbegin, Double_t tend);
 
 private:
+	/// Run file (no ownership)
 	TFile* fFile;
-	Double_t fRuntime[2];
-	Double_t fBusytime[2];
+	/// Run times
+	Double_t fRuntime [3];
+	/// Busy times
+	Double_t fBusytime[3];
+	/// Live times
 	Double_t fLivetime[3];
+};
+
+/// Class to calculate total busy time for coincidence events
+/*!
+ * For coincidence events, the total busy time is the sum or times during which the head _or_
+ * tail DAQ is busy. Any genuine coincidence triggers arriving when either the head or tail is
+ * busy will not be marked as such. This covers all possible classes of lost coincidence events:
+ *   - Coincidences arriving when both the head and tail are busy: the trigger is simply not recorded.
+ *   - Coincidences arriving when either the head or is tail is busy but not the other: the coincidence
+ *     will be incorrectly marked as a singles event.
+ *   - Coincidences whose match window is interrupted by an uncorrelated singles event. For example, a 
+ *     capture reaction happens, triggers the BGOs and then uncorrelated leaky beam triggers the end
+ *     detector before the recoil gets there. This will still be marked as a coincidence event in the
+ *     analysis, but the head event will not be correlated with the correct tail one. Thus the _real_
+ *     coincidence has been lost, albeit to a false (random) coincidence.
+ *
+ * The coincidence dead time is then the sum the time during which the head or tail is busy divided by
+ * the "coincidence runtime", i.e. the time during which both the head and tail are accepting triggers.
+ *
+ * For information about how the busy time is calculated in practice, see the documentation on
+ * the Calculate() member funcion.
+ */
+class CoincBusytime {
+public:
+	/// Helper class to store relevant information about a triggered event.
+	class Event {
+ public:
+		/// Trigger time
+		Double_t fTrigger;
+		/// Busy time
+		Double_t fBusy;
+ public:
+		/// Initialize data
+		Event(Double_t trig = 0, Double_t busy = 0):
+			fTrigger(trig), fBusy(busy) { }
+		/// Calculate the end time of event processing (trigger + busy)
+		Double_t End() const { return fTrigger + fBusy; }
+		/// Compare two events by the _trigger_ time: `return lhs.fTrigger < rhs.fTrigger;`
+		static Bool_t TriggerCompare(const Event& lhs, const Event rhs)
+			{	return lhs.fTrigger < rhs.fTrigger;	}
+	};
+
+public:	
+	/// Set flag specifying that events are not yet sorted by trigger time
+	CoincBusytime(size_t reserve = 0);
+	/// Insert event into the colletion of triggered events
+	void AddEvent(Double_t trigger, Double_t busy);
+	/// Calculate the total time during which the head or tail is busy
+	Double_t Calculate(); // seconds
+
+private:
+	/// Sort events by the trigger time.
+	void Sort();
+
+public:
+		/// Type of the event collection
+	typedef std::vector<Event> Container_t;
+
+private:
+	/// Collection of triggered events
+	Container_t fEvents;
+	/// Flag specifying whether or not events are sorted
+	Bool_t fIsSorted;
 };
 
 
@@ -547,4 +668,4 @@ private:
 
 
 
-#endif // Include guard
+#endif

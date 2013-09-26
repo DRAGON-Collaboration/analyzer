@@ -166,10 +166,15 @@ $(SRC)/*.hxx
 
 
 ### DRAGON LIBRARY ###
+MID2ROOT_LIBS=-lDragon $(MIDASLIBS)
+
 MAKE_ALL=$(DRLIB)/libDragon.so $(PWD)/bin/mid2root
 ifeq ($(USE_ROOTBEER),YES)
 $(info ************  USE_ROOTBEER ************)
 MAKE_ALL+=$(PWD)/bin/rbdragon
+DEFINITIONS+=-DUSE_ROOTBEER
+MID2ROOT_LIBS+=-L$(PWD)/../../rootbeer/lib -lRootbeer
+MID2ROOT_INC=$(RBINC) 
 endif
 ifeq ($(USE_ROOTANA),YES)
 MAKE_ALL+=$(PWD)/bin/anaDragon
@@ -188,7 +193,7 @@ $(OBJECTS) $(DR_DICT) \
 
 mid2root: $(PWD)/bin/mid2root
 $(PWD)/bin/mid2root: src/mid2root.cxx $(DRLIB)/libDragon.so
-	$(LINK) -lDragon $(MIDASLIBS) $< \
+	$(LINK) $(MID2ROOT_INC) $(MID2ROOT_LIBS) $< \
 -o $@ \
 
 mid2root: $(PWD)/bin/mid2root
