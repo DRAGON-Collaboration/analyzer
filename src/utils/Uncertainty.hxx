@@ -2,6 +2,18 @@
 /// \file Uncertainty.hxx
 /// \brief Defines a class for storing and propagating gaussian uncertainties.
 ///
+/// \todo Rewrite the implementation of this class using TPython and ufloat package.
+/// Example:
+/// \code
+/// TPython python;
+/// python.Exec("from uncertainties import ufloat");
+/// python.Exec("u = ufloat((2, pow(2, 0.5)))");
+/// Double_t un = python.Eval("u.nominal_value");
+/// Double_t us = python.Eval("u.std_dev()");
+/// fNominal = un;
+/// fErr     = us;
+/// \endcode
+/// 
 #ifndef UNCERTAINTY_HXX
 #define UNCERTAINTY_HXX
 #include <iostream>
