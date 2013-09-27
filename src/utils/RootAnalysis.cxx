@@ -95,7 +95,7 @@ template <class T> void Zap(T*& t)
 } // namespace
 
 
-// ============ dragon::MakeChains ============ //
+// ============ namespace dragon Free Functions ============ //
 
 void dragon::MakeChains(const Int_t* runnumbers, Int_t nruns, const char* format)
 {
@@ -171,6 +171,15 @@ void dragon::FriendChain(TChain* chain, const char* friend_name, const char* fri
 	}
 
 	chain->AddFriend(friendchain, friend_alias, kTRUE);
+}
+
+TFile* dragon::OpenRun(int runnum, const char* format)
+{
+	TFile* f = TFile::Open(Form(format, runnum));
+	if(f && f->IsZombie() == kFALSE)
+		gROOT->ProcessLine(Form("TFile* frun%d = (TFile*)%p;", runnum, f));
+	else if (f) { f->Close(); f = 0; }
+	return f;
 }
 
 

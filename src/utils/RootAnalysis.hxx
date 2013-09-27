@@ -43,6 +43,9 @@ void FriendChain(TChain* chain, const char* friend_name, const char* friend_alia
 								 const char* format = "$DH/rootfiles/run%d.root",
 								 const char* friend_format = "$DH/rootfiles/run%d_dsssd_recal.root");
 
+/// Open a file just by run number
+TFile* OpenRun(int runnum, const char* format = "$DH/rootfiles/run%d.root");
+
 /// Filters TChains (or TTrees) based on cut conditions.
 /*!
  *  Example use:
