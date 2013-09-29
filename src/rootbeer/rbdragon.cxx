@@ -6,6 +6,7 @@
 #include <ctime>
 #include <cassert>
 
+#include <TSystem.h>
 #include <TFile.h>
 
 // ROOTBEER includes //
