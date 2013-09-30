@@ -1363,7 +1363,7 @@ Double_t dragon::LiveTimeCalculator::CalculateRuntime(midas::Database* db, const
 namespace {
 // fix for an early frontend bug where the tsc4 36-bit rollover counter
 // started from 1 instead of 0
-inline Double_t correct_rollover_fe_bug(TBranch* trigBranch, UInt_t trig_time)
+inline Double_t correct_rollover_fe_bug(TBranch* trigBranch, Double_t& trig_time)
 {
 	Double_t rollCorrect = 0;
 	const ULong_t roll36 = (ULong64_t)1<<36;
@@ -1372,13 +1372,15 @@ inline Double_t correct_rollover_fe_bug(TBranch* trigBranch, UInt_t trig_time)
 	if(trig_time >= roll36/20.) { // the bug was present
 		rollCorrect = roll36/20.; // microseconds
 
-		// This should only be present in files analyzed on jabberwock,
-		// so warn otherwise
+		// This should only be present in files analyzed on jabberwock, and part of the
+		// DAQ test, so warn otherwise
 		TString hostname = "$HOSTNAME1";
 		gSystem->ExpandPathName(hostname);
 		if(hostname.CompareTo("jabberwock.triumf.ca")) {
-			dragon::utils::Warning("DoCalculate")
-				<< "rollCorrect != 0 and host is not jabberwock!";
+			TString fname = trigBranch->GetTree()->GetDirectory()->GetName();
+			if(!fname.Contains("DAQ_test"))
+				dragon::utils::Warning("DoCalculate")
+					<< "rollCorrect != 0 and host is not jabberwock!";
 		}
 	}
 	
@@ -1404,12 +1406,20 @@ void dragon::LiveTimeCalculator::DoCalculate(Double_t tbegin, Double_t tend)
 			return;
 		}
 	}
+	if (!isFull && tend <= tbegin) {
+		utils::Error("LiveTimeCalculator::DoCalculate")
+			<< "Cannot have tend <= tbegin: tend, tbegin = " << tend << ", " << tbegin;
+		return;
+	}
 
 	// Initialize midas database, TTrees, etc
 	midas::Database* db = 0;
 	TTree* trees[2] = { 0, 0 };
-	if(!CheckFile(trees[0], trees[1], db)) // CheckFile now sets trees[i], db if they're valid
+	if(!CheckFile(trees[0], trees[1], db)) { // CheckFile now sets trees[i], db if they're valid
+		utils::Error("LiveTimeCalculator::DoCalculate")
+			<< "Invalid file or trees";
 		return;
+	}
 	size_t nentries = trees[0]->GetEntries() + trees[1]->GetEntries();
 	CoincBusytime coincBusy(nentries);
 
