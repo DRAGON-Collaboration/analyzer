@@ -22,8 +22,7 @@
 namespace midas {
 
 /// Typedef for a MIDAS bank name
-/*! \note Array of 4 `char`s, _not_ a null-terminated string. */
-typedef char Bank_t[4];
+typedef char Bank_t[5];
 
 /// Derived class of TMidasEvent for timestamped dragon events
 /*!

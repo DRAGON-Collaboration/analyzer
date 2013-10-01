@@ -175,6 +175,9 @@ void rbdragon::MidasBuffer::RunStopTransition(Int_t runnum)
 		dc->cd();
 	}
 
+	/// - Print delayed error messages
+	dragon::utils::gDelayedMessageFactory.Flush();
+
 	/// - Call parent class implementation (prints a message)
 	rb::MidasBuffer::RunStopTransition(runnum);
 }

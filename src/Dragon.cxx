@@ -897,6 +897,13 @@ bool dragon::Head::set_variables(const midas::Database* db)
 	if(success) success = bgo.variables.set(db);
 	if(success) success = this->variables.set(db);
 
+	if(success) {
+		dragon::utils::ChangeErrorIgnore dummy(9001);
+		int period = 0;
+		db->ReadValue("/dragon/errormessage/v1190/period", period);
+		v1190.fMessagePeriod = period;
+	}
+
 	return success;
 }
 
@@ -1158,6 +1165,13 @@ bool dragon::Tail::set_variables(const midas::Database* db)
 
 	if(success) success = this->variables.set(db);
 
+	if(success) {
+		dragon::utils::ChangeErrorIgnore dummy(9001);
+		int period = 0;
+		db->ReadValue("/dragon/errormessage/v1190/period", period);
+		v1190.fMessagePeriod = period;
+	}
+
 	return success;
 }
 
@@ -1383,9 +1397,9 @@ dragon::Coinc::Coinc()
 	reset();
 }
 
-dragon::Coinc::Coinc(const dragon::Head& head, const dragon::Tail& tail)
+dragon::Coinc::Coinc(const dragon::Head& head_, const dragon::Tail& tail_)
 {
-	compose_event(head, tail);
+	compose_event(head_, tail_);
 }
 
 void dragon::Coinc::reset()

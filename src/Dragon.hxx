@@ -693,11 +693,12 @@ public: // Subclasses
 		/// Time for which potential coincidence events are buffered [seconds].
 		double buffer_time;
 	};
+
 public: // Methods
 	/// Empty
 	Coinc();
 	/// Construct from a head and tail event
-	Coinc(const Head& head, const Tail& tail);
+	Coinc(const Head& head_, const Tail& tail_);
 	/// Reset all modules (set data to defaults)
 	void reset();
 	///  Reads all variable values from an database (file or online)
