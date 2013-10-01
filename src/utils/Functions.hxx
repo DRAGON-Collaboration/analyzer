@@ -11,7 +11,7 @@
 
 #ifndef __MAKECINT__
 #ifndef DOXYGEN_SKIP
-namespace midas { typedef char Bank_t[4]; }
+namespace midas { typedef char Bank_t[5]; }
 #endif
 #endif
 
@@ -34,6 +34,7 @@ inline void set_bank_name(const midas::Bank_t from, midas::Bank_t to)
 	 *  allocated.
 	 */
 	std::copy (from, from + 4, to);
+	to[4] = '\0';
 }
 #endif
 

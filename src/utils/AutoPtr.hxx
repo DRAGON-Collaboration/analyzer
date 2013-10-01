@@ -6,6 +6,7 @@
 ///
 #ifndef DRAGON_UTILS_AUTO_PTR_HXX
 #define DRAGON_UTILS_AUTO_PTR_HXX
+#include <map>
 #include <cassert>
 
 namespace dragon { namespace utils {

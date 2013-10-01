@@ -602,7 +602,9 @@ int main_(int argc, char** argv)
 	midas::Database db(options.fOdb.c_str());
 	db.SetNameTitle("variables", "ODB tree used in analysis.");
 	db.Write("variables");
-
+	//
+	// Print delayed error messages
+	dragon::utils::gDelayedMessageFactory.Flush();
 	//
 	// Close output file
 	fout.Close();

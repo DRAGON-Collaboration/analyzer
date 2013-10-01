@@ -9,6 +9,8 @@
 #include "midas/Event.hxx"
 #include "Vme.hxx"
 
+namespace dutils = dragon::utils;
+
 
 
 // ================ Class vme::Io32 ================ //
@@ -20,8 +22,8 @@ vme::Io32::Io32()
 
 void vme::Io32::reset()
 {
-	dragon::utils::reset_data(header, trig_count, tstamp, start, end, latency, read_time,
-										busy_time, trigger_latch, which_trigger, tsc4.trig_time);
+	dutils::reset_data(header, trig_count, tstamp, start, end, latency, read_time,
+										 busy_time, trigger_latch, which_trigger, tsc4.trig_time);
 	for(int i=0; i< 4; ++i) {
 		tsc4.n_fifo[i] = 0;
 		tsc4.fifo[i].clear();
@@ -30,24 +32,24 @@ void vme::Io32::reset()
 
 bool vme::Io32::unpack(const midas::Event& event, const char* bankName, bool reportMissing)
 {
- /*! Here is the portion of the MIDAS frontent where values are written to the "main" bank:
-	* \code
-	* *pdata32++ = 0xaaaa0020;           // 0 - header and version
-	* *pdata32++ = trig_count-1;         // 1 - event number, counting from 0
-	* *pdata32++ = trig_time;            // 2 - trigger timestamp
-	* *pdata32++ = start_time;           // 3 - readout start time
-	* *pdata32++ = end_time;             // 4 - readout end time
-	* *pdata32++ = start_time-trig_time; // 5 - trigger latency (trigger time - start of readout time)
-	* *pdata32++ = end_time-start_time;  // 6 - readout elapsed time
-	* *pdata32++ = end_time-trig_time;   // 7 - busy elapsed time
-	* *pdata32++ = trigger_latch         // 8 - dragon trigger latch
-	* \endcode
-	*
-	* The TSC4 bank is already unpacked in a midas::Event, so we can just copy the data over
-	* \param [in] event The midas event to unpack
-	* \param [in] bankName Name of the "main" IO32 bank
-	* \returns True if the event was successfully unpacked, false otherwise
-	*/
+	/*! Here is the portion of the MIDAS frontent where values are written to the "main" bank:
+	 * \code
+	 * *pdata32++ = 0xaaaa0020;           // 0 - header and version
+	 * *pdata32++ = trig_count-1;         // 1 - event number, counting from 0
+	 * *pdata32++ = trig_time;            // 2 - trigger timestamp
+	 * *pdata32++ = start_time;           // 3 - readout start time
+	 * *pdata32++ = end_time;             // 4 - readout end time
+	 * *pdata32++ = start_time-trig_time; // 5 - trigger latency (trigger time - start of readout time)
+	 * *pdata32++ = end_time-start_time;  // 6 - readout elapsed time
+	 * *pdata32++ = end_time-trig_time;   // 7 - busy elapsed time
+	 * *pdata32++ = trigger_latch         // 8 - dragon trigger latch
+	 * \endcode
+	 *
+	 * The TSC4 bank is already unpacked in a midas::Event, so we can just copy the data over
+	 * \param [in] event The midas event to unpack
+	 * \param [in] bankName Name of the "main" IO32 bank
+	 * \returns True if the event was successfully unpacked, false otherwise
+	 */
 	int bank_len;
 	const int expected_bank_len = 9;
 	uint32_t* pdata32 =
@@ -56,7 +58,7 @@ bool vme::Io32::unpack(const midas::Event& event, const char* bankName, bool rep
 	if (!pdata32) return false;
 
 	if (bank_len != expected_bank_len) {
-		dragon::utils::Error("vme::Io32::unpack") <<
+		dutils::Error("vme::Io32::unpack", __FILE__, __LINE__) <<
 			"Bank length: " << bank_len << " != 8, skipping..." << DRAGON_ERR_FILE_LINE;
 		return false;
 	}
@@ -81,7 +83,8 @@ bool vme::Io32::unpack(const midas::Event& event, const char* bankName, bool rep
 
 // ================ Class vme::V1190 ================ //
 
-vme::V1190::V1190()
+vme::V1190::V1190():
+	fMessagePeriod(0)
 {
 	reset();
 }
@@ -144,9 +147,9 @@ void vme::V1190::reset()
 	fifo0.clear();
 	fifo1.clear();
 
-	dragon::utils::reset_data (type, extended_trigger, n_ch, count,
-						  word_count, trailer_word_count,
-						  event_id, bunch_id, status);
+	dutils::reset_data
+		(type, extended_trigger, n_ch, count, word_count, trailer_word_count,
+		 event_id, bunch_id, status, error);
 }
 
 int32_t vme::V1190::get_data(int16_t ch) const
@@ -165,7 +168,7 @@ int32_t vme::V1190::get_data(int16_t ch) const
 			return dragon::DR_NO_DATA;
 	}
 	else {
-		dragon::utils::Warning("V1190::get_data")
+		dutils::Warning("V1190::get_data")
 			<< "Channel number " << ch << " out of bounds (valid range: [0, "
 			<< MAX_CHANNELS -1 << "]\n";
 		return dragon::DR_NO_DATA;
@@ -187,13 +190,13 @@ bool vme::V1190::unpack_data_buffer(const uint32_t* const pbuffer)
 	type     = (*pbuffer >> 26) & READ1; /// - Bit 26 tells the measurement type (leading or trailing)
 	int ch   = (*pbuffer >> 19) & READ7; /// - Bits 19-25 tell the channel number
 	if (ch >= MAX_CHANNELS) {
-		dragon::utils::Error("vme::V1190::unpack_data_buffer")
+		dutils::Error("vme::V1190::unpack_data_buffer", __FILE__, __LINE__)
 			<< DRAGON_ERR_FILE_LINE << "Read a channel number (" << ch
 			<< ") which is >= the maximum (" << MAX_CHANNELS << "). Skipping...\n";
 		return false;
 	}
 	if ( !(type==1 || type == 0) ) {
-		dragon::utils::Error("vme::V1190::unpack_data_buffer")
+		dutils::Error("vme::V1190::unpack_data_buffer", __FILE__, __LINE__)
 			<< "\"type\" bitfield == " << type << ": Should be impossible, skipping event..."
 			<< DRAGON_ERR_FILE_LINE;
 		return false;
@@ -230,7 +233,7 @@ void vme::V1190::unpack_footer_buffer(const uint32_t* const pbuffer, const char*
 	int16_t evtId = (*pbuffer >> 12) & READ12; 
 	if(evtId != event_id) { /// Bits 12 - 23 are the event id (event_id), check for consistency w/ header
 		std::cerr << DRAGON_ERR_FILE_LINE;
-		dragon::utils::Warning("vme::V1190::unpack_footer_buffer")
+		dutils::Warning("vme::V1190::unpack_footer_buffer")
 			<< DRAGON_ERR_FILE_LINE << "Bank name: \"" << bankName << "\": "
 			<< "Trailer event id (" << evtId << ") != header event Id (" << event_id << ")\n";
 	}
@@ -240,7 +243,8 @@ void vme::V1190::handle_error_buffer(const uint32_t* const pbuffer, const char* 
 {
 	/*!
 	 * Error encoding is handled with a bitmask, bits 0 - 13. Here we print the
-	 * appropriate messages as given in the V1190 manual.
+	 * appropriate messages as given in the V1190 manual and set the `error` flag
+	 * to the corresponding code.
 	 * \param [in] pbuffer Pointer to the error buffer longword
 	 * \param [in] bankName Name of the MIDAS bank containing the data in question
 	 */
@@ -261,22 +265,27 @@ void vme::V1190::handle_error_buffer(const uint32_t* const pbuffer, const char* 
 		"Event lost (trigger FIFO overflow).",
 		"Internal fatal chip error has been detected."
 	};
-	dragon::utils::Error error("vme::handle_error_buffer");
-	error << DRAGON_ERR_FILE_LINE << "Bank name: \"" << bankName << 
-		"\": TDC Error buffer: error flags:\n";
 
-	int flag;
 	for(int i=0; i< 14; ++i) {
-		flag = (*pbuffer >> i) & READ1;
-		if(flag) {
-			 error << "[" << i << "]: " << errors[i] << "\n";
+		if((*pbuffer >> i) & READ1) {
+			error = i; // set error code
+
+			dutils::ADelayedMessagePrinter* msg = dutils::gDelayedMessageFactory.Get(this, i);
+			if(!msg) {
+				std::stringstream temp;
+				temp << "TDC error (bank \"" << bankName << "\", addr " << this << "): " << errors[i];
+				msg = dutils::gDelayedMessageFactory.Register<dutils::Error>
+					(this, i, "vme::V1190::handle_error_buffer", fMessagePeriod, __FILE__, __LINE__, temp.str().c_str());
+			}
+
+			if(msg) msg->Incr();
 		}
 	}
 }
 
 bool vme::V1190::unpack_buffer(const uint32_t* const pbuffer, const char* bankName)
 {
-  /*!
+	/*!
 	 * \param [in] pbuffer Pointer to the buffer data
 	 * \param [in] bankName Name of the midas bank being unpacked
 	 * \returns True if the buffer was successfully unpacked, false otherwise
@@ -313,7 +322,7 @@ bool vme::V1190::unpack_buffer(const uint32_t* const pbuffer, const char* bankNa
 		unpack_footer_buffer(pbuffer, bankName);
 		break;
 	default: /// Bail out if we read an unknown buffer code
-		dragon::utils::Error("vme::V1190::unpack_buffer")
+		dutils::Error("vme::V1190::unpack_buffer", __FILE__, __LINE__)
 			<< DRAGON_ERR_FILE_LINE << "Bank name: \"" << bankName
 			<< "\": Unknown TDC buffer code: 0x" << std::hex << type << ". Skipping...\n";
 		success = false;
@@ -324,37 +333,25 @@ bool vme::V1190::unpack_buffer(const uint32_t* const pbuffer, const char* bankNa
 
 bool vme::V1190::unpack(const midas::Event& event, const char* bankName, bool reportMissing)
 {
-  /*!
+	/*!
 	 * \param [in] event The midas event to unpack
 	 * \param [in] bankName Name of the bank to unpack
-   * \param [in] reportMissing False specifies to silently return if \e bankName isn't found in
+	 * \param [in] reportMissing False specifies to silently return if \e bankName isn't found in
 	 *             the event. True specifies to print a warning message if this is the case.
 	 * \returns True if the event was successfully unpacked, false otherwise
 	 */
-  int bank_len;
+	int bank_len;
 	uint32_t* pbank32 =
 		event.GetBankPointer<uint32_t>(bankName, &bank_len, reportMissing, true);
 
-  // Loop over all data words in the bank
+	// Loop over all data words in the bank
 	bool ret = true;
-  for (int i=0; i< bank_len; ++i) {
-    bool success = unpack_buffer(pbank32++, bankName);
+	for (int i=0; i< bank_len; ++i) {
+		bool success = unpack_buffer(pbank32++, bankName);
 		if(!success) ret = false;
-  }
+	}
 
-	// for(int i=0; i< MAX_CHANNELS; ++i) {
-	// 	Channel* const pch = &(channel[i]);
-	// 	pch->nleading  = pch->fLeading.size();
-	// 	pch->ntrailing = pch->fTrailing.size();
-
-	// 	pch->leading_edge  = new int32_t[ pch->nleading ];
-	// 	pch->trailing_edge = new int32_t[ pch->ntrailing ];
-
-	// 	std::copy(pch->fLeading.begin(), pch->fLeading.end(), pch->leading_edge);
-	// 	std::copy(pch->fTrailing.begin(), pch->fTrailing.end(), pch->trailing_edge);
-	// }
-
-  return ret;
+	return ret;
 }
 
 
@@ -371,7 +368,7 @@ void vme::V792::reset()
 	count = 0;
 	overflow = false;
 	underflow = false;
-	dragon::utils::reset_array(MAX_CHANNELS, data);
+	dutils::reset_array(MAX_CHANNELS, data);
 }
 
 int32_t vme::V792::get_data(int16_t ch) const
@@ -383,7 +380,7 @@ int32_t vme::V792::get_data(int16_t ch) const
 	 */
 	if (ch >= 0 && ch < MAX_CHANNELS) return data [ch];
 	else {
-		dragon::utils::Warning("V792::get_data")
+		dutils::Warning("V792::get_data")
 			<< "Channel number " << ch << " out of bounds (valid range: [0, "
 			<< MAX_CHANNELS -1 << "]\n";
 		return dragon::DR_NO_DATA;
@@ -402,7 +399,7 @@ bool vme::V792::unpack_data_buffer(const uint32_t* const pbuffer)
 	underflow    = (*pbuffer >> 13) & READ1; /// Bit 13 is an underflow tag
 	uint16_t ch  = (*pbuffer >> 16) & READ5; /// Bits 16-20 tell the channel number of the conversion
 	if (ch >= MAX_CHANNELS) {
-		dragon::utils::Error("vme::V792::unpack_data_buffer")
+		dutils::Error("vme::V792::unpack_data_buffer", __FILE__, __LINE__)
 			<< DRAGON_ERR_FILE_LINE << "Read a channel number (" << ch
 			<< ") which is >= the maximum (" << MAX_CHANNELS << "). Skipping...\n";
 		return false;
@@ -413,7 +410,7 @@ bool vme::V792::unpack_data_buffer(const uint32_t* const pbuffer)
 
 bool vme::V792::unpack_buffer(const uint32_t* const pbuffer, const char* bankName)
 {
-  /*!
+	/*!
 	 * \param [in] pbuffer Pointer to the buffer word
 	 * \param [in] bank Name of the midas bank being unpacked
 	 * \returns True if the buffer was successfully unpacked, false otherwise
@@ -435,13 +432,13 @@ bool vme::V792::unpack_buffer(const uint32_t* const pbuffer, const char* bankNam
 		count = (*pbuffer >> 0) & READ24;
 		break;
 	case INVALID_BITS: /// case INVALID_BITS: bail out
-		dragon::utils::Error("vme::V792::unpack_buffer")
+		dutils::Error("vme::V792::unpack_buffer", __FILE__, __LINE__)
 			<< DRAGON_ERR_FILE_LINE << "Bank name: \"" << bankName
 			<< "\": Read INVALID_BITS code from a CAEN ADC output buffer. Skipping...\n";
 		success = false;
 		break;
 	default: /// Bail out if we read an unknown buffer code
-		dragon::utils::Error("vme::V792::unpack_buffer")
+		dutils::Error("vme::V792::unpack_buffer", __FILE__, __LINE__)
 			<< DRAGON_ERR_FILE_LINE << "Bank name: \"" << bankName
 			<< "\": Unknown ADC buffer code: 0x" << std::hex << type << ". Skipping...\n";
 		success = false;
@@ -457,20 +454,20 @@ bool vme::V792::unpack(const midas::Event& event, const char* bankName, bool rep
 	 * in the bank and extract into the appropriate class data fields.
 	 *
 	 * \param [in] event The midas event to unpack
-   * \param [in] bankName Name of the bank to unpack
-   * \param [in] reportMissing False specifies to silently return if \e bankName isn't found in
+	 * \param [in] bankName Name of the bank to unpack
+	 * \param [in] reportMissing False specifies to silently return if \e bankName isn't found in
 	 *             the event. True specifies to print a warning message if this is the case.
-   * \returns True if the event was successfully unpacked, false otherwise
+	 * \returns True if the event was successfully unpacked, false otherwise
 	 */
-  int bank_len;
+	int bank_len;
 	uint32_t* pbank32 =
 		event.GetBankPointer<uint32_t>(bankName, &bank_len, reportMissing, true);
 
-  // Loop over all data words in the bank
+	// Loop over all data words in the bank
 	bool ret = true;
-  for (int i=0; i< bank_len; ++i) {
-    bool success = unpack_buffer(pbank32++, bankName);
+	for (int i=0; i< bank_len; ++i) {
+		bool success = unpack_buffer(pbank32++, bankName);
 		if(!success) ret = false;
-  }
-  return ret;
+	}
+	return ret;
 }

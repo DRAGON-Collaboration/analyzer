@@ -6,13 +6,10 @@
 #ifndef HAVE_DRAGON_VME_HXX
 #define HAVE_DRAGON_VME_HXX
 #include <stdint.h>
+#include <map>
 #include <vector>
 #include "utils/Valid.hxx"
-#include "utils/ErrorDragon.hxx"
 
-
-/// Sets the maximum number of recorded TDC hits in a single event
-#define DRAGON_TDC_MAX_HITS 5
 
 namespace midas { class Event; }
 
@@ -129,6 +126,11 @@ public: // Data
 	int16_t type;
 	/// Extended trigger time
 	int32_t extended_trigger;
+	/// Error flag
+	int16_t error;
+
+	/// Error message printing period
+	int fMessagePeriod; //!
 
 private: // Internal routines
   /// Unpack a generic V1190 buffer

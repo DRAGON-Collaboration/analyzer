@@ -31,6 +31,8 @@
 #include "RootAnalysis.hxx"
 
 
+namespace dutils = dragon::utils;
+
 namespace { 
 //
 // Alias for surface barrier max channels
@@ -43,7 +45,7 @@ TBranch* get_branch(TTree* t, T& valref, const char* name, const char* funcname 
 	TBranch* branch;
 	Int_t code = t->SetBranchAddress(name, &valref, &branch);
 	if(code < 0) {
-		dragon::utils::Error(funcname)
+		dutils::Error(funcname, __FILE__, __LINE__)
 			<< "Couldn't set Branch \"" << name << "\" in TTree \"" << t->GetName() << "\"";
 		return 0;
 	}
@@ -95,7 +97,7 @@ template <class T> void Zap(T*& t)
 } // namespace
 
 
-// ============ dragon::MakeChains ============ //
+// ============ namespace dragon Free Functions ============ //
 
 void dragon::MakeChains(const Int_t* runnumbers, Int_t nruns, const char* format)
 {
@@ -124,7 +126,7 @@ void dragon::MakeChains(const Int_t* runnumbers, Int_t nruns, const char* format
 		{
 			TFile file(fname);
 			if(file.IsZombie()) {
-				dragon::utils::Warning("MakeChains")
+				dutils::Warning("MakeChains", __FILE__, __LINE__)
 					<< "Skipping run " << runnumbers[i] << ", couldn't find file " << fname;
 			}
 		}
@@ -171,6 +173,15 @@ void dragon::FriendChain(TChain* chain, const char* friend_name, const char* fri
 	}
 
 	chain->AddFriend(friendchain, friend_alias, kTRUE);
+}
+
+TFile* dragon::OpenRun(int runnum, const char* format)
+{
+	TFile* f = TFile::Open(Form(format, runnum));
+	if(f && f->IsZombie() == kFALSE)
+		gROOT->ProcessLine(Form("TFile* frun%d = (TFile*)%p;", runnum, f));
+	else if (f) { f->Close(); f = 0; }
+	return f;
 }
 
 
@@ -232,7 +243,7 @@ void dragon::TTreeFilter::SetOutDir(TDirectory* directory)
 void dragon::TTreeFilter::Close()
 {
 	if(!IsFileOwner()) {
-		utils::Warning("TTreeFilter::CloseOutDir")
+		utils::Warning("TTreeFilter::CloseOutDir", __FILE__, __LINE__)
 			<< "Not the owner of the directory at " << fDirectory << ", unable to close.";
 		return;
 	}
@@ -304,11 +315,11 @@ void * run_thread(void* input)
 Int_t dragon::TTreeFilter::Run()
 {
 	if(IsZombie()) {
-		utils::Error("TTreeFilter::Run") << "Zombie output directory.";
+		utils::Error("TTreeFilter::Run", __FILE__, __LINE__) << "Zombie output directory.";
 		return -1;
 	}
 	if(fInputs.empty()) {
-		utils::Error("TTreeFilter::Run") << "No inputs to filter.";
+		utils::Error("TTreeFilter::Run", __FILE__, __LINE__) << "No inputs to filter.";
 		return -1;
 	}
 
@@ -317,7 +328,7 @@ Int_t dragon::TTreeFilter::Run()
 
 	for(Map_t::iterator i = fInputs.begin(); i != fInputs.end(); ++i) {
 		if(CheckCondition(i->first) == kFALSE) {
-			utils::Warning("TTreeFilter::Run") 
+			utils::Warning("TTreeFilter::Run", __FILE__, __LINE__) 
 				<< "Invalid filter condition: \"" << GetFilterCondition(i->first)
 				<< "\" for TTree at " << i->first << ", skipping.";
 			continue;
@@ -452,7 +463,8 @@ TTree* dragon::RossumData::MakeTree()
 Bool_t dragon::RossumData::ParseFile()
 {
 	if(!fFile.get()) {
-		std::cerr << "Error: No rossum data file open.\n";
+		dutils::Error("RossumData::ParseFile", __FILE__, __LINE__)
+			<< "No rossum data file open.";
 		return kFALSE;
 	}
 
@@ -485,16 +497,16 @@ Bool_t dragon::RossumData::ParseFile()
 					runnum = 0;
 					size_t curpos = line0.find("Current");
 					if(curpos > line0.size()) {
-						std::cerr << "Error: couldn't parse cup name from line: "
-											<< line0 << "\n";
+						dutils::Error("RossumData::ParseFile", __FILE__, __LINE__)
+							<< "couldn't parse cup name from line: " << line0;
 						retval = kFALSE;
 						continue;
 					}
 					std::string which = line0.substr(6, curpos-6);
 					std::map<std::string, Int_t>::iterator itWhich = fWhichCup.find(which);
 					if(itWhich == fWhichCup.end()) {
-						std::cerr << "Error: couldn't parse cup name from line: "
-											<< line0 << "\n";
+						dutils::Error("RossumData::ParseFile", __FILE__, __LINE__)
+							<< "couldn't parse cup name from line: " << line0;
 						retval = kFALSE;
 						continue;
 					}
@@ -518,11 +530,14 @@ Bool_t dragon::RossumData::ParseFile()
 						else {
 							std::auto_ptr<TObjArray> tok (line.Tokenize("\t"));
 							if(!tok.get() || tok->GetEntries() != 2) {
-								std::cerr << "Error: invalid current read line: " << line;
-								if(tok.get())
-									std::cerr << " : ntokens == " << tok->GetEntries() << "\n";
-								else
-									std::cerr << " : tok.get() == 0\n";
+								{
+									dutils::Error err("RossumData::ParseFile", __FILE__, __LINE__);
+									err << "invalid current read line: " << line;
+									if(tok.get())
+										err << " : ntokens == " << tok->GetEntries() << "\n";
+									else
+										err << " : tok.get() == 0\n";
+								}
 								retval = kFALSE;
 								continue;
 							}
@@ -599,7 +614,7 @@ UDouble_t dragon::RossumData::AverageCurrent(Int_t run, Int_t cup, Int_t iterati
 	///
 	TTree* tree = GetTree(run);
 	if(!tree) {
-		utils::Error("RossumData::AverageCurrent")
+		utils::Error("RossumData::AverageCurrent", __FILE__, __LINE__)
 			<< "Invalid run " << run;
 		return UDouble_t(0);
 	}
@@ -611,7 +626,7 @@ UDouble_t dragon::RossumData::AverageCurrent(Int_t run, Int_t cup, Int_t iterati
 	success = tree->SetBranchAddress("cup", &cup_);
 	success = tree->SetBranchAddress("iteration", &iteration_);
 	if(success) {
-		utils::Error("RossumData::AverageCurrent")
+		utils::Error("RossumData::AverageCurrent", __FILE__, __LINE__)
 			<< "Failure to set branch addresses";
 		return UDouble_t(0);
 	}
@@ -630,7 +645,7 @@ UDouble_t dragon::RossumData::AverageCurrent(Int_t run, Int_t cup, Int_t iterati
 
 		if(time_ - t0 > skipBegin) {
 			if(!time.empty() && !(time_ >= time.back())) {
-				utils::Error("RossumData::AverageCurrent")
+				utils::Error("RossumData::AverageCurrent", __FILE__, __LINE__)
 					<< "Non sequential current readings: " << "this, last = "
 					<< time_ << ", " << time.back() << "\n";
 				return UDouble_t(0, 0);
@@ -729,11 +744,13 @@ Int_t dragon::BeamNorm::ReadSbCounts(TFile* datafile, Double_t pkLow0, Double_t 
 	/// \returns The run number of the specified file.
 
 	if(!HaveRossumFile()) {
-		std::cerr << "Error: no rossum file loaded.\n";
+		dutils::Error("BeamNorm::ReadSbCounts", __FILE__, __LINE__)
+			<< "no rossum file loaded.";
 		return 0;
 	}
 	if(!datafile || datafile->IsZombie()) {
-		std::cerr << "Invalid datafile: " << datafile << "\n";
+		dutils::Error("BeamNorm::ReadSbCounts", __FILE__, __LINE__)
+			<< "Invalid datafile: " << datafile;
 		return 0;
 	}
 
@@ -742,19 +759,22 @@ Int_t dragon::BeamNorm::ReadSbCounts(TFile* datafile, Double_t pkLow0, Double_t 
 	midas::Database* db = static_cast<midas::Database*>(datafile->Get("odbstop"));
 	if(db) haveRunnum = db->ReadValue("/Runinfo/Run number", runnum);
 	if(!db || !haveRunnum) {		 
-		std::cerr << "Error: couldn't read run number from TFile at " << datafile << "\n";
+		dutils::Error("BeamNorm::ReadSbCounts", __FILE__, __LINE__)
+			<< "couldn't read run number from TFile at " << datafile;
 		return 0;
 	}
 
 	TTree* t3 = static_cast<TTree*>(datafile->Get("t3"));
 	if(t3 == 0 || t3->GetListOfBranches()->At(0) == 0) {
-		std::cerr << "Error: no heavy-ion data tree in file" << datafile->GetName() << "\n";
+		dutils::Error("BeamNorm::ReadSbCounts", __FILE__, __LINE__)
+			<< "no heavy-ion data tree in file" << datafile->GetName();
 		return 0;
 	}
 
 	TTree* t20 = static_cast<TTree*>(datafile->Get("t20"));
 	if(t20 == 0 || t20->GetListOfBranches()->At(0) == 0) {
-		std::cerr << "Error: no EPICS tree in file" << datafile->GetName() << "\n";
+		dutils::Error("BeamNorm::ReadSbCounts", __FILE__, __LINE__)
+			<< "no EPICS tree in file" << datafile->GetName();
 		return 0;
 	}
 
@@ -850,7 +870,8 @@ Int_t dragon::BeamNorm::ReadSbCounts(TFile* datafile, Double_t pkLow0, Double_t 
 void dragon::BeamNorm::ReadFC4(Int_t runnum, Double_t skipBegin, Double_t skipEnd)
 {
 	if(!HaveRossumFile()) {
-		std::cerr << "Error: no rossum file loaded!\n";
+		dutils::Error("BeamNorm::ReadFC4", __FILE__, __LINE__)
+			<< "no rossum file loaded.";
 		return;
 	}
 
@@ -1013,7 +1034,8 @@ void dragon::BeamNorm::CalculateRecoils(TFile* datafile, const char* treename, c
 	}
 	TTree* t = (TTree*)datafile->Get(treename);
 	if(!t || t->IsA() != TTree::Class()) {
-		std::cerr << "Error: no tree named \"" << treename << "\" in the specified file!\n";
+		dutils::Error("BeamNorm::CalculateRecoils", __FILE__, __LINE__)
+			<< "no tree named \"" << treename << "\" in the specified file!";
 		return;
 	}
 
@@ -1032,8 +1054,9 @@ void dragon::BeamNorm::CalculateRecoils(TFile* datafile, const char* treename, c
 	Int_t runnum = 0;
 	midas::Database* db = static_cast<midas::Database*>(datafile->Get("odbstop"));
 	if(db) haveRunnum = db->ReadValue("/Runinfo/Run number", runnum);
-	if(!db || !haveRunnum) {		 
-		std::cerr << "Error: couldn't read run number from TFile at " << datafile << "\n";
+	if(!db || !haveRunnum) {
+		dutils::Error("BeamNorm::CalculateRecoils", __FILE__, __LINE__)
+			<< "couldn't read run number from TFile at " << datafile;
 		return;
 	}
 
@@ -1223,9 +1246,9 @@ inline Double_t get_from_array(const Double_t* arr, const char* which, const cha
 	int indx = get_which_indx(which);
 	
 	if(indx < 0) {
-		dragon::utils::Error(func)
+		dutils::Error(func, __FILE__, __LINE__)
 			<< "Invalid specification \"" << which
-			<< "\", please specify \"head\" or \"tail\"\n";
+			<< "\", please specify \"head\" or \"tail\"";
 		return 0;
 	}
 
@@ -1253,14 +1276,16 @@ Bool_t dragon::LiveTimeCalculator::CheckFile(TTree*& t1, TTree*& t3, midas::Data
 	/// Also sets tree and DB pointers
 
 	if(!fFile || fFile->IsZombie()) {
-		std::cerr << "Error: Invalid or no file loaded.\n";
+		dutils::Error("LiveTimeCalculator::CheckFile", __FILE__, __LINE__)
+			<< "Invalid or no file loaded.";
 		return kFALSE;
 	}
 	Bool_t okay = kTRUE;
 	if(okay) okay = fFile->Get("t1") && fFile->Get("t1")->IsA() == TTree::Class();
 	if(okay) okay = fFile->Get("t3") && fFile->Get("t3")->IsA() == TTree::Class();
 	if(!okay) {
-		std::cerr << "Error: missing necessary trees in loaded file\n";
+		dutils::Error("LiveTimeCalculator::CheckFile", __FILE__, __LINE__)
+			<< "missing necessary trees in loaded file";
 		return kFALSE;
 	} else {
 		t1 = static_cast<TTree*>(fFile->Get("t1"));
@@ -1270,20 +1295,23 @@ Bool_t dragon::LiveTimeCalculator::CheckFile(TTree*& t1, TTree*& t3, midas::Data
 	if(okay) okay = t1->GetLeaf("io32.busy_time");
 	if(okay) okay = t3->GetLeaf("io32.busy_time");
 	if(!okay) {
-		std::cerr << "Error: missing leaf \"io32.busy_time\" in either \"t1\" or \"t3\"\n";
+		dutils::Error("LiveTimeCalculator::CheckFile", __FILE__, __LINE__)
+			<< "missing leaf \"io32.busy_time\" in either \"t1\" or \"t3\"";
 		return kFALSE;
 	}
 
 	if(okay) okay = t1->GetLeaf("io32.tsc4.trig_time");
 	if(okay) okay = t3->GetLeaf("io32.tsc4.trig_time");
 	if(!okay) {
-		std::cerr << "Error: missing leaf \"io32.tsc4.trig_time\" in either \"t1\" or \"t3\"\n";
+		dutils::Error("LiveTimeCalculator::CheckFile", __FILE__, __LINE__)
+			<< "missing leaf \"io32.tsc4.trig_time\" in either \"t1\" or \"t3\"";
 		return kFALSE;
 	}
 
 	okay = fFile->Get("odbstop") && fFile->Get("odbstop")->InheritsFrom(midas::Database::Class());
 	if(!okay) {
-		std::cerr << "Error: Loaded file is missing database \"odbstop\"\n";
+		dutils::Error("LiveTimeCalculator::CheckFile", __FILE__, __LINE__)
+			<< "Loaded file is missing database \"odbstop\"";
 		return kFALSE;
 	}
 
@@ -1340,7 +1368,7 @@ Double_t dragon::LiveTimeCalculator::CalculateRuntime(midas::Database* db, const
 		start = *std::max_element(trigStart, trigStart + 2);
 		break;
 	default:
-		utils::Error("CalculateRuntime")
+		utils::Error("CalculateRuntime", __FILE__, __LINE__)
 			<< "Invalid \"which\" specification: \"" << which << "\", valid options "
 			<< "are \"head\", \"tail\", or \"coinc\"";
 		stop = 0;
@@ -1354,7 +1382,7 @@ Double_t dragon::LiveTimeCalculator::CalculateRuntime(midas::Database* db, const
 namespace {
 // fix for an early frontend bug where the tsc4 36-bit rollover counter
 // started from 1 instead of 0
-inline Double_t correct_rollover_fe_bug(TBranch* trigBranch, UInt_t trig_time)
+inline Double_t correct_rollover_fe_bug(TBranch* trigBranch, Double_t& trig_time)
 {
 	Double_t rollCorrect = 0;
 	const ULong_t roll36 = (ULong64_t)1<<36;
@@ -1363,13 +1391,15 @@ inline Double_t correct_rollover_fe_bug(TBranch* trigBranch, UInt_t trig_time)
 	if(trig_time >= roll36/20.) { // the bug was present
 		rollCorrect = roll36/20.; // microseconds
 
-		// This should only be present in files analyzed on jabberwock,
-		// so warn otherwise
+		// This should only be present in files analyzed on jabberwock, and part of the
+		// DAQ test, so warn otherwise
 		TString hostname = "$HOSTNAME1";
 		gSystem->ExpandPathName(hostname);
 		if(hostname.CompareTo("jabberwock.triumf.ca")) {
-			dragon::utils::Warning("DoCalculate")
-				<< "rollCorrect != 0 and host is not jabberwock!";
+			TString fname = trigBranch->GetTree()->GetDirectory()->GetName();
+			if(!fname.Contains("DAQ_test"))
+				dutils::Warning("DoCalculate", __FILE__, __LINE__)
+					<< "rollCorrect != 0 and host is not jabberwock!";
 		}
 	}
 	
@@ -1389,18 +1419,26 @@ void dragon::LiveTimeCalculator::DoCalculate(Double_t tbegin, Double_t tend)
 	Bool_t isFull = (tbegin < 0 || tend < 0);
 	if (isFull) {
 		if(tbegin > 0 || tend > 0) {
-			utils::Error("LiveTimeCalculator::DoCalculate")
+			utils::Error("LiveTimeCalculator::DoCalculate", __FILE__, __LINE__)
 				<< "Invalid parameters to LiveTimeCalculator::DoCalculate(): "
 				<< "tbegin = " << tbegin <<  ", tend = " << tend;
 			return;
 		}
 	}
+	if (!isFull && tend <= tbegin) {
+		utils::Error("LiveTimeCalculator::DoCalculate", __FILE__, __LINE__)
+			<< "Cannot have tend <= tbegin: tend, tbegin = " << tend << ", " << tbegin;
+		return;
+	}
 
 	// Initialize midas database, TTrees, etc
 	midas::Database* db = 0;
 	TTree* trees[2] = { 0, 0 };
-	if(!CheckFile(trees[0], trees[1], db)) // CheckFile now sets trees[i], db if they're valid
+	if(!CheckFile(trees[0], trees[1], db)) { // CheckFile now sets trees[i], db if they're valid
+		utils::Error("LiveTimeCalculator::DoCalculate", __FILE__, __LINE__)
+			<< "Invalid file or trees";
 		return;
+	}
 	size_t nentries = trees[0]->GetEntries() + trees[1]->GetEntries();
 	CoincBusytime coincBusy(nentries);
 
@@ -1575,7 +1613,7 @@ void dragon::CoincBusytime::AddEvent(Double_t trigger, Double_t busy)
 	try {
 		fEvents.push_back(evt);
 	} catch (std::bad_alloc& err) {
-		utils::Error("CoincBusytime::AddEvent")
+		utils::Error("CoincBusytime::AddEvent", __FILE__, __LINE__)
 			<< "Failed to allocate memory for event: trigger, busy = "
 			<< trigger << ", " << busy;
 		throw err;
@@ -1777,8 +1815,8 @@ dragon::StoppingPowerCalculator::GetMeasurement(Int_t index) const
 		retval.density = fDensities.at(index0);
 		retval.md1 = fMd1.at(index0);
 	} else {
-		std::cerr << "Error invalid index " << index
-							<< ", valid options are [0, ) " << fEnergies.size() << "\n";
+		dutils::Error("StoppingPowerCalculator::GetMeasurement", __FILE__, __LINE__)
+			<< "invalid index " << index << ", valid options are [0, ) " << fEnergies.size();
 	}
 	
 	return retval;
@@ -1793,8 +1831,8 @@ void dragon::StoppingPowerCalculator::RemoveMeasurement(Int_t index)
 		fPressures.erase(fPressures.begin() + index0);
 		fEnergies.erase (fPressures.begin() + index0);
 	} else {
-		std::cerr << "Error invalid index " << index
-							<< ", valid options are [0, ) " << fEnergies.size() << "\n";
+		dutils::Error("StoppingPowerCalculator::GetMeasurement", __FILE__, __LINE__)
+			<< "invalid index " << index << ", valid options are [0, ) " << fEnergies.size();
 	}
 }
 
@@ -1975,7 +2013,8 @@ UDouble_t dragon::ResonanceStrengthCalculator::CalculateResonanceStrength(Int_t 
 TGraph* dragon::ResonanceStrengthCalculator::PlotResonanceStrength(Int_t whichSb)
 {
 	if((unsigned)whichSb > 1) {
-		std::cerr << "Error: invalid SB: " << whichSb << ", valid are 0 or 1\n";
+		dutils::Error("ResonanceStrengthCalculator::PlotResonanceStrength", __FILE__, __LINE__)
+			<< "invalid SB: " << whichSb << ", valid are 0 or 1";
 		return 0;
 	}
 

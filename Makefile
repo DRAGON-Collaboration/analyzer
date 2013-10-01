@@ -38,10 +38,10 @@ RB_HOME=$(HOME)/packages/rootbeer
 
 ### CHOOSE YOUR COMPILER IF YOU WANT ###
 ##CXX=g++ -Wall
-#CXX=clang++ -I/opt/local/include/
+CXX=clang++ -I/opt/local/include/
 
 ##CC=gcc -Wall
-#CC=clang -I/opt/local/include/
+CC=clang -I/opt/local/include/
 
 
 #####################################
@@ -138,8 +138,8 @@ $(OBJ)/TStamp.o		              	\
 $(OBJ)/Vme.o				\
 $(OBJ)/Dragon.o				\
 $(OBJ)/utils/TAtomicMass.o              \
-$(OBJ)/utils/Uncertainty.o
-#$(OBJ)/utils/UDouble.o
+$(OBJ)/utils/Uncertainty.o		\
+$(OBJ)/utils/ErrorDragon.o
 
 ifeq ($(USE_MIDAS), YES)
 OBJECTS+=$(OBJ)/midas/libMidasInterface/TMidasOnline.o
