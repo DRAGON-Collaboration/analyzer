@@ -154,6 +154,7 @@ void rbdragon::MidasBuffer::RunStopTransition(Int_t runnum)
 		fUnpacker.GetQueue()->Clear();
 	}
 
+#if 0 // Histogram writing disabled here - now done by mid2root
 	/// - Write histograms to rootfiles/histosrun*****.root (if online)
 	if (fType == rb::MidasBuffer::ONLINE) {
 		TDirectory* dc = gDirectory;
@@ -174,6 +175,7 @@ void rbdragon::MidasBuffer::RunStopTransition(Int_t runnum)
 		}
 		dc->cd();
 	}
+#endif
 
 	/// - Print delayed error messages
 	dragon::utils::gDelayedMessageFactory.Flush();
