@@ -8,8 +8,16 @@
 namespace dutils = dragon::utils;
 
 namespace dragon { namespace utils {
+
+/// Global DelayedMessageFactory
 DelayedMessageFactory gDelayedMessageFactory;
+
+
 } }
+
+#ifndef USE_ROOT
+int gErrorIgnoreLevel; // Global error ignore
+#endif
 
 
 namespace {

@@ -9,7 +9,6 @@
 #include <map>
 #include <vector>
 #include "utils/Valid.hxx"
-#include "utils/ErrorDragon.hxx"
 
 
 namespace midas { class Event; }

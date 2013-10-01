@@ -87,7 +87,7 @@ public:
 					fIsZombie = true;
 			}
 			if (fIsZombie) {
-				dragon::utils::Error("midas::Database::Database")
+				dragon::utils::Error("midas::Database::Database", __FILE__, __LINE__)
 					<< "Failed opening the database: \"" << filename << "\"";
 			}
 		}
@@ -105,7 +105,7 @@ public:
 				fIsZombie = true;
 			}
 			if (fIsZombie) {
-				dragon::utils::Error("midas::Database::Database")
+				dragon::utils::Error("midas::Database::Database", __FILE__, __LINE__)
 					<< "Failed parsing the XML data.";
 			}
 		}
@@ -118,7 +118,7 @@ public:
 		{
 			if(fIsZombie) return;
 			if(fIsOnline) {
-				dragon::utils::Error("Database::Dump")
+				dragon::utils::Error("Database::Dump", __FILE__, __LINE__)
 					<< "Currently not supported for online database";
 				return;
 			}

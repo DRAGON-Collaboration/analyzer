@@ -189,7 +189,8 @@ std::vector<int32_t> dragon::Unpacker::UnpackMidasEvent(void* header, char* data
 		}
 	default:
 		{
-			utils::Warning("UnpackBuffer") << "Unkonwn event ID: " << evtHeader->fEventId;
+			utils::Warning("UnpackBuffer", __FILE__, __LINE__)
+				<< "Unkonwn event ID: " << evtHeader->fEventId;
 			break;
 		}
 	}
@@ -211,7 +212,7 @@ void dragon::Unpacker::Process(const midas::Event& event)
 		break;
 
 	default:
-		utils::Error("utils::Unpacker::Process")
+		utils::Error("utils::Unpacker::Process", __FILE__, __LINE__)
 			<< "Unknown event id: " << event.GetEventId() << ", skipping...\n";
 		break;
 	}
@@ -222,7 +223,7 @@ void dragon::Unpacker::Process(const midas::Event& event1, const midas::Event& e
 	midas::CoincEvent coincEvent(event1, event2);
 
 	if (coincEvent.fHeavyIon == 0 ||	coincEvent.fGamma == 0) {
-		dragon::utils::Error("utils::unpacker::Process")
+		dragon::utils::Error("utils::unpacker::Process", __FILE__, __LINE__)
 			<< "Invalid coincidence event, skipping...\n";
 		return;
 	}
