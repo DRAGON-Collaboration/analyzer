@@ -702,14 +702,14 @@ TGraph* dragon::RossumData::PlotTransmission(Int_t* runs, Int_t nruns)
 // ============ Class dragon::BeamNorm ============ //
 
 dragon::BeamNorm::BeamNorm():
-	fRossum(0), fRunDataTree("t_rundata", "")
+	fRunDataTree("t_rundata", ""), fRossum(0)
 {
 	fRunDataTree.SetMarkerStyle(21);
 	fRunDataTree.Branch("rundata", "dragon::BeamNorm::RunData", &fRunDataBranchAddr);
 }
 
 dragon::BeamNorm::BeamNorm(const char* name, const char* rossumFile):
-	fRossum(0), fRunDataTree("t_rundata", "")
+	fRunDataTree("t_rundata", ""), fRossum(0)
 {
 	SetNameTitle(name, rossumFile);
 	ChangeRossumFile(rossumFile);
@@ -832,7 +832,7 @@ Int_t dragon::BeamNorm::ReadSbCounts(TFile* datafile, Double_t pkLow0, Double_t 
 		t20->GetEntry(entry);
 		if(pEpics->ch == 0) {
 			pressure.push_back(pEpics->val);
-			if(pEpics->header.fTimeStamp - tstart < time)
+			if(pEpics->header.fTimeStamp - tstart20 < time)
 				++t1;
 		}
 	}
@@ -1531,7 +1531,7 @@ void dragon::LiveTimeCalculator::CalculateChain(TChain* chain)
 	/// the chain are calculated and then used to figure out the
 	/// live time fraction.
 
-	TFile* file0 = GetFile();
+	TFile* file0 = GetFile(); if(file0) { }
 	Double_t sumbusy[3] = {0,0,0}, sumrun[3] = {0,0,0};
 
 	for (Int_t i=0; i< chain->GetListOfFiles()->GetEntries(); ++i) {

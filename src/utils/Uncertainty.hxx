@@ -108,8 +108,6 @@ inline UDouble_t operator/ (const double& lhs, const UDouble_t& rhs) { return  l
 TGraphAsymmErrors* PlotUncertainties(Int_t npoints, const Double_t*  x, const UDouble_t* y);
 TGraphAsymmErrors* PlotUncertainties(Int_t npoints, const UDouble_t* x, const UDouble_t* y);
 
-#pragma link C++ class std::vector<UDouble_t>+;
-
 #endif
 
 #endif
