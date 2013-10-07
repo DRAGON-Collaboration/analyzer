@@ -349,8 +349,10 @@ public:
 	/// Plot some parameter as a function of run number
 	TGraph* Plot(const char* param, Marker_t marker = 21, Color_t markerColor = kBlack);
 	/// Draw run data information
-	Long64_t Draw(const char* varexp, const char* selection = "", Option_t* option = "",
+	Long64_t Draw(const char* varexp, const char* selection, Option_t* option = "",
 								Long64_t nentries = 1000000000, Long64_t firstentry = 0);
+	/// TObject overloaded version of Draw()
+	void Draw(Option_t* option) { Draw(option, "", "", 1000000000, 0); }
 	///
 	UDouble_t GetEfficiency(const char* name) const
 		{

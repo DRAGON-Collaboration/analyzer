@@ -87,4 +87,6 @@ class TTree;
 
 #pragma link C++ class dragon::Constants+;
 
+#pragma link C++ class std::vector<UDouble_t>+;
+
 #endif
