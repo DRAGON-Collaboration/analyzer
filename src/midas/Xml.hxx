@@ -73,7 +73,10 @@ public:
 	bool IsZombie() { return fIsZombie; }
 
 	/// Dump buffer to an output stream
-	void Dump(std::ostream& strm);
+	void Dump(std::ostream& strm) const;
+	
+	/// TObject has a virtual function Dump() as well, so implement it here
+	void Dump() const { Dump(std::cout); }
 
 	/// \brief Find the node location of a specific key element within the xml file
 	/// \param [in] path String specifying the "directory" path of the element, e.g.
