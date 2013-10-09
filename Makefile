@@ -37,11 +37,8 @@ RB_HOME=$(HOME)/packages/rootbeer
 
 
 ### CHOOSE YOUR COMPILER IF YOU WANT ###
-##CXX=g++ -Wall
-CXX=clang++ -Wall -I/opt/local/include/
-
-##CC=gcc -Wall
-CC=clang -Wall -I/opt/local/include/
+CXX=c++ -Wall -I/opt/local/include/
+CC=cc -Wall -I/opt/local/include/
 
 
 #####################################
