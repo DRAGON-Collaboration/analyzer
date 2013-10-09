@@ -114,7 +114,7 @@ public:
 	bool IsZombie() const { return fIsZombie; }
 
 	/// Dump odb contents to an output stream
-	void Dump(std::ostream& strm = std::cout)
+	void Dump(std::ostream& strm) const
 		{
 			if(fIsZombie) return;
 			if(fIsOnline) {
@@ -124,6 +124,9 @@ public:
 			}
 			if(fXml.get()) fXml->Dump(strm);
 		}
+
+	/// Default dump to std::cout
+	void Dump() const { Dump(std::cout); }
 
 	/// Read a single value
 	template <typename T> bool ReadValue(const char* path, T& value) const

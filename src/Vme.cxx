@@ -100,7 +100,7 @@ namespace { inline void reset_channel(vme::V1190::Channel* channel)
 template <class T> class hitmatch {
 public:
 	hitmatch(const T& t, int16_t n):
-		fN(n), fT(t) { }
+		fT(t), fN(n) { }
 	bool operator()(const T& t)
 		{ return t == fT && fN-- == 0; }
 private:

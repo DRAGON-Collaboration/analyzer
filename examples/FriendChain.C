@@ -12,8 +12,13 @@
 /// \endcode
 /// Note that the first two lines only have to be called once in a ROOT session. You may want
 /// to create a file in your home directory called `.rootlogon.C` and add those lines to it so that
-/// you don't have to worry about them every time you start ROOT.
-///
+/// you don't have to worry about them every time you start ROOT. Since the first command is a CINT
+/// literal, if you want to include it in a macro you will need to wrap it inside a call to
+/// `gROOT->ProcessLine()`, i.e.
+/// \code
+///  gROOT->ProcessLine(".include \"/path/to/dragon/analyzer/src\"");
+/// \endcode
+/// 
 /// When you have successfully executed this file, you will have full access to the "friended" branches,
 /// as if they were part of the initial tree. You can, for example, draw the calibrated DSSSD front strip
 /// energy vs. the uncalibrated one:
