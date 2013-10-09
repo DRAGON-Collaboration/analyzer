@@ -17,6 +17,9 @@
 #include <TObject.h>
 #endif
 
+#include "utils/ErrorDragon.hxx"
+
+
 namespace midas {
 
 /// Class to parse MIDAS ODB XML files.
@@ -70,7 +73,10 @@ public:
 	bool IsZombie() { return fIsZombie; }
 
 	/// Dump buffer to an output stream
-	void Dump(std::ostream& strm);
+	void Dump(std::ostream& strm) const;
+	
+	/// TObject has a virtual function Dump() as well, so implement it here
+	void Dump() const { Dump(std::cout); }
 
 	/// \brief Find the node location of a specific key element within the xml file
 	/// \param [in] path String specifying the "directory" path of the element, e.g.
@@ -155,7 +161,8 @@ public:
 			array.clear();
 			char* pAttribute = mxml_get_attribute(node, "num_values");
 			if(!pAttribute) {
-				std::cerr << "Error: \"num_values\" attribute not found for array: " << path << "\n";
+				dragon::utils::Error("midas::Xml::GetArray", __FILE__, __LINE__)
+					<< "\"num_values\" attribute not found for array: " << path;
 				if(success) *success = false;
 				return;
 			}
@@ -165,7 +172,8 @@ public:
 				valPath << "/value[" << i+1 << "]";
 				Node valNode = mxml_find_node(node, valPath.str().c_str());
 				if(!valNode) {
-					std::cerr << "Error: Unable to find value node for array index " << i << "\n";
+					dragon::utils::Error("midas::Xml::GetArray", __FILE__, __LINE__)
+						<< "Unable to find value node for array index " << i;
 					continue;
 				}
 
@@ -195,7 +203,8 @@ public:
 			if(!node) return -1;
 			char* pAttribute = mxml_get_attribute(node, "num_values");
 			if(!pAttribute) {
-				std::cerr << "Error: \"num_values\" attribute not found for array: " << path << "\n";
+				dragon::utils::Error("midas::Xml::GetArrayLength", __FILE__, __LINE__)
+					<< "\"num_values\" attribute not found for array: " << path;
 				return -1;
 			}
 			int size = atoi(pAttribute);
@@ -222,14 +231,16 @@ public:
 			}
 			char* pAttribute = mxml_get_attribute(node, "num_values");
 			if(!pAttribute) {
-				std::cerr << "Error: \"num_values\" attribute not found for array: " << path << "\n";
+				dragon::utils::Error("midas::Xml::GetArray", __FILE__, __LINE__)
+					<< "\"num_values\" attribute not found for array: " << path;
 				if(success) *success = false;
 				return;
 			}
 			int size = atoi(pAttribute);
 			if(size != length) {
-				std::cerr << "Error: size of the ODB array " << path << ": " << size
-									<< " is not equal to the size of the array to fill: " << length << "\n";
+				dragon::utils::Error("midas::Xml::GetArray", __FILE__, __LINE__)
+					<< "size of the ODB array " << path << ": " << size
+					<< " is not equal to the size of the array to fill: " << length;
 				if(success) *success = false;
 				return;
 			}
@@ -239,7 +250,8 @@ public:
 				valPath << "/value[" << i+1 << "]";
 				Node valNode = mxml_find_node(node, valPath.str().c_str());
 				if(!valNode) {
-					std::cerr << "Error: Unable to find value node for array index " << i << "\n";
+					dragon::utils::Error("midas::Xml::GetArray", __FILE__, __LINE__)
+						<< "Unable to find value node for array index " << i;
 					continue;
 				}
 
@@ -266,7 +278,8 @@ public:
 			}
 			char* pAttribute = mxml_get_attribute(node, "num_values");
 			if(!pAttribute) {
-				std::cerr << "Error: \"num_values\" attribute not found for array: " << path << "\n";
+				dragon::utils::Error("midas::Xml::GetArray", __FILE__, __LINE__)
+					<< "\"num_values\" attribute not found for array: " << path;
 				return false;
 			}
 			int size = atoi(pAttribute);
@@ -275,7 +288,8 @@ public:
 				valPath << "/value[" << i+1 << "]";
 				Node valNode = mxml_find_node(node, valPath.str().c_str());
 				if(!valNode) {
-					std::cerr << "Error: Unable to find value node for array index " << i << "\n";
+					dragon::utils::Error("midas::Xml::GetArray", __FILE__, __LINE__)
+						<< "Unable to find value node for array index " << i;
 					continue;
 				}
 				std::cout << path << "[" << i << "] = " << valNode->value << "\n";

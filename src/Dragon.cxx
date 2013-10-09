@@ -15,10 +15,6 @@
 #include "Dragon.hxx"
 
 
-#ifndef USE_ROOT
-int gErrorIgnoreLevel; // Global error ignore
-#endif
-
 namespace dutils = dragon::utils;
 
 // 
@@ -34,7 +30,7 @@ bool do_setv(T* t, const char* dbfile)
 {
 	midas::Database db(dbfile);
 	if(db.IsZombie()) {
-		dutils::Error("")
+		dutils::Error("", __FILE__, __LINE__)
 			<< "Zombie database: " << dbfile;
 		return false;
 	}
@@ -47,7 +43,7 @@ bool do_setv(dragon::Head* t, const char* dbfile)
 {
 	midas::Database db(dbfile);
 	if(db.IsZombie())	{
-		dutils::Error("")
+		dutils::Error("", __FILE__, __LINE__)
 			<< "Zombie database: " << dbfile;
 		return false;
 	}
@@ -58,7 +54,7 @@ bool do_setv(dragon::Tail* t, const char* dbfile)
 {
 	midas::Database db(dbfile);
 	if(db.IsZombie()) {
-		dutils::Error("")
+		dutils::Error("", __FILE__, __LINE__)
 			<< "Zombie database: " << dbfile;
 		return false;
 	}
@@ -69,7 +65,7 @@ bool do_setv(dragon::Coinc* t, const char* dbfile)
 {
 	midas::Database db(dbfile);
 	if(db.IsZombie())	{
-		dutils::Error("")
+		dutils::Error("", __FILE__, __LINE__)
 			<< "Zombie database: " << dbfile;
 		return false;
 	}
@@ -85,7 +81,7 @@ bool check_db(const midas::Database* db, const char* cl)
 		std::stringstream zmsg, where;
 		where << cl << "::Variables::set";
 		if(db) zmsg << ", IsZombie() " << db->IsZombie();
-		dutils::Error(where.str().c_str())
+		dutils::Error(where.str().c_str(), __FILE__, __LINE__)
 			<< "Invalid database: 0x" << db << zmsg.str();
 	}
 	return success;
@@ -133,7 +129,8 @@ void dragon::RunParameters::reset()
 bool dragon::RunParameters::read_data(const midas::Database* db)
 {
 	if(db == 0 || db->IsZombie()) {
-		dutils::Error("dragon::RunParameters::read_data") << "Zombie database";
+		dutils::Error("dragon::RunParameters::read_data", __FILE__, __LINE__)
+			<< "Zombie database";
 		return false;
 	}
 
@@ -144,7 +141,8 @@ bool dragon::RunParameters::read_data(const midas::Database* db)
 	if(success) success = db->ReadArray("/Experiment/Run Parameters/TSC_TriggerStop", trigger_stop, MAX_FRONTENDS);
 
 	if(!success) {
-		dutils::Error("dragon::RunParameters::read_data") << "Failed reading one of the ODB parameters.";
+		dutils::Error("dragon::RunParameters::read_data", __FILE__, __LINE__)
+			<< "Failed reading one of the ODB parameters.";
 	}
 
 	return success;
@@ -897,6 +895,13 @@ bool dragon::Head::set_variables(const midas::Database* db)
 	if(success) success = bgo.variables.set(db);
 	if(success) success = this->variables.set(db);
 
+	if(success) {
+		dragon::utils::ChangeErrorIgnore dummy(9001);
+		int period = 0;
+		db->ReadValue("/dragon/errormessage/v1190/period", period);
+		v1190.fMessagePeriod = period;
+	}
+
 	return success;
 }
 
@@ -1158,6 +1163,13 @@ bool dragon::Tail::set_variables(const midas::Database* db)
 
 	if(success) success = this->variables.set(db);
 
+	if(success) {
+		dragon::utils::ChangeErrorIgnore dummy(9001);
+		int period = 0;
+		db->ReadValue("/dragon/errormessage/v1190/period", period);
+		v1190.fMessagePeriod = period;
+	}
+
 	return success;
 }
 
@@ -1263,7 +1275,7 @@ inline bool check_bank_len(int expected, int gotten, const char* bkname)
 {
 	bool retval = true;
 	if (expected != gotten) {
-		dutils::Error("dragon::Scaler::unpack")
+		dutils::Error("dragon::Scaler::unpack", __FILE__, __LINE__)
 			<< "Unexpected length of bank \"" << bkname << "\": expected " << expected
 			<< ", got " << gotten << DRAGON_ERR_FILE_LINE;
 		retval = false;
@@ -1297,7 +1309,7 @@ const std::string& dragon::Scaler::channel_name(int ch) const
 	 * \param ch Channel number
 	 */
 	if (ch >= 0 && ch < MAX_CHANNELS) return variables.names[ch];
-	dutils::Error("dragon::Scaler::channel_name")
+	dutils::Error("dragon::Scaler::channel_name", __FILE__, __LINE__)
 		<< "Invalid channel number: " << ch << ". Valid arguments are 0 <= ch < " << MAX_CHANNELS;
 	static std::string junk = "";
 	return junk;
@@ -1340,7 +1352,7 @@ bool dragon::Scaler::Variables::set(const char* dbfile, const char* dir)
 	 */
 	midas::Database db(dbfile);
 	if(db.IsZombie()) {
-		dutils::Error("Scaler::Variables::Set")
+		dutils::Error("Scaler::Variables::Set", __FILE__, __LINE__)
 			<< "Zombie database: " << dbfile;
 		return false;
 	}
@@ -1357,7 +1369,7 @@ bool dragon::Scaler::Variables::set(const midas::Database* db, const char* dir)
 	 */
 	std::string path1 = dir;
 	if (path1 != "head" && path1 != "tail") {
-		dutils::Error("Scaler::Variables::set")
+		dutils::Error("Scaler::Variables::set", __FILE__, __LINE__)
 			<< "Invalid subdirectory: \"" << path1 << "\"."
 			<< "Must be either \"head\" or \"tail\"";
 		return false;
@@ -1383,9 +1395,9 @@ dragon::Coinc::Coinc()
 	reset();
 }
 
-dragon::Coinc::Coinc(const dragon::Head& head, const dragon::Tail& tail)
+dragon::Coinc::Coinc(const dragon::Head& head_, const dragon::Tail& tail_)
 {
-	compose_event(head, tail);
+	compose_event(head_, tail_);
 }
 
 void dragon::Coinc::reset()
@@ -1527,7 +1539,8 @@ void dragon::Epics::unpack(const midas::Event& event)
 		ch  = static_cast<int32_t>(*pch++);
 		val = *pch++;
 	} else {
-		dutils::Error("Epics::unpack") << "Bank len != 2, skipping!";
+		dutils::Error("Epics::unpack", __FILE__, __LINE__)
+			<< "Bank len != 2, skipping!";
 	}
 
 	/// - Copy event header
@@ -1541,7 +1554,7 @@ const std::string& dragon::Epics::channel_name(int ch) const
 	 */
 	if (ch >= 0 && ch < variables.names.size())
 		return variables.names[ch];
-	dutils::Error("dragon::Epics::channel_name")
+	dutils::Error("dragon::Epics::channel_name", __FILE__, __LINE__)
 		<< "Invalid channel number: " << ch << ". Valid arguments are 0 <= ch < " << variables.names.size();
 	static std::string junk = "";
 	return junk;
@@ -1571,7 +1584,7 @@ bool dragon::Epics::Variables::set(const char* dbfile)
 	 */
 	midas::Database db(dbfile);
 	if(db.IsZombie()) {
-		dutils::Error("Epics::Variables::Set")
+		dutils::Error("Epics::Variables::Set", __FILE__, __LINE__)
 			<< "Zombie database: " << dbfile;
 		return false;
 	}

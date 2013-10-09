@@ -51,7 +51,7 @@
 	See the operation guide http://trshare.triumf.ca/~gchristian/dragon/frontend/html/operation.html
 	for more information.
 	.
-7. _How do I adjust BGO thresholds?_
+7. _How do I adjust BGO CFD thresholds?_
 
   From the <a href=smaug.triumf.ca:8081>MIDAS status page</a>, first click the `Adjust BGO Thresholds` button.
 	Then change the `Threshold Gamma Energy` variable to the desired threshold energy in keV. Now go back to the
@@ -61,7 +61,37 @@
 	Note that this only sets the correct keV threshold when the array is gain matched in the standard manner, that
 	is, placing the 6.13 MeV <SUP>13</SUP>C peak at channel 1471 (or 6.13 MeV using the standard ADC slopes of 0.00415).
 	For alternative gain matching, the relationship between threshold value and keV will need to be figured out empirically.
+	.
+8. _How do I change the TDC maximum hit option?_
 
+  The TDC maximum hit option is set through the `/Equipment/TailVME/Settings/V1190/MaxHits` variable (replace `TailVME`
+	with `HeadVME` for the BGO side). If this variable is set to a power of two (the result, not the power, i.e. set to
+	`64` not `6`) then the set value will be the TDC Max Hits setting. If it's set to `0xffff`, then the max hits option
+	is disabled and the TDC will record as many events as it can hold in memory. Note that the max hits option is common
+	to a bank of 16 channels, i.e. if max hits is set to 64, then TDC channels 0 - 15 can only hold 64 events, 16-31 can
+	only hold 64 events, etc. Also note that an event means a leading or a trailing edge pulse, so one leading+trailing
+	signal will count as two events.  For this reason, it is suggested to leave the MaxHits variable set to `0xffff` to
+	avoid corwding out a needed signal with unneeded ones.
+	.
+9. _How can I set ADC thresholds, or suppress readout of no-data events?_
+
+  The CAEN V785/V792 ADCs have the option to suppress the readout of data that falls below some set value. Typically,
+	this might be desired to suppress the read out of QDC pedestals or ADC "zero value" peaks to save disk space and 
+	reduce read out time.
+
+	These settings are controlled in the ODB via `/Equipment/TailVME/Settings/V785/` (sub `HeadVME` for `TailVME` and
+	`V792` for `V785` for the BGO side). The `EnableThreshold` variable either turns on or off zero suppression. Setting
+	this variable to `n` means that all data are read out, regardless of the size of the converted value. Setting it to
+	yes means that only data above threshold values are read out. If there are multiple ADCS, the `EnableThreshold` is an
+	array, with each index being common to one of the ADCs (currently in the tail, [0] means the non-DSSSD ADC and [1] the
+	DSSSD ADC).
+	
+	The threshold values are controlled by the `Threshold`
+	array, with each index corresponding to the same channel in the ADC, or in the case of multiple ADCs, the array index
+	corresponds to the channel plus an offset. For example, currently the tail setup has two ADCs, so indices 0-31 control
+	channels 0-31 in `ADC0` (which is the non-DSSSD ADC), and indices 32-63 control channels 0-31 in `ADC1` (the DSSSD ADC).
+	The threshold values should be set to a multiple of 16, if not they will be rounded down to the closest multiple of 16.
+	
 
 \section panic "Panic" Instructions / Help
 
@@ -265,7 +295,20 @@
 	to generate by hand, it is suggested to first copy one of the `run***.xml` files from the logger data directory
 	and then edit this to update variables as desired.
 	.
-5. _Now that I've converted MIDAS files into ROOT format, how can I see the data?_
+5. _What if I just want to calibrate the DSSSD (or BGO, etc.)? Do I have to re-analyze every MIDAS file,
+   or is there a better way?_
+
+  Re-analyzing a whole set of MIDAS files just to calibrate one or two detectors is indeed inefficient. However,
+	it is possible to do the calibration by looping through the events in the _ROOT_ file, applying the calibration,
+	and saving the results in an external file. Then using the
+	<a href="http://root.cern.ch/root/html/TTree.html#TTree:AddFriend">TTre::AddFriend</a> utility, you can view the
+	results on an event-by-event basis, just as if they were members of the original tree.
+
+  For the DSSSDs, a "selector" class has already been written to facilitate re-calibrating the array and saving
+	the results in separate files, run-by-run. See the dragon::DsssdCalibrate class documentation and the file
+	DsssdCalibration.C in the examples directory.
+	.
+6. _Now that I've converted MIDAS files into ROOT format, how can I see the data?_
 
   There are a few options here. One is to create a <a href=http://root.cern.ch/root/html/TChain.html>
 	TChain</a> linking the events in all of your ROOT files together, and then start viewing data using
@@ -275,13 +318,84 @@
 
 	If your analysis requirements include handling a large number of events (typically > 1 million or so will
 	noticeably slow down the Draw() command), or performing non-trivial transformations on the data, there are
-	some classes defined in RootAnalysis.hxx that can help you out. One is a class to filter a chain of files
+	some classes defined in RootAnalysis.hxx and Selectors.hxx that can help you out. One is a class to filter
+	a chain of files
 	into a smaller number of events based on some cut condition and save the result in a ROOT file. Often, one
 	pass through the data with a rough cut can reduce the dataset to a managable size for further analysis.
 	The other classes available are a set of TSelector classes specific to DRAGON data. By deriving from these,
-	you can code your analysis routines in C++. See the documentation on RootAnalysis.hxx for further information.
+	you can code your analysis routines in C++. See the documentation on RootAnalysis.hxx Selector.hxx, or
+	the files in the examples directory for further information.
 	.
-6. _I'm really new to C++/ROOT and have no idea how to even get started looking at data. Any advice?_
+7. _What if I want to get the value of some parameter for a specific event or events, for example to use elsewhere
+   in a macro?_
+  
+	 There are a few ways to accomplish this:
+
+	   1. Use TTree::GetEntry() - 
+        \code
+				dragon::Tail* ptail = new dragon::Tail(); // create an instance of the tail class to store event-by-event data
+				t3->SetBranchAddress("tail", &ptail);     // 't3' now associates the "tail" branch with 'ptail'
+				t3->GetEntry(0); // 'ptail' now holds all the data from event 0
+				double mcpTac = ptail->mcp.tac;
+				
+				// use mcpTac however you need to //
+
+				t3->ResetBranchAddresses(); // free 'ptail' from it's association with "t3"
+				delete ptail; // release the memory allocated to ptail
+				\endcode
+				
+				Typically this method is best if you need to loop over many entries and use a large number of parameters
+				in your loop code. Otherwise, the syntax is quite cumbersome, and it is rather poor performance-wise since
+				you have to read _all_ of the data from every event, rather than just the branches you want.
+        .
+		 2. Use TLeaf::GetValue() - 
+		    \code
+				t3->GetEntry(0); // load the 0th entry in the tree
+				double mcpTac = t3->GetLeaf("mcp.tac")->GetValue(); // read the value at "mcp.tac"
+				\endcode
+				Note that for arrays you have to specify the array index as the GetValue() argument,
+				_not_ in the GetLeaf() string argument:
+				\code
+				t3->GetEntry(0);
+				double dsssd15 = t3->GetLeaf("dsssd.ecal")->GetValue(15);
+				\endcode
+
+				This method is nice if you just want to get the values of a few parameters for a few events.
+        .
+		 3. Use TTree::Draw() - 
+		    \code
+				t3->Draw("mcp.tac", "", "goff"); // no graphics output, but the drawn data are saved event-by-event in arrays
+				double mcpTac = t3->GetV1()[0];  // mcpTac is now set to the 'mcp.tac' value from event 0
+				\endcode
+				You can also Draw and extract two or more (up to four) parameters at once.
+				\code
+				t3->Draw("dsssd.ecal[15]:mcp.tac", "", "goff");
+				double dsssd15 = t3->GetV1()[0];  // dsssd15 is now set to the 'dsssd.ecal[15]' value from event 0
+				double mcpTac  = t3->GetV2()[0];  // mcpTac is now set to the 'mcp.tac' value from event 0
+				\endcode
+
+				This method has the advantage that you can specify a gate in the Draw() command, thus allowing you to loop over
+				only the events satisfying the cut condition. It is also very efficient and thus good for looping over all or
+				part of a tree and extracting a few parameters event-by-event.
+				\warning This method does have one potential pitfall: The arrays returned by GetV1(), etc. have a default maximum
+				size of 10^6 events. If your Tree has more entries than this, then using the brackets [] to get entries after the
+				10^6th one will be undefined. To rectify this, use TTree::SetEstimate() - 
+				\code
+				Long64_t nevts = t3->Draw("mcp.tac", "", "goff"); // (returns, say, 5000000)
+
+				// - BAD - //
+				for (Long64_t event = 0; event < nevts; ++event) {
+				  std::cout << "Event " << event << ": mcp.tac = " << t3->GetV1()[event] << "\n"; // BAD!!! for event > 999999, the result is undefined
+				}
+
+				// - GOOD - //
+				t3->SetEstimate(nevts);
+				for (Long64_t event = 0; event < nevts; ++event) {
+				  std::cout << "Event " << event << ": mcp.tac = " << t3->GetV1()[event] << "\n"; // Okay, GetV1() now valied up to index [nevts-1]
+				}
+				\endcode
+  .
+8. _I'm really new to C++/ROOT and have no idea how to even get started looking at data. Any advice?_
 
   ROOT does indeed have a steep learning curve, and most of the documentation on their website assumes a certain
 	level of familiarity with C++. For the true beginners, I wrote a ROOT guide a few years ago for a different group
@@ -292,13 +406,13 @@
 	though this often is not the best for beginners. Often,
 	a good reference is the ROOT class documentation, e.g. for TTree http://root.cern.ch/root/html/TTree.html.
 	.
-7. _I can never remember all of the parameter names in the ROOT trees. Is there a way to find this out easily?_
+9. _I can never remember all of the parameter names in the ROOT trees. Is there a way to find this out easily?_
 
   Use the TTree::StartViewer() command, e.g. `t3->StartViewer()` to see a complete graphical listing of all avaiable
 	parameters in a given tree. Alternatively, you can use TTree::Print, e.g. `t3->Print()` to see a textual listing
 	of available parameters.
   .
-8. _How do you make plots of energy vs. channel in offline analysis from Trees. For example: DSSSD energy vs channel?_
+10. _How do you make plots of energy vs. channel in offline analysis from Trees. For example: DSSSD energy vs channel?_
 
   Take advantage of `TTree::Draw()` and its features for parsing arrays. To draw DSSSD energy vs. channel just do the
 	following:

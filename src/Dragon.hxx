@@ -51,16 +51,16 @@ public: // Methods
 	bool read_data(const midas::Database* db);
 
 public: // Data
-	/// Run start time from the tsc
+	/// Run start time from the tsc (in seconds)
 	/*! [0]: head, [1]: tail */
 	double run_start[MAX_FRONTENDS];
-	/// Run stop time from the tsc
+	/// Run stop time from the tsc (in seconds)
 	/*! [0]: head, [1]: tail */
 	double run_stop[MAX_FRONTENDS];
-	/// Trigger start time from the tsc
+	/// Trigger start time from the tsc (in seconds)
 	/*! [0]: head, [1]: tail */
 	double trigger_start[MAX_FRONTENDS];
-	/// Trigger stop time from the tsc
+	/// Trigger stop time from the tsc (in seconds)
 	/*! [0]: head, [1]: tail */
 	double trigger_stop[MAX_FRONTENDS];
 };
@@ -693,11 +693,12 @@ public: // Subclasses
 		/// Time for which potential coincidence events are buffered [seconds].
 		double buffer_time;
 	};
+
 public: // Methods
 	/// Empty
 	Coinc();
 	/// Construct from a head and tail event
-	Coinc(const Head& head, const Tail& tail);
+	Coinc(const Head& head_, const Tail& tail_);
 	/// Reset all modules (set data to defaults)
 	void reset();
 	///  Reads all variable values from an database (file or online)
@@ -752,7 +753,10 @@ public: // Methods
 	bool set_variables(const midas::Database* db, const char* dir);
 	/// Set branch alises in a ROOT TTree.
 	template <class T>
-	void set_aliases(T* t, const char* branchName, bool print = false) const;
+	void set_aliases(T* t, bool print = false) const;
+	/// Plot traditional scaler histograms using 1D bins
+	template <class T, class H>
+	static int64_t plot(T* tree, const char* varexp, const char* selection = "", Option_t* option = "");
 
 public: // Data
 	/// Number of counts in a single read period
@@ -859,7 +863,7 @@ public: // Subclass instances
 // ======= Inlined Implementations ======== //
 
 template <class T>
-inline void dragon::Scaler::set_aliases(T* t, const char* branchName, bool print) const
+inline void dragon::Scaler::set_aliases(T* t, bool print) const
 {
 	/*!
 	 * Sets tree branch aliases based on variable values - results in easier to use
@@ -878,21 +882,21 @@ inline void dragon::Scaler::set_aliases(T* t, const char* branchName, bool print
 	 *
 	 * Example:
 	 * \code
-	 * TTree t("t","");
+	 * // (with a dragon root file loaded)
 	 * dragon::Scaler scaler;
-	 * scaler.variables.names[0] = "bgo_triggers_presented";
-	 * void* pScaler = &scaler;
-	 * t.Branch("scaler", "dragon::Scaler", &pScaler);
-	 * scaler.set_aliases(&t, "scaler");
-	 * t.Fill(); // adds a events worth of data
-	 * t.Draw("count_bgo_triggers_presented"); // same as doing t.Draw("scaler.count[0]");
+	 * scaler.set_variables(variables, "head")
+	 * scaler.set_aliases(t2);
+	 * t2->Draw("count_triggers_acquired/count_triggers_presented1:Entry$","","L")
 	 * \endcode
+	 *
+	 * \param t Pointer to the TTree for which you want to set aliases.
+	 * \param print If true, prints each { alias, source } pair that's set.
 	 */
 	const std::string chNames[3] = { "count", "sum", "rate" };
 	for(int i=0; i< MAX_CHANNELS; ++i) {
 		for(int j=0; j< 3; ++j) {
 			std::stringstream oldName, newName;
-			oldName << branchName << "." << chNames[j] << "[" << i << "]";
+			oldName << chNames[j] << "[" << i << "]";
 			newName << chNames[j] << "_" << variables.names[i];
 			t->SetAlias(newName.str().c_str(), oldName.str().c_str());
 			if(print) {
@@ -900,6 +904,37 @@ inline void dragon::Scaler::set_aliases(T* t, const char* branchName, bool print
 			}
 		}
 	}
+}
+
+template <class T, class H>
+inline int64_t dragon::Scaler::plot(T* tree, const char* varexp, const char* selection, Option_t* option)
+{
+	///
+	/// This function creates a "traditional" DRAGON scaler histograms, where the x-axis is 
+	/// time and the bin counts is the number of scaler counts. If one of the `count[]` variables
+	/// is plotted, then the integral of the histogram will be the integral of scaler counts across the
+	/// whole run
+	/// \param tree Tree from which to plot (e.g. `t2` for head `t4` for tail)
+	/// \param varexp Same as you would use in TTree::Draw(), i.e. `"count[10]>>hst(3600,0,3600)"`
+	/// \param selection Cut selection, same as for TTree::Draw()
+	/// \param option DrawOption, same as for TTree::Draw()
+	/// \returns Number of events plotted
+	///
+
+	tree->SetEstimate(tree->GetEntries());
+	int64_t nevts = tree->Draw(varexp, selection, "goff");
+
+	H* hst = tree->GetHistogram();
+	if(hst == 0) return 0;
+	for(int bin = 0; bin< hst->GetNbinsX() + 1; ++bin)
+		hst->SetBinContent(bin, 0);
+
+	for(int64_t i=0; i< nevts; ++i) {
+		int64_t bin = hst->FindBin(i);
+		hst->SetBinContent(bin, hst->GetBinContent(bin) + tree->GetV1()[i]);
+	}
+	hst->Draw();
+	return nevts;
 }
 
 template <class T>

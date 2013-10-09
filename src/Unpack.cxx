@@ -66,12 +66,15 @@ void dragon::Unpacker::HandleBor(const char* dbname)
 
 	/// - Read variables from the database corresponding to \e dbname (skip if dbname is NULL)
 	if (dbname) {
-		fHead->set_variables(dbname);
-		fTail->set_variables(dbname);
-		fCoinc->set_variables(dbname);
-		fEpics->set_variables(dbname);
-		fHeadScaler->set_variables(dbname, "head");
-		fTailScaler->set_variables(dbname, "tail");
+		midas::Database db(dbname);
+		if(!db.IsZombie()) {
+			fHead->set_variables(&db);
+			fTail->set_variables(&db);
+			fCoinc->set_variables(&db);
+			fEpics->set_variables(&db);
+			fHeadScaler->set_variables(&db, "head");
+			fTailScaler->set_variables(&db, "tail");
+		}
 	}
 }
 
@@ -186,7 +189,8 @@ std::vector<int32_t> dragon::Unpacker::UnpackMidasEvent(void* header, char* data
 		}
 	default:
 		{
-			utils::Warning("UnpackBuffer") << "Unkonwn event ID: " << evtHeader->fEventId;
+			utils::Warning("UnpackBuffer", __FILE__, __LINE__)
+				<< "Unkonwn event ID: " << evtHeader->fEventId;
 			break;
 		}
 	}
@@ -208,7 +212,7 @@ void dragon::Unpacker::Process(const midas::Event& event)
 		break;
 
 	default:
-		utils::Error("utils::Unpacker::Process")
+		utils::Error("utils::Unpacker::Process", __FILE__, __LINE__)
 			<< "Unknown event id: " << event.GetEventId() << ", skipping...\n";
 		break;
 	}
@@ -219,7 +223,7 @@ void dragon::Unpacker::Process(const midas::Event& event1, const midas::Event& e
 	midas::CoincEvent coincEvent(event1, event2);
 
 	if (coincEvent.fHeavyIon == 0 ||	coincEvent.fGamma == 0) {
-		dragon::utils::Error("utils::unpacker::Process")
+		dragon::utils::Error("utils::unpacker::Process", __FILE__, __LINE__)
 			<< "Invalid coincidence event, skipping...\n";
 		return;
 	}

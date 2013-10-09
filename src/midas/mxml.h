@@ -13,6 +13,7 @@
 
 #ifndef _MXML_H_
 #define _MXML_H_
+#ifndef DOXYGEN_SKIP
 
 #define MXML_NAME_LENGTH 64
 
@@ -137,5 +138,6 @@ void mxml_basename(char *path);
 }
 #endif
 
+#endif /* DOXYGEN_SKIP */
 #endif /* _MXML_H_ */
 /*------------------------------------------------------------------*/

@@ -6,7 +6,7 @@
 //
 // $Id: HttpOdb.h 91 2012-04-12 18:36:17Z olchansk $
 //
-
+#ifndef DOXYGEN_SKIP
 #ifndef INCLUDE_HttpOdb_H
 #define INCLUDE_HttpOdb_H
 
@@ -55,5 +55,6 @@ class HttpOdb : public VirtualOdb
   char fReplyBuf[1024];
 };
 
+#endif
 #endif
 //end

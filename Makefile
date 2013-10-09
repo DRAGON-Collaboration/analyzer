@@ -38,10 +38,10 @@ RB_HOME=$(HOME)/packages/rootbeer
 
 ### CHOOSE YOUR COMPILER IF YOU WANT ###
 ##CXX=g++ -Wall
-#CXX=clang++ -I/opt/local/include/
+CXX=c++ -Wall -I/opt/local/include/
 
 ##CC=gcc -Wall
-#CC=clang -I/opt/local/include/
+CC=cc -Wall -I/opt/local/include/
 
 
 #####################################
@@ -138,8 +138,8 @@ $(OBJ)/TStamp.o		              	\
 $(OBJ)/Vme.o				\
 $(OBJ)/Dragon.o				\
 $(OBJ)/utils/TAtomicMass.o              \
-$(OBJ)/utils/Uncertainty.o
-#$(OBJ)/utils/UDouble.o
+$(OBJ)/utils/Uncertainty.o		\
+$(OBJ)/utils/ErrorDragon.o
 
 ifeq ($(USE_MIDAS), YES)
 OBJECTS+=$(OBJ)/midas/libMidasInterface/TMidasOnline.o
@@ -166,10 +166,15 @@ $(SRC)/*.hxx
 
 
 ### DRAGON LIBRARY ###
+MID2ROOT_LIBS=-lDragon $(MIDASLIBS)
+
 MAKE_ALL=$(DRLIB)/libDragon.so $(PWD)/bin/mid2root
 ifeq ($(USE_ROOTBEER),YES)
 $(info ************  USE_ROOTBEER ************)
 MAKE_ALL+=$(PWD)/bin/rbdragon
+DEFINITIONS+=-DUSE_ROOTBEER
+MID2ROOT_LIBS+=-L$(PWD)/../../rootbeer/lib -lRootbeer
+MID2ROOT_INC=$(RBINC) 
 endif
 ifeq ($(USE_ROOTANA),YES)
 MAKE_ALL+=$(PWD)/bin/anaDragon
@@ -188,7 +193,7 @@ $(OBJECTS) $(DR_DICT) \
 
 mid2root: $(PWD)/bin/mid2root
 $(PWD)/bin/mid2root: src/mid2root.cxx $(DRLIB)/libDragon.so
-	$(LINK) -lDragon $(MIDASLIBS) $< \
+	$(LINK) $(MID2ROOT_INC) $(MID2ROOT_LIBS) $< \
 -o $@ \
 
 mid2root: $(PWD)/bin/mid2root

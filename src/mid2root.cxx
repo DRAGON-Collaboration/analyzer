@@ -14,6 +14,7 @@
 #include <iostream>
 #include <TTree.h>
 #include <TFile.h>
+#include <TROOT.h>
 #include <TError.h>
 #include <TString.h>
 #include <TSystem.h>
@@ -24,19 +25,28 @@
 #include "Dragon.hxx"
 
 
-
+#ifndef DOXYGEN_SKIP
 namespace {
 bool arg_return = false;
 const char* const msg_use = 
-	"usage: mid2root <input file> [-o <output file>] [-v <xml odb>] [--singles] [--overwrite] [--quiet <n>] [--help]\n";
+	"usage: mid2root <input file> [-o <output file>] [-v <xml odb>] [-histos <*.xml> ] "
+	"[--singles] [--overwrite] [--quiet <n>] [--help]\n";
 }
+
+//
+// Forward declaration of rootbeer function to parse histogram file
+#ifdef USE_ROOTBEER
+namespace rb { void ReadHistXML(const char* filename, Option_t* option = "r"); }
+#endif
+#endif
+
 
 //
 /// Encloses mid2root helper functions
 namespace m2r {
 
 //
-// SKip documenting a bunch of internal stuff
+// Skip documenting a bunch of internal stuff
 #ifndef DOXYGEN_SKIP
 
 typedef std::vector<std::string> strvector_t;
@@ -112,6 +122,7 @@ struct Options_t {
 	std::string fIn;
 	std::string fOut;
 	std::string fOdb;
+	std::string fHistos;
 	bool fOverwrite;
 	bool fSingles;
 	Options_t(): fOverwrite(false), fSingles(false) {}
@@ -138,7 +149,14 @@ void static_counter(Int_t n, Int_t nupdate = 1000, bool force = false)
 	m2r::flush(m2r::cout);
 }
 
+/// Fill histograms
+void fill_histos(int eventCode, void*);
 
+/// Save histograms
+void save_histos(TDirectory*, TDirectory*);
+
+/// Read histograms from xml file
+void read_histos(const std::string&);
 
 /// Print a usage message
 int usage(const char* what = 0)
@@ -173,6 +191,11 @@ int help()
 		"\t                  variables to be used in the program. Default is to take variable values from the\n"
 		"\t                  ODB dump of the input MIDAS file (i.e. variables will reflect the state of the ODB\n"
 		"\t                  when the run was taken).\n"
+		"\n"
+		"\t-histos <*.xml>:  Specify an XML file denoting histograms to fill and save during the unpacking.\n"
+		"\t                  The XML file format should be the same as those created by ROOTBEER. If the DRAGON\n"
+		"\t                  package was compiled with USE_ROOTBEER turned off, then this option is not available.\n"
+		"\t                  In case it is specified but not available, the program will terminate with an error message.\n"
 		"\n"
 		"\t--singles:        Unpack in singles mode. This means that every head and tail event is analyzed as a singles\n"
 		"                    event only. In this mode, the buffering in a queue and timestamp matching routines are\n"
@@ -227,6 +250,13 @@ int process_args(int argc, char** argv, Options_t* options)
 			if (++iarg == args.end()) return usage("variables file not specified");
 			options->fOdb = *iarg;
 		}
+		else if (*iarg == "-histos") { // Histograms file
+#ifndef USE_ROOTBEER
+			return usage("histogram unpacking only available if compiled with USE_ROOTBEER=YES");
+#endif
+			if (++iarg == args.end()) return usage("histogram xml file not specified");
+			options->fHistos = *iarg;
+		}
 		else if (*iarg == "--singles") { // Singles mode
 			options->fSingles = true;
 		}
@@ -257,11 +287,9 @@ int process_args(int argc, char** argv, Options_t* options)
 	return 0;
 }
 
-} // namespace mid2root
-
 //
-/// The main function
-int main(int argc, char** argv)
+/// The main function implementation
+int main_(int argc, char** argv)
 {
 	m2r::Options_t options;
 	int arg_result = m2r::process_args(argc, argv, &options);
@@ -356,6 +384,14 @@ int main(int argc, char** argv)
 				return 0;
 			}
 		}
+	}
+
+	//
+	// Open histos file if specified
+	bool fillHistos = false;
+	if(!options.fHistos.empty()) {
+		fillHistos = true;
+		read_histos(options.fHistos);
 	}
 
 	m2r::cout
@@ -502,11 +538,14 @@ int main(int argc, char** argv)
 
 		//
 		// Check which classes have data, fill trees for those that do
+		// Also fill histograms if appropriate
 		for (int i=0; i< nIds; ++i) {
 			std::vector<Int_t>::iterator it =
 				std::find(which.begin(), which.end(), eventIds[i]);
-			if(it != which.end())
+			if(it != which.end()) {
 				trees[i]->Fill();
+				if(fillHistos) fill_histos(*it, addr[i]);
+			}
 		}
 		m2r::static_counter (nnn++, 1000, false);
 	} // while (1) {
@@ -541,6 +580,12 @@ int main(int argc, char** argv)
 		trees[i]->ResetBranchAddresses();
 	}
 	//
+	// Write histograms to file if requested
+	if(fillHistos) {
+		save_histos(gROOT, &fout);
+		fout.cd();
+	}
+	//
 	// Write run start ODB variables
 	if(db0.get()) {
 		db0->SetNameTitle("odbstart", "ODB tree at run start.");
@@ -557,13 +602,176 @@ int main(int argc, char** argv)
 	midas::Database db(options.fOdb.c_str());
 	db.SetNameTitle("variables", "ODB tree used in analysis.");
 	db.Write("variables");
-
+	//
+	// Print delayed error messages
+	dragon::utils::gDelayedMessageFactory.Flush();
 	//
 	// Close output file
 	fout.Close();
+	return 0;
 }
 
+} // namespace m2r
 
+#ifndef USE_ROOTBEER
+
+//
+// Dummy implementation for fill_histos() and save_histos()
+void m2r::fill_histos(int, void*) { assert("Can't get here!"); }
+void m2r::read_histos(const std::string&) { assert("Can't get here!"); }
+void m2r::save_histos(TDirectory*, TDirectory*) { assert("Can't get here!"); }
+
+//
+// No rootbeer, just call m2r::main_()
+int main(int argc, char** argv)
+{
+	return m2r::main_(argc, argv);
+}
+
+#else
+#ifndef DOXYGEN_SKIP
+//
+// Rootbeer inplementation for histogram parsing stuff.
+// We are just using rootbeer for parsing histogram files
+// but need to "fake" some of the framework to get the histograms
+// to be created and filled.
+
+//
+// Include necessary rootbeer headers 
+#include "Main.hxx"
+#include "Rint.hxx"
+#include "Event.hxx"
+#include "Data.hxx"
+
+namespace m2r {
+//
+// Rootbeer library defines it's own main(), users provide implementation
+// via a class inherited from rb::Main and by imelementing rb::GetMain()
+class Main: public rb::Main {
+public:
+	int Run(int argc, char** argv)
+		{
+			int argc2 = 3;
+			char* argv2[] = { (char*)"mid2root", (char*)"-ng", (char*)"--quiet" };
+			rb::Rint rbApp("Rbunpack", &argc2, argv2, 0, 0, true);
+			gSystem->ResetSignals();
+			int retval = m2r::main_(argc, argv);
+			rbApp.Terminate(retval);
+			return retval;
+		}
+}; }
+
+//
+// Return m2r::Main
+rb::Main* rb::GetMain() { return new m2r::Main(); }
+
+
+namespace m2r {
+
+//
+// Rootbeer associates histograms with a data address using 
+// classes derived from rb::Event, which contain a wrapper
+// to classes holding user data. However, here we don't want
+// to use all of this, so we can fake it by just copying
+// the data from `head`, `tail`, etc that are defined in main_().
+// To make this generic we can use some template and inheritance
+// tricks. First define an abstract with a `SetData()` function
+// to copy data.
+class AEvent: public rb::Event {
+public:
+	virtual void SetData(const void* addr) = 0;
+};
+
+//
+// Then define a template derived class that fills in all of the
+// implementations generically.
+template <class T, const char* STR, bool B>
+class EventTemplate: public AEvent {
+protected:
+	rb::data::Wrapper<T> fWrapper; // data wrapper - what we copy to
+public:
+	//
+	// Initialize data wrapper with template arguments
+	EventTemplate(): fWrapper(STR, this, B, "") { }
+  //
+	// Copy data at an address to the data wrapper
+	void SetData(const void* addr) { *fWrapper = *reinterpret_cast<const T*>(addr); }
+private:
+	//
+	// Required pure virtual functions - implement with nothing
+	Bool_t DoProcess(const void*, Int_t) { return true; }
+	void HandleBadEvent() { }
+};
+
+//
+// Have to define string literals as global char arrays to use them as template arguments
+char gStrHead[] = "head", gStrTail[] = "tail", gStrCoinc[] = "coinc",
+				 gStrEpics[] = "epics", gStrScalerH[] = "head_scaler", gStrScalerT[] = "tail_scaler",
+				 gStrTS[] = "tstamp", gStrRP[] = "runpar";
+
+//
+// Now derive from EventTemplate<> with the appropriate template arguments
+// for each type of event
+class HeadEvent:  public EventTemplate<dragon::Head,   gStrHead,    false> { };
+class TailEvent:  public EventTemplate<dragon::Tail,   gStrTail,    false> { };
+class CoincEvent: public EventTemplate<dragon::Coinc,  gStrCoinc,   false> { };
+class EpicsEvent: public EventTemplate<dragon::Epics,  gStrEpics,   false> { };
+class HeadScaler: public EventTemplate<dragon::Scaler, gStrScalerH, false> { };
+class TailScaler: public EventTemplate<dragon::Scaler, gStrScalerT, false> { };
+class TStampDiagnostics: public EventTemplate<tstamp::Diagnostics,   gStrTS, false> { };
+class RunParameters:     public EventTemplate<dragon::RunParameters, gStrRP, false> { };
+
+} // namespace m2r
+
+
+//
+// Implement rootbeer RegisterEvents() function with the classes
+// defined above
+void rb::Rint::RegisterEvents()
+{
+	RegisterEvent<m2r::HeadEvent>  (DRAGON_HEAD_EVENT,   "HeadEvent");
+	RegisterEvent<m2r::TailEvent>  (DRAGON_TAIL_EVENT,   "TailEvent");
+  RegisterEvent<m2r::CoincEvent> (DRAGON_COINC_EVENT, "CoincEvent");
+  RegisterEvent<m2r::EpicsEvent> (DRAGON_EPICS_EVENT, "EpicsEvent");
+	RegisterEvent<m2r::HeadScaler> (DRAGON_HEAD_SCALER, "HeadScaler");
+	RegisterEvent<m2r::TailScaler> (DRAGON_TAIL_SCALER, "TailScaler");
+	RegisterEvent<m2r::TStampDiagnostics>    (6, "TStampDiagnostics");
+	RegisterEvent<m2r::RunParameters>        (7,     "RunParameters");
+}
+
+//
+// Now implement the functions dealing w/ histogram read write, fill
+void m2r::read_histos(const std::string& fname)
+{
+	rb::ReadHistXML(fname.c_str(), "o");
+}
+
+void m2r::fill_histos(int eventCode, void* addr)
+{
+	m2r::AEvent* event = dynamic_cast<m2r::AEvent*>(rb::Rint::gApp()->GetEvent(eventCode));
+	if(!event) return;
+	
+	event->SetData(addr);
+	event->GetHistManager()->FillAll();
+}
+
+void m2r::save_histos(TDirectory* dir, TDirectory* newdir)
+{
+	for(Int_t i=0; i< dir->GetList()->GetEntries(); ++i) {
+		newdir->cd();
+		TObject* obj = dir->GetList()->At(i);
+		if(obj->InheritsFrom(TDirectory::Class())) {
+			TDirectory* newdir1 = gDirectory->mkdir(obj->GetName(), obj->GetTitle());
+			save_histos(static_cast<TDirectory*>(obj), static_cast<TDirectory*>(newdir1));
+		}
+		else if(obj->InheritsFrom(rb::hist::Base::Class())) {
+			static_cast<rb::hist::Base*>(obj)->GetHist()->Write(obj->GetName());
+		}
+	}
+}
+
+#endif // DOXYGEN_SKIP
+#endif // USE_ROOTBEER
 
 #else // #ifdef USE_ROOT
 #include <iostream>

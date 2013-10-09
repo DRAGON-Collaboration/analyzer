@@ -37,7 +37,7 @@ void tstamp::Queue::HandleDiagnostics(tstamp::Diagnostics* d) const
 	/*!
 	 * In the base class, prints diagnostic fields.
 	 */
-	dragon::utils::Info("tstamp::Queue")
+	dragon::utils::Info("tstamp::Queue", __FILE__, __LINE__)
 		<< "Diagnostics event: size = " << d->size << ", n_coinc = "
 		<< d->n_coinc << ", time_diff = " << d->time_diff << ", n_singles[]: ";
 	for (int i=0; i< tstamp::Diagnostics::MAX_TYPES; ++i) {
@@ -67,11 +67,11 @@ void tstamp::Queue::Push(const midas::Event& event, tstamp::Diagnostics* diagnos
 		fEvents.insert(event);
 	}
 	catch (std::exception& e) { // try to handle exception gracefully
-		dragon::utils::Error("tstamp::Queue::Push")
+		dragon::utils::Error("tstamp::Queue::Push", __FILE__, __LINE__)
 			<< "Caught an exception from std::multiset::insert: " << e.what()
 			<< " (note: size = " << Size() << ", max size = " << fEvents.max_size()
 			<< "). Clearing the Queue and trying again... WARNING: that this could cause "
-			<< "coincidences to be missed!" << DRAGON_ERR_FILE_LINE;
+			<< "coincidences to be missed!";
 
 		Flush(-1, diagnostics); // remove everything from the queue
 
@@ -80,9 +80,9 @@ void tstamp::Queue::Push(const midas::Event& event, tstamp::Diagnostics* diagnos
 			fEvents.insert(event);
 		}
 		catch (std::exception& e) { // give up
-			dragon::utils::Error("tstamp::Queue::Push")
+			dragon::utils::Error("tstamp::Queue::Push", __FILE__, __LINE__)
 				<< "Caught a second exception from std::multiset::insert: " << e.what()
-				<< ". Not sure what to do: rethrowing (likely fatal!)" << DRAGON_ERR_FILE_LINE;
+				<< ". Not sure what to do: rethrowing (likely fatal!)";
 			throw (e);
 		}
 	}
@@ -195,7 +195,7 @@ void tstamp::Queue::FlushTimeoutMessage(int max_time) const
 	 *
 	 * \param max_time Length of max Flush() timeout in seconds
 	 */
-	dragon::utils::Info("tstamp::Queue::Flush()")
+	dragon::utils::Warning("tstamp::Queue::Flush()", __FILE__, __LINE__)
 		<< "Maximum timeout of " << max_time << " seconds reached. Clearing event queue (skipping "
 		<< fEvents.size() << " events...).";
 }
@@ -211,9 +211,9 @@ void tstamp::Queue::FillDiagnostics(tstamp::Diagnostics* d, double tdiff, bool h
 		d->n_singles[singles_id] += 1;
 	}
 	else if(singles_id > 0) { // Id >= MAX_TYPES
-		dragon::utils::Warning("Queue::FillDiagnostics")
+		dragon::utils::Warning("Queue::FillDiagnostics", __FILE__, __LINE__)
 			<< "Singles id >= Diagnostics::MAX_TYPES, id = " << singles_id
-			<< ", types = " << Diagnostics::MAX_TYPES << DRAGON_ERR_FILE_LINE;
+			<< ", types = " << Diagnostics::MAX_TYPES;
 	}
 
 	// rates

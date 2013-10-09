@@ -7,6 +7,7 @@
 //
 //
 
+#ifndef DOXYGEN_SKIP
 #ifndef INCLUDE_VirtualOdb_H
 #define INCLUDE_VirtualOdb_H
 
@@ -37,6 +38,7 @@ struct VirtualOdb
   virtual ~VirtualOdb() { /* empty */ }; // dtor
 };
 
+#endif
 #endif
 // end
 

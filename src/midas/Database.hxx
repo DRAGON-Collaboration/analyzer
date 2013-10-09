@@ -87,7 +87,7 @@ public:
 					fIsZombie = true;
 			}
 			if (fIsZombie) {
-				dragon::utils::Error("midas::Database::Database")
+				dragon::utils::Error("midas::Database::Database", __FILE__, __LINE__)
 					<< "Failed opening the database: \"" << filename << "\"";
 			}
 		}
@@ -105,7 +105,7 @@ public:
 				fIsZombie = true;
 			}
 			if (fIsZombie) {
-				dragon::utils::Error("midas::Database::Database")
+				dragon::utils::Error("midas::Database::Database", __FILE__, __LINE__)
 					<< "Failed parsing the XML data.";
 			}
 		}
@@ -114,16 +114,19 @@ public:
 	bool IsZombie() const { return fIsZombie; }
 
 	/// Dump odb contents to an output stream
-	void Dump(std::ostream& strm = std::cout)
+	void Dump(std::ostream& strm) const
 		{
 			if(fIsZombie) return;
 			if(fIsOnline) {
-				dragon::utils::Error("Database::Dump")
+				dragon::utils::Error("Database::Dump", __FILE__, __LINE__)
 					<< "Currently not supported for online database";
 				return;
 			}
 			if(fXml.get()) fXml->Dump(strm);
 		}
+
+	/// Default dump to std::cout
+	void Dump() const { Dump(std::cout); }
 
 	/// Read a single value
 	template <typename T> bool ReadValue(const char* path, T& value) const

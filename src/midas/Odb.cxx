@@ -19,7 +19,7 @@ HNDLE midas::Odb::GetHandle()
 	int hndle;
 	cm_get_experiment_database(&hndle, 0);
 	if (hndle == 0)
-		dragon::utils::Error("midas::Odb") << "Not connected to an experiment.";
+		dragon::utils::Error("midas::Odb", __FILE__, __LINE__) << "Not connected to an experiment.";
 
 	return hndle;
 }

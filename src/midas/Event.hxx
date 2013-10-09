@@ -22,8 +22,7 @@
 namespace midas {
 
 /// Typedef for a MIDAS bank name
-/*! \note Array of 4 `char`s, _not_ a null-terminated string. */
-typedef char Bank_t[4];
+typedef char Bank_t[5];
 
 /// Derived class of TMidasEvent for timestamped dragon events
 /*!
@@ -150,7 +149,7 @@ public:
 			int bkfound = FindBank(name, length, &type, &pbk);
 
 			if(!bkfound && reportMissing) {
-				dragon::utils::Warning("midas::Event::GetBankPointer<T>")
+				dragon::utils::Warning("midas::Event::GetBankPointer<T>", __FILE__, __LINE__)
 					<< "Couldn't find the MIDAS bank \"" << name  << "\". Skipping...\n";
 			}
 			if (bkfound && checkType) {

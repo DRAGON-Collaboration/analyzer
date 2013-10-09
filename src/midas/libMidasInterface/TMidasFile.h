@@ -1,7 +1,7 @@
 //
 // TMidasFile.h.
 //
-
+#ifndef DOXYGEN_SKIP
 #ifndef TMIDASFILE_H
 #define TMIDASFILE_H
 
@@ -48,3 +48,4 @@ protected:
 };
 
 #endif // TMidasFile.h
+#endif

@@ -3,15 +3,16 @@
 /// \brief Defines some functions commonly used in processing data
 #ifndef DRAGON_UTILS_FUNCTIONS_HXX
 #define DRAGON_UTILS_FUNCTIONS_HXX
-#ifndef __MAKECINT__ // Hide from CINT
 #include <stdint.h>
+#include <numeric>
 #include <functional>
 #include "Bits.hxx"
 #include "Valid.hxx"
 
-
+#ifndef __MAKECINT__
 #ifndef DOXYGEN_SKIP
-namespace midas { typedef char Bank_t[4]; }
+namespace midas { typedef char Bank_t[5]; }
+#endif
 #endif
 
 namespace dragon {
@@ -20,6 +21,7 @@ namespace dragon {
 namespace utils {
 
 
+#ifndef __MAKECINT__
 /// Sets a MIDAS bank name
 inline void set_bank_name(const midas::Bank_t from, midas::Bank_t to)
 {
@@ -32,8 +34,9 @@ inline void set_bank_name(const midas::Bank_t from, midas::Bank_t to)
 	 *  allocated.
 	 */
 	std::copy (from, from + 4, to);
+	to[4] = '\0';
 }
-
+#endif
 
 /// Calculates time-of-flight if both parameters are valid
 template <class T1, class T2>
@@ -590,7 +593,7 @@ inline void quadratic_calibrate(T& value, const V& variables)
  *
  * \tparam T type of the values in the array
  * \tparam L type of the array length identifier
- * \tparam V variables class, must have public \c coeff[][] fiels
+ * \tparam V variables class, must have public \c coeff[][] field
  *
  * Behaves identically to linear_calibrate(), except performing a quadratic calibration instead
  * \note Any values initially set to dragon::DR_NO_DATA are left untouched
@@ -631,10 +634,118 @@ inline void polynomial_calibrate(int order, T& value, const V& variables)
 	}
 }
 
+#ifndef __MAKECINT__
+#ifndef DOXYGEN_SKIP
+namespace {
+template <class T, class Iterator>
+class WeightedAccum {
+	Iterator begin_;
+	typename std::iterator_traits<Iterator>::value_type wsum_;
+public:
+	WeightedAccum(Iterator begin): begin_(begin), wsum_(0) {}
+	typename std::iterator_traits<Iterator>::value_type wsum() const { return wsum_; }
+	T operator() (T current, const T& range)
+		{
+			if(*begin_ == 0) { ++begin_; return current; }
+			current *=  wsum_;
+			wsum_   += *begin_;
+			return (current + range * *begin_++) / wsum_;
+		}
+};
+template <class T>
+class StddevAccum {
+	const T mean_;
+public:
+	StddevAccum(T mean): mean_(mean) {}
+	T operator() (T current, const T& range) const
+		{
+			const double diff = range - mean_;
+			return current + diff*diff;
+		}
+}; }
+#endif
+#endif
+
+/// Calculate the mean of a range of values
+/*!
+ * Example:
+ * \code
+ * double array[] = { 1, 2, 3, 4, 5 };
+ * std::cout << "mean is " << calculate_mean(array, array + 5) << "\n";
+ * \endcode
+ */
+template <class InputIterator>
+typename std::iterator_traits<InputIterator>::value_type 
+calculate_mean (InputIterator first, InputIterator last)
+{
+	const typename std::iterator_traits<InputIterator>::value_type init = 0;
+	return std::accumulate(first, last, init) / std::distance(first, last);
+}
+
+/// Calculate weighted mean of a range of values
+/*!
+ * Example:
+ * \code
+ * double array[] = { 1, 2, 3, 4, 5 };
+ * double weights[] = { 5, 4, 3, 2, 1 };
+ * std::cout << "weighted mean is " << calculate_weighted_mean(array, array + 5, weights) << "\n";
+ * \endcode
+ */
+template <class InputIterator, class InputIteratorWeights>
+typename std::iterator_traits<InputIterator>::value_type 
+calculate_weighted_mean (InputIterator first, InputIterator last, InputIteratorWeights firstWeight)
+{
+	const typename std::iterator_traits<InputIterator>::value_type init = 0;
+	WeightedAccum<typename std::iterator_traits<InputIterator>::value_type, InputIteratorWeights>
+		accumulator(firstWeight);
+	return std::accumulate(first, last, init, accumulator);
+}
+
+	
+/// Calculate the standard deviation of a range of values
+/*!
+ * Uses previously calculated mean value
+ * Example:
+ * \code
+ * double array[] = { 1, 2, 3, 4, 5 };
+ * double mean = dragon::utils::mean(array, array + 5);
+ * std::cout << "mean is " << mean << ", stddev is "
+ *           << dragon::utils::calculate_stddev(array, array + 5, mean) << "\n";
+ * \endcode
+ */
+template <class InputIterator>
+typename std::iterator_traits<InputIterator>::value_type 
+calculate_stddev (InputIterator first, InputIterator last, typename std::iterator_traits<InputIterator>::value_type mean)
+{
+	const typename std::iterator_traits<InputIterator>::value_type init = 0;
+	const StddevAccum<typename std::iterator_traits<InputIterator>::value_type> accumulator(mean);
+	return sqrt(std::accumulate(first, last, init, accumulator) / std::distance(first, last));
+}
+
+/// Calculate the standard deviation of a range of values
+/*!
+ * Calculates mean value in an initial pass of the range
+ * Example:
+ * \code
+ * double array[] = { 1, 2, 3, 4, 5 };
+ * std::cout << "stddev is " << dragon::utils::calculate_stddev(array, array + 5) << "\n";
+ * \endcode
+ */
+template <class InputIterator>
+typename std::iterator_traits<InputIterator>::value_type 
+calculate_stddev (InputIterator first, InputIterator last)
+{
+	const typename std::iterator_traits<InputIterator>::value_type mean = 
+		dragon::utils::calculate_mean(first, last);
+	return dragon::utils::calculate_stddev(first, last, mean);
+}
+
+
 } // namespace utils
 
 } // namespace dragon
 
+#ifndef __MAKECINT__
 /// Macro to turn a #define into a string literal
 /*!
  * Example:
@@ -650,5 +761,33 @@ inline void polynomial_calibrate(int order, T& value, const V& variables)
 /// Helper macro for DRAGON_UTILS_STRINGIFY
 #define DRAGON_UTILS_STRINGIFY_HELPER(S) #S
 
+#else
+
+#pragma link C++ function dragon::utils::calculate_mean(Double_t*, Double_t*);
+#pragma link C++ function dragon::utils::calculate_weighted_mean(Double_t*, Double_t*, Double_t*);
+#pragma link C++ function dragon::utils::calculate_stddev(Double_t*, Double_t*);
+
+#pragma link C++ function dragon::utils::calculate_mean(Float_t*, Float_t*);
+#pragma link C++ function dragon::utils::calculate_weighted_mean(Float_t*, Float_t*, Double_t*);
+#pragma link C++ function dragon::utils::calculate_stddev(Float_t*, Float_t*);
+
+#pragma link C++ function dragon::utils::calculate_mean(Long64_t*, Long64_t*);
+#pragma link C++ function dragon::utils::calculate_weighted_mean(Long64_t*, Long64_t*, Double_t*);
+#pragma link C++ function dragon::utils::calculate_stddev(Long64_t*, Long64_t*);
+
+#pragma link C++ function dragon::utils::calculate_mean(Long_t*, Long_t*);
+#pragma link C++ function dragon::utils::calculate_weighted_mean(Long_t*, Long_t*, Double_t*);
+#pragma link C++ function dragon::utils::calculate_stddev(Long_t*, Long_t*);
+
+#pragma link C++ function dragon::utils::calculate_mean(Int_t*, Int_t*);
+#pragma link C++ function dragon::utils::calculate_weighted_mean(Int_t*, Int_t*, Double_t*);
+#pragma link C++ function dragon::utils::calculate_stddev(Int_t*, Int_t*);
+
+#pragma link C++ function dragon::utils::calculate_mean(Short_t*, Short_t*);
+#pragma link C++ function dragon::utils::calculate_weighted_mean(Short_t*, Short_t*, Double_t*);
+#pragma link C++ function dragon::utils::calculate_stddev(Short_t*, Short_t*);
+
 #endif
+
+
 #endif

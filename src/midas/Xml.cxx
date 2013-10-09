@@ -31,14 +31,16 @@ midas::Xml::Xml(const char* filename):
 	char err[256]; int err_line;
 	fTree = ParseFile(fname2, err, sizeof(err), &err_line);
 	if(!fTree) {
-		std::cerr << "Error: Bad XML file: " << filename << ", error message: " <<
-			 err << ", error line: " << err_line << "\n";
+		dragon::utils::Error("midas::Xml::Xml")
+			<< "Bad XML file: " << filename << ", error message: " <<
+			err << ", error line: " << err_line;
 		fIsZombie = true;
 		return;
 	}
 	fOdb = mxml_find_node(fTree, "/odb");
 	if(!fOdb) {
-		std::cerr << "Error: no odb tag found in xml file: " << fname2 << ".\n";
+		dragon::utils::Error("midas::Xml::Xml")
+			<< "No odb tag found in xml file: " << fname2;
 		fIsZombie = true;
 		return;
 	}
@@ -50,14 +52,16 @@ midas::Xml::Xml(char* buf, int length):
 	char err[256]; int err_line;
 	fTree = ParseBuffer(buf, length, err, sizeof(err), &err_line);
 	if(!fTree) {
-		std::cerr << "Error: Bad XML bufer, error message: " <<
-			 err << ", error line: " << err_line << "\n";
+		dragon::utils::Error("midas::Xml::Xml")
+			<< "Bad XML bufer, error message: " <<
+			err << ", error line: " << err_line;
 		fIsZombie = true;
 		return;
 	}
 	fOdb = mxml_find_node(fTree, "/odb");
 	if(!fOdb) {
-		std::cerr << "Error: no odb tag found in xml buffer.\n";
+		dragon::utils::Error("midas::Xml::Xml")
+			<< "no odb tag found in xml buffer.";
 		fIsZombie = true;
 		return;
 	}
@@ -75,14 +79,15 @@ void midas::Xml::InitFromStreamer()
 		char err[256]; int err_line;
 		fTree = ParseBuffer(fBuffer, fLength, err, sizeof(err), &err_line);
 		if(!fTree) {
-			std::cerr << "Error: Bad XML bufer, error message: " <<
-				err << ", error line: " << err_line << "\n";
+			dragon::utils::Error("midas::Xml::InitFromStreamer")
+				<< "Bad XML bufer, error message: " << err << ", error line: " << err_line;
 			fIsZombie = true;
 			return;
 		}
 		fOdb = mxml_find_node(fTree, "/odb");
 		if(!fOdb) {
-			std::cerr << "Error: no odb tag found in xml buffer.\n";
+			dragon::utils::Error("midas::Xml::InitFromStreamer")
+				<< "no odb tag found in xml buffer.";
 			fIsZombie = true;
 			return;
 		}
@@ -183,7 +188,7 @@ midas::Xml::Node midas::Xml::ParseFile(const char* file_name, char *error, int e
 
 }
 
-void midas::Xml::Dump(std::ostream& strm)
+void midas::Xml::Dump(std::ostream& strm) const
 {
 	strm << "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n"
 			 << "<!-- created by midas::Xml::Dump -->\n"
@@ -230,8 +235,9 @@ bool midas::Xml::Check()
 	if(fTree && fOdb) return true; // okay
 	InitFromStreamer(); // try to initialize from streamer
 	if(fTree && fOdb) return true; // okay now
-	std::cerr << "Warning: midas::Xml object was initialized with a bad XML file, "
-						<<"cannot perform any further operations.\n";
+	dragon::utils::Warning("midas::Xml::Check")
+		<< "midas::Xml object was initialized with a bad XML file, "
+		<<"cannot perform any further operations.";
 	return false; // not okay
 }
 
@@ -264,7 +270,8 @@ midas::Xml::Node midas::Xml::FindKey(const char* path, bool silent)
 	if(!Check()) return 0;
 	Node out = mxml_find_node(fOdb, get_xml_path(path, "key").c_str());
 	if(!out && !silent) {
-		std::cerr << "Error: XML path: " << path << " was not found.\n";
+		dragon::utils::Error("midas::Xml::FindKey")
+			<< "Error: XML path: " << path << " was not found.";
 	}
 	return out;
 }
@@ -274,24 +281,9 @@ midas::Xml::Node midas::Xml::FindKeyArray(const char* path, bool silent)
 	if(!Check()) return 0;
 	Node out = mxml_find_node(fOdb, get_xml_path(path, "keyarray").c_str());
 	if(!out && !silent) {
-		std::cerr << "Error: XML path: " << path << " was not found.\n";
+		dragon::utils::Error("midas::Xml::FindKey")
+			<< "Error: XML path: " << path << " was not found.";
 	}
 	return out;
 }
 
-
-
-#ifdef MIDAS_XML_TESTING
-int main() {
-	midas::Xml mxml("run23822.mid");
-	midas::Xml::Node loc = mxml.FindKey("System/Clients/19764/Host");
-	if(!loc) return 1;
-	
-	int i = -1;
-	std::vector<short> peds;
-	mxml.GetArray("Equipment/gTrigger/Variables/Pedestals", peds);
-	for(int i=0; i< peds.size(); ++i) {
-		std::cout << "peds[" << i << "]: " << peds[i] << "\n";
-	}
-}
-#endif

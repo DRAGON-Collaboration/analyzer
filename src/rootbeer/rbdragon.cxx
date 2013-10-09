@@ -6,6 +6,7 @@
 #include <ctime>
 #include <cassert>
 
+#include <TSystem.h>
 #include <TFile.h>
 
 // ROOTBEER includes //
@@ -153,6 +154,7 @@ void rbdragon::MidasBuffer::RunStopTransition(Int_t runnum)
 		fUnpacker.GetQueue()->Clear();
 	}
 
+#if 0 // Histogram writing disabled here - now done by mid2root
 	/// - Write histograms to rootfiles/histosrun*****.root (if online)
 	if (fType == rb::MidasBuffer::ONLINE) {
 		TDirectory* dc = gDirectory;
@@ -173,6 +175,10 @@ void rbdragon::MidasBuffer::RunStopTransition(Int_t runnum)
 		}
 		dc->cd();
 	}
+#endif
+
+	/// - Print delayed error messages
+	dragon::utils::gDelayedMessageFactory.Flush();
 
 	/// - Call parent class implementation (prints a message)
 	rb::MidasBuffer::RunStopTransition(runnum);
@@ -232,7 +238,7 @@ rbdragon::RunParameters::RunParameters():
 
 void rbdragon::RunParameters::HandleBadEvent()
 {
-	dragon::utils::Error("RunParameters")
+	dragon::utils::Error("RunParameters", __FILE__, __LINE__)
 		<< "Unknown error encountered during event processing";
 }
 
@@ -244,7 +250,7 @@ rbdragon::TStampDiagnostics::TStampDiagnostics():
 
 void rbdragon::TStampDiagnostics::HandleBadEvent()
 {
-	dragon::utils::Error("TStampDiagnostics")
+	dragon::utils::Error("TStampDiagnostics", __FILE__, __LINE__)
 		<< "Unknown error encountered during event processing";
 }
 
@@ -256,7 +262,7 @@ rbdragon::GammaEvent::GammaEvent():
 
 void rbdragon::GammaEvent::HandleBadEvent()
 {
-	dragon::utils::Error("GammaEvent")
+	dragon::utils::Error("GammaEvent", __FILE__, __LINE__)
 		<< "Unknown error encountered during event processing";
 }
 
@@ -273,7 +279,7 @@ rbdragon::HeavyIonEvent::HeavyIonEvent():
 
 void rbdragon::HeavyIonEvent::HandleBadEvent()
 {
-	dragon::utils::Error("HeavyIonEvent")
+	dragon::utils::Error("HeavyIonEvent", __FILE__, __LINE__)
 		<< "Unknown error encountered during event processing";
 }
 
@@ -290,7 +296,7 @@ rbdragon::CoincEvent::CoincEvent():
 
 void rbdragon::CoincEvent::HandleBadEvent()
 {
-	dragon::utils::Error("CoincEvent")
+	dragon::utils::Error("CoincEvent", __FILE__, __LINE__)
 		<< "Unknown error encountered during event processing";
 }
 
@@ -310,7 +316,7 @@ rbdragon::EpicsEvent::EpicsEvent():
 
 void rbdragon::EpicsEvent::HandleBadEvent()
 {
-	dragon::utils::Error("EpicsEvent")
+	dragon::utils::Error("EpicsEvent", __FILE__, __LINE__)
 		<< "Unknown error encountered during event processing";
 }
 
@@ -330,7 +336,7 @@ rbdragon::HeadScaler::HeadScaler():
 
 void rbdragon::HeadScaler::HandleBadEvent()
 {
-	dragon::utils::Error("HeadScaler")
+	dragon::utils::Error("HeadScaler", __FILE__, __LINE__)
 		<< "Unknown error encountered during event processing";
 }
 
@@ -350,7 +356,7 @@ rbdragon::TailScaler::TailScaler():
 
 void rbdragon::TailScaler::HandleBadEvent()
 {
-	dragon::utils::Error("TailScaler")
+	dragon::utils::Error("TailScaler", __FILE__, __LINE__)
 		<< "Unknown error encountered during event processing";
 }
 
