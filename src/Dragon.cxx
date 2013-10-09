@@ -898,8 +898,10 @@ bool dragon::Head::set_variables(const midas::Database* db)
 	if(success) {
 		dragon::utils::ChangeErrorIgnore dummy(9001);
 		int period = 0;
-		db->ReadValue("/dragon/errormessage/v1190/period", period);
-		v1190.fMessagePeriod = period;
+		if(db->ReadValue("/dragon/errormessage/v1190/period", period))
+			v1190.fMessagePeriod = period;
+		else
+			v1190.fMessagePeriod = 0;			
 	}
 
 	return success;
@@ -1166,8 +1168,10 @@ bool dragon::Tail::set_variables(const midas::Database* db)
 	if(success) {
 		dragon::utils::ChangeErrorIgnore dummy(9001);
 		int period = 0;
-		db->ReadValue("/dragon/errormessage/v1190/period", period);
-		v1190.fMessagePeriod = period;
+		if(db->ReadValue("/dragon/errormessage/v1190/period", period))
+			v1190.fMessagePeriod = period;
+		else
+			v1190.fMessagePeriod = 0;			
 	}
 
 	return success;
