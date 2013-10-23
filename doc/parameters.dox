@@ -133,3 +133,7 @@ _NOTE_: Use `epics.ch` as a gate condition to see EPICS data from a single chann
 
 
 */
+
+// Local Variables:
+// mode: c++
+// End:
