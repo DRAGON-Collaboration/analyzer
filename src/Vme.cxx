@@ -17,11 +17,13 @@ namespace dutils = dragon::utils;
 
 vme::Io32::Io32()
 {
+  ///
 	reset();
 }	
 
 void vme::Io32::reset()
 {
+  ///
 	dutils::reset_data(header, trig_count, tstamp, start, end, latency, read_time,
 										 busy_time, trigger_latch, which_trigger, tsc4.trig_time);
 	for(int i=0; i< 4; ++i) {
@@ -86,11 +88,13 @@ bool vme::Io32::unpack(const midas::Event& event, const char* bankName, bool rep
 vme::V1190::V1190():
 	fMessagePeriod(0)
 {
+  ///
 	reset();
 }
 
 namespace { inline void reset_channel(vme::V1190::Channel* channel)
 {
+  ///
 	channel->nleading  = 0;
 	channel->ntrailing = 0;
 	channel->fLeading.clear();
@@ -127,6 +131,7 @@ int32_t vme::V1190::get_trailing(int16_t ch, int16_t hit) const
 
 void vme::V1190::Fifo::push_back(int32_t measurement_, int16_t channel_, int16_t number_)
 {
+  ///
 	measurement.push_back(measurement_);
 	channel.push_back(channel_);
 	number.push_back(number_);
@@ -134,6 +139,7 @@ void vme::V1190::Fifo::push_back(int32_t measurement_, int16_t channel_, int16_t
 
 void vme::V1190::Fifo::clear()
 {
+  ///
 	measurement.clear();
 	channel.clear();
 	number.clear();
@@ -141,6 +147,7 @@ void vme::V1190::Fifo::clear()
 
 void vme::V1190::reset()
 {
+  ///
 	for (int ch = 0; ch < MAX_CHANNELS; ++ch)
 		::reset_channel( &(channel[ch]) );
 	
@@ -359,11 +366,13 @@ bool vme::V1190::unpack(const midas::Event& event, const char* bankName, bool re
 
 vme::V792::V792()
 {
+  ///
 	reset();
 }
 
 void vme::V792::reset()
 {
+  ///
 	n_ch  = 0;
 	count = 0;
 	overflow = false;
