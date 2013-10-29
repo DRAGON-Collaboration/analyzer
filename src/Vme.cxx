@@ -172,13 +172,13 @@ int32_t vme::V1190::get_data(int16_t ch) const
 		if(!channel[ch].fLeading.empty())
 			return channel[ch].fLeading[0];
 		else
-			return dragon::DR_NO_DATA;
+			return dragon::NoData<int32_t>::value();
 	}
 	else {
 		dutils::Warning("V1190::get_data")
 			<< "Channel number " << ch << " out of bounds (valid range: [0, "
 			<< MAX_CHANNELS -1 << "]\n";
-		return dragon::DR_NO_DATA;
+		return dragon::NoData<int32_t>::value();
 	}
 }
 
@@ -392,7 +392,7 @@ int32_t vme::V792::get_data(int16_t ch) const
 		dutils::Warning("V792::get_data")
 			<< "Channel number " << ch << " out of bounds (valid range: [0, "
 			<< MAX_CHANNELS -1 << "]\n";
-		return dragon::DR_NO_DATA;
+		return dragon::NoData<int32_t>::value();
 	}
 }
 

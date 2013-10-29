@@ -50,7 +50,7 @@ inline double calculate_tof(const T1& t1, const T2& t2)
 	if (utils::is_valid(t1) && utils::is_valid(t2))
 		return t1 - t2;
 	else
-		return dragon::DR_NO_DATA;
+		return NoData<int32_t>::value();
 }
 
 /// Sums all values in an array, <e>ignoring "null" values</e>
