@@ -309,11 +309,13 @@ void dragon::Dsssd::calculate()
 	dutils::linear_calibrate(tfront, variables.tdc_front);
 	dutils::linear_calibrate(tback,  variables.tdc_back);
 
-	if(dutils::is_valid(ecal, MAX_CHANNELS)) {
+	if(dutils::is_valid_any(ecal, 16)) {
 		const double* const pmax_front = std::max_element(ecal, ecal+16);
 		efront = *pmax_front;
 		hit_front = pmax_front - ecal;
+	}
 
+	if(dutils::is_valid_any(ecal+16, 16)) {
 		const double* const pmax_back  = std::max_element(ecal+16, ecal+32);
 		eback  = *pmax_back;
 		hit_back = pmax_back - ecal;
@@ -413,7 +415,7 @@ void dragon::IonChamber::calculate()
 	dutils::linear_calibrate(anode, MAX_CHANNELS, variables.adc);
 	dutils::linear_calibrate(tcal, MAX_TDC, variables.tdc);
 
-	if(dutils::is_valid(anode, MAX_CHANNELS)) {
+	if(dutils::is_valid_any(anode, MAX_CHANNELS)) {
 		sum = dutils::calculate_sum(anode, anode + MAX_CHANNELS);
 	}
 }
@@ -515,9 +517,9 @@ void dragon::Mcp::calculate()
 	dutils::linear_calibrate(tac, variables.tac_adc);
 
 	dutils::calculate_sum(anode, anode + MAX_CHANNELS);
-
+	
 	// Position calculation if we have all valid anode signals
-	if(dutils::is_valid(anode, MAX_CHANNELS)) {
+	if(dutils::is_valid_all(anode, MAX_CHANNELS)) {
 		const double Lhalf = 25.;  // half the length of a single side of the MCP (50/2 [mm])
 		double sum = 0;
 		for(int i=0; i< MAX_CHANNELS; ++i) sum += anode[i];
