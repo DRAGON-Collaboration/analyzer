@@ -153,11 +153,11 @@ public:
 			const char* file = fLine >= 0 ? fFile.c_str() : __FILE__;
 			if(fUseMidas) {
 				if(gErrorIgnoreLevel <= 1000)
-					cm_msg(MT_ERROR, file, line, fWhere.c_str(), "%s",
+					cm_msg(MT_INFO, file, line, fWhere.c_str(), "%s",
 								 static_cast<std::stringstream*>(fStream)->str().c_str());
 			} else {
-				std::ostream& rstrm = gErrorIgnoreLevel > 1000 ? NullStream : std::cerr;
-				rstrm << "Error in <";
+				std::ostream& rstrm = gErrorIgnoreLevel > 1000 ? NullStream : std::cout;
+				rstrm << "Info in <";
 				if(fLine >= 0) rstrm << file << ", " << line << ", ";
 				rstrm << fWhere << ">: " << static_cast<std::stringstream*>(fStream)->str() << "\n";
 			}
@@ -227,11 +227,11 @@ public:
 			const char* file = fLine >= 0 ? fFile.c_str() : __FILE__;
 			if(fUseMidas) {
 				if(gErrorIgnoreLevel <= 2000)
-					cm_msg(MT_ERROR, file, line, fWhere.c_str(), "%s",
+					cm_msg(MT_ERROR, file, line, fWhere.c_str(), "(Warning) %s",
 								 static_cast<std::stringstream*>(fStream)->str().c_str());
 			} else {
 				std::ostream& rstrm = gErrorIgnoreLevel > 2000 ? NullStream : std::cerr;
-				rstrm << "Error in <";
+				rstrm << "Warning in <";
 				if(fLine >= 0) rstrm << file << ", " << line << ", ";
 				rstrm << fWhere << ">: " << static_cast<std::stringstream*>(fStream)->str() << "\n";
 			}

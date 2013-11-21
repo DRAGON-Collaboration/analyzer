@@ -115,11 +115,13 @@ bool odb_set_bank(midas::Bank_t* bank, const midas::Database* db, const char* pa
 
 dragon::RunParameters::RunParameters()
 {
+  /// ::
 	reset();
 }
 
 void dragon::RunParameters::reset()
 {
+  /// ::
 	double* parrays[4] = { run_start, run_stop, trigger_start, trigger_stop };
 	for(int i=0; i< 4; ++i) {
 		std::fill(parrays[i], parrays[i] + MAX_FRONTENDS, 0.);
@@ -128,6 +130,7 @@ void dragon::RunParameters::reset()
 
 bool dragon::RunParameters::read_data(const midas::Database* db)
 {
+  /// ::
 	if(db == 0 || db->IsZombie()) {
 		dutils::Error("dragon::RunParameters::read_data", __FILE__, __LINE__)
 			<< "Zombie database";
@@ -154,11 +157,13 @@ bool dragon::RunParameters::read_data(const midas::Database* db)
 dragon::Bgo::Bgo():
 	variables()
 {
+  /// ::
 	reset();
 }
 
 void dragon::Bgo::reset()
 {
+  /// ::
 	dutils::reset_array(MAX_CHANNELS, ecal);
 	dutils::reset_array(MAX_CHANNELS, tcal);
 	dutils::reset_array(MAX_CHANNELS, esort);
@@ -216,6 +221,7 @@ dragon::Bgo::Variables::Variables()
 
 void dragon::Bgo::Variables::reset()
 {
+  /// ::
 	dutils::index_fill(adc.channel, adc.channel + MAX_CHANNELS, BGO_ADC0);
 	std::fill(adc.pedestal, adc.pedestal + MAX_CHANNELS, 0);
 	std::fill(adc.offset, adc.offset + MAX_CHANNELS, 0.);
@@ -271,11 +277,13 @@ bool dragon::Bgo::Variables::set(const midas::Database* db)
 dragon::Dsssd::Dsssd():
 	variables()
 {
+  /// ::
 	reset();
 }
 
 void dragon::Dsssd::reset()
 {
+  /// ::
 	dutils::reset_data(efront, eback, hit_front, hit_back, tfront, tback);
 	dutils::reset_array(MAX_CHANNELS, ecal);
 }
@@ -309,11 +317,13 @@ void dragon::Dsssd::calculate()
 	dutils::linear_calibrate(tfront, variables.tdc_front);
 	dutils::linear_calibrate(tback,  variables.tdc_back);
 
-	if(dutils::is_valid(ecal, MAX_CHANNELS)) {
+	if(dutils::is_valid_any(ecal, 16)) {
 		const double* const pmax_front = std::max_element(ecal, ecal+16);
 		efront = *pmax_front;
 		hit_front = pmax_front - ecal;
+	}
 
+	if(dutils::is_valid_any(ecal+16, 16)) {
 		const double* const pmax_back  = std::max_element(ecal+16, ecal+32);
 		eback  = *pmax_back;
 		hit_back = pmax_back - ecal;
@@ -331,6 +341,7 @@ dragon::Dsssd::Variables::Variables()
 
 void dragon::Dsssd::Variables::reset()
 {
+  /// ::
 	std::fill(adc.module, adc.module + MAX_CHANNELS, DSSSD_MODULE);
 	dutils::index_fill(adc.channel, adc.channel + MAX_CHANNELS, DSSSD_ADC0);
 
@@ -385,11 +396,13 @@ bool dragon::Dsssd::Variables::set(const midas::Database* db)
 
 dragon::IonChamber::IonChamber()
 {
+  /// ::
 	reset();
 }
 
 void dragon::IonChamber::reset()
 {
+  /// ::
 	dutils::reset_array(MAX_CHANNELS, anode);
 	dutils::reset_array(MAX_TDC, tcal);
 	dutils::reset_data(sum);
@@ -413,7 +426,7 @@ void dragon::IonChamber::calculate()
 	dutils::linear_calibrate(anode, MAX_CHANNELS, variables.adc);
 	dutils::linear_calibrate(tcal, MAX_TDC, variables.tdc);
 
-	if(dutils::is_valid(anode, MAX_CHANNELS)) {
+	if(dutils::is_valid_any(anode, MAX_CHANNELS)) {
 		sum = dutils::calculate_sum(anode, anode + MAX_CHANNELS);
 	}
 }
@@ -429,6 +442,7 @@ dragon::IonChamber::Variables::Variables()
 
 void dragon::IonChamber::Variables::reset()
 {
+  /// ::
 	std::fill(adc.module, adc.module + MAX_CHANNELS, DEFAULT_HI_MODULE);
 	dutils::index_fill(adc.channel, adc.channel + MAX_CHANNELS, IC_ADC0);
 
@@ -475,11 +489,13 @@ bool dragon::IonChamber::Variables::set(const midas::Database* db)
 
 dragon::Mcp::Mcp()
 {
+  /// ::
 	reset();
 }
 
 void dragon::Mcp::reset()
 {
+  /// ::
 	dutils::reset_data(esum, tac, x, y);
 	dutils::reset_array(MAX_CHANNELS, anode);
 	dutils::reset_array(NUM_DETECTORS, tcal);
@@ -515,9 +531,9 @@ void dragon::Mcp::calculate()
 	dutils::linear_calibrate(tac, variables.tac_adc);
 
 	dutils::calculate_sum(anode, anode + MAX_CHANNELS);
-
+	
 	// Position calculation if we have all valid anode signals
-	if(dutils::is_valid(anode, MAX_CHANNELS)) {
+	if(dutils::is_valid_all(anode, MAX_CHANNELS)) {
 		const double Lhalf = 25.;  // half the length of a single side of the MCP (50/2 [mm])
 		double sum = 0;
 		for(int i=0; i< MAX_CHANNELS; ++i) sum += anode[i];
@@ -539,6 +555,7 @@ dragon::Mcp::Variables::Variables()
 
 void dragon::Mcp::Variables::reset()
 {
+  /// ::
 	std::fill(adc.module, adc.module + MAX_CHANNELS, DEFAULT_HI_MODULE);
 	dutils::index_fill(adc.channel, adc.channel + MAX_CHANNELS, MCP_ADC0);
 
@@ -597,11 +614,13 @@ bool dragon::Mcp::Variables::set(const midas::Database* db)
 
 dragon::SurfaceBarrier::SurfaceBarrier()
 {
+  /// ::
 	reset();
 }
 
 void dragon::SurfaceBarrier::reset()
 {
+  /// ::
 	dutils::reset_array(MAX_CHANNELS, ecal);
 }
 
@@ -638,6 +657,7 @@ dragon::SurfaceBarrier::Variables::Variables()
 
 void dragon::SurfaceBarrier::Variables::reset()
 {
+  /// ::
 	std::fill(adc.module, adc.module + MAX_CHANNELS, DEFAULT_HI_MODULE);
 	dutils::index_fill(adc.channel, adc.channel + MAX_CHANNELS, SB_ADC0);
 	
@@ -674,11 +694,13 @@ bool dragon::SurfaceBarrier::Variables::set(const midas::Database* db)
 
 dragon::NaI::NaI()
 {
+  /// ::
 	reset();
 }
 
 void dragon::NaI::reset()
 {
+  /// ::
 	dutils::reset_array(MAX_CHANNELS, ecal);
 }
 
@@ -711,6 +733,7 @@ dragon::NaI::Variables::Variables()
 
 void dragon::NaI::Variables::reset()
 {
+  /// ::
 	std::fill(adc.module, adc.module + MAX_CHANNELS, DEFAULT_HI_MODULE);
 	dutils::index_fill(adc.channel, adc.channel + MAX_CHANNELS, NAI_ADC0);
 	std::fill(adc.pedestal, adc.pedestal + MAX_CHANNELS, 0);
@@ -746,11 +769,13 @@ bool dragon::NaI::Variables::set(const midas::Database* db)
 
 dragon::Ge::Ge()
 {
+  /// ::
 	reset();
 }
 
 void dragon::Ge::reset()
 {
+  /// ::
 	dutils::reset_data(ecal);
 }
 
@@ -783,6 +808,7 @@ dragon::Ge::Variables::Variables()
 
 void dragon::Ge::Variables::reset()
 {
+  /// ::
 	adc.module = DEFAULT_HI_MODULE;
 	adc.channel = GE_ADC0;
 	adc.pedestal = 0;
@@ -873,6 +899,7 @@ void dragon::Head::reset()
 	v792.reset();
 	v1190.reset();
 	bgo.reset();
+	trf.reset();
 	dutils::reset_data(tcalx, tcal0, tcal_rf);
 }
 
@@ -893,6 +920,7 @@ bool dragon::Head::set_variables(const midas::Database* db)
 	bool success = check_db(db, "dragon::Head::set_variables");
 
 	if(success) success = bgo.variables.set(db);
+	if(success) success = trf.variables.set(db, "/dragon/head/variables/rf_tdc");
 	if(success) success = this->variables.set(db);
 
 	if(success) {
@@ -943,6 +971,9 @@ void dragon::Head::calculate()
 	/// - Read BGO data and calculate (see dragon::Head::Bgo).
 	bgo.read_data(v792, v1190);
 	bgo.calculate();
+	
+	trf.read_data(v1190);
+	trf.calculate();
 
 	/// - Read and calibrate "crossover" TDC channel.
 	dutils::channel_map(tcalx, variables.xtdc.channel, v1190);
@@ -962,11 +993,13 @@ void dragon::Head::calculate()
 
 dragon::Head::Variables::Variables()
 {
+  /// ::
 	reset();
 }
 
 void dragon::Head::Variables::reset()
 {
+  /// ::
 	dutils::set_bank_name(HEAD_IO32_BANK, bk_io32);
 	dutils::set_bank_name(HEAD_TSC_BANK,  bk_tsc);
 	dutils::set_bank_name(HEAD_TDC_BANK,  bk_tdc);
@@ -1025,16 +1058,19 @@ bool dragon::Head::Variables::set(const midas::Database* db)
 
 dragon::Tail::Tail()
 {
+  /// ::
 	reset();
 }
 
 void dragon::Tail::reset()
 {
+  /// ::
 	io32.reset();
 	v1190.reset();
 	for (int i=0; i< NUM_ADC; ++i) {
 		v785[i].reset();
 	}
+	trf.reset();
 #ifndef DRAGON_OMIT_DSSSD
 	dsssd.reset();
 #endif
@@ -1095,6 +1131,7 @@ void dragon::Tail::calculate()
 #ifndef DRAGON_OMIT_GE
 	ge.read_data(v785, v1190);
 #endif
+	trf.read_data(v1190);
 	
 	/// - Perform calibrations, higher-order calculations, etc, detector-by-detector
 #ifndef DRAGON_OMIT_DSSSD
@@ -1111,6 +1148,7 @@ void dragon::Tail::calculate()
 #ifndef DRAGON_OMIT_GE
 	ge.calculate();
 #endif
+	trf.calculate();
 
 	/// - Calculate TOF between HI detectors
 	tof.calculate(this);
@@ -1163,6 +1201,7 @@ bool dragon::Tail::set_variables(const midas::Database* db)
 	if(success) success = ge.variables.set(db);
 #endif
 
+	if(success) success = trf.variables.set(db, "/dragon/tail/variables/rf_tdc");
 	if(success) success = this->variables.set(db);
 
 	if(success) {
@@ -1181,11 +1220,13 @@ bool dragon::Tail::set_variables(const midas::Database* db)
 
 dragon::Tail::Variables::Variables()
 {
+  /// ::
 	reset();
 }
 
 void dragon::Tail::Variables::reset()
 {
+  /// ::
 	dutils::set_bank_name(TAIL_IO32_BANK,   bk_io32);
 	dutils::set_bank_name(TAIL_TSC_BANK,    bk_tsc);
 	dutils::set_bank_name(TAIL_TDC_BANK,    bk_tdc);
@@ -1396,16 +1437,19 @@ bool dragon::Scaler::Variables::set(const midas::Database* db, const char* dir)
 
 dragon::Coinc::Coinc()
 {
+  /// ::
 	reset();
 }
 
 dragon::Coinc::Coinc(const dragon::Head& head_, const dragon::Tail& tail_)
 {
+  /// ::
 	compose_event(head_, tail_);
 }
 
 void dragon::Coinc::reset()
 {
+  /// ::
 	head.reset();
 	tail.reset();
 	dutils::reset_data(xtrig, xtofh, xtoft);
@@ -1491,6 +1535,7 @@ bool dragon::Coinc::Variables::set(const char* dbfile)
 
 bool dragon::Coinc::Variables::set(const midas::Database* db)
 {
+  /// ::
 	bool success = check_db(db, "dragon::Coinc");
 
 	if(success) success = db->ReadValue("/dragon/coinc/variables/window", window);
@@ -1534,6 +1579,7 @@ bool dragon::Epics::set_variables(const midas::Database* db)
 
 void dragon::Epics::unpack(const midas::Event& event)
 {
+  /// ::
 	bool report = true;
 	int bank_len;
 	float* pch = event.GetBankPointer<float>(variables.bkname, &bank_len, report, true);
@@ -1613,4 +1659,143 @@ bool dragon::Epics::Variables::set(const midas::Database* db)
 	if(success) success = odb_set_bank(&bkname, db, "/dragon/epics/bank_name");
 
 	return success;
+}
+
+
+// ====================== Class dragon::TdcChannel ====================== //
+
+template <int MAX_HITS>
+dragon::TdcChannel<MAX_HITS>::TdcChannel()
+{
+	/// ::
+	reset();
+}
+
+template <int MAX_HITS>
+void dragon::TdcChannel<MAX_HITS>::reset()
+{
+	/// ::
+	dutils::reset_array(MAX_HITS, leading);
+	dutils::reset_array(MAX_HITS, trailing);
+}
+
+template <int MAX_HITS>
+void dragon::TdcChannel<MAX_HITS>::read_data(const vme::V1190& tdc)
+{
+	/// ::
+	for (int i=0; i< MAX_HITS; ++i) {
+		leading[i] = tdc.get_leading(variables.tdc.channel, i);
+		trailing[i] = tdc.get_trailing(variables.tdc.channel, i);
+	}
+}
+
+template <int MAX_HITS>
+void dragon::TdcChannel<MAX_HITS>::calculate()
+{
+	/// ::
+	for (int i=0; i< MAX_HITS; ++i) {
+		dutils::linear_calibrate(leading[i], variables.tdc);
+		dutils::linear_calibrate(trailing[i], variables.tdc);
+	}
+}
+
+template <int MAX_HITS>
+double dragon::TdcChannel<MAX_HITS>::get_tof(double other, int hitnum, bool edge)
+{
+	/// \param other Value of the other TDC channel for TOF calculation
+	/// \param hitnum Desired hit number
+	/// \param edge leading (0) or trailing (1) edge
+	/// \returns `this - other` (time difference) if hitnum is vald; -1 otherwise
+	
+	if((unsigned)hitnum >= MAX_HITS) return -1;
+
+	return edge == vme::V1190::LEADING ? 
+		leading[hitnum] - other :	trailing[hitnum] - other;
+}
+
+
+// ====================== Class dragon::TdcChannel::Variables ====================== //
+
+template <int MAX_HITS>
+dragon::TdcChannel<MAX_HITS>::Variables::Variables()
+{
+	/// ::
+	reset();
+}
+
+template <int MAX_HITS>
+void dragon::TdcChannel<MAX_HITS>::Variables::reset()
+{
+	/// Implementation:
+	tdc.channel = HEAD_CROSS_TDC - 2;
+	tdc.slope  = 1.;
+	tdc.offset = 0.;
+}
+
+template <int MAX_HITS>
+bool dragon::TdcChannel<MAX_HITS>::Variables::set(const char* dbfile, const char* dir)
+{
+	/// \param dbfile Name of midas database file (or "online")
+	/// \param dir ODB path of the variables for this TDC channel
+  ///
+	midas::Database db(dbfile);
+	if(db.IsZombie()) {
+		dutils::Error("TdcChannel::Variables::set", __FILE__, __LINE__)
+			<< "Zombie database: " << dbfile;
+		return false;
+	}
+
+	return set(&db, dir);
+}
+
+template <int MAX_HITS>
+bool dragon::TdcChannel<MAX_HITS>::Variables::set(const midas::Database* db, const char* dir)
+{
+	/// \param db Pointer to valid midas database
+	/// \param dir ODB path of the variables for this TDC channel (note: no trailing slash).
+	///
+	std::string dirname = dir + std::string("/");
+	bool success = check_db(db, "dragon::TdcChannel");
+
+	if(success) success = db->ReadValue( (dirname + std::string("channel")).c_str(), tdc.channel);
+	if(success) success = db->ReadValue( (dirname + std::string("slope")).c_str(),   tdc.slope);
+	if(success) success = db->ReadValue( (dirname + std::string("offset")).c_str(),  tdc.offset);
+	
+	return success;
+}
+
+
+namespace { // dummy template instances of dragon::TdcChannel
+dragon::TdcChannel<1> dummytdc1;
+dragon::TdcChannel<2> dummytdc2;
+dragon::TdcChannel<3> dummytdc3;
+dragon::TdcChannel<4> dummytdc4;
+dragon::TdcChannel<5> dummytdc5;
+dragon::TdcChannel<6> dummytdc6;
+dragon::TdcChannel<7> dummytdc7;
+dragon::TdcChannel<8> dummytdc8;
+dragon::TdcChannel<9> dummytdc9;
+dragon::TdcChannel<10> dummytdc10;
+dragon::TdcChannel<11> dummytdc11;
+dragon::TdcChannel<12> dummytdc12;
+dragon::TdcChannel<13> dummytdc13;
+dragon::TdcChannel<14> dummytdc14;
+dragon::TdcChannel<15> dummytdc15;
+dragon::TdcChannel<16> dummytdc16;
+dragon::TdcChannel<17> dummytdc17;
+dragon::TdcChannel<18> dummytdc18;
+dragon::TdcChannel<19> dummytdc19;
+dragon::TdcChannel<20> dummytdc20;
+dragon::TdcChannel<21> dummytdc21;
+dragon::TdcChannel<22> dummytdc22;
+dragon::TdcChannel<23> dummytdc23;
+dragon::TdcChannel<24> dummytdc24;
+dragon::TdcChannel<25> dummytdc25;
+dragon::TdcChannel<26> dummytdc26;
+dragon::TdcChannel<27> dummytdc27;
+dragon::TdcChannel<28> dummytdc28;
+dragon::TdcChannel<29> dummytdc29;
+dragon::TdcChannel<30> dummytdc30;
+dragon::TdcChannel<31> dummytdc31;
+dragon::TdcChannel<32> dummytdc32;
 }

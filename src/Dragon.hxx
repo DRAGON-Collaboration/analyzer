@@ -455,6 +455,53 @@ public: // Subclass instances
 };
 
 
+/// Class for tdc stuff
+/*!
+ *  Stores values of multiple leading and trailing edge hits
+ *  \tparam MAX_HITS Maximum number of hits desired for storage
+ */
+template <int MAX_HITS>
+class TdcChannel {
+public: // Methods
+	/// Sets data to defaults
+	TdcChannel();
+	/// Sets data to dragon::NO_DATA
+	void reset();
+	/// Reads data from TDC module
+	void read_data(const vme::V1190& tdc);
+	/// Calibrates TDC channels
+	void calculate();
+	/// Calculate TOF to another TDC hit
+	double get_tof(double other, int hitnum, bool edge = vme::V1190::LEADING);
+
+	/// TcdChannel variables
+	class Variables {
+ public: // Methods
+		/// Constructor, sets data to generic values
+		Variables();
+		/// Reset variables to default values
+		void reset();
+		///  Set data values from an database (file or online)
+		bool set(const char* dbfile, const char* dir);
+		///  Set data values from a constructed database
+		bool set(const midas::Database* db, const char* dir);
+
+ public: // Data
+		/// TDC variables, common for all hits
+		dragon::utils::TdcVariables<1> tdc;
+	};
+
+public: // Data
+	/// Array of leading edge hits (calibrated)
+	double leading[MAX_HITS];
+	/// Array of trailing edge hits (calibrated)
+	double trailing[MAX_HITS];	
+
+public: // Subclass instances
+	Variables variables;
+};
+
+
 ///
 /// \brief Generic time-of-flight class for heavy-ion detectors
 /// \details Calculates time of flight between all detectors downstream of MCP0.
@@ -486,6 +533,10 @@ public: // Data
 /// Collection of all head detectors and VME modules
 ///
 class Head {
+public: // Constants
+	/// Max number of RF hits to store
+	static const int MAX_RF_HITS = 5;
+
 public: // Methods
 	/// Initializes data values
 	Head();
@@ -520,6 +571,8 @@ public: // Data
 
   /// Bgo array
 	dragon::Bgo bgo;
+	/// RF times
+	TdcChannel<MAX_RF_HITS> trf;
 	/// Head [bgo] trigger time
 	double tcal0;
 	/// Crossover [tail] trigger time
@@ -571,6 +624,8 @@ class Tail {
 public: // Constants
 	/// Number of ADC (caen v785) modules
 	static const int NUM_ADC = 2;
+	/// Max number of RF hits to store
+	static const int MAX_RF_HITS = 5;
 
 public: // Methods
 	/// Initializes data values
@@ -625,6 +680,8 @@ public: // Class data
 	SurfaceBarrier sb;       //
 	/// Time-of-flights
 	HiTof tof;               //
+	/// RF times
+	TdcChannel<MAX_RF_HITS> trf;       //
 	/// RF tdc value
 	double tcal_rf;
 	/// Trigger [tail] tdc value
