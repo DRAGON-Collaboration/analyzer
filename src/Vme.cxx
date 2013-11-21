@@ -17,11 +17,13 @@ namespace dutils = dragon::utils;
 
 vme::Io32::Io32()
 {
+  ///
 	reset();
 }	
 
 void vme::Io32::reset()
 {
+  ///
 	dutils::reset_data(header, trig_count, tstamp, start, end, latency, read_time,
 										 busy_time, trigger_latch, which_trigger, tsc4.trig_time);
 	for(int i=0; i< 4; ++i) {
@@ -86,11 +88,13 @@ bool vme::Io32::unpack(const midas::Event& event, const char* bankName, bool rep
 vme::V1190::V1190():
 	fMessagePeriod(0)
 {
+  ///
 	reset();
 }
 
 namespace { inline void reset_channel(vme::V1190::Channel* channel)
 {
+  ///
 	channel->nleading  = 0;
 	channel->ntrailing = 0;
 	channel->fLeading.clear();
@@ -109,7 +113,7 @@ private:
 };
 
 template <class ch_t, class hit_t, class vch_t, class vmeas_t>
-int32_t get_leading(ch_t ch, hit_t hit, const vch_t& vch, const vmeas_t& vmeas) {
+int32_t get_hit_edge(ch_t ch, hit_t hit, const vch_t& vch, const vmeas_t& vmeas) {
 	typename vch_t::const_iterator ich =
 		std::find_if (vch.begin(), vch.end(), hitmatch<ch_t> (ch, hit));
 	return ich != vch.end() ? *(vmeas.begin() + (ich - vch.begin())) : -1;
@@ -117,16 +121,17 @@ int32_t get_leading(ch_t ch, hit_t hit, const vch_t& vch, const vmeas_t& vmeas) 
 
 int32_t vme::V1190::get_leading(int16_t ch, int16_t hit) const
 {
-	return ::get_leading(ch, hit, fifo0.channel, fifo0.measurement);
+	return ::get_hit_edge(ch, hit, fifo0.channel, fifo0.measurement);
 }
 
 int32_t vme::V1190::get_trailing(int16_t ch, int16_t hit) const
 {
-	return ::get_leading(ch, hit, fifo1.channel, fifo1.measurement);
+	return ::get_hit_edge(ch, hit, fifo1.channel, fifo1.measurement);
 }
 
 void vme::V1190::Fifo::push_back(int32_t measurement_, int16_t channel_, int16_t number_)
 {
+  ///
 	measurement.push_back(measurement_);
 	channel.push_back(channel_);
 	number.push_back(number_);
@@ -134,6 +139,7 @@ void vme::V1190::Fifo::push_back(int32_t measurement_, int16_t channel_, int16_t
 
 void vme::V1190::Fifo::clear()
 {
+  ///
 	measurement.clear();
 	channel.clear();
 	number.clear();
@@ -141,6 +147,7 @@ void vme::V1190::Fifo::clear()
 
 void vme::V1190::reset()
 {
+  ///
 	for (int ch = 0; ch < MAX_CHANNELS; ++ch)
 		::reset_channel( &(channel[ch]) );
 	
@@ -165,13 +172,13 @@ int32_t vme::V1190::get_data(int16_t ch) const
 		if(!channel[ch].fLeading.empty())
 			return channel[ch].fLeading[0];
 		else
-			return dragon::DR_NO_DATA;
+			return dragon::NoData<int32_t>::value();
 	}
 	else {
 		dutils::Warning("V1190::get_data")
 			<< "Channel number " << ch << " out of bounds (valid range: [0, "
 			<< MAX_CHANNELS -1 << "]\n";
-		return dragon::DR_NO_DATA;
+		return dragon::NoData<int32_t>::value();
 	}
 }
 
@@ -359,11 +366,13 @@ bool vme::V1190::unpack(const midas::Event& event, const char* bankName, bool re
 
 vme::V792::V792()
 {
+  ///
 	reset();
 }
 
 void vme::V792::reset()
 {
+  ///
 	n_ch  = 0;
 	count = 0;
 	overflow = false;
@@ -383,7 +392,7 @@ int32_t vme::V792::get_data(int16_t ch) const
 		dutils::Warning("V792::get_data")
 			<< "Channel number " << ch << " out of bounds (valid range: [0, "
 			<< MAX_CHANNELS -1 << "]\n";
-		return dragon::DR_NO_DATA;
+		return dragon::NoData<int32_t>::value();
 	}
 }
 

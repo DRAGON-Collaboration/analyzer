@@ -1,6 +1,7 @@
 
 def gen_is_valid (npar):
-    func =  'template <'
+    func =  '/// Check if ' + str(npar) + ' data points are valid\n'
+    func +=  'template <'
     for i in range(0, npar):
         func += 'class T' + str(i) + ', '
     func = func.rstrip(', ')
@@ -10,16 +11,17 @@ def gen_is_valid (npar):
     for i in range(0, npar):
         func += 'const T' + str(i) + '& t' + str(i) + ', '
     func = func.rstrip(', ')
-    func += ')\n{\n  return ( '
+    func += ')\n{\n  ///\n  return ( '
 
     for i in range(0, npar):
-        func += 't' + str(i) + ' != dragon::NO_DATA && '
+        func += 't' + str(i) + ' != dragon::NoData<T' + str(i) + '>::value() && '
     func = func.rstrip(' && ')
-    func += ' );\n}'
+    func += ' );\n}\n'
     print func;
 
 def gen_reset (npar):
-    func =  'template <'
+    func =  '/// Reset ' + str(npar) + ' data points\n'
+    func +=  'template <'
     for i in range(0, npar):
         func += 'class T' + str(i) + ', '
     func = func.rstrip(', ')
@@ -29,11 +31,11 @@ def gen_reset (npar):
     for i in range(0, npar):
         func += 'T' + str(i) + '& t' + str(i) + ', '
     func = func.rstrip(', ')
-    func += ')\n{\n'
+    func += ')\n{\n  ///\n'
 
     for i in range(0, npar):
-        func += '  t' + str(i) + ' = (T' + str(i) + ')dragon::NO_DATA;\n'
-    func += '}'
+        func += '  t' + str(i) + ' = dragon::NoData<T' + str(i) + '>::value();\n'
+    func += '}\n'
     print func;
 
 

@@ -92,6 +92,9 @@ public: // Constants
 	/// Number of data channels available in the TDC
 	static const uint16_t MAX_CHANNELS          = 64;
 
+	/// Hit types (leading or trailing edge)
+	enum HitType { LEADING, TRAILING };
+
 public: // Methods
 	/// Calls reset()
 	V1190();
