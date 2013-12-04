@@ -671,6 +671,7 @@ WARN_LOGFILE           =
 INPUT                  = $(HOME)/packages/dragon/analyzer/src \
 		         $(HOME)/packages/dragon/analyzer/src/utils \
 		         $(HOME)/packages/dragon/analyzer/src/midas \
+		         $(HOME)/packages/dragon/analyzer/src/rootbeer \
                          $(HOME)/packages/dragon/analyzer/doc \
 		         $(HOME)/packages/dragon/analyzer/examples
 
@@ -1885,3 +1886,8 @@ GENERATE_LEGEND        = YES
 # the various graphs.
 
 DOT_CLEANUP            = YES
+
+
+# Local Variables:
+# Mode: perl
+# End:

@@ -52,6 +52,10 @@ namespace { Int_t gAutoZero = 1; }
 
 void rbdragon::SetAutoZero(Int_t level)
 {
+	///
+	/// \note The auto zero level can be controlled for online analysis by modifying the
+	/// "/dragon/rootbeer/AutoZero" ODB variable. Set this variable to the desired auto
+	///  zeroing level as explained for the _level_ parameter.
 	if      (level > 2) gAutoZero = 2;
 	else if (level < 0) gAutoZero = 0;
 	else                gAutoZero = level;
@@ -104,6 +108,21 @@ void rbdragon::MidasBuffer::RunStartTransition(Int_t runnum)
 			<< "Syncing variable values with the online database.";
 		midas::Database db("online");
 		ReadVariables(&db);
+
+		// Also set auto zero level from "/dragon/rootbeer/AutoZero"
+		{
+			Int_t autoZeroLevel = 0;
+			Bool_t success = db.ReadValue("/dragon/rootbeer/AutoZero", autoZeroLevel);
+			if(success) {
+				SetAutoZero(autoZeroLevel);
+			}
+			else {
+				dragon::utils::Warning("RunStartTransition")
+					<< "Unable to read auto zero level from MIDAS database \"/dragon/rootbeer/AutoZero\", "
+					<< "defaulting to level 1.";
+				SetAutoZero(1);
+			}
+		}
 	}
 
 	/// - Zero all histograms if online and enabled
@@ -171,29 +190,6 @@ void rbdragon::MidasBuffer::RunStopTransition(Int_t runnum)
 		fUnpacker.GetQueue()->FlushTimeoutMessage(flush_time);
 		fUnpacker.GetQueue()->Clear();
 	}
-
-#if 0 // Histogram writing disabled here - now done by mid2root
-	/// - Write histograms to rootfiles/histosrun*****.root (if online)
-	if (fType == rb::MidasBuffer::ONLINE) {
-		TDirectory* dc = gDirectory;
-
-		Bool_t result;
-		TString foutname = Form("$RB_SAVEDIR/histos%d.root", runnum);
-		{
-			G_ERROR_RESET(9002);
-			result = gSystem->ExpandPathName(foutname);
-		}
-		if(result == kFALSE) {
-			TFile fHistos(foutname, "RECREATE");
-			IterateDir(gROOT, &fHistos);	
-		} else {
-			std::cerr << "Warning in <RunStopTransition>: "
-								<< "Couldn't write histogram output to directory: \"" << foutname
-								<< "\", try setting $RB_SAVEDIR environment variable.\n";
-		}
-		dc->cd();
-	}
-#endif
 
 	/// - Print delayed error messages
 	dragon::utils::gDelayedMessageFactory.Flush();

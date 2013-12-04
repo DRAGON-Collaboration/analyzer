@@ -223,11 +223,7 @@
 	.
 4. _Where did the scaler histograms go?_
 
-  By default, I haven't included any. Instead, I have adapted a ROOT-based stripchart utility to display scalers
-	both graphically and as text. To use it, log into `smaug.triumf.ca` and run the program `dragonscaler`.
-
-	If you prefer to view scalers as an analyzer histogram, it is still possible. See the proceeding FAQ for
-	for information on how to create them.
+  Scaler histograms are now included in ROOTBEER.
 	.
 5. _How do I use ROOTBEER?_
 
@@ -253,7 +249,16 @@
 	This is just a bare-bones basic introduction; there is more info avaialable at
 	http://trshare.triumf.ca/~gchristian/rootbeer/doc/html/index.html (though some of this may currently be out
 	of date).
+	.
+6. _Can I change whether or not online histograms are zeroed at run start?_
 
+  Yes. The easiest way is to modify the ODB variable 
+	<a href=http://smaug.triumf.ca:8081/dragon/rootbeer>"/dragon/rootbeer/AutoZero"</a>.
+	This is an integer which should
+	take one of three values specifying different auto zero conditions:
+	    - `0` : No auto zeroing (all histograms are untouched at run start).
+			- `1` : Scaler histograms are zeroed at run start; all others untouched.
+			- `2` : Complete auto zeroing (all histograms zeroed at run start).
 
 \section offline Offline Analysis
 
