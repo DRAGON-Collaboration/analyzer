@@ -32,6 +32,12 @@ class TGraph;
 
 namespace dragon {
 
+enum MeasurementType_t {
+	kGammaSingles = 1,
+	kHiSingles    = 3,
+	kCoinc        = 5
+};
+
 /// Chain together all trees in multiple DRAGON files.
 void MakeChains(const Int_t* runnumbers, Int_t nruns, const char* format = "$DH/rootfiles/run%d.root");
 
@@ -364,7 +370,7 @@ public:
 	/// Correct for FC4->FC1 transmission changes relative to a single "good" run
 	void CorrectTransmission(Int_t reference);
 	UDouble_t CalculateEfficiency(Bool_t print = kTRUE);
-	UDouble_t CalculateYield(Int_t whichSb, Bool_t print = kTRUE);
+	UDouble_t CalculateYield(Int_t whichSb, Int_t type = kHiSingles, Bool_t print = kTRUE); // type: 1 = gamma sing., 3 = hi sing. 5 = coinc.
 
 private:
 	/// Private GetRunData(), creates new if it's not made
@@ -650,7 +656,8 @@ public:
 	/// Set the resonance energy in keV
 	void SetResonanceEnergy(Double_t mass) { fResonanceEnergy = mass; } // keV
 	/// Calculate total resonance strength from all runs.
-	UDouble_t CalculateResonanceStrength(Int_t whichSb, Bool_t print = kTRUE);
+	UDouble_t CalculateResonanceStrength(Int_t whichSb, Int_t type = kHiSingles, Bool_t print = kTRUE); // type: 1 = gamma sing., 3 = hi sing. 5 = coinc.
+
 	/// Plot resonance strength vs. run number
 	TGraph* PlotResonanceStrength(Int_t whichSb);
 	

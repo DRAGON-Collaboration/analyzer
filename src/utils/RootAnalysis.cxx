@@ -1165,7 +1165,7 @@ UDouble_t dragon::BeamNorm::CalculateEfficiency(Bool_t print)
 	return eff;
 }
 
-UDouble_t dragon::BeamNorm::CalculateYield(Int_t whichSb, Bool_t print)
+UDouble_t dragon::BeamNorm::CalculateYield(Int_t whichSb, Int_t type, Bool_t print)
 {
 	if(whichSb < 0 || whichSb >= NSB) {
 		std::cerr << "Invalid sb index << " << whichSb << ", valid options are 0 -> " << NSB-1 << "\n";
@@ -1176,14 +1176,27 @@ UDouble_t dragon::BeamNorm::CalculateYield(Int_t whichSb, Bool_t print)
 	std::vector<Double_t> recoilV, liveV;
 	for(std::map<Int_t, RunData>::iterator it = fRunData.begin(); it != fRunData.end(); ++it) {
 		RunData& thisData = it->second;
+
+		UDouble_t livetime;
+		switch(type) {
+		case kGammaSingles: livetime = thisData.live_time_head;  break;
+		case kHiSingles:    livetime = thisData.live_time_tail;  break;
+		case kCoinc:        livetime = thisData.live_time_coinc; break;
+		default:
+			dutils::Error("CalculateYield", __FILE__, __LINE__)
+				<< "Invalid \"type\" specification " << type << ", must be 1 (gama singles), "
+				<< "3 (hi singles), or 5 (coinc)";
+			return UDouble_t (0,0);
+		}
+
 		beam += thisData.nbeam[whichSb];
-		recoil += (thisData.nrecoil / thisData.trans_corr / thisData.live_time_tail);
+		recoil += (thisData.nrecoil / thisData.trans_corr / livetime);
 		recoilCounted += thisData.nrecoil;
 		recoilTrans   += thisData.nrecoil / thisData.trans_corr;
 
 		// for recoil-weighted livetime
 		recoilV.push_back(thisData.nrecoil.GetNominal());
-		liveV.push_back(thisData.live_time_tail.GetNominal());
+		liveV.push_back(livetime.GetNominal());
 	}
 
 	UDouble_t eff = CalculateEfficiency(kFALSE);
@@ -1996,14 +2009,14 @@ dragon::ResonanceStrengthCalculator::ResonanceStrengthCalculator(Double_t eres, 
 	/// \param epsilon "Stopping power" in e*cm^2/atom (see dragon::StoppingPowerCalculator)
 }
 
-UDouble_t dragon::ResonanceStrengthCalculator::CalculateResonanceStrength(Int_t whichSb, Bool_t print)
+UDouble_t dragon::ResonanceStrengthCalculator::CalculateResonanceStrength(Int_t whichSb, Int_t type, Bool_t print)
 {
 	/// \param whichSb Specify the surface barrier detector to use
 	///  for normalization
 	/// \returns Resonance strenght in eV.
 	
 	if(!fBeamNorm) return UDouble_t(0,0);
-	UDouble_t yield = fBeamNorm->CalculateYield(whichSb, print);
+	UDouble_t yield = fBeamNorm->CalculateYield(whichSb, type, print);
 	UDouble_t wavelength = CalculateWavelength(fResonanceEnergy, fBeamMass, fTargetMass);
 	UDouble_t wg = CalculateResonanceStrength(yield, fEpsilon, wavelength, fBeamMass, fTargetMass);
 	if(print) std::cout << "Resonance Strength [eV]: " << wg << "\n";
