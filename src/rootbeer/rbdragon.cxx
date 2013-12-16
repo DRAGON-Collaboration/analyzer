@@ -125,11 +125,12 @@ void rbdragon::MidasBuffer::RunStartTransition(Int_t runnum)
 		}
 	}
 
-	/// - Zero all histograms if online and enabled
+	/// - Zero all histograms if online and enabled:
 	if (fType == rb::MidasBuffer::ONLINE) {
 		switch (GetAutoZero()) {
-//		case 0: break;
-		case 1: 
+		case 0:       /// - Level 0 - do nothing
+			break;
+		case 1:       /// - Level 1 - clear scalers only
 			{
 				Int_t codes[] = { DRAGON_HEAD_SCALER, DRAGON_TAIL_SCALER };
 				Int_t ncodes = sizeof(codes) / sizeof(Int_t);
@@ -140,8 +141,12 @@ void rbdragon::MidasBuffer::RunStartTransition(Int_t runnum)
 					if(manager) manager->ClearAll();
 				}
 			}
-		case 2: rb::hist::ClearAll();
-		default: break;
+			break;
+		case 2:       /// - Level 2 - clear everything
+			rb::hist::ClearAll(); 
+			break;
+		default:
+			break;
 		}
 	}
 
