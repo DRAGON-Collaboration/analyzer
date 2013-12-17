@@ -484,7 +484,7 @@ int main_(int argc, char** argv)
 	// Set coincidence variables
 	if(!options.fSingles) {
 		bool coincSuccess;
-		double coincWindow, queueTime;
+		double coincWindow = 10, queueTime = 4;
 		{
 			midas::Database db (options.fOdb.c_str());
 			coincSuccess = db.ReadValue("/dragon/coinc/variables/window", coincWindow);

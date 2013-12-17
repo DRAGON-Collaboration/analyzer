@@ -17,7 +17,7 @@
 
 namespace dutils = dragon::utils;
 
-// 
+//
 // Helper function for ::variables::set(const char*)
 namespace {
 
@@ -47,7 +47,7 @@ bool do_setv(dragon::Head* t, const char* dbfile)
 			<< "Zombie database: " << dbfile;
 		return false;
 	}
-	return t->set_variables(&db);	
+	return t->set_variables(&db);
 }
 template <>
 bool do_setv(dragon::Tail* t, const char* dbfile)
@@ -58,7 +58,7 @@ bool do_setv(dragon::Tail* t, const char* dbfile)
 			<< "Zombie database: " << dbfile;
 		return false;
 	}
-	return t->set_variables(&db);	
+	return t->set_variables(&db);
 }
 template <>
 bool do_setv(dragon::Coinc* t, const char* dbfile)
@@ -69,7 +69,7 @@ bool do_setv(dragon::Coinc* t, const char* dbfile)
 			<< "Zombie database: " << dbfile;
 		return false;
 	}
-	return t->set_variables(&db);	
+	return t->set_variables(&db);
 }
 
 //
@@ -293,7 +293,7 @@ void dragon::Dsssd::read_data(const vme::V785 adcs[], const vme::V1190& tdc)
 	/*!
 	 * Copies adc data into \c this->ecal[] with channel and module mapping taken
 	 * from variables.adc.channel and variables.adc.modules
-	 *  
+	 *
 	 * Delegates work to dutils::channel_map()
 	 * \param [in] adcs Array of vme::V785 adc modules from which data can be taken
 	 * \param [in] tdc vme::V1190 tdc module from which data can be read
@@ -531,7 +531,7 @@ void dragon::Mcp::calculate()
 	dutils::linear_calibrate(tac, variables.tac_adc);
 
 	dutils::calculate_sum(anode, anode + MAX_CHANNELS);
-	
+
 	// Position calculation if we have all valid anode signals
 	if(dutils::is_valid_all(anode, MAX_CHANNELS)) {
 		const double Lhalf = 25.;  // half the length of a single side of the MCP (50/2 [mm])
@@ -601,7 +601,7 @@ bool dragon::Mcp::Variables::set(const midas::Database* db)
 	if(success) success = db->ReadValue("/dragon/mcp/variables/tac_adc/module",   tac_adc.module);
 	if(success) success = db->ReadValue("/dragon/mcp/variables/tac_adc/slope",    tac_adc.slope);
 	if(success) success = db->ReadValue("/dragon/mcp/variables/tac_adc/offset",   tac_adc.offset);
-	
+
 	if(success) success = db->ReadArray("/dragon/mcp/variables/tdc/channel", tdc.channel, NUM_DETECTORS);
 	if(success) success = db->ReadArray("/dragon/mcp/variables/tdc/slope",   tdc.slope,   NUM_DETECTORS);
 	if(success) success = db->ReadArray("/dragon/mcp/variables/tdc/offset",  tdc.offset,  NUM_DETECTORS);
@@ -629,7 +629,7 @@ void dragon::SurfaceBarrier::read_data(const vme::V785 adcs[], const vme::V1190&
 	/*!
 	 * Copies adc data into \c this->ecal[] with channel and module mapping taken
 	 * from variables.adc.channel and variables.adc.modules
-	 *  
+	 *
 	 * Delegates work to dutils::channel_map()
 	 * \param [in] adcs Array of vme::V785 adc modules from which data can be taken
 	 */
@@ -660,14 +660,14 @@ void dragon::SurfaceBarrier::Variables::reset()
   /// ::
 	std::fill(adc.module, adc.module + MAX_CHANNELS, DEFAULT_HI_MODULE);
 	dutils::index_fill(adc.channel, adc.channel + MAX_CHANNELS, SB_ADC0);
-	
+
 	std::fill(adc.pedestal, adc.pedestal + MAX_CHANNELS, 0);
 	std::fill(adc.offset, adc.offset + MAX_CHANNELS, 0.);
 	std::fill(adc.slope, adc.slope + MAX_CHANNELS, 1.);
 }
 
 bool dragon::SurfaceBarrier::Variables::set(const char* dbfile)
-{	
+{
 	/*!
 	 * \param [in] dbfile Path of the odb file from which you are extracting variable values
 	 */
@@ -929,7 +929,7 @@ bool dragon::Head::set_variables(const midas::Database* db)
 		if(db->ReadValue("/dragon/errormessage/v1190/period", period))
 			v1190.fMessagePeriod = period;
 		else
-			v1190.fMessagePeriod = 0;			
+			v1190.fMessagePeriod = 0;
 	}
 
 	return success;
@@ -971,13 +971,13 @@ void dragon::Head::calculate()
 	/// - Read BGO data and calculate (see dragon::Head::Bgo).
 	bgo.read_data(v792, v1190);
 	bgo.calculate();
-	
+
 	trf.read_data(v1190);
 	trf.calculate();
 
 	/// - Read and calibrate "crossover" TDC channel.
 	dutils::channel_map(tcalx, variables.xtdc.channel, v1190);
-	dutils::linear_calibrate(tcalx, variables.xtdc); 
+	dutils::linear_calibrate(tcalx, variables.xtdc);
 
 	/// - Read and calibrate RF TDC channel.
 	dutils::channel_map(tcal_rf, variables.rf_tdc.channel, v1190);
@@ -1132,7 +1132,7 @@ void dragon::Tail::calculate()
 	ge.read_data(v785, v1190);
 #endif
 	trf.read_data(v1190);
-	
+
 	/// - Perform calibrations, higher-order calculations, etc, detector-by-detector
 #ifndef DRAGON_OMIT_DSSSD
 	dsssd.calculate();
@@ -1210,7 +1210,7 @@ bool dragon::Tail::set_variables(const midas::Database* db)
 		if(db->ReadValue("/dragon/errormessage/v1190/period", period))
 			v1190.fMessagePeriod = period;
 		else
-			v1190.fMessagePeriod = 0;			
+			v1190.fMessagePeriod = 0;
 	}
 
 	return success;
@@ -1602,7 +1602,7 @@ const std::string& dragon::Epics::channel_name(int ch) const
 	/*!
 	 * \param ch Channel number
 	 */
-	if (ch >= 0 && ch < variables.names.size())
+	if (ch >= 0 && (unsigned)ch < variables.names.size())
 		return variables.names[ch];
 	dutils::Error("dragon::Epics::channel_name", __FILE__, __LINE__)
 		<< "Invalid channel number: " << ch << ". Valid arguments are 0 <= ch < " << variables.names.size();
@@ -1659,143 +1659,4 @@ bool dragon::Epics::Variables::set(const midas::Database* db)
 	if(success) success = odb_set_bank(&bkname, db, "/dragon/epics/bank_name");
 
 	return success;
-}
-
-
-// ====================== Class dragon::TdcChannel ====================== //
-
-template <int MAX_HITS>
-dragon::TdcChannel<MAX_HITS>::TdcChannel()
-{
-	/// ::
-	reset();
-}
-
-template <int MAX_HITS>
-void dragon::TdcChannel<MAX_HITS>::reset()
-{
-	/// ::
-	dutils::reset_array(MAX_HITS, leading);
-	dutils::reset_array(MAX_HITS, trailing);
-}
-
-template <int MAX_HITS>
-void dragon::TdcChannel<MAX_HITS>::read_data(const vme::V1190& tdc)
-{
-	/// ::
-	for (int i=0; i< MAX_HITS; ++i) {
-		leading[i] = tdc.get_leading(variables.tdc.channel, i);
-		trailing[i] = tdc.get_trailing(variables.tdc.channel, i);
-	}
-}
-
-template <int MAX_HITS>
-void dragon::TdcChannel<MAX_HITS>::calculate()
-{
-	/// ::
-	for (int i=0; i< MAX_HITS; ++i) {
-		dutils::linear_calibrate(leading[i], variables.tdc);
-		dutils::linear_calibrate(trailing[i], variables.tdc);
-	}
-}
-
-template <int MAX_HITS>
-double dragon::TdcChannel<MAX_HITS>::get_tof(double other, int hitnum, bool edge)
-{
-	/// \param other Value of the other TDC channel for TOF calculation
-	/// \param hitnum Desired hit number
-	/// \param edge leading (0) or trailing (1) edge
-	/// \returns `this - other` (time difference) if hitnum is vald; -1 otherwise
-	
-	if((unsigned)hitnum >= MAX_HITS) return -1;
-
-	return edge == vme::V1190::LEADING ? 
-		leading[hitnum] - other :	trailing[hitnum] - other;
-}
-
-
-// ====================== Class dragon::TdcChannel::Variables ====================== //
-
-template <int MAX_HITS>
-dragon::TdcChannel<MAX_HITS>::Variables::Variables()
-{
-	/// ::
-	reset();
-}
-
-template <int MAX_HITS>
-void dragon::TdcChannel<MAX_HITS>::Variables::reset()
-{
-	/// Implementation:
-	tdc.channel = HEAD_CROSS_TDC - 2;
-	tdc.slope  = 1.;
-	tdc.offset = 0.;
-}
-
-template <int MAX_HITS>
-bool dragon::TdcChannel<MAX_HITS>::Variables::set(const char* dbfile, const char* dir)
-{
-	/// \param dbfile Name of midas database file (or "online")
-	/// \param dir ODB path of the variables for this TDC channel
-  ///
-	midas::Database db(dbfile);
-	if(db.IsZombie()) {
-		dutils::Error("TdcChannel::Variables::set", __FILE__, __LINE__)
-			<< "Zombie database: " << dbfile;
-		return false;
-	}
-
-	return set(&db, dir);
-}
-
-template <int MAX_HITS>
-bool dragon::TdcChannel<MAX_HITS>::Variables::set(const midas::Database* db, const char* dir)
-{
-	/// \param db Pointer to valid midas database
-	/// \param dir ODB path of the variables for this TDC channel (note: no trailing slash).
-	///
-	std::string dirname = dir + std::string("/");
-	bool success = check_db(db, "dragon::TdcChannel");
-
-	if(success) success = db->ReadValue( (dirname + std::string("channel")).c_str(), tdc.channel);
-	if(success) success = db->ReadValue( (dirname + std::string("slope")).c_str(),   tdc.slope);
-	if(success) success = db->ReadValue( (dirname + std::string("offset")).c_str(),  tdc.offset);
-	
-	return success;
-}
-
-
-namespace { // dummy template instances of dragon::TdcChannel
-dragon::TdcChannel<1> dummytdc1;
-dragon::TdcChannel<2> dummytdc2;
-dragon::TdcChannel<3> dummytdc3;
-dragon::TdcChannel<4> dummytdc4;
-dragon::TdcChannel<5> dummytdc5;
-dragon::TdcChannel<6> dummytdc6;
-dragon::TdcChannel<7> dummytdc7;
-dragon::TdcChannel<8> dummytdc8;
-dragon::TdcChannel<9> dummytdc9;
-dragon::TdcChannel<10> dummytdc10;
-dragon::TdcChannel<11> dummytdc11;
-dragon::TdcChannel<12> dummytdc12;
-dragon::TdcChannel<13> dummytdc13;
-dragon::TdcChannel<14> dummytdc14;
-dragon::TdcChannel<15> dummytdc15;
-dragon::TdcChannel<16> dummytdc16;
-dragon::TdcChannel<17> dummytdc17;
-dragon::TdcChannel<18> dummytdc18;
-dragon::TdcChannel<19> dummytdc19;
-dragon::TdcChannel<20> dummytdc20;
-dragon::TdcChannel<21> dummytdc21;
-dragon::TdcChannel<22> dummytdc22;
-dragon::TdcChannel<23> dummytdc23;
-dragon::TdcChannel<24> dummytdc24;
-dragon::TdcChannel<25> dummytdc25;
-dragon::TdcChannel<26> dummytdc26;
-dragon::TdcChannel<27> dummytdc27;
-dragon::TdcChannel<28> dummytdc28;
-dragon::TdcChannel<29> dummytdc29;
-dragon::TdcChannel<30> dummytdc30;
-dragon::TdcChannel<31> dummytdc31;
-dragon::TdcChannel<32> dummytdc32;
 }

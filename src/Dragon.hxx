@@ -1012,4 +1012,117 @@ inline void dragon::Epics::set_aliases(T* t) const
 	}
 }
 
+
+
+#include "Defaults.hxx"
+#include "midas/Database.hxx"
+#include "utils/Functions.hxx"
+
+// ====================== Class dragon::TdcChannel ====================== //
+
+template <int MAX_HITS>
+inline dragon::TdcChannel<MAX_HITS>::TdcChannel()
+{
+	/// ::
+	reset();
+}
+
+template <int MAX_HITS>
+inline void dragon::TdcChannel<MAX_HITS>::reset()
+{
+	/// ::
+	dragon::utils::reset_array(MAX_HITS, leading);
+	dragon::utils::reset_array(MAX_HITS, trailing);
+}
+
+template <int MAX_HITS>
+inline void dragon::TdcChannel<MAX_HITS>::read_data(const vme::V1190& tdc)
+{
+	/// ::
+	for (int i=0; i< MAX_HITS; ++i) {
+		leading[i] = tdc.get_leading(variables.tdc.channel, i);
+		trailing[i] = tdc.get_trailing(variables.tdc.channel, i);
+	}
+}
+
+template <int MAX_HITS>
+inline void dragon::TdcChannel<MAX_HITS>::calculate()
+{
+	/// ::
+	for (int i=0; i< MAX_HITS; ++i) {
+		dragon::utils::linear_calibrate(leading[i], variables.tdc);
+		dragon::utils::linear_calibrate(trailing[i], variables.tdc);
+	}
+}
+
+template <int MAX_HITS>
+inline double dragon::TdcChannel<MAX_HITS>::get_tof(double other, int hitnum, bool edge)
+{
+	/// \param other Value of the other TDC channel for TOF calculation
+	/// \param hitnum Desired hit number
+	/// \param edge leading (0) or trailing (1) edge
+	/// \returns `this - other` (time difference) if hitnum is vald; -1 otherwise
+
+	if((unsigned)hitnum >= MAX_HITS) return -1;
+
+	return edge == vme::V1190::LEADING ?
+		leading[hitnum] - other :	trailing[hitnum] - other;
+}
+
+
+// ====================== Class dragon::TdcChannel::Variables ====================== //
+
+template <int MAX_HITS>
+inline dragon::TdcChannel<MAX_HITS>::Variables::Variables()
+{
+	/// ::
+	reset();
+}
+
+template <int MAX_HITS>
+inline void dragon::TdcChannel<MAX_HITS>::Variables::reset()
+{
+	/// Implementation:
+	tdc.channel = HEAD_CROSS_TDC - 2;
+	tdc.slope  = 1.;
+	tdc.offset = 0.;
+}
+
+template <int MAX_HITS>
+inline bool dragon::TdcChannel<MAX_HITS>::Variables::set(const char* dbfile, const char* dir)
+{
+	/// \param dbfile Name of midas database file (or "online")
+	/// \param dir ODB path of the variables for this TDC channel
+  ///
+	midas::Database db(dbfile);
+	if(db.IsZombie()) {
+		dragon::utils::Error("TdcChannel::Variables::set", __FILE__, __LINE__)
+			<< "Zombie database: " << dbfile;
+		return false;
+	}
+
+	return set(&db, dir);
+}
+
+template <int MAX_HITS>
+inline bool dragon::TdcChannel<MAX_HITS>::Variables::set(const midas::Database* db, const char* dir)
+{
+	/// \param db Pointer to valid midas database
+	/// \param dir ODB path of the variables for this TDC channel (note: no trailing slash).
+	///
+	std::string dirname = dir + std::string("/");
+
+	bool success = db && !db->IsZombie();
+	if(!success) {
+		dragon::utils::Error("dragon::TdcChannel::Variables::Set", __FILE__, __LINE__)
+			<< "Invalid database: 0x" << db;
+	}
+
+	if(success) success = db->ReadValue( (dirname + std::string("channel")).c_str(), tdc.channel);
+	if(success) success = db->ReadValue( (dirname + std::string("slope")).c_str(),   tdc.slope);
+	if(success) success = db->ReadValue( (dirname + std::string("offset")).c_str(),  tdc.offset);
+
+	return success;
+}
+
 #endif // #ifndef HAVE_DRAGON_HXX
