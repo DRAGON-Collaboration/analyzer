@@ -3,6 +3,7 @@
 //! \brief Defines C++ style error printing classes.
 #ifndef DRAGON_ERROR_HXX
 #define DRAGON_ERROR_HXX
+#include <stdint.h>
 #include <map>
 #include <memory>
 #include <string>

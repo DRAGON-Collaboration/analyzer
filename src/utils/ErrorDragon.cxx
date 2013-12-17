@@ -2,6 +2,7 @@
 /// \file ErrorDragon.cxx
 /// \brief Implements parts of ErrorDragon.hxx
 ///
+#include <algorithm>
 #include "ErrorDragon.hxx"
 
 

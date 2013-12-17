@@ -16,7 +16,7 @@
 #include <stdint.h>
 #include <numeric>
 #include <algorithm>
-
+#include <limits>
 
 
 #ifndef DOXYGEN_SKIP
