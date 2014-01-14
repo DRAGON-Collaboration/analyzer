@@ -13,7 +13,7 @@
  */
 #ifndef  DRAGON_VALID_HXX
 #define  DRAGON_VALID_HXX
-#include <stdint.h>
+#include "utils/IntTypes.h"
 #include <numeric>
 #include <algorithm>
 #include <limits>

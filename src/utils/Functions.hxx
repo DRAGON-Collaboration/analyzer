@@ -3,7 +3,7 @@
 /// \brief Defines some functions commonly used in processing data
 #ifndef DRAGON_UTILS_FUNCTIONS_HXX
 #define DRAGON_UTILS_FUNCTIONS_HXX
-#include <stdint.h>
+#include "utils/IntTypes.h"
 #include <numeric>
 #include <functional>
 #include "Bits.hxx"

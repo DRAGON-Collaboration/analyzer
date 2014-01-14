@@ -5,7 +5,7 @@
 ///
 #ifndef HAVE_DRAGON_VME_HXX
 #define HAVE_DRAGON_VME_HXX
-#include <stdint.h>
+#include "utils/IntTypes.h"
 #include <map>
 #include <vector>
 #include "utils/Valid.hxx"

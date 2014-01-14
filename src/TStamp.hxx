@@ -5,7 +5,7 @@
  */
 #ifndef DRAGON_TSTAMP_HXX
 #define DRAGON_TSTAMP_HXX
-#include <stdint.h>
+#include "utils/IntTypes.h"
 #include <set>
 #include "midas/Event.hxx"
 

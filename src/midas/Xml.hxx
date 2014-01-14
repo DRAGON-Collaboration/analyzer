@@ -3,7 +3,7 @@
 //! \brief Defines a class to parse MIDAS XML files from the ODB.
 #ifndef MIDAS_XML_HXX
 #define MIDAS_XML_HXX
-#include <stdint.h>
+#include "utils/IntTypes.h"
 #include <cstdlib>
 #include <cstring>
 #include <vector>

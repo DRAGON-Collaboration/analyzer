@@ -9,7 +9,6 @@
 
 #include <stdint.h>
 
-
 #else // In CINT, use stdint types from ROOT's types instead
 
 #include <Rtypes.h>

@@ -9,7 +9,7 @@
 ///
 #ifndef HAVE_DRAGON_HXX
 #define HAVE_DRAGON_HXX
-#include <stdint.h>
+#include "utils/IntTypes.h"
 #include <string>
 #include <sstream>
 #include "utils/VariableStructs.hxx"

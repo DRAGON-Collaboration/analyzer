@@ -3,7 +3,7 @@
 //! \brief Defines a "static" class with functions to read MIDAS ODB data.
 #ifndef DRAGON_UTILS_ODB_HXX
 #define DRAGON_UTILS_ODB_HXX
-#include <stdint.h>
+#include "utils/IntTypes.h"
 #include <iostream>
 #include <string>
 #include "utils/ErrorDragon.hxx"

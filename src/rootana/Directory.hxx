@@ -5,7 +5,7 @@
  */
 #ifndef ROOTANA_DIRECTORY_HXX
 #define ROOTANA_DIRECTORY_HXX
-#include <stdint.h>
+#include "utils/IntTypes.h"
 #include <map>
 #include <list>
 #include <string>
