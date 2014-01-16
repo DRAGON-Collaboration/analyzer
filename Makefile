@@ -62,15 +62,19 @@ DEBUG=-ggdb -O3 -DDEBUG
 CXXFLAGS = $(DEBUG) $(INCFLAGS) $(DEFINITIONS)
 CXXFLAGS += -DHAVE_ZLIB
 
-
-ROOTLIBS=
 ifeq ($(USE_ROOT),YES)
 DEFINITIONS+= -DUSE_ROOT
 ifdef ROOTSYS
-ROOTLIBS= -L$(ROOTSYS)/lib $(shell $(ROOTSYS)/bin/root-config --cflags --libs --glibs) -I$(ROOTSYS)/include -lXMLParser -lThread -lTreePlayer -lSpectrum -lMinuit
-CXXFLAGS += -I$(ROOTSYS)/include
+ROOTVERSION := $(shell root-config --version 2>/dev/null)
+ifndef ROOTVERSION
+$(error Could not run root-config program, check your ROOT setup script)
+endif
+
+ROOTLIBS=$(shell root-config --libs --glibs) -lXMLParser -lThread -lTreePlayer -lSpectrum -lMinuit
+INCFLAGS+=$(shell root-config --cflags --noauxcflags)
+CXXAUXFLAGS=$(shell root-config --auxcflags)
 else
-ROOTLIBS= - $(shell $(ROOTSYS)/bin/root-config --cflags --libs --glibs) -lXMLParser -lThread -lTreePlayer -lSpectrum -lMinuit
+$(error USE_ROOT set to true but ROOTSYS environment variable is not set.)
 endif
 else
 USE_ROOTBEER=NO
@@ -105,7 +109,7 @@ endif
 endif
 
 
-CXX+=$(CXXFLAGS)
+CXX+=$(CXXFLAGS) $(CXXAUXFLAGS)
 CC+=$(CXXFLAGS)
 
 LINK=$(CXX) $(ROOTLIBS) $(RPATH) -L$(PWD)/lib
