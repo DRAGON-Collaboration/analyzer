@@ -5,7 +5,7 @@
 
   Contents:     C++ MIDAS analyzer
 
-  $Id: TMidasOnline.cxx 91 2012-04-12 18:36:17Z olchansk $
+  $Id: TMidasOnline.cxx 139 2013-09-05 21:08:57Z lindner $
 
 \********************************************************************/
 
@@ -18,6 +18,14 @@
 //#include "hardware.h"
 //#include "ybos.h"
 
+#ifndef ASYNC
+#ifdef  BM_NO_WAIT
+#define ASYNC BM_NO_WAIT
+#else
+#define ASYNC 1
+#endif
+#endif
+ 
 
 TMidasOnline::TMidasOnline() // ctor
 {
@@ -282,6 +290,27 @@ int TMidasOnline::eventRequest(const char* bufferName, int eventId, int triggerM
   return r->fRequestId;
 };
 
+int TMidasOnline::getBufferLevel(){
+
+  if(!fEventRequests || !fEventRequests->fBufferHandle) return -1;
+
+  int n_bytes;
+  bm_get_buffer_level(fEventRequests->fBufferHandle, &n_bytes);
+
+  return n_bytes;
+
+}
+
+int TMidasOnline::getBufferSize(){
+
+  if(!fEventRequests || !fEventRequests->fBufferHandle) return -1;
+
+  BUFFER_HEADER buffer_header;
+  bm_get_buffer_info(fEventRequests->fBufferHandle,&buffer_header);      
+
+  return buffer_header.size;
+
+}
 void TMidasOnline::deleteEventRequest(int requestId)
 {
   for (EventRequest* r = fEventRequests; r != NULL; r = r->fNext)
@@ -294,6 +323,9 @@ void TMidasOnline::deleteEventRequest(int requestId)
 	r->fRequestId    = -1;
       }
 }
+
+
+
 
 int TMidasOnline::odbReadInt(const char*name,int index,int defaultValue)
 {

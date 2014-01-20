@@ -1,4 +1,3 @@
-#ifndef DOXYGEN_SKIP
 #ifndef TMidasOnline_hxx_seen
 #define TMidasOnline_hxx_seen
 /********************************************************************\
@@ -8,7 +7,7 @@
 
   Contents:     C++ MIDAS analyzer
 
-  $Id: TMidasOnline.h 91 2012-04-12 18:36:17Z olchansk $
+  $Id: TMidasOnline.h 139 2013-09-05 21:08:57Z lindner $
 
 \********************************************************************/
 
@@ -107,6 +106,12 @@ public:
   /// Receive event by polling
   int receiveEvent(int requestId, void* pevent, int size, bool async);
 
+  /// Get buffer level (ie the number of bytes in buffer)
+  int getBufferLevel();
+
+  /// Get buffer size
+  int getBufferSize();
+
   // ODB functions required by VirtualOdb
 
   int      odbReadArraySize(const char*name);
@@ -120,5 +125,4 @@ public:
 };
 
 //end
-#endif
 #endif

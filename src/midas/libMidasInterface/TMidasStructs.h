@@ -1,11 +1,11 @@
 //
 // TMidasStructs.h
 //
-#ifndef DOXYGEN_SKIP
+
 #ifndef INCLUDE_TMidasBanksH
 #define INCLUDE_TMidasBanksH
 
-#include "utils/IntTypes.h"
+#include <stdint.h>
 
 // This file defines the data structures written
 // into MIDAS .mid files. They define the on-disk
@@ -44,6 +44,5 @@ struct TMidas_BANK32 {
   uint32_t fDataSize;
 };
 
-#endif
 #endif
 //end
