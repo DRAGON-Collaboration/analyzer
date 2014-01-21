@@ -17,6 +17,7 @@
 #define DRAGON_COINC_EVENT         5 /*!< Dragon coincidence event ID */
 #define DRAGON_TSTAMP_DIAGNOSTICS  6 /*!< Timestamp diagnostics event ID (analysis only) */
 #define DRAGON_RUN_PARAMETERS      7 /*!< Global run parameters event ID (analysis only) */
+#define DRAGON_AUX_SCALER          8 /*!< Aux scaler event ID */
 #define DRAGON_EPICS_EVENT        20 /*!< EPICS event ID */
 
 #define DRAGON_SCALER_READ_PERIOD 1000  /*!< Scaler readout period in milliseconds */

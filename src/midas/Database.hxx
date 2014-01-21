@@ -22,9 +22,9 @@
 // This will disable reading of midas::Database objects from files created
 // w/ other versions, though.
 
-#define MIDAS_XML_CLASS_VERSION 3
+#define MIDAS_XML_CLASS_VERSION 4
 #else
-#define MIDAS_XML_CLASS_VERSION 2
+#define MIDAS_XML_CLASS_VERSION 3
 #endif
 
 #endif // #ifdef USE_ROOT
@@ -202,6 +202,22 @@ public:
 					std::cout << "Path: \"" << path << "\" not found!\n";
 				}
 			}
+		}
+
+	/// Check if a path exists
+	bool CheckPath(const char* path)
+		{
+			if(fIsZombie) return false;
+			if (fIsOnline) {
+				int arrlen = midas::Odb::ReadArraySize(path);
+				return (arrlen != -1);
+			}
+			else if (fXml.get()) {
+				midas::Xml::Node node = fXml->FindKey(path, true);
+				if(!node) node = fXml->FindKeyArray(path, true);
+				return (node != 0);
+			}
+			else return false;
 		}
 
 #ifdef USE_ROOT

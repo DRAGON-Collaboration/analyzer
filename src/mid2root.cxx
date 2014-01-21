@@ -407,7 +407,7 @@ int main_(int argc, char** argv)
 	
 	//
 	// Create TTrees, set branches, etc.
-	const int nIds = 8;
+	const int nIds = 9;
 
 	dragon::Head head;
 	dragon::Tail tail;
@@ -415,6 +415,7 @@ int main_(int argc, char** argv)
 	dragon::Epics epics;
 	dragon::Scaler head_scaler;
 	dragon::Scaler tail_scaler;
+	dragon::Scaler aux_scaler;
 	dragon::RunParameters runpar;
 	tstamp::Diagnostics tsdiag;
 
@@ -424,6 +425,7 @@ int main_(int argc, char** argv)
 		DRAGON_TAIL_EVENT,
 		DRAGON_TAIL_SCALER,
 		DRAGON_COINC_EVENT,
+		DRAGON_AUX_SCALER,
 		DRAGON_EPICS_EVENT,
 		DRAGON_TSTAMP_DIAGNOSTICS,
 		DRAGON_RUN_PARAMETERS
@@ -434,6 +436,7 @@ int main_(int argc, char** argv)
 		"Tail singles event.",
 		"Tail scaler event.",
 		"Coincidence event.",
+		"Aux scaler event.",
 		"Epics event.",
 		"Timestamp diagnostics.",
 		"Global run parameters."
@@ -444,6 +447,7 @@ int main_(int argc, char** argv)
 		&tail,
 		&tail_scaler,
 		&coinc,
+		&aux_scaler,
 		&epics,
 		&tsdiag,
 		&runpar
@@ -454,6 +458,7 @@ int main_(int argc, char** argv)
 		"tail",
 		"sct",
 		"coinc",
+		"scx",
 		"epics",
 		"tsdiag",
 		"runpar"
@@ -464,6 +469,7 @@ int main_(int argc, char** argv)
 		"dragon::Tail",
 		"dragon::Scaler",
 		"dragon::Coinc",
+		"dragon::Scaler",
 		"dragon::Epics",
 		"tstamp::Diagnostics",
 		"dragon::RunParameters"
@@ -478,7 +484,7 @@ int main_(int argc, char** argv)
 	}
 
 	dragon::Unpacker
-		unpack (&head, &tail, &coinc, &epics, &head_scaler, &tail_scaler, &runpar, &tsdiag, options.fSingles);
+		unpack (&head, &tail, &coinc, &epics, &head_scaler, &tail_scaler, &aux_scaler, &runpar, &tsdiag, options.fSingles);
 	
 	//
 	// Set coincidence variables
@@ -706,8 +712,8 @@ private:
 //
 // Have to define string literals as global char arrays to use them as template arguments
 char gStrHead[] = "head", gStrTail[] = "tail", gStrCoinc[] = "coinc",
-				 gStrEpics[] = "epics", gStrScalerH[] = "head_scaler", gStrScalerT[] = "tail_scaler",
-				 gStrTS[] = "tstamp", gStrRP[] = "runpar";
+     gStrScalerH[] = "head_scaler", gStrScalerT[] = "tail_scaler", gStrScalerX[] = "aux_scaler",
+     gStrEpics[] = "epics", gStrTS[] = "tstamp", gStrRP[] = "runpar";
 
 //
 // Now derive from EventTemplate<> with the appropriate template arguments
@@ -718,6 +724,7 @@ class CoincEvent: public EventTemplate<dragon::Coinc,  gStrCoinc,   false> { };
 class EpicsEvent: public EventTemplate<dragon::Epics,  gStrEpics,   false> { };
 class HeadScaler: public EventTemplate<dragon::Scaler, gStrScalerH, false> { };
 class TailScaler: public EventTemplate<dragon::Scaler, gStrScalerT, false> { };
+class AuxScaler:  public EventTemplate<dragon::Scaler, gStrScalerX, false> { };
 class TStampDiagnostics: public EventTemplate<tstamp::Diagnostics,   gStrTS, false> { };
 class RunParameters:     public EventTemplate<dragon::RunParameters, gStrRP, false> { };
 
@@ -735,6 +742,7 @@ void rb::Rint::RegisterEvents()
   RegisterEvent<m2r::EpicsEvent> (DRAGON_EPICS_EVENT, "EpicsEvent");
 	RegisterEvent<m2r::HeadScaler> (DRAGON_HEAD_SCALER, "HeadScaler");
 	RegisterEvent<m2r::TailScaler> (DRAGON_TAIL_SCALER, "TailScaler");
+	RegisterEvent<m2r::AuxScaler>  (DRAGON_AUX_SCALER,  "AuxScaler");
 	RegisterEvent<m2r::TStampDiagnostics>    (6, "TStampDiagnostics");
 	RegisterEvent<m2r::RunParameters>        (7,     "RunParameters");
 }

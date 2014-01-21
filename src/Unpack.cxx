@@ -21,6 +21,7 @@ dragon::Unpacker::Unpacker(dragon::Head* head,
 													 dragon::Epics* epics,
 													 dragon::Scaler* schead,
 													 dragon::Scaler* sctail,
+													 dragon::Scaler* scaux,
 													 dragon::RunParameters* runpar,
 													 tstamp::Diagnostics* tsdiag,
 													 bool singlesMode):
@@ -32,6 +33,7 @@ dragon::Unpacker::Unpacker(dragon::Head* head,
   fEpics(epics),
 	fHeadScaler(schead),
 	fTailScaler(sctail),
+	fAuxScaler(scaux),
 	fRunpar(runpar),
 	fDiag(tsdiag)
 {
@@ -61,6 +63,7 @@ void dragon::Unpacker::HandleBor(const char* dbname)
 	/// - Reset head, tail scalers; run parameters; and timestamp diagnostics.
 	fHeadScaler->reset();
 	fTailScaler->reset();
+	fAuxScaler->reset();
 	fRunpar->reset();
 	fDiag->reset();
 
@@ -74,6 +77,10 @@ void dragon::Unpacker::HandleBor(const char* dbname)
 			fEpics->set_variables(&db);
 			fHeadScaler->set_variables(&db, "head");
 			fTailScaler->set_variables(&db, "tail");
+
+			// Set sux scaler only if it's in the file
+			if(db.CheckPath("/Equipment/AuxScaler/Settings/Route"))
+				 fAuxScaler->set_variables (&db, "aux" );
 		}
 	}
 }
@@ -119,6 +126,12 @@ void dragon::Unpacker::UnpackTailScaler(const midas::Event& event)
 {
 	fTailScaler->unpack(event); /// - Read scaler data from the midas event
 	fUnpacked.push_back(DRAGON_TAIL_SCALER);
+}
+
+void dragon::Unpacker::UnpackAuxScaler(const midas::Event& event)
+{
+	fAuxScaler->unpack(event); /// - Read scaler data from the midas event
+	fUnpacked.push_back(DRAGON_AUX_SCALER);
 }
 
 void dragon::Unpacker::UnpackRunParameters(const midas::Database& db)
@@ -167,6 +180,12 @@ std::vector<int32_t> dragon::Unpacker::UnpackMidasEvent(void* header, char* data
 		{
 			midas::Event event(header, data, evtHeader->fDataSize);
 			UnpackTailScaler(event);
+			break;
+		}
+	case DRAGON_AUX_SCALER:		
+		{
+			midas::Event event(header, data, evtHeader->fDataSize);
+			UnpackAuxScaler(event);
 			break;
 		}
 	case DRAGON_EPICS_EVENT:
