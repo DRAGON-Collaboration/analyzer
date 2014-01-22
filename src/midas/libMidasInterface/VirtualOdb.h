@@ -7,12 +7,11 @@
 //
 //
 
-#ifndef DOXYGEN_SKIP
 #ifndef INCLUDE_VirtualOdb_H
 #define INCLUDE_VirtualOdb_H
 
 /// Interface class for ODB access
-#include "utils/IntTypes.h"
+#include <stdint.h>
 
 struct VirtualOdb
 {
@@ -38,7 +37,6 @@ struct VirtualOdb
   virtual ~VirtualOdb() { /* empty */ }; // dtor
 };
 
-#endif
 #endif
 // end
 

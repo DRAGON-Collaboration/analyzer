@@ -1,7 +1,7 @@
 //
 // TMidasEvent.h
 //
-#ifndef DOXYGEN_SKIP
+
 #ifndef TMIDASEVENT_H
 #define TMIDASEVENT_H
 
@@ -26,7 +26,7 @@ class TMidasEvent
 
   TMidasEvent(); ///< default constructor
   TMidasEvent(const TMidasEvent &); ///< copy constructor
-  virtual ~TMidasEvent(); ///< destructor
+  ~TMidasEvent(); ///< destructor
   TMidasEvent& operator=(const TMidasEvent &); ///< assignement operator
   void Clear(); ///< clear event for reuse
   void Copy(const TMidasEvent &); ///< copy helper
@@ -74,4 +74,3 @@ protected:
 };
 
 #endif // TMidasEvent.h
-#endif

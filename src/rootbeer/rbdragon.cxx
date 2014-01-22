@@ -77,6 +77,7 @@ rbdragon::MidasBuffer::MidasBuffer():
 						rb::Event::Instance<rbdragon::EpicsEvent>()->Get(),
 						rb::Event::Instance<rbdragon::HeadScaler>()->Get(),
 						rb::Event::Instance<rbdragon::TailScaler>()->Get(),
+						rb::Event::Instance<rbdragon::AuxScaler>()->Get(),
 						rb::Event::Instance<rbdragon::RunParameters>()->Get(),
 						rb::Event::Instance<rbdragon::TStampDiagnostics>()->Get())
 {
@@ -99,6 +100,7 @@ void rbdragon::MidasBuffer::RunStartTransition(Int_t runnum)
 	/// - Reset scalers
 	rb::Event::Instance<rbdragon::HeadScaler>()->Reset();
 	rb::Event::Instance<rbdragon::TailScaler>()->Reset();
+	rb::Event::Instance<rbdragon::AuxScaler>()->Reset();
 	rb::Event::Instance<rbdragon::RunParameters>()->Reset();
 	rb::Event::Instance<rbdragon::TStampDiagnostics>()->Reset();
 
@@ -211,6 +213,7 @@ void rbdragon::MidasBuffer::ReadVariables(midas::Database* db)
 	rb::Event::Instance<rbdragon::CoincEvent>()->ReadVariables(db);
 	rb::Event::Instance<rbdragon::HeadScaler>()->ReadVariables(db);
 	rb::Event::Instance<rbdragon::TailScaler>()->ReadVariables(db);
+	rb::Event::Instance<rbdragon::AuxScaler>()->ReadVariables(db);
 }
 
 Bool_t rbdragon::MidasBuffer::UnpackEvent(void* header, char* data)
@@ -384,6 +387,25 @@ void rbdragon::TailScaler::ReadVariables(midas::Database* db)
 	fScaler->set_variables(db, "tail");
 }
 
+// ======== Class rbdragon::AuxScaler ======== //
+
+rbdragon::AuxScaler::AuxScaler():
+	fScaler("aux_scaler", this, true)
+{
+	assert(fScaler.Get());
+}
+
+void rbdragon::AuxScaler::HandleBadEvent()
+{
+	dragon::utils::Error("AuxScaler", __FILE__, __LINE__)
+		<< "Unknown error encountered during event processing";
+}
+
+void rbdragon::AuxScaler::ReadVariables(midas::Database* db)
+{
+	fScaler->set_variables(db, "aux");
+}
+
 
 // ======== Class rbdragon::Main ======== //
 
@@ -500,6 +522,9 @@ void rb::Rint::RegisterEvents()
 
 	/// - Tail Scalers [ rbdragon::TailScaler ]: "TailScaler"
 	RegisterEvent<rbdragon::TailScaler> (DRAGON_TAIL_SCALER, "TailScaler");
+
+	/// - Aux Scalers [ rbdragon::AuxScaler ]: "AuxScaler"
+	RegisterEvent<rbdragon::AuxScaler> (DRAGON_AUX_SCALER, "AuxScaler");
 
 	/// - Timestamp Diagnostics [ rbdragon::TstampDiagnostics ]: "TstampDiagnostics"
 	RegisterEvent<rbdragon::TStampDiagnostics> (6, "TStampDiagnostics");
