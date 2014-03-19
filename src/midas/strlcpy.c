@@ -6,8 +6,6 @@
    Contents:     Contains strlcpy and strlcat which are versions of
                  strcpy and strcat, but which avoid buffer overflows
 
-   $Id: strlcpy.c 16 2005-10-07 13:05:38Z ritt $
-
 \********************************************************************/
 
 #include <stdio.h>
@@ -19,6 +17,8 @@
 * will be copied.  Always NUL terminates (unless size == 0).
 * Returns strlen(src); if retval >= siz, truncation occurred.
 */
+#ifndef STRLCPY_DEFINED
+
 size_t strlcpy(char *dst, const char *src, size_t size)
 {
    char *d = dst;
@@ -80,3 +80,5 @@ size_t strlcat(char *dst, const char *src, size_t size)
 }
 
 /*-------------------------------------------------------------------*/
+
+#endif // STRLCPY_DEFINED
