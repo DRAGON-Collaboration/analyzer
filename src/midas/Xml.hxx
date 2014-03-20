@@ -9,7 +9,9 @@
 #include <vector>
 #include <sstream>
 #include <typeinfo>
+#ifndef __MAKECINT__
 #include <iostream>
+#endif
 #include "mxml.h"
 #include "strlcpy.h"
 

@@ -9,7 +9,9 @@
 #include <map>
 #include <memory>
 #include <fstream>
+#ifndef __MAKECINT__
 #include <iostream>
+#endif
 #include <algorithm>
 
 #include <TH1.h>

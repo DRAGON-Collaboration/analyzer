@@ -11,7 +11,7 @@
 #define INCLUDE_XmlOdb_H
 
 #include <stdlib.h>
-#include <stdint.h>
+#include "utils/IntTypes.h"
 #include "TXMLNode.h"
 #include "TXMLAttr.h"
 #include "TDOMParser.h"

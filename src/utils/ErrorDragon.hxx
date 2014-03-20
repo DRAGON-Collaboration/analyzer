@@ -8,7 +8,9 @@
 #include <memory>
 #include <string>
 #include <sstream>
+#ifndef __MAKECINT__
 #include <iostream>
+#endif
 #include <stdexcept>
 #include "AutoPtr.hxx"
 
