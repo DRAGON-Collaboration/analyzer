@@ -45,7 +45,7 @@ public:
 		{ gErrorIgnoreLevel = fIgnore; }
 }; }
 
-namespace { Int_t gAutoZero = 1; }
+namespace { Int_t gAutoZero = 1; bool gAutoZeroOdb = true; }
 
 
 // ============ Free Functions ============ //
@@ -65,6 +65,17 @@ Int_t rbdragon::GetAutoZero()
 {
 	return gAutoZero;
 }
+
+void rbdragon::SetAutoZeroOdb(bool on)
+{
+	gAutoZeroOdb = on;
+}
+
+bool rbdragon::GetAutoZeroOdb()
+{
+	return gAutoZeroOdb;
+}
+
 
 
 // ============ Class rbdragon::MidasBuffer ============ //
@@ -104,8 +115,8 @@ void rbdragon::MidasBuffer::RunStartTransition(Int_t runnum)
 	rb::Event::Instance<rbdragon::RunParameters>()->Reset();
 	rb::Event::Instance<rbdragon::TStampDiagnostics>()->Reset();
 
-	/// - Read variables from the ODB if online
-	if (fType == rb::MidasBuffer::ONLINE) {
+	/// - Read variables from the ODB if online and if told to (SetAutoZeroOdb)
+	if (fType == rb::MidasBuffer::ONLINE && GetAutoZeroOdb() == true) {
 		dragon::utils::Info("rbdragon::MidasBuffer")
 			<< "Syncing variable values with the online database.";
 		midas::Database db("online");
