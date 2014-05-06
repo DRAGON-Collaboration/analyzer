@@ -134,7 +134,7 @@ void rbdragon::MidasBuffer::RunStartTransition(Int_t runnum)
 			break;
 		case 1:       /// - Level 1 - clear scalers only
 			{
-				Int_t codes[] = { DRAGON_HEAD_SCALER, DRAGON_TAIL_SCALER };
+				Int_t codes[] = { DRAGON_HEAD_SCALER, DRAGON_TAIL_SCALER, DRAGON_AUX_SCALER };
 				Int_t ncodes = sizeof(codes) / sizeof(Int_t);
 				for(Int_t i=0; i< ncodes; ++i) {
 					rb::Event* evt = rb::Rint::gApp()->GetEvent (codes[i]);
@@ -156,6 +156,7 @@ void rbdragon::MidasBuffer::RunStartTransition(Int_t runnum)
 	rb::MidasBuffer::RunStartTransition(runnum);
 }
 
+#if 0
 namespace {
 void IterateDir(TDirectory* dir, TDirectory* newdir)
 {
@@ -171,6 +172,7 @@ void IterateDir(TDirectory* dir, TDirectory* newdir)
 		}
 	}
 } }
+#endif
 
 void rbdragon::MidasBuffer::RunStopTransition(Int_t runnum)
 {
