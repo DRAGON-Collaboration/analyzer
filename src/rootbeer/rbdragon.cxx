@@ -163,6 +163,28 @@ void rbdragon::MidasBuffer::RunStartTransition(Int_t runnum)
 		}
 	}
 
+	/// - Look at ODB and set canvas to web saving if enabled
+	if (fType == rb::MidasBuffer::ONLINE) {
+		midas::Database db("online");
+
+		std::string webFile = "";
+		Bool_t saveCanvas = true, success = kTRUE;
+		if(success) saveCanvas = midas::Odb::ReadBool("/dragon/rootbeer/canvas/SaveToWeb");
+		if(success) success = db.ReadValue("/dragon/rootbeer/canvas/WebFile", webFile);
+		
+		if(success && !webFile.empty()) {
+			rb::canvas::SetWebFile(webFile.c_str());
+		} else {
+			if(!success) {
+				dragon::utils::Warning("RunStartTransition")
+					<< "Couldn't read web canvas settings from ODB";
+			} else {
+				dragon::utils::Warning("RunStartTransition")
+					<< "Empty \"/dragon/rootbeer/WebFile\" in ODB";
+			}
+		}
+	}
+
 	/// - Call parent class implementation (prints a message)
 	rb::MidasBuffer::RunStartTransition(runnum);
 }
