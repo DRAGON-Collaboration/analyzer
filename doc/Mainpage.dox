@@ -518,31 +518,29 @@
 
 	You can obtain the analysis package from the git repository as follows:
 	\code
-	git clone dragon@isdaq07:~/packages/dragon/analyzer
+	git clone https://github.com/dragontriumf/analyzer
 	\endcode
-	The password is the standard one for dragon accounts. If you don't have git installed or prefer to just get a tarball, 
-	then log into isdaq07 as user `dragon` (with the "standard" password) and copy one of the tarballs from
-  `~/packages/dragon` to your local machine:
-	\code
-	ssh dragon@isdaq07
-	cd ~/packages/dragon
-	scp dragon_analyzer.0.1.5.tar.gz me@myhost.ca:/path/to/somewhere/
-	\endcode
+	If you don't have git installed or prefer to just get a tarball, then visit https://github.com/dragontriumf/analyzer,
+	click on the <a href=https://github.com/dragontriumf/analyzer/releases>releases</a> link and select the latest release
+	(or an earlier one if you have reason to do so). Click on either the "zip" or the "tar.gz" link to download a zip file
+	or a tarball containing the code.
 
-	Once you have the package, open up the Makefile and take a look at the lines underneath
+	Once you have the package, you'll need to run a quick configure script before compiling. To see a list of options:
 	\code
-	 ### Set to YES (NO) to turn on (off) root [or rootbeer, or rootana, or ...] usage ###
-	 \endcode
+	./configure --help
+	\endcode
 	
-	For a typical installation, these should be set as follows:
+	In most cases, you can just run
 	\code
-	USE_ROOT=YES
-	USE_ROOTANA=NO
-	USE_ROOTBEER=NO
-	USE_MIDAS=NO
+	./configure
 	\endcode
 
-	unless you want to use rootbeer for gui-based offline analysis, in which case set `USE_ROOTBEER=YES`. At this point,
+	with no arguments, unless you want to use rootbeer for gui-based offline analysis, in which run
+	\code
+	./configure --with-rootbeer
+	\endcode
+
+	At this point,
 	compilation _should_ be as simple as typing `make`. If not, please let me (G.C.) know, and
 	we can try to fix the problem permanently so others don't run into it.
 
@@ -558,6 +556,16 @@
 	`~/.rootlogon.C` and include the above lines in it.
 	This will give you access to all of the classes and functions in the software package from within a ROOT session or macro.
 
+
+	If you are using git and want to stay on top of new releases, just do:
+	\code
+	git pull https://github.com/dragontriumf/analyzer master --tags
+	\endcode
+
+	This gets you all of the new code since your last pull (or the initial clone). Note that we've started using a versioning
+	system than goes as such: vMAJOR.MINOR.PATCH, where a MAJOR version change indicates a new set of _non backwards compatible_
+	changes. MINOR indicates a feature addition that is still backwards compatible, and PATCH indicates a bigfix or other small
+	change that is backwards compatible.
 
 	\subsection pyext Python Extension
 

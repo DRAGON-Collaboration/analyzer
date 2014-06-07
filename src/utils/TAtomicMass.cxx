@@ -1,4 +1,10 @@
+///
+/// \file TAtomicMass.cxx
+/// \author G. Christian
+/// \brief Implements the TAtomicMass class
+///
 #include <string>
+#include <sstream>
 #include <algorithm>
 #include "TAtomicMass.h"
 
@@ -7,13 +13,22 @@ namespace {
 inline TAtomicMassTable::Nucleus_t make_nucleus_az(int Z, int A) {
 	TAtomicMassTable::Nucleus_t nuc; nuc.fA = A; nuc.fZ = Z;
 	return nuc;
-} }
+}
 
-#ifdef DRAGON_AME12_FILENAME
-TAtomicMassTable* gAtomicMassTable = new TAtomicMassTable();
-#else
-TAtomicMassTable* gAtomicMassTable = NULL;
-#endif
+class MatchSymbol {
+	std::string fSymbol;
+public:
+	MatchSymbol(const char* symbol): fSymbol(symbol) { }
+	bool operator() (const std::pair<TAtomicMassTable::Nucleus_t,
+																	 TAtomicMassTable::MassExcess_t>& element)
+		{
+			const TAtomicMassTable::Nucleus_t& nuc = element.first;
+			std::stringstream symbol;
+			symbol << nuc.fA << nuc.fSymbol;
+			return symbol.str() == fSymbol;
+		}
+}; }
+
 
 bool TAtomicMassTable::CompareNucleus_t::operator()
 	(const Nucleus_t& lhs, const Nucleus_t& rhs) const
@@ -23,46 +38,49 @@ bool TAtomicMassTable::CompareNucleus_t::operator()
 	return lhs.fZ < rhs.fZ;
 }
 
-TAtomicMassTable::TAtomicMassTable(const char* file):
-	fFile(0)
+TAtomicMassTable::TAtomicMassTable(const char* file)
 {
 	SetFile(file);
 }
 
-TAtomicMassTable::TAtomicMassTable():
-	fFile(0)
+TAtomicMassTable::TAtomicMassTable()
 {
-#ifdef DRAGON_AME12_FILENAME
-	SetFile(DRAGON_AME12_FILENAME);
+#ifdef AMEPP_DEFAULT_FILE
+	SetFile(AMEPP_DEFAULT_FILE);
 #endif
 }
 
 void TAtomicMassTable::SetFile(const char* filename)
 {
-	fFile.reset(new std::ifstream(filename));
-	if(fFile->good())
-		ParseFile(filename);
-	else {
-		ParseFile(filename);
-		fFile.reset(0);
-	}
+	ParseFile(filename);
 }
 
-const TAtomicMassTable::Nucleus_t*
-TAtomicMassTable::GetNucleus(int Z, int A) const
+const TAtomicMassTable::Nucleus_t* TAtomicMassTable::GetNucleus(int Z, int A) const
 {
 	Nucleus_t nuc = make_nucleus_az(Z, A);
 	Map_t::const_iterator it = fMassData.find(nuc);
 	return it == fMassData.end() ? 0 : &(it->first);
 }
 
-const TAtomicMassTable::MassExcess_t*
-TAtomicMassTable::GetMassExcess(int Z, int A) const
+const TAtomicMassTable::MassExcess_t* TAtomicMassTable::GetMassExcess(int Z, int A) const
 {
 	Nucleus_t nuc = make_nucleus_az(Z, A);
 	Map_t::const_iterator it = fMassData.find(nuc);
 	return it == fMassData.end() ? 0 : &(it->second);
 }
+
+const TAtomicMassTable::Nucleus_t* TAtomicMassTable::GetNucleus(const char* symbol) const
+{
+	Map_t::const_iterator it = std::find_if(fMassData.begin(), fMassData.end(), MatchSymbol(symbol));
+	return it == fMassData.end() ? 0 : &(it->first);
+}
+
+const TAtomicMassTable::MassExcess_t* TAtomicMassTable::GetMassExcess(const char* symbol) const
+{
+	Map_t::const_iterator it = std::find_if(fMassData.begin(), fMassData.end(), MatchSymbol(symbol));
+	return it == fMassData.end() ? 0 : &(it->second);
+}
+
 
 void TAtomicMassTable::SetMassExcess(int Z, int A, double value, double error, bool extrapolated)
 {
@@ -77,7 +95,9 @@ void TAtomicMassTable::SetMassExcess(int Z, int A, double value, double error, b
 
 void TAtomicMassTable::ParseFile(const char* name)
 {
-	if(!fFile->good()) {
+	std::ifstream ffile(name);
+
+	if(!ffile.good()) {
 		if(name)
 			std::cerr << "Error: couldn't find database file: \"" << name << "\"\n";
 		else
@@ -88,7 +108,7 @@ void TAtomicMassTable::ParseFile(const char* name)
 	const int num_headers = 39;
 	int linenum = 0;
 	std::string line;
-	while(std::getline(*fFile, line)) {
+	while(std::getline(ffile, line)) {
 		if(linenum++ < num_headers) // skip headers
 			continue; 
 		Nucleus_t nuc;
@@ -186,3 +206,45 @@ double TAtomicMassTable::NuclearMassError(int Z, int A) const
 {
 	return AtomicMassExcessError(Z, A);
 }
+
+double TAtomicMassTable::AtomicMassExcess(const char* symbol) const
+{
+	const MassExcess_t* pmass = GetMassExcess(symbol);
+	return pmass ? pmass->fValue : 0;
+}
+
+double TAtomicMassTable::AtomicMassExcessError(const char* symbol) const
+{
+	const MassExcess_t* pmass = GetMassExcess(symbol);
+	return pmass ? pmass->fError : 0;
+}
+
+double TAtomicMassTable::NuclearMass(const char* symbol) const
+{
+	const MassExcess_t* pmass = GetMassExcess(symbol);
+	if(!pmass) return 0;
+	
+	const Nucleus_t* nuc = GetNucleus(symbol);
+	if(!nuc) return 0;
+
+	return pmass->fValue + nuc->fA*AMU() - nuc->fZ*ElectronMass();
+}
+
+double TAtomicMassTable::NuclearMassError(const char* symbol) const
+{
+	return AtomicMassExcessError(symbol);
+}
+
+double TAtomicMassTable::IonMass(const char* symbol, int chargeState) const
+{
+	const Nucleus_t* nuc = GetNucleus(symbol);
+	if(!nuc) return 0;
+
+	return NuclearMass(symbol) + ElectronMass()*(nuc->fZ - chargeState);
+}
+	
+
+
+//
+// Global instance
+TAtomicMassTable* gAtomicMassTable = new TAtomicMassTable();

@@ -4,7 +4,9 @@
 #ifndef DRAGON_UTILS_ODB_HXX
 #define DRAGON_UTILS_ODB_HXX
 #include "utils/IntTypes.h"
+#ifndef __MAKECINT__
 #include <iostream>
+#endif
 #include <string>
 #include "utils/ErrorDragon.hxx"
 

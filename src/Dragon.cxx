@@ -1413,7 +1413,7 @@ bool dragon::Scaler::Variables::set(const midas::Database* db, const char* dir)
 	 * "/dragon/scaler/tail".
 	 */
 	std::string path1 = dir;
-	if (path1 != "head" && path1 != "tail") {
+	if (path1 != "head" && path1 != "tail" && path1 != "aux") {
 		dutils::Error("Scaler::Variables::set", __FILE__, __LINE__)
 			<< "Invalid subdirectory: \"" << path1 << "\"."
 			<< "Must be either \"head\" or \"tail\"";

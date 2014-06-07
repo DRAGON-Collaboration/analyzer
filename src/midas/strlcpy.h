@@ -5,12 +5,15 @@
 
    Contents:     Header file for strlcpy.c
 
-   $Id: strlcpy.h 62 2007-10-23 17:53:45Z sawada $
-
 \********************************************************************/
 
 #ifndef _STRLCPY_H_
 #define _STRLCPY_H_
+
+// some version of gcc have a built-in strlcpy
+#ifdef strlcpy
+#define STRLCPY_DEFINED
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,8 +27,10 @@ extern "C" {
 #endif
 #endif
 
+#ifndef STRLCPY_DEFINED
 size_t EXPRT strlcpy(char *dst, const char *src, size_t size);
 size_t EXPRT strlcat(char *dst, const char *src, size_t size);
+#endif
 
 #ifdef __cplusplus
 }

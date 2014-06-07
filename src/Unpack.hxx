@@ -34,6 +34,7 @@ public:
 					 dragon::Epics* epics,
 					 dragon::Scaler* schead,
 					 dragon::Scaler* sctail,
+					 dragon::Scaler* scaux,
 					 dragon::RunParameters* runpar,
 					 tstamp::Diagnostics* tsdiag,
 					 bool singlesMode = false);
@@ -103,6 +104,9 @@ public:
   ///
   /// Unpack a tail scaler event into fTailScaler
 	void UnpackTailScaler(const midas::Event& event);
+  ///
+  /// Unpack a aux scaler event into fAuxScaler;
+	void UnpackAuxScaler(const midas::Event& event);
 	///
   /// Unpack an EPICS event into fEpics
 	void UnpackEpics(const midas::Event& event);
@@ -138,6 +142,8 @@ private:
 	dragon::Scaler* fHeadScaler;
 	/// Pointer to _external_ scaler class (for tail data)
 	dragon::Scaler* fTailScaler;
+	/// Pointer to _external_ scaler class (for aux data)
+	dragon::Scaler* fAuxScaler;
 	/// Pointer to _external_ run parameters class
 	dragon::RunParameters* fRunpar;
 	/// Pointer to _external_ timestamp diagnostics class

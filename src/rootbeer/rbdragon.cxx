@@ -45,7 +45,7 @@ public:
 		{ gErrorIgnoreLevel = fIgnore; }
 }; }
 
-namespace { Int_t gAutoZero = 1; }
+namespace { Int_t gAutoZero = 1; bool gAutoZeroOdb = true; }
 
 
 // ============ Free Functions ============ //
@@ -66,6 +66,17 @@ Int_t rbdragon::GetAutoZero()
 	return gAutoZero;
 }
 
+void rbdragon::SetAutoZeroOdb(bool on)
+{
+	gAutoZeroOdb = on;
+}
+
+bool rbdragon::GetAutoZeroOdb()
+{
+	return gAutoZeroOdb;
+}
+
+
 
 // ============ Class rbdragon::MidasBuffer ============ //
 
@@ -77,6 +88,7 @@ rbdragon::MidasBuffer::MidasBuffer():
 						rb::Event::Instance<rbdragon::EpicsEvent>()->Get(),
 						rb::Event::Instance<rbdragon::HeadScaler>()->Get(),
 						rb::Event::Instance<rbdragon::TailScaler>()->Get(),
+						rb::Event::Instance<rbdragon::AuxScaler>()->Get(),
 						rb::Event::Instance<rbdragon::RunParameters>()->Get(),
 						rb::Event::Instance<rbdragon::TStampDiagnostics>()->Get())
 {
@@ -99,11 +111,12 @@ void rbdragon::MidasBuffer::RunStartTransition(Int_t runnum)
 	/// - Reset scalers
 	rb::Event::Instance<rbdragon::HeadScaler>()->Reset();
 	rb::Event::Instance<rbdragon::TailScaler>()->Reset();
+	rb::Event::Instance<rbdragon::AuxScaler>()->Reset();
 	rb::Event::Instance<rbdragon::RunParameters>()->Reset();
 	rb::Event::Instance<rbdragon::TStampDiagnostics>()->Reset();
 
-	/// - Read variables from the ODB if online
-	if (fType == rb::MidasBuffer::ONLINE) {
+	/// - Read variables from the ODB if online and if told to (SetAutoZeroOdb)
+	if (fType == rb::MidasBuffer::ONLINE && GetAutoZeroOdb() == true) {
 		dragon::utils::Info("rbdragon::MidasBuffer")
 			<< "Syncing variable values with the online database.";
 		midas::Database db("online");
@@ -132,7 +145,7 @@ void rbdragon::MidasBuffer::RunStartTransition(Int_t runnum)
 			break;
 		case 1:       /// - Level 1 - clear scalers only
 			{
-				Int_t codes[] = { DRAGON_HEAD_SCALER, DRAGON_TAIL_SCALER };
+				Int_t codes[] = { DRAGON_HEAD_SCALER, DRAGON_TAIL_SCALER, DRAGON_AUX_SCALER };
 				Int_t ncodes = sizeof(codes) / sizeof(Int_t);
 				for(Int_t i=0; i< ncodes; ++i) {
 					rb::Event* evt = rb::Rint::gApp()->GetEvent (codes[i]);
@@ -150,10 +163,33 @@ void rbdragon::MidasBuffer::RunStartTransition(Int_t runnum)
 		}
 	}
 
+	/// - Look at ODB and set canvas to web saving if enabled
+	if (fType == rb::MidasBuffer::ONLINE) {
+		midas::Database db("online");
+
+		std::string webFile = "";
+		Bool_t saveCanvas = true, success = kTRUE;
+		if(success) saveCanvas = midas::Odb::ReadBool("/dragon/rootbeer/canvas/SaveToWeb");
+		if(success) success = db.ReadValue("/dragon/rootbeer/canvas/WebFile", webFile);
+		
+		if(success && !webFile.empty()) {
+			rb::canvas::SetWebFile(webFile.c_str());
+		} else {
+			if(!success) {
+				dragon::utils::Warning("RunStartTransition")
+					<< "Couldn't read web canvas settings from ODB";
+			} else {
+				dragon::utils::Warning("RunStartTransition")
+					<< "Empty \"/dragon/rootbeer/WebFile\" in ODB";
+			}
+		}
+	}
+
 	/// - Call parent class implementation (prints a message)
 	rb::MidasBuffer::RunStartTransition(runnum);
 }
 
+#if 0
 namespace {
 void IterateDir(TDirectory* dir, TDirectory* newdir)
 {
@@ -169,6 +205,7 @@ void IterateDir(TDirectory* dir, TDirectory* newdir)
 		}
 	}
 } }
+#endif
 
 void rbdragon::MidasBuffer::RunStopTransition(Int_t runnum)
 {
@@ -211,6 +248,7 @@ void rbdragon::MidasBuffer::ReadVariables(midas::Database* db)
 	rb::Event::Instance<rbdragon::CoincEvent>()->ReadVariables(db);
 	rb::Event::Instance<rbdragon::HeadScaler>()->ReadVariables(db);
 	rb::Event::Instance<rbdragon::TailScaler>()->ReadVariables(db);
+	rb::Event::Instance<rbdragon::AuxScaler>()->ReadVariables(db);
 }
 
 Bool_t rbdragon::MidasBuffer::UnpackEvent(void* header, char* data)
@@ -384,6 +422,25 @@ void rbdragon::TailScaler::ReadVariables(midas::Database* db)
 	fScaler->set_variables(db, "tail");
 }
 
+// ======== Class rbdragon::AuxScaler ======== //
+
+rbdragon::AuxScaler::AuxScaler():
+	fScaler("aux_scaler", this, true)
+{
+	assert(fScaler.Get());
+}
+
+void rbdragon::AuxScaler::HandleBadEvent()
+{
+	dragon::utils::Error("AuxScaler", __FILE__, __LINE__)
+		<< "Unknown error encountered during event processing";
+}
+
+void rbdragon::AuxScaler::ReadVariables(midas::Database* db)
+{
+	fScaler->set_variables(db, "aux");
+}
+
 
 // ======== Class rbdragon::Main ======== //
 
@@ -500,6 +557,9 @@ void rb::Rint::RegisterEvents()
 
 	/// - Tail Scalers [ rbdragon::TailScaler ]: "TailScaler"
 	RegisterEvent<rbdragon::TailScaler> (DRAGON_TAIL_SCALER, "TailScaler");
+
+	/// - Aux Scalers [ rbdragon::AuxScaler ]: "AuxScaler"
+	RegisterEvent<rbdragon::AuxScaler> (DRAGON_AUX_SCALER, "AuxScaler");
 
 	/// - Timestamp Diagnostics [ rbdragon::TstampDiagnostics ]: "TstampDiagnostics"
 	RegisterEvent<rbdragon::TStampDiagnostics> (6, "TStampDiagnostics");

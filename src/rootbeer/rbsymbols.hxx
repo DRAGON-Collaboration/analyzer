@@ -18,6 +18,12 @@ void SetAutoZero(Int_t level = 1);
 /// Check auto-zeroing level
 Int_t GetAutoZero();
 
+/// Turn on/off reading auto zero from ODB
+void SetAutoZeroOdb(bool on);
+
+/// Check SetAutoZeroOdb()
+bool GetAutoZeroOdb();
+
 }
 
 

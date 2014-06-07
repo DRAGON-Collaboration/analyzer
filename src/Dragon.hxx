@@ -16,6 +16,11 @@
 #include "midas/Event.hxx"
 #include "Vme.hxx"
 
+#ifndef USE_ROOT
+typedef const char Option_t;
+#endif
+
+
 // Forward declare midas coincidence event //
 namespace midas { struct CoincEvent; class Database; }
 

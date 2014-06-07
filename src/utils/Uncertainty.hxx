@@ -16,7 +16,9 @@
 /// 
 #ifndef UNCERTAINTY_HXX
 #define UNCERTAINTY_HXX
+#ifndef __MAKECINT__
 #include <iostream>
+#endif
 
 class UDouble_t {
 public:

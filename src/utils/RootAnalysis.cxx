@@ -185,6 +185,46 @@ TFile* dragon::OpenRun(int runnum, const char* format)
 }
 
 
+// ============ class dragon::MetricPrefix ============ //
+
+Double_t dragon::MetricPrefix::Get(const char* prefix)
+{
+	///
+	/// ::
+	///
+	static std::map<std::string, Double_t> m;
+	if(m.empty()) {
+		m["Y"]   = 1e+24; // yotta
+		m["Z"]   = 1e+21; // zetta
+		m["E"]   = 1e+18; // exa
+		m["P"]   = 1e+15; // peta
+		m["T"]   = 1e+12; // tera
+		m["G"]   = 1e+9;  // giga
+		m["M"]   = 1e+6;  // mega
+		m["k"]   = 1e+3;  // kilo
+		m["h"]   = 1e+2;  // hecto
+		m["da"]  = 1e+1;  // deca
+
+		m[""]    = 1e+0;  // none
+
+		m["y"]   = 1e-24; // yocto
+		m["z"]   = 1e-21; // zepto
+ 		m["a"]   = 1e-18; // atto
+		m["f"]   = 1e-15; // femto
+		m["p"]   = 1e-12; // pico
+		m["n"]   = 1e-9;  // nano
+		m["mu"]  = 1e-6;  // micro
+		m["u"]   = 1e-6;  // micro (alternate)
+		m["m"]   = 1e-3;  // milli
+		m["c"]   = 1e-2;  // centi
+		m["d"]   = 1e-1;  // deci
+	}
+
+	std::map<std::string, Double_t>::iterator i = m.find(prefix);
+	return i != m.end() ? i->second : 0;
+}
+
+
 // ============ Class dragon::TTreeFilter ============ //
 
 dragon::TTreeFilter::TTreeFilter(const char* filename, const char* option, const char* ftitle, Int_t compress):
@@ -2196,3 +2236,125 @@ double dragon::LabCM::GetEtarget() const
 	return T2;
 }
 
+
+
+// ============ class dragon::CrossSectionCalculator ============ //
+
+dragon::CrossSectionCalculator::CrossSectionCalculator(dragon::BeamNorm* beamNorm, Int_t nmol, Double_t temp, Double_t targetLen):
+	fBeamNorm(beamNorm),
+	fNmol(nmol),
+	fTemp(temp),
+	fTargetLen(targetLen)
+{
+	///
+	/// \param beamNorm Pointer to a composed dragon::BeamNorm class which has had
+	///  BatchCalculate() run for the desired set of runs.
+	/// \param nmol Number of atoms per molecule of the target (2 for hydrogen, 1 for helium).
+	/// \param temp Target cell temperature in kelvin
+	/// \param targtLen Effective target length in cm
+	///
+	fTotalCrossSection = UDouble_t(0, 0);
+}
+
+UDouble_t dragon::CrossSectionCalculator::Calculate(Int_t whichSB, const char* prefix, Bool_t printTotal)
+{
+	///
+	/// \param whichSB for the normalization (0 == sb0, 1 == sb1).
+	/// \param prefix Desired metrix prefix for the output unit (default = "" is barns, "m" is millibarns, etc.)
+	/// \param printTotal If true, prints the total cross section to the screen.
+	///
+	/// \note This function calculates the run-by-run cross sections for each run that was part of the BatchCalculate()
+	///  call to the BeamNorm pointer passed to the constructor. The total cross section is the weighted average of these
+	///  run-by-run measurements.
+	///
+
+	if(!fBeamNorm) {
+		dragon::utils::Error("CalculateCrossSection",__FILE__,__LINE__) << "fBeamNorm == 0";
+		return 0;
+	}
+	if((UInt_t)whichSB > 1) {
+		dragon::utils::Error("CalculateCrossSection",__FILE__,__LINE__)
+			<< "Invalid SB: " << whichSB << ", must be 0 or 1.";
+		return 0;
+	}
+
+	fPrefix = prefix;
+	Double_t prefixval = dragon::MetricPrefix::Get(prefix);
+	if(prefixval == 0) {
+		dragon::utils::Warning("CalculateCrossSection",__FILE__,__LINE__)
+			<< "Invalid prefix: \"" << prefix << "\", defaulting to barns for the unit.";
+		prefixval = 1.;
+		fPrefix = "";
+	}
+
+	std::vector<Double_t> cx, cxerror;
+	std::vector<Int_t>::iterator irun = fBeamNorm->GetRuns().begin();
+	
+	while(irun !=  fBeamNorm->GetRuns().end()) {
+		dragon::BeamNorm::RunData* rd = fBeamNorm->GetRunData(*irun++);
+		if(rd == 0) break;
+
+		const UDouble_t sigma = CalculateCrossSection(rd->yield[whichSB], rd->pressure, fTargetLen, fNmol, fTemp) / prefixval;
+		fCrossSections.push_back( sigma );
+	}
+	fTotalCrossSection = MeasurementWeightedAverage(fCrossSections.begin(), fCrossSections.end());
+
+	if(printTotal) {
+		std::cout << "Total cross section: " << fTotalCrossSection << " " << fPrefix << "b.\n";
+	}
+
+	return fTotalCrossSection;
+}
+
+UDouble_t dragon::CrossSectionCalculator::CalculateCrossSection(UDouble_t yield, UDouble_t pressure, Double_t length, Int_t nmol, Double_t temp)
+{
+	UDouble_t rho = dragon::StoppingPowerCalculator::CalculateDensity(pressure, length, nmol, temp);
+	UDouble_t sigma = yield / rho; // cm^2
+	sigma /= 1e-24; // barns
+	return sigma;
+}
+
+namespace {
+inline std::vector<Double_t> get_runs(dragon::BeamNorm* fBeamNorm)
+{
+	std::vector<Double_t> runs;
+	std::vector<Int_t>::iterator irun = fBeamNorm->GetRuns().begin();
+	while(irun != fBeamNorm->GetRuns().end()) {
+		runs.push_back(*irun++);
+	}
+	return runs;
+} }
+
+TGraph* dragon::CrossSectionCalculator::Plot(Marker_t marker, Color_t color)
+{
+	if(fBeamNorm == 0) return 0;
+	Int_t npoints = fCrossSections.size();
+	if(npoints == 0) return 0;
+	
+	std::vector<Double_t> runs = get_runs(fBeamNorm);
+	if(runs.size() != fCrossSections.size()) {
+		utils::Error("Print",__FILE__,__LINE__) << "runs.size() != fCrossSections.size()";
+		return 0;
+	}
+	TGraph* gr = PlotUncertainties(npoints, &runs[0], &fCrossSections[0]);
+	if(gr) {
+		gr->SetMarkerStyle(marker);
+		gr->SetMarkerColor(color);
+		gr->Draw("AP");
+	}
+	return gr;
+}
+
+
+void dragon::CrossSectionCalculator::Print()
+{
+	std::vector<Double_t> runs = get_runs(fBeamNorm);
+	if(runs.size() != fCrossSections.size()) {
+		utils::Error("Print",__FILE__,__LINE__) << "runs.size() != fCrossSections.size()";
+		return;
+	}
+	std::cout << "Run\tCross section [" << fPrefix << "b]\n";
+	for (size_t i=0; i< runs.size(); ++i) {
+		std::cout << runs[i] << "\t" << fCrossSections[i] << "\n";
+	}
+}

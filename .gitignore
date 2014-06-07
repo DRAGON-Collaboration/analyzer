@@ -34,3 +34,4 @@ examples/*.d
 examples/*.so
 bin/*
 Makefile.local
+config.mk

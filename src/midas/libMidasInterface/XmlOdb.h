@@ -6,7 +6,7 @@
 //
 // $Id: XmlOdb.h 91 2012-04-12 18:36:17Z olchansk $
 //
-#ifndef DOXYGEN_SKIP
+
 #ifndef INCLUDE_XmlOdb_H
 #define INCLUDE_XmlOdb_H
 
@@ -62,6 +62,5 @@ struct XmlOdb : VirtualOdb
   int      odbReadArraySize(const char*name);
 };
 
-#endif
 #endif
 //end

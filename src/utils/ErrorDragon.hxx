@@ -8,7 +8,9 @@
 #include <memory>
 #include <string>
 #include <sstream>
+#ifndef __MAKECINT__
 #include <iostream>
+#endif
 #include <stdexcept>
 #include "AutoPtr.hxx"
 
@@ -261,18 +263,18 @@ namespace dragon { namespace utils {
 class ADelayedMessagePrinter {
 protected:
 	/// See concrete template class constructor
- 	ADelayedMessagePrinter(const char* location, Int_t period = 0,
+ 	ADelayedMessagePrinter(const char* location, int32_t period = 0,
 												 const char* file = "", int line = -1,
 												 const char* message = 0):
 		fPeriod(period), fNumErrors(0), fLocation(location), fFile(file), fLine(line)
 		{ if(message) fMessage = message; }
 public:
 	/// Returns number of stored error messages
-	Int_t GetNumErrors() const { return fNumErrors; }
+	int32_t GetNumErrors() const { return fNumErrors; }
 	/// Returns message period, i.e. how many messages in between prints
-	Int_t GetPeriod()    const { return fPeriod;    }
+	int32_t GetPeriod()    const { return fPeriod;    }
 	/// Set message period
-	void  SetPeriod(Int_t period) { fPeriod = period; }
+	void  SetPeriod(int32_t period) { fPeriod = period; }
 	/// Reset message counter to zero
 	void  ResetCounter() { fNumErrors = 0;  }	
 	/// Reset the message to null string
@@ -292,9 +294,9 @@ public:
 	virtual ~ADelayedMessagePrinter() { }
 protected:
 	/// How often to print the message
-	Int_t fPeriod;
+	int32_t fPeriod;
 	/// Counter for the number of errors
-	Int_t fNumErrors;
+	int32_t fNumErrors;
 	/// The error message
 	std::string fMessage;
 	/// Message location
@@ -319,7 +321,7 @@ public:
 	 *  \param period How often to print the message (0 = only when explicitly requested)
 	 *  \param message The message, if NULL can be set later using GetMessage()
 	 */ 
- 	DelayedMessagePrinter(const char* location, Int_t period = 0,
+ 	DelayedMessagePrinter(const char* location, int32_t period = 0,
 												const char* file = "", int line = -1,
 												const char* message = 0):
 		ADelayedMessagePrinter(location, period, file, line, message) { }
@@ -344,7 +346,7 @@ public:
 	~DelayedMessageFactory();
 	/// Register a new delayed message printer
 	template <class T, class U>
-	ADelayedMessagePrinter* Register(U base, int code, const char* location, Int_t period,
+	ADelayedMessagePrinter* Register(U base, int code, const char* location, int32_t period,
 																	 const char* file = "", int line = -1, const char* message = 0)
 		{
 			///

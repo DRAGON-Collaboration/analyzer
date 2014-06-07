@@ -9,7 +9,9 @@
 #include <map>
 #include <memory>
 #include <fstream>
+#ifndef __MAKECINT__
 #include <iostream>
+#endif
 #include <algorithm>
 
 #include <TH1.h>
@@ -51,6 +53,34 @@ void FriendChain(TChain* chain, const char* friend_name, const char* friend_alia
 
 /// Open a file just by run number
 TFile* OpenRun(int runnum, const char* format = "$DH/rootfiles/run%d.root");
+
+/// Calculate weighted average of measurements
+template <class InputIterator>
+UDouble_t MeasurementWeightedAverage(InputIterator begin, InputIterator end)
+{
+	///
+	/// Procedure:
+	///   -# Calculate `num` = `\Sum_i { x_i * (1./sigma_i^2) }
+	///   -# Calculate `den` = `\Sum_i { 1./sigma_i^2 }
+	///   -# Final result: nominal value = `num/den`, error = `sqrt(den)`
+	///
+	/// \attention Assumes symmetric errors.
+	///
+	Double_t num = 0, den = 0;
+	while (begin != end) {
+		Double_t val = begin->GetNominal(), weight = 1. / pow(begin->GetRelErrLow(), 2);
+		num += val*weight;
+		den += weight;
+		++begin;
+	}
+	return UDouble_t (num/den, sqrt(1./den));
+}
+
+/// Utility class to convert metrix prefix strings into multiplication factors
+class MetricPrefix {
+public:
+	static Double_t Get(const char* prefix);
+};
 
 /// Filters TChains (or TTrees) based on cut conditions.
 /*!
@@ -676,7 +706,53 @@ private:
 	Double_t fResonanceEnergy;  ///\todo should have uncertainty
 };
 
+/// Class to calculate cross sections from target data and yield.
+class CrossSectionCalculator {
+public:
+	/// Constructor
+	CrossSectionCalculator(dragon::BeamNorm* beamNorm, Int_t nmol /*atoms/molecule*/,
+												 Double_t temp = 300 /*kelvin*/, Double_t targetLen = 12.3 /*cm*/);
+
+public:
+	/// Calculate cross sections for runs in fBeamNorm
+	UDouble_t Calculate(Int_t whichSB, const char* prefix = "", Bool_t printTotal = true);
+
+	/// Plot run-by-run cross sections
+	TGraph* Plot(Marker_t marker = 21, Color_t color = 1);
+
+	/// Print run-by-run cross sections
+	void Print();
+
+	/// Calculate cross section in barns
+	static UDouble_t CalculateCrossSection(UDouble_t yield, UDouble_t pressure, Double_t length, Int_t nmol, Double_t temp = 300.);
+
+private:
+	/// Pointer to constructed beam norm class, takes no ownership
+	dragon::BeamNorm* fBeamNorm;
+	/// Number of target atoms per molecule (2 for hydrogen, 1 for helium)
+	Int_t fNmol;
+	/// Target temperature
+	Double_t fTemp;
+	/// Effective target length
+	Double_t fTargetLen;
+	/// Calculated cross sections, run-by-run
+	std::vector<UDouble_t> fCrossSections;
+	/// Total cross section across all runs
+	UDouble_t fTotalCrossSection;
+	/// Cross section unit prefix
+	std::string fPrefix;
+};
+
+
 } // namespace dragon
+
+
+
+
+#ifdef __MAKECINT__
+#pragma link C++ function dragon::MeasurementWeightedAverage(std::vector<UDouble_t>::iterator, std::vector<UDouble_t>::iterator);
+#pragma link C++ function dragon::MeasurementWeightedAverage(UDouble_t*, UDouble_t*);
+#endif
 
 
 

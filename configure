@@ -1,0 +1,134 @@
+#!/bin/bash
+
+
+function showhelp {
+    echo "usage: ./configure [flags]"
+    echo ""
+    echo "Possible flags are as follows:"
+    echo ""
+    echo "Package extensions:"
+    echo "    --without-root Do not compile features depending on ROOT."
+    echo "    --with-rootana Compile ROOTANA online analysis extensions, requires ROOTANA installed on your system."
+    echo "    --with-rootbeer Compile ROOTBEER executable, requires ROOTBEER to be installed on your system."
+    echo "    --with-midas Compile using a locally installed version of MIDAS. This allows online analysis"
+    echo "                 to be performed from your computer, but it it not necessary to analyze offline MIDAS files."
+    echo ""
+    echo "Conditional compilations:"
+    echo "    --without-display-modules Do not export vme::XXX classes into ROOT trees."
+    echo "    --without-dsssd Omit all DSSSD code."
+    echo "    --without-ic    Omit all Ion Chamber code."
+    echo "    --without-nai   Omit all sodium-iodide code."
+    echo "    --without-hpge  Omit all HPGe code."
+    echo ""
+    echo "Optional things to set:"
+    echo "    --rb-home=<rootbeer home directory> (Default: ~/packages/rootbeer)"
+    echo "    --cxx=<C++ compiler command> (default c++)"
+    echo "    --cc=<C compiler commane> (default cc)"
+    echo ""
+    echo "Other:"
+    echo "    --help Show this help message."
+    echo ""
+}
+
+USE_ROOT=YES
+USE_ROOTANA=NO
+USE_ROOTBEER=NO
+USE_MIDAS=NO
+
+DISPLAY_MODULES=1
+OMIT_DSSSD=0
+OMIT_IC=0
+OMIT_NAI=0
+OMIT_GE=0
+
+RB_HOME="\$(HOME)/packages/rootbeer"
+CC=cc
+CXX=c++
+
+for var in "$@"
+do
+    if   [ $var == "--help" ]; then
+	showhelp
+	exit
+    fi
+done
+
+for var in "$@"
+do
+    if   [ $var == "--without-root" ]; then
+	USE_ROOT=NO
+    elif [ $var == "--with-rootana" ]; then
+	USE_ROOTANA=YES
+    elif [ $var == "--with-rootbeer" ]; then
+	USE_ROOTBEER=YES
+    elif [ $var == "--with-midas" ]; then
+	USE_MIDAS=YES
+    elif [ $var == "--without-modules" ]; then
+	DISPLAY_MODULES=0
+    elif [ $var == "--without-dsssd" ]; then
+	OMIT_DSSSD=1
+    elif [ $var == "--without-ic" ]; then
+	OMIT_IC=1
+    elif [ $var == "--without-nai" ]; then
+	OMIT_NAI=1
+    elif [ $var == "--without-hpge" ]; then
+	OMIT_GE=1
+    elif [[ $var == --cxx=* ]]; then
+	CXX=`echo $var | cut -d'=' -f 2`
+    elif [[ $var == --cc=* ]]; then
+	CC=`echo $var | cut -d'=' -f 2`
+    elif [[ $var == --rb-home=* ]]; then
+	RB_HOME=`echo $var | cut -d'=' -f 2`
+    fi
+done
+
+
+
+echo "" > config.mk
+echo "DEFINITIONS=" >> config.mk
+echo "" >> config.mk
+echo "## Uncomment (Comment) to (not) export \"raw\" modules for viewing in ROOT tree" >> config.mk
+if [ $DISPLAY_MODULES != 0 ]; then >> config.mk
+    echo "DEFINITIONS+=-DDISPLAY_MODULES" >> config.mk
+else >> config.mk
+    echo "#DEFINITIONS+=-DDISPLAY_MODULES" >> config.mk
+fi >> config.mk
+echo "" >> config.mk
+echo "## (Un)comment to (not) ignore corresponding heavy-ion detectors" >> config.mk
+if [ $OMIT_DSSSD != 0 ]; then >> config.mk
+    echo "DEFINITIONS+=DRAGON_OMIT_DSSSD" >> config.mk
+else >> config.mk
+    echo "#DEFINITIONS+=DRAGON_OMIT_DSSSD" >> config.mk
+fi >> config.mk
+if [ $OMIT_IC != 0 ]; then >> config.mk
+    echo "DEFINITIONS+=DRAGON_OMIT_IC" >> config.mk
+else >> config.mk
+    echo "#DEFINITIONS+=DRAGON_OMIT_IC" >> config.mk
+fi >> config.mk
+if [ $OMIT_NAI != 0 ]; then >> config.mk
+    echo "DEFINITIONS+=DRAGON_OMIT_NAI" >> config.mk
+else >> config.mk
+    echo "#DEFINITIONS+=DRAGON_OMIT_NAI" >> config.mk
+fi >> config.mk
+if [ $OMIT_GE != 0 ]; then >> config.mk
+    echo "DEFINITIONS+=DRAGON_OMIT_GE" >> config.mk
+else >> config.mk
+    echo "#DEFINITIONS+=DRAGON_OMIT_GE" >> config.mk
+fi >> config.mk
+echo "" >> config.mk
+echo "### Set to YES (NO) to turn on (off) root [or rootbeer, or rootana, or ...] usage ###" >> config.mk
+echo "USE_ROOT=$USE_ROOT" >> config.mk
+echo "USE_ROOTANA=$USE_ROOTANA" >> config.mk
+echo "USE_ROOTBEER=$USE_ROOTBEER" >> config.mk
+echo "USE_MIDAS=$USE_MIDAS" >> config.mk
+echo "" >> config.mk
+echo "" >> config.mk
+echo "" >> config.mk
+echo "### Set ROOTBEER home directory (ignore if USE_ROOTBEER=NO) ###" >> config.mk
+echo "RB_HOME=$RB_HOME" >> config.mk
+echo "" >> config.mk
+echo "" >> config.mk
+echo "### CHOOSE YOUR COMPILER IF YOU WANT ###" >> config.mk
+echo "CXX=$CXX" >> config.mk
+echo "CC=$CC" >> config.mk
+echo "" >> config.mk
