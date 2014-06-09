@@ -480,6 +480,7 @@ int main_(int argc, char** argv)
 		char buf[256];
 		sprintf (buf, "t%d", eventIds[i]); // n.b. TTree cleanup handled by TFile destructor
 		trees[i] = new TTree(buf, eventTitles[i].c_str());
+		trees[i]->SetLineColor(kBlack);
 		trees[i]->Branch(branchNames[i].c_str(), classNames[i].c_str(), &(addr[i]));
 	}
 
@@ -602,6 +603,10 @@ int main_(int argc, char** argv)
 	if(db1.get()) {
 		db1->SetNameTitle("odbstop", "ODB tree at run stop.");
 		db1->Write("odbstop");
+
+		std::string ftitle;
+		bool success = db1->ReadValue("/Experiment/Run Parameters/Comment", ftitle);
+		if(success) fout.SetTitle(ftitle.c_str());
 	}
 	//
 	// Write variables actually used in analysis
