@@ -101,6 +101,11 @@ template <class T> void Zap(T*& t)
 
 void dragon::MakeChains(const Int_t* runnumbers, Int_t nruns, const char* format)
 {
+	MakeChains("t", runnumbers, nruns, format);
+}
+
+void dragon::MakeChains(const char* prefix, const Int_t* runnumbers, Int_t nruns, const char* format)
+{
 	///
 	/// \param [in] runnumbers Pointer to a valid array of desired run numbers to chain together.
 	/// \param [in] nruns Length of _runnumbers_.
@@ -109,14 +114,14 @@ void dragon::MakeChains(const Int_t* runnumbers, Int_t nruns, const char* format
 	/// \note Does not return anything, but creates `new` heap-allocated TChains that become part of
 	/// the present ROOT directory; these must be deleted by the user.
 	TChain* chain[] = {
-		new TChain("t1", "Head singles event."),
-		new TChain("t2", "Head scaler event."),
-		new TChain("t3", "Tail singles event."),
-		new TChain("t4", "Tail scaler event."),
-		new TChain("t5", "Coincidence event."),
-		new TChain("t20", "Epics event."),
-		new TChain("t6", "Timestamp diagnostics."),
-		new TChain("t7", "Glocal run parameters.")
+		new TChain(Form("%s1",  "t"), "Head singles event."),
+		new TChain(Form("%s2",  "t"), "Head scaler event."),
+		new TChain(Form("%s3",  "t"), "Tail singles event."),
+		new TChain(Form("%s4",  "t"), "Tail scaler event."),
+		new TChain(Form("%s5",  "t"), "Coincidence event."),
+		new TChain(Form("%s20", "t"), "Epics event."),
+		new TChain(Form("%s6",  "t"), "Timestamp diagnostics."),
+		new TChain(Form("%s7",  "t"), "Glocal run parameters.")
 	};
 	Int_t nchains = sizeof(chain) / sizeof(TChain*);
 	
@@ -135,6 +140,20 @@ void dragon::MakeChains(const Int_t* runnumbers, Int_t nruns, const char* format
 			chain[j]->AddFile(fname);
 		}
 	}
+
+	chain[0]->SetName(Form("%s1",  prefix));
+	chain[1]->SetName(Form("%s2",  prefix));
+	chain[2]->SetName(Form("%s3",  prefix));
+	chain[3]->SetName(Form("%s4",  prefix));
+	chain[4]->SetName(Form("%s5",  prefix));
+	chain[5]->SetName(Form("%s20", prefix));
+	chain[6]->SetName(Form("%s6",  prefix));
+	chain[7]->SetName(Form("%s7",  prefix));
+}
+
+void dragon::MakeChains(const char* prefix, const std::vector<Int_t>& runnumbers, const char* format)
+{
+	MakeChains(prefix, &runnumbers[0], runnumbers.size(), format);
 }
 
 void dragon::MakeChains(const std::vector<Int_t>& runnumbers, const char* format)
