@@ -121,6 +121,12 @@ public:
 	/// Returns the ion (partially ionized) mass error for a given nucleus, in AMU
 	double IonMassErrorAMU(const char* symbol, int chargeState) const { return NuclearMassErrorAMU(symbol); } // AMU
 
+	/// Calculate Q-value for a nuclear reaction
+	double QValue(int Zt, int At, int Zb, int Ab, int Ze, int Ae, bool print = true) const;
+	/// Calculate Q-value for a nuclear reaction (using symbols)
+	double QValue(const char* beam, const char* target, const char* ejectile, bool print = true) const;
+
+
 	/// Returns the AMU -> keV/c^2 conversion
 	static double AMU() { return 931494.061; } // AMU->keV/c^2
 	/// Returns the electron mass in keV/c^2
