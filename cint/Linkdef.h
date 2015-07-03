@@ -37,6 +37,7 @@
 #pragma link C++ defined_in ../src/Vme.hxx;
 #pragma link C++ class vme::V1190::Channel+;
 #pragma link C++ defined_in ../src/Dragon.hxx;
+#pragma link C++ defined_in ../src/Sonik.hxx;
 #pragma link C++ defined_in ../src/utils/VariableStructs.hxx;
 
 class TH1;

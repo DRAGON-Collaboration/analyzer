@@ -28,12 +28,22 @@ namespace midas { class Database; }
 /// Encloses DRAGON-related rootbeer stuff.
 namespace rbdragon {
 
-
 /// Dragon-specific r::MidasBuffer class
 class MidasBuffer: public rb::MidasBuffer {
 public:
 	/// Constructor
 	MidasBuffer();
+	/// Take manual pointers to event types
+	MidasBuffer(dragon::Head* gamma,
+							dragon::Tail* heavyion,
+							dragon::Coinc* coinc,
+							dragon::Epics* epics,
+							dragon::Scaler* schead,
+							dragon::Scaler* sctail,
+							dragon::Scaler* scaux,
+							dragon::RunParameters* runpar,
+							tstamp::Diagnostics* tsdiag);
+
 	/// No actions needed
 	~MidasBuffer();
 	/// Look at the event id and handle as appropriate.
@@ -42,11 +52,11 @@ public:
 	void RunStartTransition(Int_t runnum);
 	/// Virtual run stop transition handler
 	void RunStopTransition(Int_t runnum);
-private:
-	/// Helper function to read variables from online or offline database.
-	void ReadVariables(midas::Database* db);
 
-private:
+	/// Helper function to read variables from online or offline database.
+	virtual void ReadVariables(midas::Database* db);
+
+protected:
 	/// Unpacker instance
 	dragon::Unpacker fUnpacker;
 };
