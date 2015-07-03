@@ -162,6 +162,7 @@ $(PWD)/bin/mid2root: src/mid2root.cxx $(DRLIB)/libDragon.so
 mid2root: $(PWD)/bin/mid2root
 
 rbdragon.o: $(OBJ)/rootbeer/rbdragon.o 
+rbdragon_impl.o: $(OBJ)/rootbeer/rbdragon_impl.o 
 
 ### OBJECT FILES ###
 
@@ -243,7 +244,7 @@ Dragon: $(OBJ)/Dragon.o
 
 RBINC=-I$(RB_HOME)/src
 RB_OBJECTS= 				\
-$(OBJ)/rootbeer/rbdragon.o
+$(OBJ)/rootbeer/rbdragon.o $(OBJ)/rootbeer/rbdragon_impl.o
 
 RB_HEADERS= $(SRC)/rootbeer/rbdragon.hxx
 
@@ -254,6 +255,10 @@ $(CINT)/rootbeer/rootbeerDict.cxx: $(SRC)/rootbeer/rbsymbols.hxx $(DR_DICT_DEP) 
 	rootcint -f $@ -c $(CXXFLAGS) $(RBINC) -p $< $(CINT)/rootbeer/rblinkdef.h \
 
 $(OBJ)/rootbeer/rbdragon.o: $(SRC)/rootbeer/rbdragon.cxx $(SRC)/rootbeer/*.hxx $(DR_DICT_DEP) $(CINT)/rootbeer/rootbeerDict.cxx
+	$(CXX) $(RB_DEFS) $(RBINC) $(FPIC) -c \
+-o $@ $< \
+
+$(OBJ)/rootbeer/rbdragon_impl.o: $(SRC)/rootbeer/rbdragon_impl.cxx $(SRC)/rootbeer/*.hxx $(DR_DICT_DEP) $(CINT)/rootbeer/rootbeerDict.cxx
 	$(CXX) $(RB_DEFS) $(RBINC) $(FPIC) -c \
 -o $@ $< \
 
