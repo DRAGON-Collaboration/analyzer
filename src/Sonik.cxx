@@ -69,6 +69,12 @@ Sonik::Sonik():
 	reset();
 }
 
+Sonik::~Sonik()
+{
+	/// ::
+	;
+}
+
 void Sonik::reset()
 {
 	/// ::

@@ -22,7 +22,7 @@ rb::MidasBuffer* rb::MidasBuffer::Create()
 	/*!
 	 * \returns <tt>new rbdragon::MidasBuffer();</tt>
 	 */
-	return new rbdragon::MidasBuffer();
+	return new rbsonik::MidasBuffer();
 }
 
 rb::Main* rb::GetMain()
@@ -51,7 +51,7 @@ void rb::Rint::RegisterEvents()
 	RegisterEvent<rbdragon::GammaEvent> (DRAGON_HEAD_EVENT, "GammaEvent");
 
 	/// - Heavy-ion singles [ rbdragon::HeavyIonEvent ]: "HeavyIonEvent"
-	RegisterEvent<rbsonik::SonikEvent> (DRAGON_TAIL_EVENT, "SonikEvent");
+	RegisterEvent<rbdragon::HeavyIonEvent> (DRAGON_TAIL_EVENT, "HeavyIonEvent");
 
 	/// - Coincidences [ rbdragon::CoincEvent ]: "CoincEvent"
   RegisterEvent<rbdragon::CoincEvent> (DRAGON_COINC_EVENT, "CoincEvent");
@@ -75,7 +75,7 @@ void rb::Rint::RegisterEvents()
 	RegisterEvent<rbdragon::RunParameters> (7, "RunParameters");
 
 	/// - Sonik Event
-	RegisterEvent<rbsonik::SonikEvent> (100, "SonikEvent");
+	RegisterEvent<rbsonik::SonikEvent> (0, "SonikEvent");
 
 	/// Also: expose macros in definitions.h to CINT
 	std::stringstream cmd;

@@ -27,6 +27,8 @@ public: // Constants
 public: // Methods
 	/// Constructor, initialize data
 	Sonik();
+	/// Destructor
+	~Sonik();
 	/// Reset all data to VME::none
 	void reset();
 	/// Read data from vme modules

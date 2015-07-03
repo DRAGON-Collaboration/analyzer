@@ -27,37 +27,8 @@
 
 
 
-// namespace {
-
-// dragon::Head  gDummyHead;
-// dragon::Coinc gDummyCoinc;
-// tstamp::Diagnostics gDummyDiag;
-
-// }
-
 rbsonik::MidasBuffer::MidasBuffer():
 	rbdragon::MidasBuffer() { }
-// 	rbdragon::MidasBuffer(&gDummyHead,
-// 												rb::Event::Instance<SonikEvent>()->GetTail(),
-// 												&gDummyCoinc,
-// 												rb::Event::Instance<rbdragon::EpicsEvent>()->Get(),
-// 												rb::Event::Instance<rbdragon::HeadScaler>()->Get(),
-// 												rb::Event::Instance<rbdragon::TailScaler>()->Get(),
-// 												rb::Event::Instance<rbdragon::AuxScaler>()->Get(),
-// 												rb::Event::Instance<rbdragon::RunParameters>()->Get(),
-// 												&gDummyDiag)
-// {
-// }
-
-// void rbsonik::MidasBuffer::ReadVariables(midas::Database* db)
-// {
-// 	gDummyHead.set_variables(db);
-// 	rb::Event::Instance<SonikEvent>()->GetTail()->set_variables(db);
-// 	gDummyCoinc.set_variables(db);
-// 	rb::Event::Instance<rbdragon::HeadScaler>()->ReadVariables(db);
-// 	rb::Event::Instance<rbdragon::TailScaler>()->ReadVariables(db);
-// 	rb::Event::Instance<rbdragon::AuxScaler>()->ReadVariables(db);
-// }
 
 Bool_t rbsonik::MidasBuffer::UnpackEvent(void* header, char* data)
 {

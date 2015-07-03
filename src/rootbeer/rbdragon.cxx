@@ -98,25 +98,6 @@ rbdragon::MidasBuffer::MidasBuffer():
 	;
 }
 
-rbdragon::MidasBuffer::MidasBuffer(dragon::Head* gamma,
-																	 dragon::Tail* heavyion,
-																	 dragon::Coinc* coinc,
-																	 dragon::Epics* epics,
-																	 dragon::Scaler* schead,
-																	 dragon::Scaler* sctail,
-																	 dragon::Scaler* scaux,
-																	 dragon::RunParameters* runpar,
-																	 tstamp::Diagnostics* tsdiag):
-	rb::MidasBuffer(1024*1024, 500, 750, 500, 500),
-	fUnpacker(gamma, heavyion, coinc, epics,
-						schead, sctail, scaux, runpar, tsdiag)
-{
-	///
-	/// Set transition priorities different from default (750 for stop), set buffer size to 1024*1024,
-	/// initialize fUnpacker w/ rb::Event<> instances.
-	;
-}
-
 
 rbdragon::MidasBuffer::~MidasBuffer()
 {
@@ -518,10 +499,11 @@ int rbdragon::Main::Run(int argc, char** argv)
 	 /// - Load standard histograms if the file exists
 	 {
 		 dragon::utils::ChangeErrorIgnore err_ignore(8001);
-		 if(std::string(argv[0]) == "rbsonik")
-			 rb::ReadHistXML("$RB_CONFIGDIR/histograms/sonik_hists.xml");
 		 if(std::string(argv[0]) == "rbdragon")
 			 rb::ReadHistXML("$RB_CONFIGDIR/histograms/dragon_hists.xml");
+		 else if(std::string(argv[0]) == "rbsonik")
+			 rb::ReadHistXML("$RB_CONFIGDIR/histograms/sonik_hists.xml");
+		 else { }
 	 }
 
 	 rbApp.Run();
