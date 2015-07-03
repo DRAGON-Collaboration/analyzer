@@ -5,7 +5,6 @@
 /// \brief Defines dragon detector classes
 /// \attention The '//!' or '//#' comments following variable declarations are not
 ///  optional! They are actually used in processing of the file with ROOTCINT.
-/// \todo Add Mini-IC.
 ///
 #ifndef HAVE_DRAGON_HXX
 #define HAVE_DRAGON_HXX

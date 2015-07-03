@@ -99,6 +99,7 @@ $(OBJ)/Unpack.o				\
 $(OBJ)/TStamp.o		              	\
 $(OBJ)/Vme.o				\
 $(OBJ)/Dragon.o				\
+$(OBJ)/Sonik.o				\
 $(OBJ)/utils/TAtomicMass.o              \
 $(OBJ)/utils/Uncertainty.o		\
 $(OBJ)/utils/ErrorDragon.o
