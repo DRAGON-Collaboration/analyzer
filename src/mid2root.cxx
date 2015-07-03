@@ -23,6 +23,7 @@
 #include "utils/definitions.h"
 #include "Unpack.hxx"
 #include "Dragon.hxx"
+#include "Sonik.hxx"
 
 
 #ifndef DOXYGEN_SKIP
@@ -125,7 +126,8 @@ struct Options_t {
 	std::string fHistos;
 	bool fOverwrite;
 	bool fSingles;
-	Options_t(): fOverwrite(false), fSingles(false) {}
+	bool fSonik;
+	Options_t(): fOverwrite(false), fSingles(false), fSonik(false) {}
 };
 
 
@@ -259,6 +261,9 @@ int process_args(int argc, char** argv, Options_t* options)
 		}
 		else if (*iarg == "--singles") { // Singles mode
 			options->fSingles = true;
+		}
+		else if (*iarg == "--sonik") { // SONIK mode
+			options->fSonik = true;
 		}
 		else if (*iarg == "--overwrite") { // Overwrite flag
 			options->fOverwrite = true;
@@ -418,6 +423,7 @@ int main_(int argc, char** argv)
 	dragon::Scaler aux_scaler;
 	dragon::RunParameters runpar;
 	tstamp::Diagnostics tsdiag;
+	Sonik sonik;
 
 	const int eventIds[nIds] = {
 		DRAGON_HEAD_EVENT,
@@ -452,6 +458,8 @@ int main_(int argc, char** argv)
 		&tsdiag,
 		&runpar
 	};
+	void *psonik = &sonik;
+
 	const std::string branchNames[nIds] = {
 		"head",
 		"sch",
@@ -476,11 +484,18 @@ int main_(int argc, char** argv)
 	};
 
 	TTree* trees[nIds];
+	TTree* t0 = 0;
+
 	for(int i=0; i< nIds; ++i) {
 		char buf[256];
 		sprintf (buf, "t%d", eventIds[i]); // n.b. TTree cleanup handled by TFile destructor
 		trees[i] = new TTree(buf, eventTitles[i].c_str());
 		trees[i]->Branch(branchNames[i].c_str(), classNames[i].c_str(), &(addr[i]));
+	}
+
+	if(options.fSonik) {
+		t0 = new TTree("t0", "Sonik Events");
+		t0->Branch("sonik", "Sonik", &psonik);
 	}
 
 	dragon::Unpacker
@@ -550,6 +565,12 @@ int main_(int argc, char** argv)
 				std::find(which.begin(), which.end(), eventIds[i]);
 			if(it != which.end()) {
 				trees[i]->Fill();
+				if(options.fSonik && eventIds[i] == DRAGON_TAIL_EVENT) {
+					sonik.reset();
+					sonik.read_data(tail.v785, tail.v1190);
+					sonik.calculate();
+					t0->Fill();
+				}
 				if(fillHistos) fill_histos(*it, addr[i]);
 			}
 		}
@@ -571,6 +592,12 @@ int main_(int argc, char** argv)
 					std::find(which.begin(), which.end(), eventIds[i]);
 				if(it != which.end()) {
 					trees[i]->Fill();
+					if(options.fSonik && eventIds[i] == DRAGON_TAIL_EVENT) {
+						sonik.reset();
+						sonik.read_data(tail.v785, tail.v1190);
+						sonik.calculate();
+						t0->Fill();
+					}
 				}
 			}
 		} 
@@ -584,6 +611,11 @@ int main_(int argc, char** argv)
 		trees[i]->GetCurrentFile();
 		trees[i]->AutoSave();
 		trees[i]->ResetBranchAddresses();
+	}
+	if(options.fSonik) {
+		t0->GetCurrentFile();
+		t0->AutoSave();
+		t0->ResetBranchAddresses();
 	}
 	//
 	// Write histograms to file if requested
