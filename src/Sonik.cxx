@@ -78,7 +78,8 @@ Sonik::~Sonik()
 void Sonik::reset()
 {
 	/// ::
-	dutils::reset_data(ehit, hit, thit);
+	trf.reset();
+	dutils::reset_data(ehit, hit, thit, rf_tof, tcal0);
 	dutils::reset_array(MAX_CHANNELS, ecal);
 }
 
@@ -95,6 +96,8 @@ void Sonik::read_data(const vme::V785 adcs[], const vme::V1190& tdc)
 	 */
 	dutils::channel_map(ecal, MAX_CHANNELS, variables.adc.channel, variables.adc.module, adcs);
 	dutils::channel_map(thit, variables.tdc.channel, tdc);
+	dutils::channel_map(tcal0, variables.tdc0.channel, tdc);
+	trf.read_data(tdc);
 }
 
 void Sonik::calculate()
@@ -105,13 +108,24 @@ void Sonik::calculate()
 	 * signal; calculates ehit, hit.
  	 */
 	dutils::linear_calibrate(ecal, MAX_CHANNELS, variables.adc);
+
 	dutils::linear_calibrate(thit, variables.tdc);
+	dutils::linear_calibrate(tcal0, variables.tdc0);
+	trf.calculate();
+	rf_tof = trf.get_tof(tcal0, 1, vme::V1190::TRAILING);
 
 	if(dutils::is_valid_any(ecal, MAX_CHANNELS)) {
 		const double* const pmax_front = std::max_element(ecal, ecal+MAX_CHANNELS);
 		ehit = *pmax_front;
 		hit  = pmax_front - ecal;
 	}
+}
+
+bool Sonik::set_variables(midas::Database* db)
+{
+	bool success = variables.set(db);
+	if(success) success = trf.variables.set(db, "/sonik/variables/rf_tdc");
+	return success;
 }
 
 
@@ -138,6 +152,16 @@ void Sonik::Variables::reset()
 	tdc.channel = DSSSD_TDC0;
 	tdc.slope   = 1.;
 	tdc.offset  = 0.;
+
+	tdc0.module  = 0; // unused
+	tdc0.channel = 9;
+	tdc0.slope   = 1.;
+	tdc0.offset  = 0.;
+
+	rf_tdc.module  = 0; // unused
+	rf_tdc.channel = 8;
+	rf_tdc.slope   = 1.;
+	rf_tdc.offset  = 0.;
 }
 
 
@@ -164,6 +188,10 @@ bool Sonik::Variables::set(const midas::Database* db)
 	if(success) success = db->ReadValue("/sonik/variables/tdc/channel", tdc.channel);
 	if(success) success = db->ReadValue("/sonik/variables/tdc/slope",   tdc.slope);
 	if(success) success = db->ReadValue("/sonik/variables/tdc/offset",  tdc.offset);
+
+	if(success) success = db->ReadValue("/sonik/variables/tdc0/channel", tdc0.channel);
+	if(success) success = db->ReadValue("/sonik/variables/tdc0/slope",   tdc0.slope);
+	if(success) success = db->ReadValue("/sonik/variables/tdc0/offset",  tdc0.offset);
 
 	return success;
 }

@@ -74,7 +74,7 @@ void rbsonik::SonikEvent::HandleBadEvent()
 
 void rbsonik::SonikEvent::ReadVariables(midas::Database* db)
 {
-	fSonik->variables.set(db);
+	fSonik->set_variables(db);
 }
 
 Bool_t rbsonik::SonikEvent::DoProcess(const void*, Int_t)

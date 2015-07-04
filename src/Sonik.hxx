@@ -7,9 +7,7 @@
 ///
 #ifndef HAVE_SONIK_HXX
 #define HAVE_SONIK_HXX
-#include "utils/IntTypes.h"
-#include "utils/VariableStructs.hxx"
-#include "Vme.hxx"
+#include "Dragon.hxx"
 
 // Forward declare midas coincidence event //
 namespace midas { class Database; }
@@ -35,7 +33,8 @@ public: // Methods
 	void read_data(const vme::V785 adcs[], const vme::V1190& tdc);
 	/// Performs energy and time calibrations
 	void calculate();
-
+	/// Set variables
+	bool set_variables(midas::Database* db);
 public:
 	/// Calibrated energy signals
 	double ecal[MAX_CHANNELS]; //#
@@ -45,6 +44,13 @@ public:
 	uint32_t hit;       //#
 	/// Calibrated time signal of the trigger (OR of all detectors)
 	double thit;        //#
+
+	/// Time-of-flights
+	double rf_tof;                     //
+	/// RF times
+	dragon::TdcChannel<5> trf;       //
+	/// Trigger [tail] tdc value
+	double tcal0;
 
 public: // Subclasses
 	///
@@ -66,6 +72,10 @@ public: // Subclasses
 		dragon::utils::AdcVariables<32> adc;
 		/// Tdc variables
 		dragon::utils::TdcVariables<1> tdc;
+		/// RF TDC channel variables
+		dragon::utils::TdcVariables<1> rf_tdc;
+		/// Trigger TDC channel variables
+		dragon::utils::TdcVariables<1> tdc0;
 	};
 
 public: // Subclass instances
