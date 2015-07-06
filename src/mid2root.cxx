@@ -199,6 +199,9 @@ int help()
 		"\t                  package was compiled with USE_ROOTBEER turned off, then this option is not available.\n"
 		"\t                  In case it is specified but not available, the program will terminate with an error message.\n"
 		"\n"
+		"\t--singles:        Unpack in \"SONIK\" mode. Treat tail data as if coming from the SONIK scattering detectors,\n"
+		"                    rather than from the DRAGON end detectors.\n"
+		"\n"
 		"\t--singles:        Unpack in singles mode. This means that every head and tail event is analyzed as a singles\n"
 		"                    event only. In this mode, the buffering in a queue and timestamp matching routines are\n"
 		"                    skipped completely.\n"
@@ -483,19 +486,35 @@ int main_(int argc, char** argv)
 		"dragon::RunParameters"
 	};
 
+	// SONIK Tree
 	TTree* trees[nIds];
 	TTree* t0 = 0;
-
-	for(int i=0; i< nIds; ++i) {
-		char buf[256];
-		sprintf (buf, "t%d", eventIds[i]); // n.b. TTree cleanup handled by TFile destructor
-		trees[i] = new TTree(buf, eventTitles[i].c_str());
-		trees[i]->Branch(branchNames[i].c_str(), classNames[i].c_str(), &(addr[i]));
-	}
-
 	if(options.fSonik) {
 		t0 = new TTree("t0", "Sonik Events");
 		t0->Branch("sonik", "Sonik", &psonik);
+	}
+
+	// Normal trees
+	for(int i=0; i< nIds; ++i) {
+		char buf[256];
+		sprintf (buf, "t%d", eventIds[i]); // n.b. TTree cleanup handled by TFile destructor
+		//
+		bool makeTree = !(options.fSonik); // Make all trees if not in SONIK mode
+		if(!makeTree) { // SONIK mode, only make:
+			if(eventIds[i] == DRAGON_HEAD_SCALER || // head scaler 
+				 eventIds[i] == DRAGON_TAIL_SCALER || // tail scaler
+				 eventIds[i] == DRAGON_AUX_SCALER  || // aux scaler
+				 eventIds[i] == DRAGON_EPICS_EVENT || // epics event
+				 eventIds[i] == DRAGON_RUN_PARAMETERS) { // run parameters
+				makeTree = true;
+			}
+		}
+		if (makeTree) {
+			trees[i] = new TTree(buf, eventTitles[i].c_str());
+			trees[i]->Branch(branchNames[i].c_str(), classNames[i].c_str(), &(addr[i]));
+		} else {
+			trees [i] = 0;
+		}
 	}
 
 	dragon::Unpacker
@@ -564,7 +583,9 @@ int main_(int argc, char** argv)
 			std::vector<Int_t>::iterator it =
 				std::find(which.begin(), which.end(), eventIds[i]);
 			if(it != which.end()) {
-				trees[i]->Fill();
+				if(trees[i]) {
+					trees[i]->Fill();
+				}
 				if(options.fSonik && eventIds[i] == DRAGON_TAIL_EVENT) {
 					sonik.reset();
 					sonik.read_data(tail.v785, tail.v1190);
@@ -591,7 +612,9 @@ int main_(int argc, char** argv)
 				std::vector<Int_t>::iterator it =
 					std::find(which.begin(), which.end(), eventIds[i]);
 				if(it != which.end()) {
-					trees[i]->Fill();
+					if(trees[i]) {
+						trees[i]->Fill();
+					}
 					if(options.fSonik && eventIds[i] == DRAGON_TAIL_EVENT) {
 						sonik.reset();
 						sonik.read_data(tail.v785, tail.v1190);
@@ -607,15 +630,17 @@ int main_(int argc, char** argv)
 
 	//
 	// Write trees to file.
-	for (int i=0; i< nIds; ++i) {
-		trees[i]->GetCurrentFile();
-		trees[i]->AutoSave();
-		trees[i]->ResetBranchAddresses();
-	}
-	if(options.fSonik) {
+	if(options.fSonik && t0) {
 		t0->GetCurrentFile();
 		t0->AutoSave();
 		t0->ResetBranchAddresses();
+	}
+	for (int i=0; i< nIds; ++i) {
+		if(trees[i]) {
+			trees[i]->GetCurrentFile();
+			trees[i]->AutoSave();
+			trees[i]->ResetBranchAddresses();
+		}
 	}
 	//
 	// Write histograms to file if requested
