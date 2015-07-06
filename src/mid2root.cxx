@@ -586,13 +586,14 @@ int main_(int argc, char** argv)
 				if(trees[i]) {
 					trees[i]->Fill();
 				}
+				if(fillHistos) fill_histos(*it, addr[i]);
 				if(options.fSonik && eventIds[i] == DRAGON_TAIL_EVENT) {
 					sonik.reset();
 					sonik.read_data(tail.v785, tail.v1190);
 					sonik.calculate();
 					t0->Fill();
+					if(fillHistos) fill_histos(0, psonik);
 				}
-				if(fillHistos) fill_histos(*it, addr[i]);
 			}
 		}
 		m2r::static_counter (nnn++, 1000, false);
@@ -769,8 +770,8 @@ private:
 //
 // Have to define string literals as global char arrays to use them as template arguments
 char gStrHead[] = "head", gStrTail[] = "tail", gStrCoinc[] = "coinc",
-     gStrScalerH[] = "head_scaler", gStrScalerT[] = "tail_scaler", gStrScalerX[] = "aux_scaler",
-     gStrEpics[] = "epics", gStrTS[] = "tstamp", gStrRP[] = "runpar";
+gStrScalerH[] = "head_scaler", gStrScalerT[] = "tail_scaler", gStrScalerX[] = "aux_scaler",
+gStrEpics[] = "epics", gStrTS[] = "tstamp", gStrRP[] = "runpar", gStrSonik[] = "sonik";
 
 //
 // Now derive from EventTemplate<> with the appropriate template arguments
@@ -784,6 +785,7 @@ class TailScaler: public EventTemplate<dragon::Scaler, gStrScalerT, false> { };
 class AuxScaler:  public EventTemplate<dragon::Scaler, gStrScalerX, false> { };
 class TStampDiagnostics: public EventTemplate<tstamp::Diagnostics,   gStrTS, false> { };
 class RunParameters:     public EventTemplate<dragon::RunParameters, gStrRP, false> { };
+class SonikEvent: public EventTemplate<Sonik, gStrSonik, false> { };
 
 } // namespace m2r
 
@@ -793,6 +795,7 @@ class RunParameters:     public EventTemplate<dragon::RunParameters, gStrRP, fal
 // defined above
 void rb::Rint::RegisterEvents()
 {
+	RegisterEvent<m2r::SonikEvent> (0,                  "SonikEvent");
 	RegisterEvent<m2r::HeadEvent>  (DRAGON_HEAD_EVENT,   "HeadEvent");
 	RegisterEvent<m2r::TailEvent>  (DRAGON_TAIL_EVENT,   "TailEvent");
   RegisterEvent<m2r::CoincEvent> (DRAGON_COINC_EVENT, "CoincEvent");
