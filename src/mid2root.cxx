@@ -660,6 +660,10 @@ int main_(int argc, char** argv)
 	if(db1.get()) {
 		db1->SetNameTitle("odbstop", "ODB tree at run stop.");
 		db1->Write("odbstop");
+
+		std::string ftitle;
+		bool success = db1->ReadValue("/Experiment/Run Parameters/Comment", ftitle);
+		if(success) fout.SetTitle(ftitle.c_str());
 	}
 	//
 	// Write variables actually used in analysis

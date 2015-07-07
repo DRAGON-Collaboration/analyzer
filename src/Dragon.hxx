@@ -557,7 +557,7 @@ public: // Methods
 
 public: // Data
 	/// Midas event header
-	midas::Event::Header header; //#
+	TMidas_EVENT_HEADER header; //#
 
 	// Vme modules
 #ifdef DISPLAY_MODULES
@@ -647,7 +647,8 @@ public: // Methods
 
 public: // Class data
 	/// Midas event header
-	midas::Event::Header header;   //#
+	TMidas_EVENT_HEADER header;   //#
+
 	// Vme modules (write to TTree)
 #ifdef DISPLAY_MODULES
 	/// IO32 FPGA
@@ -884,7 +885,7 @@ public: // Methods
 
 public: // Data
 	/// Midas event header
-	midas::Event::Header header; //#
+	TMidas_EVENT_HEADER header; //#
 	/// Epics channel number for this event
 	int32_t ch; //#
 	/// EPICS value at `ch` for this event

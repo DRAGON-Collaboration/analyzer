@@ -31,6 +31,7 @@
 #include "Vme.hxx"
 
 class TGraph;
+class TGraphErrors;
 
 namespace dragon {
 
@@ -41,10 +42,16 @@ enum MeasurementType_t {
 };
 
 /// Chain together all trees in multiple DRAGON files.
+void MakeChains(const char* prefix, const Int_t* runnumbers, Int_t nruns, const char* format = "$DH/rootfiles/run%d.root");
+
+/// Chain together all trees in multiple DRAGON files.
 void MakeChains(const Int_t* runnumbers, Int_t nruns, const char* format = "$DH/rootfiles/run%d.root");
 
 /// Chain together trees using a vector instead of array
 void MakeChains(const std::vector<Int_t>& runnumbers, const char* format = "$DH/rootfiles/run%d.root");
+
+/// Chain together trees using a vector instead of array
+void MakeChains(const char* prefix, const std::vector<Int_t>& runnumbers, const char* format = "$DH/rootfiles/run%d.root");
 
 /// Add another chain of files as a friend to an existing one
 void FriendChain(TChain* chain, const char* friend_name, const char* friend_alias,
@@ -384,6 +391,11 @@ public:
 	std::vector<Int_t>& GetRuns() const;
 	/// Plot some parameter as a function of run number
 	TGraph* Plot(const char* param, Marker_t marker = 21, Color_t markerColor = kBlack);
+	/// Plot some parameter as a function of run number (alt. implementation)
+	TGraphErrors* PlotVal(const TString& valstr, int which = 0,
+												Marker_t marker = 21, Color_t markerColor = kBlack);
+	/// Plot number of beam particles with manual sbnorm specification
+	TGraphErrors* PlotNbeam(double sbnorm, int which = 0, Marker_t marker = 21, Color_t markerColor = kBlack);
 	/// Draw run data information
 	Long64_t Draw(const char* varexp, const char* selection, Option_t* option = "",
 								Long64_t nentries = 1000000000, Long64_t firstentry = 0);
@@ -418,7 +430,7 @@ private:
 	dragon::utils::AutoPtr<RossumData> fRossum;
 	std::map<std::string, UDouble_t> fEfficiencies;
 
-	ClassDef(BeamNorm, 1);
+	ClassDef(BeamNorm, 2);
 };
 
 
@@ -482,7 +494,7 @@ public:
 	/// Plot energy vs. pressure or density
 	TGraph* PlotMeasurements(XAxisType_t xaxis = kPRESSURE, YAxisType_t yaxis = kENERGY, Bool_t draw = kTRUE) const;
 	/// Calculate the `epsilon` parameter - slope of eloss vs. (atoms/cm^2)
-	UDouble_t CalculateEpsilon(TGraph** plot = 0);
+	UDouble_t CalculateEpsilon(TGraph** plot = 0, UDouble_t* ebeam = 0);
 	/// Calculate the beam energy (intercept of E vs. P)
 	UDouble_t CalculateEbeam(TGraph** plot = 0);
 public:

@@ -5,20 +5,32 @@
 ///
 #include <string>
 #include <sstream>
+#include <iostream>
 #include <algorithm>
 #include "TAtomicMass.h"
 
 
 namespace {
 inline TAtomicMassTable::Nucleus_t make_nucleus_az(int Z, int A) {
-	TAtomicMassTable::Nucleus_t nuc; nuc.fA = A; nuc.fZ = Z;
+	TAtomicMassTable::Nucleus_t nuc;
+	nuc.fA = A;
+	nuc.fZ = Z;
+	nuc.fN = A-Z;
+	sprintf(nuc.fSymbol, "XX");
+
 	return nuc;
 }
 
 class MatchSymbol {
 	std::string fSymbol;
 public:
-	MatchSymbol(const char* symbol): fSymbol(symbol) { }
+	MatchSymbol(const char* symbol): fSymbol(symbol) {
+		if(fSymbol == "n") fSymbol = "1n";
+		if(fSymbol == "p") fSymbol = "1H";
+		if(fSymbol == "d") fSymbol = "2H";
+		if(fSymbol == "t") fSymbol = "3H";
+		if(fSymbol == "a") fSymbol = "4He";
+	}
 	bool operator() (const std::pair<TAtomicMassTable::Nucleus_t,
 																	 TAtomicMassTable::MassExcess_t>& element)
 		{
@@ -242,6 +254,72 @@ double TAtomicMassTable::IonMass(const char* symbol, int chargeState) const
 
 	return NuclearMass(symbol) + ElectronMass()*(nuc->fZ - chargeState);
 }
+
+double TAtomicMassTable::QValue(int Zt, int At, int Zb, int Ab, int Ze, int Ae, bool print) const
+{
+	int Ztot = Zt + Zb;
+	int Atot = At + Ab;
+	int Zr = Ztot - Ze;
+	int Ar = Atot - Ae;
+
+	double qval = (NuclearMass(Zb, Ab) + NuclearMass(Zt, At)) - (NuclearMass(Zr, Ar) + NuclearMass(Ze, Ae));
+
+	if(print) {
+		const Nucleus_t* recoil   = GetNucleus(Zr, Ar);
+		const Nucleus_t* ejectile = GetNucleus(Ze, Ae);
+		const Nucleus_t* beam     = GetNucleus(Zb, Ab);
+		const Nucleus_t* target   = GetNucleus(Zt, At);
+		if(!recoil) {
+			std::cerr << "Invalid recoil!\n";
+			return 0;
+		}
+		if(!ejectile) {
+			std::cerr << "Invalid ejectile!\n";
+			return 0;
+		}
+		if(!beam) {
+			std::cerr << "Invalid beam!\n";
+			return 0;
+		}
+		if(!target) {
+			std::cerr << "Invalid target!\n";
+			return 0;
+		}
+
+		std::cout << "\tQ value for "
+							<<        target->fA   << target->fSymbol
+							<< "(" << beam->fA     << beam->fSymbol
+							<< "," << ejectile->fA << ejectile->fSymbol
+							<< ")" << recoil->fA   << recoil->fSymbol
+							<< ": " << qval << " keV.\n\n";
+	}
+
+	return qval;
+}
+
+
+double TAtomicMassTable::QValue(const char* beam, const char* target, const char* ejectile, bool print) const
+{
+	const Nucleus_t* b = GetNucleus(beam);
+	if(!b) {
+		std::cerr << "Invalid beam!\n";
+		return 0;
+	}
+	const Nucleus_t* t = GetNucleus(target);
+	if(!t) {
+		std::cerr << "Invalid target!\n";
+		return 0;
+	}
+	const Nucleus_t* e = GetNucleus(ejectile);
+	if(!e) {
+		std::cerr << "Invalid ejectile!\n";
+		return 0;
+	}
+
+	return QValue(b->fZ, b->fA, t->fZ, t->fA, e->fZ, e->fA, print);
+}
+
+
 	
 
 

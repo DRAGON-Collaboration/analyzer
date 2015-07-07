@@ -52,8 +52,8 @@ endif
 
 UNAME=$(shell uname)
 ifeq ($(UNAME),Darwin)
-ifdef MIDASSYS
 CXXFLAGS += -DOS_LINUX -DOS_DARWIN
+ifdef MIDASSYS
 MIDAS_LIB_DIR=$(MIDASSYS)/darwin/lib
 endif
 DYLIB=-dynamiclib -single_module -undefined dynamic_lookup
@@ -88,7 +88,6 @@ endif
 #### DRAGON LIBRARY ####
 OBJECTS=                            		\
 $(OBJ)/midas/mxml.o  	    	  		\
-$(OBJ)/midas/strlcpy.o			     	\
 $(OBJ)/midas/Odb.o                  		\
 $(OBJ)/midas/Xml.o                  		\
 $(OBJ)/midas/libMidasInterface/TMidasFile.o  	\

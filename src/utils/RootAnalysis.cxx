@@ -13,6 +13,7 @@
 #include <TMath.h>
 #include <TClass.h>
 #include <TGraph.h>
+#include <TGraphErrors.h>
 #include <TString.h>
 #include <TSystem.h>
 #include <TThread.h>
@@ -101,6 +102,11 @@ template <class T> void Zap(T*& t)
 
 void dragon::MakeChains(const Int_t* runnumbers, Int_t nruns, const char* format)
 {
+	MakeChains("t", runnumbers, nruns, format);
+}
+
+void dragon::MakeChains(const char* prefix, const Int_t* runnumbers, Int_t nruns, const char* format)
+{
 	///
 	/// \param [in] runnumbers Pointer to a valid array of desired run numbers to chain together.
 	/// \param [in] nruns Length of _runnumbers_.
@@ -109,14 +115,14 @@ void dragon::MakeChains(const Int_t* runnumbers, Int_t nruns, const char* format
 	/// \note Does not return anything, but creates `new` heap-allocated TChains that become part of
 	/// the present ROOT directory; these must be deleted by the user.
 	TChain* chain[] = {
-		new TChain("t1", "Head singles event."),
-		new TChain("t2", "Head scaler event."),
-		new TChain("t3", "Tail singles event."),
-		new TChain("t4", "Tail scaler event."),
-		new TChain("t5", "Coincidence event."),
-		new TChain("t20", "Epics event."),
-		new TChain("t6", "Timestamp diagnostics."),
-		new TChain("t7", "Glocal run parameters.")
+		new TChain(Form("%s1",  "t"), "Head singles event."),
+		new TChain(Form("%s2",  "t"), "Head scaler event."),
+		new TChain(Form("%s3",  "t"), "Tail singles event."),
+		new TChain(Form("%s4",  "t"), "Tail scaler event."),
+		new TChain(Form("%s5",  "t"), "Coincidence event."),
+		new TChain(Form("%s20", "t"), "Epics event."),
+		new TChain(Form("%s6",  "t"), "Timestamp diagnostics."),
+		new TChain(Form("%s7",  "t"), "Glocal run parameters.")
 	};
 	Int_t nchains = sizeof(chain) / sizeof(TChain*);
 	
@@ -135,6 +141,20 @@ void dragon::MakeChains(const Int_t* runnumbers, Int_t nruns, const char* format
 			chain[j]->AddFile(fname);
 		}
 	}
+
+	chain[0]->SetName(Form("%s1",  prefix));
+	chain[1]->SetName(Form("%s2",  prefix));
+	chain[2]->SetName(Form("%s3",  prefix));
+	chain[3]->SetName(Form("%s4",  prefix));
+	chain[4]->SetName(Form("%s5",  prefix));
+	chain[5]->SetName(Form("%s20", prefix));
+	chain[6]->SetName(Form("%s6",  prefix));
+	chain[7]->SetName(Form("%s7",  prefix));
+}
+
+void dragon::MakeChains(const char* prefix, const std::vector<Int_t>& runnumbers, const char* format)
+{
+	MakeChains(prefix, &runnumbers[0], runnumbers.size(), format);
 }
 
 void dragon::MakeChains(const std::vector<Int_t>& runnumbers, const char* format)
@@ -1047,6 +1067,125 @@ TGraph* dragon::BeamNorm::Plot(const char* param, Marker_t marker, Color_t marke
 	}
 	return gr;
 }	
+
+TGraphErrors* dragon::BeamNorm::PlotVal(const TString& valstr, int which, Marker_t marker, Color_t markerColor)
+{
+	/// \param valstr String specifying the parameter to plot, should be a member of 
+	///  dragon::BeamNorm::RunData
+	/// \param which Specifies which array index to plot, ignored if valstr is not an array
+	/// \param marker Marker symbol
+	/// \param markerColor Marker color
+	/// \returns TGraphErrors pointer containing _param_ vs. run number, responsibility is on the
+	///  user to delete this. In case of error, returns 0.
+	/// 
+	///  Also draws the returned TGraph in its own window.
+
+	std::vector<double> rn, val, err;
+	for(size_t i=0; i< GetRuns().size(); ++i) {
+		const dragon::BeamNorm::RunData* rd = GetRunData(GetRuns()[i]);
+		rn.push_back(rd->runnum);
+
+		if(0) {
+		}
+		else if(valstr == "sb_counts") {
+			val.push_back(rd->sb_counts[which].GetNominal());
+			err.push_back(rd->sb_counts[which].GetErrLow());
+		}
+		else if(valstr == "sb_counts_full") {
+			val.push_back(rd->sb_counts_full[which].GetNominal());
+			err.push_back(rd->sb_counts_full[which].GetErrLow());
+		}
+		else if(valstr == "live_time") {
+			val.push_back(rd->live_time.GetNominal());
+			err.push_back(rd->live_time.GetErrLow());
+		}
+		else if(valstr == "live_time_tail") {
+			val.push_back(rd->live_time_tail.GetNominal());
+			err.push_back(rd->live_time_tail.GetErrLow());
+		}
+		else if(valstr == "live_time_head") {
+			val.push_back(rd->live_time_head.GetNominal());
+			err.push_back(rd->live_time_head.GetErrLow());
+		}
+		else if(valstr == "live_time_coinc") {
+			val.push_back(rd->live_time_coinc.GetNominal());
+			err.push_back(rd->live_time_coinc.GetErrLow());
+		}
+		else if(valstr == "pressure") {
+			val.push_back(rd->pressure.GetNominal());
+			err.push_back(rd->pressure.GetErrLow());
+		}
+		else if(valstr == "pressure_full") {
+			val.push_back(rd->pressure_full.GetNominal());
+			err.push_back(rd->pressure_full.GetErrLow());
+		}
+		else if(valstr == "fc4") {
+			val.push_back(rd->fc4[which].GetNominal());
+			err.push_back(rd->fc4[which].GetErrLow());
+		}
+		else if(valstr == "fc1") {
+			val.push_back(rd->fc1.GetNominal());
+			err.push_back(rd->fc1.GetErrLow());
+		}
+		else if(valstr == "trans_corr") {
+			val.push_back(rd->trans_corr.GetNominal());
+			err.push_back(rd->trans_corr.GetErrLow());
+		}
+		else if(valstr == "sbnorm") {
+			val.push_back(rd->sbnorm[which].GetNominal());
+			err.push_back(rd->sbnorm[which].GetErrLow());
+		}
+		else if(valstr == "nbeam") {
+			val.push_back(rd->nbeam[which].GetNominal());
+			err.push_back(rd->nbeam[which].GetErrLow());
+		}
+		else if(valstr == "nrecoil") {
+			val.push_back(rd->nrecoil.GetNominal());
+			err.push_back(rd->nrecoil.GetErrLow());
+		}
+		else if(valstr == "yield") {
+			val.push_back(rd->yield[which].GetNominal());
+			err.push_back(rd->yield[which].GetErrLow());
+		}
+		else {
+			std::cerr << "Invalid parameter << \"" << valstr.Data() << "\"\n";
+			break;
+		}
+	}
+
+	TGraphErrors* gr = 0;
+	if(val.size()) {
+		gr = new TGraphErrors(rn.size(), &rn[0], &val[0], 0, &err[0]);
+		gr->SetMarkerStyle(marker);
+		gr->SetMarkerColor(markerColor);
+		gr->SetLineColor(markerColor);
+		gr->Draw("AP");
+	}
+
+	return gr;	
+}
+
+TGraphErrors* dragon::BeamNorm::PlotNbeam(double sbnorm, int which, Marker_t marker, Color_t markerColor)
+{
+	std::vector<double> rn, val, err;
+	for(size_t i=0; i< GetRuns().size(); ++i) {
+		const dragon::BeamNorm::RunData* rd = GetRunData(GetRuns()[i]);
+		rn.push_back(rd->runnum);
+
+		UDouble_t nbm = (rd->sb_counts_full[which] / rd->live_time_tail) * sbnorm / rd->pressure_full;
+		
+		val.push_back(nbm.GetNominal());
+		err.push_back(nbm.GetErrLow());
+	}
+
+	TGraphErrors* gr = new TGraphErrors(rn.size(), &rn[0], &val[0], 0, &err[0]);
+	gr->SetMarkerStyle(marker);
+	gr->SetMarkerColor(markerColor);
+	gr->SetLineColor(markerColor);
+	gr->Draw("AP");
+
+	return gr;
+}
 
 namespace {
 void null_rundata(dragon::BeamNorm::RunData* rundata) {
@@ -1966,13 +2105,16 @@ UDouble_t dragon::StoppingPowerCalculator::CalculateEbeam(TGraph** plot)
 	
 }
 
-UDouble_t dragon::StoppingPowerCalculator::CalculateEpsilon(TGraph** plot)
+UDouble_t dragon::StoppingPowerCalculator::CalculateEpsilon(TGraph** plot, UDouble_t* ebeam)
 {
 	///
 	/// \param [out] plot Address of a pointer to a TGraph that will contain
 	///  a plot of energy vs. density upon successful return. Passing a non-NULL
 	///  plot argument also causes the plot to be drawn with option "AP". The default
 	///  argument (NULL) bypasses any plotting and simply calculates the epsilon parameter.
+  ///
+	/// \param [out] ebeam Pointer to UDouble_t holding beam energy from offset of linear fit.
+	///
 	/// \returns The `epslion` parameter used in calculations of omega-gamma, in units of
 	///  eV / [atoms / cm^2]
 	///
@@ -2002,10 +2144,18 @@ UDouble_t dragon::StoppingPowerCalculator::CalculateEpsilon(TGraph** plot)
 	out = -1*fit.GetSlope();
 	out *= fBeamMass; // keV/u -> keV
 	out *= 1e3; // keV -> eV
+
+	if(ebeam) {
+		*ebeam = 1*fit.GetOffset(); // keV/u;
+	}
 	//
 	// add back systematic errors
 	out *= fMd1Constant / fMd1Constant.GetNominal();
 	out *= fTargetLength / fTargetLength.GetNominal();
+	if(ebeam) {
+		// *ebeam *= fMd1Constant / fMd1Constant.GetNominal();
+		// *ebeam *= fTargetLength / fTargetLength.GetNominal();
+	}
 	//
   // plot if requested
 	if(plot) {
