@@ -13,7 +13,7 @@ OBJ=$(PWD)/obj
 CINT=$(PWD)/cint
 DRLIB=$(PWD)/lib
 
-DEFINITIONS+=-DDRAGON_AME12_FILENAME=\"$(PWD)/src/utils/mass.mas12\" 
+DEFINITIONS+=-DAMEPP_DEFAULT_FILE=\"$(PWD)/src/utils/mass.mas12\" 
 DYLIB=-shared
 FPIC=-fPIC
 INCFLAGS=-I/opt/local/include/ -I$(SRC) -I$(CINT)
