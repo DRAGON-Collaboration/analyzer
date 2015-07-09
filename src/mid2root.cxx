@@ -499,16 +499,7 @@ int main_(int argc, char** argv)
 		char buf[256];
 		sprintf (buf, "t%d", eventIds[i]); // n.b. TTree cleanup handled by TFile destructor
 		//
-		bool makeTree = !(options.fSonik); // Make all trees if not in SONIK mode
-		if(!makeTree) { // SONIK mode, only make:
-			if(eventIds[i] == DRAGON_HEAD_SCALER || // head scaler 
-				 eventIds[i] == DRAGON_TAIL_SCALER || // tail scaler
-				 eventIds[i] == DRAGON_AUX_SCALER  || // aux scaler
-				 eventIds[i] == DRAGON_EPICS_EVENT || // epics event
-				 eventIds[i] == DRAGON_RUN_PARAMETERS) { // run parameters
-				makeTree = true;
-			}
-		}
+		bool makeTree = true; // always make all trees
 		if (makeTree) {
 			trees[i] = new TTree(buf, eventTitles[i].c_str());
 			trees[i]->Branch(branchNames[i].c_str(), classNames[i].c_str(), &(addr[i]));
