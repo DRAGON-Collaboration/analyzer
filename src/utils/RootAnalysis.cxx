@@ -2117,9 +2117,7 @@ UDouble_t dragon::StoppingPowerCalculator::CalculateEbeam(TGraph** plot)
 	for(Int_t i=0; i< GetNmeasurements(); ++i) {
 
 		double md1err = fMd1[i].GetErrLow() < fMd1[i].GetErrHigh() ?
-																					fMd1[i].GetErrHigh() : fMd1[i].GetErrLow();
-
-		pres[i] = fPressures[i];
+																					fMd1[i].GetErrHigh() : fMd1[i].GetErrLow(); pres[i] = fPressures[i];
 		energy[i] = CalculateEnergy(fMd1[i].GetNominal(), md1err, fBeamCharge, fBeamMass, fMd1Constant.GetNominal(), 0);
 	}
 	//
