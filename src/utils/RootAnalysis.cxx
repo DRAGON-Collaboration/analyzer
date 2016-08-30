@@ -2172,7 +2172,6 @@ UDouble_t dragon::StoppingPowerCalculator::CalculateEpsilon(TGraph** plot, UDoub
 
 		double md1err = fMd1[i].GetErrLow() < fMd1[i].GetErrHigh() ?
 																					fMd1[i].GetErrHigh() : fMd1[i].GetErrLow();
-
 		dens[i] = CalculateDensity(fPressures[i], UDouble_t(fTargetLength.GetNominal(), 0), fNmol, fTemp);
 		energy[i] = CalculateEnergy(fMd1[i].GetNominal(), md1err, fBeamCharge, fBeamMass, fMd1Constant.GetNominal(), 0);
 	}
