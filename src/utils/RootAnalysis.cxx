@@ -100,12 +100,12 @@ template <class T> void Zap(T*& t)
 
 // ============ namespace dragon Free Functions ============ //
 
-void dragon::MakeChains(const Int_t* runnumbers, Int_t nruns, const char* format)
+void dragon::MakeChains(const Int_t* runnumbers, Int_t nruns, Bool_t sonik, const char* format)
 {
-	MakeChains("t", runnumbers, nruns, format);
+	MakeChains("t", runnumbers, nruns, sonik, format);
 }
 
-void dragon::MakeChains(const char* prefix, const Int_t* runnumbers, Int_t nruns, const char* format)
+void dragon::MakeChains(const char* prefix, const Int_t* runnumbers, Int_t nruns, Bool_t sonik, const char* format)
 {
 	///
 	/// \param [in] runnumbers Pointer to a valid array of desired run numbers to chain together.
@@ -114,56 +114,98 @@ void dragon::MakeChains(const char* prefix, const Int_t* runnumbers, Int_t nruns
 	/// 
 	/// \note Does not return anything, but creates `new` heap-allocated TChains that become part of
 	/// the present ROOT directory; these must be deleted by the user.
-	TChain* chain[] = {
-		new TChain(Form("%s1",  "t"), "Head singles event."),
-		new TChain(Form("%s2",  "t"), "Head scaler event."),
-		new TChain(Form("%s3",  "t"), "Tail singles event."),
-		new TChain(Form("%s4",  "t"), "Tail scaler event."),
-		new TChain(Form("%s5",  "t"), "Coincidence event."),
-		new TChain(Form("%s20", "t"), "Epics event."),
-		new TChain(Form("%s6",  "t"), "Timestamp diagnostics."),
-		new TChain(Form("%s7",  "t"), "Glocal run parameters.")
-	};
-	Int_t nchains = sizeof(chain) / sizeof(TChain*);
+	if ( !(sonik) ){
+		TChain* chain[] = {
+			new TChain(Form("%s1",  "t"), "Head singles event."),
+			new TChain(Form("%s2",  "t"), "Head scaler event."),
+			new TChain(Form("%s3",  "t"), "Tail singles event."),
+			new TChain(Form("%s4",  "t"), "Tail scaler event."),
+			new TChain(Form("%s5",  "t"), "Coincidence event."),
+			new TChain(Form("%s20", "t"), "Epics event."),
+			new TChain(Form("%s6",  "t"), "Timestamp diagnostics."),
+			new TChain(Form("%s7",  "t"), "Glocal run parameters.")
+		};
+		Int_t nchains = sizeof(chain) / sizeof(TChain*);
 	
-	for(Int_t i=0; i< nruns; ++i) {
-		char fname[4096];
-		sprintf(fname, format, runnumbers[i]);
-		{
-			TFile file(fname);
-			if(file.IsZombie()) {
-				dutils::Warning("MakeChains", __FILE__, __LINE__)
-					<< "Skipping run " << runnumbers[i] << ", couldn't find file " << fname;
+		for(Int_t i=0; i< nruns; ++i) {
+			char fname[4096];
+			sprintf(fname, format, runnumbers[i]);
+			{
+				TFile file(fname);
+				if(file.IsZombie()) {
+					dutils::Warning("MakeChains", __FILE__, __LINE__)
+						<< "Skipping run " << runnumbers[i] << ", couldn't find file " << fname;
+				}
+			}
+
+			for(int j=0; j< nchains; ++j) {
+				chain[j]->AddFile(fname);
 			}
 		}
 
-		for(int j=0; j< nchains; ++j) {
-			chain[j]->AddFile(fname);
-		}
+		chain[0]->SetName(Form("%s1",  prefix));
+		chain[1]->SetName(Form("%s2",  prefix));
+		chain[2]->SetName(Form("%s3",  prefix));
+		chain[3]->SetName(Form("%s4",  prefix));
+		chain[4]->SetName(Form("%s5",  prefix));
+		chain[5]->SetName(Form("%s20", prefix));
+		chain[6]->SetName(Form("%s6",  prefix));
+		chain[7]->SetName(Form("%s7",  prefix));
 	}
+	else{
+		TChain* chain[] = {
+			new TChain(Form("%s0",  "t"), "SONIK event."),
+			// new TChain(Form("%s1",  "t"), "Head singles event."), Head DAQ not used with SONIK
+			// new TChain(Form("%s2",  "t"), "Head scaler event."),
+			new TChain(Form("%s3",  "t"), "Tail singles event."),
+			new TChain(Form("%s4",  "t"), "Tail scaler event."),
+			// new TChain(Form("%s5",  "t"), "Coincidence event."), coincidence events not used with SONIK
+			new TChain(Form("%s20", "t"), "Epics event."),
+			new TChain(Form("%s6",  "t"), "Timestamp diagnostics."),
+			new TChain(Form("%s7",  "t"), "Glocal run parameters.")
+		};
+		Int_t nchains = sizeof(chain) / sizeof(TChain*);
 
-	chain[0]->SetName(Form("%s1",  prefix));
-	chain[1]->SetName(Form("%s2",  prefix));
-	chain[2]->SetName(Form("%s3",  prefix));
-	chain[3]->SetName(Form("%s4",  prefix));
-	chain[4]->SetName(Form("%s5",  prefix));
-	chain[5]->SetName(Form("%s20", prefix));
-	chain[6]->SetName(Form("%s6",  prefix));
-	chain[7]->SetName(Form("%s7",  prefix));
+		for(Int_t i=0; i< nruns; ++i) {
+			char fname[4096];
+			sprintf(fname, format, runnumbers[i]);
+			{
+				TFile file(fname);
+				if(file.IsZombie()) {
+					dutils::Warning("MakeChains", __FILE__, __LINE__)
+						<< "Skipping run " << runnumbers[i] << ", couldn't find file " << fname;
+				}
+			}
+
+			for(int j=0; j< nchains; ++j) {
+				chain[j]->AddFile(fname);
+			}
+		}
+
+		chain[0]->SetName(Form("%s0",  prefix));
+		// chain[1]->SetName(Form("%s1",  prefix));
+		// chain[2]->SetName(Form("%s2",  prefix));
+		chain[1]->SetName(Form("%s3",  prefix));
+		chain[2]->SetName(Form("%s4",  prefix));
+		// chain[5]->SetName(Form("%s5",  prefix));
+		chain[3]->SetName(Form("%s20", prefix));
+		chain[4]->SetName(Form("%s6",  prefix));
+		chain[5]->SetName(Form("%s7",  prefix));
+	}
 }
 
-void dragon::MakeChains(const char* prefix, const std::vector<Int_t>& runnumbers, const char* format)
+void dragon::MakeChains(const char* prefix, const std::vector<Int_t>& runnumbers, Bool_t sonik, const char* format)
 {
-	MakeChains(prefix, &runnumbers[0], runnumbers.size(), format);
+	MakeChains(prefix, &runnumbers[0], runnumbers.size(), sonik, format);
 }
 
-void dragon::MakeChains(const std::vector<Int_t>& runnumbers, const char* format)
+void dragon::MakeChains(const std::vector<Int_t>& runnumbers, Bool_t sonik, const char* format)
 {
 	///
 	/// \param runnumbers vector of desired run numbers
 	/// \param format same as the other version
 	///
-	MakeChains(&runnumbers[0], runnumbers.size(), format);
+	MakeChains(&runnumbers[0], runnumbers.size(), sonik, format);
 }
 
 void dragon::FriendChain(TChain* chain, const char* friend_name, const char* friend_alias,
