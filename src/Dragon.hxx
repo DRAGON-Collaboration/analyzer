@@ -995,7 +995,7 @@ inline int64_t dragon::Scaler::plot(T* tree, const char* varexp, const char* sel
 		int64_t bin = hst->FindBin(i);
 		hst->SetBinContent(bin, hst->GetBinContent(bin) + tree->GetV1()[i]);
 	}
-	hst->Draw();
+	hst->Draw(option);
 	return nevts;
 }
 
