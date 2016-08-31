@@ -8,82 +8,79 @@ $(error No config.mk file found. Please run the configure script first. Running 
 endif
 
 ### Variable definitions
-SRC=$(PWD)/src
-OBJ=$(PWD)/obj
-CINT=$(PWD)/cint
-DRLIB=$(PWD)/lib
+SRC   = $(PWD)/src
+OBJ   = $(PWD)/obj
+CINT  = $(PWD)/cint
+DRLIB = $(PWD)/lib
 
-DEFINITIONS+=-DAMEPP_DEFAULT_FILE=\"$(PWD)/src/utils/mass.mas12\" 
-DYLIB=-shared
-FPIC=-fPIC
-INCFLAGS=-I/opt/local/include/ -I$(SRC) -I$(CINT)
-
-DEBUG=-ggdb -O3 -DDEBUG
+DEFINITIONS += -DAMEPP_DEFAULT_FILE=\"$(PWD)/src/utils/mass.mas12\" 
+DYLIB        = -shared
+FPIC         = -fPIC
+INCFLAGS     = -I/opt/local/include/ -I$(SRC) -I$(CINT)
+DEBUG        = -ggdb -O3 -DDEBUG
 #CXXFLAGS = -g -O2 -Wall -Wuninitialized
-CXXFLAGS = -Wall $(DEBUG) $(INCFLAGS) $(DEFINITIONS)
-CXXFLAGS += -DHAVE_ZLIB
+CXXFLAGS     = -Wall $(DEBUG) $(INCFLAGS) $(DEFINITIONS)
+CXXFLAGS    += -DHAVE_ZLIB
 
 ifeq ($(USE_ROOT),YES)
-DEFINITIONS+= -DUSE_ROOT
-ifdef ROOTSYS
-ROOTVERSION := $(shell root-config --version 2>/dev/null)
-ifndef ROOTVERSION
-$(error Could not run root-config program, check your ROOT setup script)
-endif
-
-ROOTLIBS=$(shell root-config --libs --glibs) -lXMLParser -lThread -lTreePlayer -lSpectrum -lMinuit
-INCFLAGS+=$(shell root-config --cflags --noauxcflags)
-CXXAUXFLAGS=$(shell root-config --auxcflags)
-else
-$(error USE_ROOT set to true but ROOTSYS environment variable is not set.)
-endif
+  DEFINITIONS+= -DUSE_ROOT
+  ifdef ROOTSYS
+    ROOTVERSION := $(shell root-config --version 2>/dev/null)
+    ifndef ROOTVERSION
+      $(error Could not run root-config program, check your ROOT setup script)
+    endif
+    ROOTLIBS    = $(shell root-config --libs --glibs) -lXMLParser -lThread -lTreePlayer -lSpectrum -lMinuit
+    INCFLAGS   += $(shell root-config --cflags --noauxcflags)
+    CXXAUXFLAGS = $(shell root-config --auxcflags)
+  else
+    $(error USE_ROOT set to true but ROOTSYS environment variable is not set.)
+  endif
 else
 USE_ROOTBEER=NO
 endif
 
 ifeq ($(USE_MIDAS),YES)
-$(info ************  USE_MIDAS ************)
-ifdef MIDASSYS
-CXXFLAGS += -DMIDASSYS
-MIDASLIBS = -lmidas -L$(MIDAS_LIB_DIR)
-INCFLAGS += -I$(MIDASSYS)/include
-endif
+  $(info ************  USE_MIDAS ************)
+  ifdef MIDASSYS
+    CXXFLAGS += -DMIDASSYS
+    MIDASLIBS = -lmidas -L$(MIDAS_LIB_DIR)
+    INCFLAGS += -I$(MIDASSYS)/include
+  endif
 endif
 
 UNAME=$(shell uname)
+
 ifeq ($(UNAME),Darwin)
-CXXFLAGS += -DOS_LINUX -DOS_DARWIN
-ifdef MIDASSYS
-MIDAS_LIB_DIR=$(MIDASSYS)/darwin/lib
-endif
-DYLIB=-dynamiclib -single_module -undefined dynamic_lookup
-FPIC=
-RPATH=
+  CXXFLAGS += -DOS_LINUX -DOS_DARWIN
+  ifdef MIDASSYS
+    MIDAS_LIB_DIR=$(MIDASSYS)/darwin/lib
+  endif
+  DYLIB = -dynamiclib -single_module -undefined dynamic_lookup
+  FPIC  =
+  RPATH =
 endif
 
 ifeq ($(UNAME),Linux)
-ifdef MIDASSYS
-CXXFLAGS += -DOS_LINUX
-MIDAS_LIB_DIR=$(MIDASSYS)/linux/lib
-MIDASLIBS+= -lm -lz -lutil -lnsl -lrt
+  ifdef MIDASSYS
+    CXXFLAGS     += -DOS_LINUX
+    MIDAS_LIB_DIR = $(MIDASSYS)/linux/lib
+    MIDASLIBS    += -lm -lz -lutil -lnsl -lrt
+  endif
 endif
-endif
 
 
-CXX+=$(CXXFLAGS) $(CXXAUXFLAGS)
-CC+=$(CXXFLAGS)
+CXX += $(CXXFLAGS) $(CXXAUXFLAGS)
+CC  += $(CXXFLAGS)
+LINK = $(CXX) $(ROOTLIBS) $(RPATH) -L$(PWD)/lib
+MAKE_DRAGON_DICT =
+DR_DICT          =
+DR_DICT_DEP      =
 
-LINK=$(CXX) $(ROOTLIBS) $(RPATH) -L$(PWD)/lib
-
-MAKE_DRAGON_DICT=
-DR_DICT=
-DR_DICT_DEP=
 ifeq ($(USE_ROOT),YES)
-MAKE_DRAGON_DICT+=rootcint -f $@ -c $(CXXFLAGS) -p $(HEADERS) TTree.h $(CINT)/Linkdef.h
-DR_DICT=$(CINT)/DragonDictionary.cxx 
-DR_DICT_DEP=$(CINT)/DragonDictionary.cxx 
+MAKE_DRAGON_DICT += rootcint -f $@ -c $(CXXFLAGS) -p $(HEADERS) TTree.h $(CINT)/Linkdef.h
+DR_DICT           = $(CINT)/DragonDictionary.cxx 
+DR_DICT_DEP       = $(CINT)/DragonDictionary.cxx 
 endif
-
 
 #### DRAGON LIBRARY ####
 OBJECTS=                            		\
@@ -104,19 +101,16 @@ $(OBJ)/utils/Uncertainty.o		\
 $(OBJ)/utils/ErrorDragon.o
 
 ifeq ($(USE_MIDAS), YES)
-OBJECTS+=$(OBJ)/midas/libMidasInterface/TMidasOnline.o
+OBJECTS += $(OBJ)/midas/libMidasInterface/TMidasOnline.o
 endif
 
 ifeq ($(USE_ROOT), YES)
-OBJECTS+=$(OBJ)/utils/RootAnalysis.o
-OBJECTS+=$(OBJ)/utils/Selectors.o
-OBJECTS+=$(OBJ)/utils/Calibration.o
-OBJECTS+=$(OBJ)/utils/LinearFitter.o
+OBJECTS += $(OBJ)/utils/RootAnalysis.o
+OBJECTS += $(OBJ)/utils/Selectors.o
+OBJECTS += $(OBJ)/utils/Calibration.o
+OBJECTS += $(OBJ)/utils/LinearFitter.o
 endif
-
-
 ## END OBJECTS ##
-
 
 HEADERS=	                	\
 $(SRC)/midas/*.hxx	        	\
@@ -126,20 +120,20 @@ $(SRC)/utils/*.hxx        		\
 $(SRC)/utils/*.h          		\
 $(SRC)/*.hxx
 
-
 ### DRAGON LIBRARY ###
-MID2ROOT_LIBS=-lDragon $(MIDASLIBS)
+MID2ROOT_LIBS = -lDragon $(MIDASLIBS)
 
-MAKE_ALL=$(DRLIB)/libDragon.so $(PWD)/bin/mid2root
+MAKE_ALL = $(DRLIB)/libDragon.so $(PWD)/bin/mid2root
 ifeq ($(USE_ROOTBEER),YES)
 $(info ************  USE_ROOTBEER ************)
-MAKE_ALL+=$(PWD)/bin/rbdragon $(PWD)/bin/rbsonik
-DEFINITIONS+=-DUSE_ROOTBEER
-MID2ROOT_LIBS+=-L$(PWD)/../../rootbeer/lib -lRootbeer
-MID2ROOT_INC=$(RBINC) 
+MAKE_ALL      += $(PWD)/bin/rbdragon $(PWD)/bin/rbsonik
+DEFINITIONS   += -DUSE_ROOTBEER
+MID2ROOT_LIBS += -L$(PWD)/../../rootbeer/lib -lRootbeer
+MID2ROOT_INC   = $(RBINC) 
 endif
+
 ifeq ($(USE_ROOTANA),YES)
-MAKE_ALL+=$(PWD)/bin/anaDragon
+MAKE_ALL += $(PWD)/bin/anaDragon
 endif
 
 all:  $(MAKE_ALL)
@@ -200,9 +194,9 @@ $(CINT)/DragonDictionary.cxx:  $(HEADERS) $(CINT)/Linkdef.h
 
 
 ### FOR ROOTANA ###
-ROOTANA=$(HOME)/usr/packages/rootana
-ROOTANA_FLAGS=-ansi -Df2cFortran -I$(ROOTANA)
-ROOTANA_DEFS=-DROOTANA_DEFAULT_HISTOS=$(HOME)/usr/packages/dragon/analyzer/histos.dat
+ROOTANA       = $(HOME)/usr/packages/rootana
+ROOTANA_FLAGS = -ansi -Df2cFortran -I$(ROOTANA)
+ROOTANA_DEFS  = -DROOTANA_DEFAULT_HISTOS=$(HOME)/usr/packages/dragon/analyzer/histos.dat
 
 ROOTANA_REMOTE_OBJS=				\
 $(ROOTANA)/libNetDirectory/netDirectoryServer.o
@@ -213,9 +207,9 @@ $(OBJ)/rootana/Callbacks.o			\
 $(OBJ)/rootana/HistParser.o			\
 $(OBJ)/rootana/Directory.o
 
-ROOTANA_HEADERS= $(SRC)/rootana/Globals.h $(SRC)/rootana/*.hxx
+ROOTANA_HEADERS = $(SRC)/rootana/Globals.h $(SRC)/rootana/*.hxx
 
-ROOTANA_LIBS=-lrootana -lNetDirectory -L$(HOME)/usr/packages/rootana/libNetDirectory/ -L$(HOME)/usr/packages/rootana/lib
+ROOTANA_LIBS = -lrootana -lNetDirectory -L$(HOME)/usr/packages/rootana/libNetDirectory/ -L$(HOME)/usr/packages/rootana/lib
 
 $(CINT)/rootana/Dict.cxx: $(ROOTANA_HEADERS) $(SRC)/rootana/Linkdef.h $(CINT)/DragonDictionary.cxx
 	rootcint -f $@ -c $(CXXFLAGS) $(ROOTANA_FLAGS) -p $(ROOTANA_HEADERS) $(SRC)/rootana/Linkdef.h \
@@ -242,17 +236,11 @@ Dragon: $(OBJ)/Dragon.o
 
 
 ### FOR ROOTBEER ###
-
-RBINC=-I$(RB_HOME)/src
-RB_DRAGON_OBJECTS= 				\
-$(OBJ)/rootbeer/rbdragon.o  $(OBJ)/rootbeer/rbdragon_impl.o 
-
-RB_SONIK_OBJECTS= 				\
-$(OBJ)/rootbeer/rbdragon.o $(OBJ)/rootbeer/rbsonik.o  $(OBJ)/rootbeer/rbsonik_impl.o 
-
-RB_HEADERS= $(SRC)/rootbeer/rbdragon.hxx $(SRC)/rootbeer/rbsonik.hxx 
-
-RB_DEFS=-DRB_DRAGON_HOMEDIR=$(PWD)
+RBINC             = -I$(RB_HOME)/src
+RB_DRAGON_OBJECTS = $(OBJ)/rootbeer/rbdragon.o  $(OBJ)/rootbeer/rbdragon_impl.o 
+RB_SONIK_OBJECTS  = $(OBJ)/rootbeer/rbdragon.o $(OBJ)/rootbeer/rbsonik.o  $(OBJ)/rootbeer/rbsonik_impl.o 
+RB_HEADERS        = $(SRC)/rootbeer/rbdragon.hxx $(SRC)/rootbeer/rbsonik.hxx 
+RB_DEFS           = -DRB_DRAGON_HOMEDIR=$(PWD)
 
 
 $(CINT)/rootbeer/rootbeerDict.cxx: $(SRC)/rootbeer/rbsymbols.hxx $(DR_DICT_DEP) $(RB_HOME)/cint/RBDictionary.cxx $(RB_HOME)/cint/MidasDict.cxx
