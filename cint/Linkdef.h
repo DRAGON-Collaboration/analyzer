@@ -9,7 +9,7 @@
 //! \code
 //! #pragma link C++ defined_in /path/to/my/header.hxx;
 //! \endcode
-//! (note that you need to specify the fill path to the header file).
+//! (note that you need to specify the full path to the header file).
 //!
 //! If the above doesn't work, you might have to specify each class (or namespace) individually
 //! (or figure out why not). \n
@@ -22,7 +22,7 @@
 //! // -- ETC -- //
 //! \endcode
 //! (note that the '+' at the end is required except in special cases).
-#ifdef __MAKECINT__
+#ifdef __ROOTCLING__
 #include <RVersion.h>
 
 #pragma link off all globals;
@@ -30,9 +30,14 @@
 #pragma link off all functions;
 #pragma link C++ nestedclasses;
 
-#pragma link C++ class dragon::utils+;
 #pragma link C++ class dragon+;
 #pragma link C++ class vme+;
+#pragma link C++ class TAtomicMassTable+;
+
+#pragma link C++ class dragon::utils+;
+#pragma link C++ class dragon::Constants+;
+#pragma link C++ class dragon::BeamNorm+;
+#pragma link C++ class dragon::RossumData+;
 
 #pragma link C++ defined_in ../src/Vme.hxx;
 #pragma link C++ class vme::V1190::Channel+;
@@ -63,8 +68,6 @@ class TTree;
 #pragma link C++ defined_in ../src/utils/TAtomicMass.h;
 #pragma link C++ defined_in ../src/utils/LinearFitter.hxx;
 
-
-
 #pragma link C++ class dragon::utils::AutoPtr<midas::Xml>+;
 #pragma link C++ class dragon::utils::AutoPtr<dragon::RossumData>+;
 #pragma link C++ class dragon::utils::AutoPtr<std::ifstream>+;
@@ -86,8 +89,13 @@ class TTree;
 #pragma link C++ class dragon::utils::AdcVariables<dragon::NaI::MAX_CHANNELS>+;
 #pragma link C++ class dragon::utils::AdcVariables<1>+;
 
-#pragma link C++ class dragon::Constants+;
+#pragma link C++ class dragon::HeadSelector+;
+#pragma link C++ class dragon::TailSelector+;
+#pragma link C++ class dragon::ScalerSelector+;
+#pragma link C++ class dragon::CoincSelector+;
+#pragma link C++ class dragon::ASelector+;
 
 #pragma link C++ class std::vector<UDouble_t>+;
+
 
 #endif
