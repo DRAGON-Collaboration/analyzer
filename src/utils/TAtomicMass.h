@@ -43,13 +43,14 @@ public:
 		bool fExtrapolated;
 	};
 
-#ifndef DOXYGEN_SKIP
-	
-private:
 	/// Functor for map comparison
 	struct CompareNucleus_t {
 		bool operator() (const Nucleus_t& lhs, const Nucleus_t& rhs) const;
 	};
+
+#ifndef DOXYGEN_SKIP
+	
+private:
 
 	typedef std::map<Nucleus_t, MassExcess_t, CompareNucleus_t> Map_t;
 
