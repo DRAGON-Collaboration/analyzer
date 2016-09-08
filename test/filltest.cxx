@@ -4,7 +4,7 @@
 #include <TFile.h>
 #include <TH1F.h>
 #include <TTreeFormula.h>
-#include "dragon/Coinc.hxx"
+#include "Dragon.hxx"
 
 TFile fFile ("test.root", "recreate");
 TTree fTree ("t", "TEST");
@@ -15,7 +15,7 @@ TTreeFormula* fFormula;
 
 void fill1()
 {
-	hst.Fill (coinc.head.bgo.q[0]);
+	hst.Fill (coinc.head.bgo.esort[0]);
 }
 
 void fill2()
