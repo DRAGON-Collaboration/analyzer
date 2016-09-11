@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 function showhelp {
     echo "usage: ./configure [flags]"
     echo ""
@@ -42,8 +41,8 @@ OMIT_NAI=0
 OMIT_GE=0
 
 RB_HOME="\$(HOME)/packages/rootbeer"
-CC=cc
-CXX=c++
+CC=gcc
+CXX=g++
 
 for var in "$@"
 do
@@ -82,8 +81,6 @@ do
     fi
 done
 
-
-
 echo "" > config.mk
 echo "DEFINITIONS=" >> config.mk
 echo "" >> config.mk
@@ -117,18 +114,18 @@ else >> config.mk
 fi >> config.mk
 echo "" >> config.mk
 echo "### Set to YES (NO) to turn on (off) root [or rootbeer, or rootana, or ...] usage ###" >> config.mk
-echo "USE_ROOT=$USE_ROOT" >> config.mk
-echo "USE_ROOTANA=$USE_ROOTANA" >> config.mk
-echo "USE_ROOTBEER=$USE_ROOTBEER" >> config.mk
-echo "USE_MIDAS=$USE_MIDAS" >> config.mk
+echo "USE_ROOT     = $USE_ROOT" >> config.mk
+echo "USE_ROOTANA  = $USE_ROOTANA" >> config.mk
+echo "USE_ROOTBEER = $USE_ROOTBEER" >> config.mk
+echo "USE_MIDAS    = $USE_MIDAS" >> config.mk
 echo "" >> config.mk
 echo "" >> config.mk
 echo "" >> config.mk
 echo "### Set ROOTBEER home directory (ignore if USE_ROOTBEER=NO) ###" >> config.mk
-echo "RB_HOME=$RB_HOME" >> config.mk
+echo "RB_HOME = $RB_HOME" >> config.mk
 echo "" >> config.mk
 echo "" >> config.mk
 echo "### CHOOSE YOUR COMPILER IF YOU WANT ###" >> config.mk
-echo "CXX=$CXX" >> config.mk
-echo "CC=$CC" >> config.mk
+echo "CXX = $CXX" >> config.mk
+echo "CC  = $CC" >> config.mk
 echo "" >> config.mk

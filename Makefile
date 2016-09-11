@@ -55,9 +55,9 @@ ifeq ($(USE_MIDAS),YES)
   endif
 endif
 
-UNAME = $(shell uname)
+PLATFORM = $(shell uname -s)
 
-ifeq ($(UNAME),Darwin)
+ifeq ($(PLATFORM),Darwin)
   CXXFLAGS += -DOS_LINUX -DOS_DARWIN
   ifdef MIDASSYS
     MIDAS_LIB_DIR = $(MIDASSYS)/darwin/lib
@@ -67,7 +67,7 @@ ifeq ($(UNAME),Darwin)
   RPATH =
 endif
 
-ifeq ($(UNAME),Linux)
+ifeq ($(PLATFORM),Linux)
   ifdef MIDASSYS
     CXXFLAGS     += -DOS_LINUX
     MIDAS_LIB_DIR = $(MIDASSYS)/linux/lib
@@ -76,10 +76,7 @@ ifeq ($(UNAME),Linux)
 endif
 
 CXX += $(CXXFLAGS) $(CXXAUXFLAGS)
-CC  += $(CXXFLAGS)
-LINK = $(CXX) $(ROOTLIBS) $(RPATH) -L$(PWD)/lib
-CXX += $(CXXFLAGS) $(CXXAUXFLAGS)
-CC  += $(CXXFLAGS)
+#CC  += $(CXXFLAGS)
 LINK = $(CXX) $(ROOTLIBS) $(RPATH) -L$(PWD)/lib
 
 MAKE_DRAGON_DICT =
@@ -90,7 +87,7 @@ ifeq ($(USE_ROOT),YES)
 # MAKE_DRAGON_DICT += rootcint -f $@ -c $(CXXFLAGS) -p $(HEADERS) \
 # 	TTree.h $(CINT)/Linkdef.h
 MAKE_DRAGON_DICT += rootcling -v -f $@ -s $(SHLIBFILE) -rml $(SHLIBFILE) \
-	-rmf $(ROOTMAPFILE) -c $(CXXFLAGS) -I[$(INCLUDES)] \
+	-rmf $(ROOTMAPFILE) -c $(CXXFLAGS) \
 	-p $(HEADERS) TTree.h $(CINT)/Linkdef.h
 # MAKE_DRAGON_DICT += rootcling -v -f $@ \
 # 	-c $(CXXFLAGS) -I[$(INCLUDES)] -p $(HEADERS) \
@@ -107,6 +104,7 @@ $(OBJ)/midas/Xml.o                  		\
 $(OBJ)/midas/libMidasInterface/TMidasFile.o  	\
 $(OBJ)/midas/libMidasInterface/TMidasEvent.o 	\
 $(OBJ)/midas/Event.o                	\
+					\
 $(OBJ)/Unpack.o				\
 $(OBJ)/TStamp.o		              	\
 $(OBJ)/Vme.o				\

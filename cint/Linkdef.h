@@ -33,6 +33,14 @@
 #pragma extra_include "RVersion.h";
 #include <RVersion.h>
 
+#pragma link C++ global gROOT;
+#pragma link C++ global gEnv;
+
+class TH1;
+class TTree;
+
+#pragma link C++ class std::vector<UDouble_t>+;
+
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,30,0)
 #pragma link C++ class std::auto_ptr<midas::Xml>+;
 #pragma link C++ class std::auto_ptr<dragon::RossumData>+;
@@ -60,10 +68,10 @@
 #pragma link C++ defined_in ../src/utils/Valid.hxx;
 #pragma link C++ defined_in ../src/utils/VariableStructs.hxx;
 
-#pragma link C++ defined_in ../src/midas/Database.hxx
-#pragma link C++ defined_in ../src/midas/Event.hxx
-#pragma link C++ defined_in ../src/midas/Odb.hxx
-#pragma link C++ defined_in ../src/midas/Xml.hxx
+#pragma link C++ defined_in ../src/midas/Database.hxx;
+#pragma link C++ defined_in ../src/midas/Event.hxx;
+#pragma link C++ defined_in ../src/midas/Odb.hxx;
+#pragma link C++ defined_in ../src/midas/Xml.hxx;
 
 #pragma link C++ defined_in ../src/Vme.hxx;
 #pragma link C++ namespace vme;
@@ -78,15 +86,15 @@
 #pragma link C++ namespace dragon;
 #pragma link C++ class TAtomicMassTable+;
 #pragma link C++ class dragon::RunParameters+;
-#pragma link C++ class dragon::BGO+;
+#pragma link C++ class dragon::Bgo+;
 #pragma link C++ class dragon::Dsssd+;
 #pragma link C++ class dragon::IonChamber+;
-#pragma link C++ class dragon::MCP+;
+#pragma link C++ class dragon::Mcp+;
 #pragma link C++ class dragon::SurfaceBarrier+;
 #pragma link C++ class dragon::NaI+;
 #pragma link C++ class dragon::Ge+;
-#pragma link C++ class dragon::TdcChannel<1>::Variables+;
 #pragma link C++ class dragon::TdcChannel<1>+;
+#pragma link C++ class dragon::TdcChannel<MAX_RF_HITS>+;
 #pragma link C++ class dragon::HiTof+;
 #pragma link C++ class dragon::Head+;
 #pragma link C++ class dragon::Tail+;
@@ -116,6 +124,8 @@
 #pragma link C++ class dragon::utils::PositionVariables<dragon::Bgo::MAX_CHANNELS>+;
 #pragma link C++ class dragon::utils::AdcVariables<dragon::Dsssd::MAX_CHANNELS>+;
 #pragma link C++ class dragon::utils::TdcVariables<1>+;
+#pragma link C++ class dragon::utils::AdcVariables<dragon::Mcp::MAX_CHANNELS>+;
+#pragma link C++ class dragon::utils::TdcVariables<1>+;
 #pragma link C++ class dragon::utils::AdcVariables<dragon::IonChamber::MAX_CHANNELS>+;
 #pragma link C++ class dragon::utils::TdcVariables<1>+;
 #pragma link C++ class dragon::utils::AdcVariables<dragon::SurfaceBarrier::MAX_CHANNELS>+;
@@ -130,17 +140,13 @@
 #pragma link C++ class dragon::Tail<vme::Io32>+;
 #pragma link C++ class dragon::Tail<vme::V1190>+;
 #pragma link C++ class dragon::Tail::<dragon::Mcp::MAX_CHANNELS>+;
-#pragma link C++ class dragon::Tail<dragon::TdcChannel<1> >+;
-#pragma link C++ class dragon::Tail::trf+;
+#pragma link C++ class dragon::Tail<TdcChannel<MAX_RF_HITS>::trf>+;
 
 #pragma link C++ class dragon::Head<vme::Io32>+;
 #pragma link C++ class dragon::Head<vme::V1190>+;
 #pragma link C++ class dragon::Head<dragon::Bgo::MAX_CHANNELS>+;
-#pragma link C++ class dragon::Head<dragon::TdcChannel<1> >+;
-#pragma link C++ class dragon::Head::trf+;
+#pragma link C++ class dragon::Head<TdcChannel<MAX_RF_HITS>::trf>+;
 
-class TH1;
-class TTree;
 #pragma link C++ function dragon::Scaler::plot<TTree, TH1>(TTree*, const char*, const char*, Option_t*);
 #pragma link C++ function dragon::Scaler::set_aliases(TTree*, Bool_t);
 #pragma link C++ function dragon::Epics::set_aliases(TTree*);
@@ -154,9 +160,22 @@ class TTree;
 
 #pragma link C++ class tstamp::Diagnostics+;
 
-#pragma link C++ class std::vector<UDouble_t>+;
+#pragma link C++ namespace dragon { namespace utils {  } };
+#pragma link C++ namespace dragon { namespace utils { class Error; } };
+#pragma link C++ namespace dragon { namespace utils { class Warning; } };
+#pragma link C++ namespace dragon { namespace utils { class Info; } };
+#pragma link C++ namespace std {  };
+#pragma link C++ namespace vme {  };
+#pragma link C++ namespace dragon {  };
+#pragma link C++ namespace dragon { template <int> class TdcChannel; };
+#pragma link C++ namespace midas { class Xml; };
+#pragma link C++ namespace dragon { class RossumData; };
+#pragma link C++ namespace dragon { namespace utils { template <typename T> class AutoPtr; } };
+#pragma link C++ namespace dragon { namespace utils { template <int> class AdcVariables; } };
+#pragma link C++ namespace dragon { namespace utils { template <int> class TdcVariables; } };
+#pragma link C++ namespace dragon { namespace utils { template <int> class PositionVariables; } };
+#pragma link C++ namespace midas {  };
+#pragma link C++ namespace tstamp {  };
 
-#pragma link C++ global gROOT;
-#pragma link C++ global gEnv;
 
 #endif // __CINT__
