@@ -41,6 +41,7 @@ OMIT_NAI=0
 OMIT_GE=0
 
 RB_HOME="\$(HOME)/packages/rootbeer"
+
 CC=gcc
 CXX=g++
 
