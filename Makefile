@@ -46,11 +46,12 @@ ROOTMAPFILE := $(patsubst %.so,%.rootmap,$(SHLIBFILE))
 
 DEFINITIONS += -DAMEPP_DEFAULT_FILE=\"$(PWD)/src/utils/mass.mas12\" 
 FPIC         = -fPIC
-INCFLAGS    += -I/opt/local/include/ -I$(SRC) -I$(CINT)
+INCFLAGS    += -I/opt/local/include/ -I/usr/include/c++/4.8 -I$(SRC) -I$(CINT)
 DEBUG        = -ggdb -O3 -DDEBUG
 #CXXFLAGS = -g -O2 -Wall -Wuninitialized
 CXXFLAGS     = -v -Wall $(DEBUG) $(INCFLAGS) $(DEFINITIONS)
 CXXFLAGS    += -DHAVE_ZLIB
+CCFLAGS      = 
 
 ifeq ($(USE_MIDAS),YES)
 $(info ************  USE_MIDAS ************)
@@ -69,21 +70,25 @@ ifdef MIDASSYS
 MIDAS_LIB_DIR = $(MIDASSYS)/darwin/lib
 endif
 DYLIB = -m64 -dynamiclib -single_module -undefined dynamic_lookup
-#  FPIC  =
+# FPIC  =
 RPATH =
 endif
 
 ifeq ($(PLATFORM),Linux)
-DYLIB        = -shared
-ifdef MIDASSYS
-CXXFLAGS     += -DOS_LINUX
-MIDAS_LIB_DIR = $(MIDASSYS)/linux/lib
-MIDASLIBS    += -lm -lz -lutil -lnsl -lrt
-endif
+  DYLIB     = -shared
+  CXXFLAGS += -DOS_LINUX
+  # ifeq ($(ROOTVERSION),6)
+  #   CXXFLAGS += -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc
+  #   # CCFLAGS  += -lgcc -lgcc_s -lc
+  # endif
+  ifdef MIDASSYS
+    MIDAS_LIB_DIR = $(MIDASSYS)/linux/lib
+    MIDASLIBS    += -lm -lz -lutil -lnsl -lrt
+  endif
 endif
 
 CXX += $(CXXFLAGS) $(CXXAUXFLAGS)
-#CC  += $(CXXFLAGS)
+CC  += $(CCFLAGS)
 LINK = $(CXX) $(ROOTLIBS) $(RPATH) -L$(PWD)/lib
 
 MAKE_DRAGON_DICT =
@@ -94,7 +99,7 @@ ifeq ($(USE_ROOT),YES)
   ifeq ($(ROOTVERSION),6)
     MAKE_DRAGON_DICT += rootcling -v -f $@ -s $(SHLIBFILE) -rml $(SHLIBFILE) \
 	-rmf $(ROOTMAPFILE) -c $(CXXFLAGS) \
-	-p $(HEADERS) TTree.h TError.h $(CINT)/Linkdef.h
+	-p $(HEADERS) TTree.h $(CINT)/Linkdef.h
 # MAKE_DRAGON_DICT += rootcling -v -f $@ \
 # 	-c $(CXXFLAGS) -I[$(INCLUDES)] -p $(HEADERS) \
 # 	TTree.h $(CINT)/Linkdef.h
@@ -188,6 +193,10 @@ $(OBJ)/utils/%.o: $(SRC)/utils/%.cxx $(DRA_DICT_DEP)
 
 $(OBJ)/midas/%.o: $(SRC)/midas/%.c $(DRA_DICT_DEP)
 	$(CC) $(FPIC) -c \
+	-o $@ $< \
+
+$(OBJ)/midas/%.o: $(SRC)/midas/%.cxx $(DRA_DICT_DEP)
+	$(CXX) $(FPIC) -c \
 	-o $@ $< \
 
 $(OBJ)/midas/libMidasInterface/%.o: $(SRC)/midas/libMidasInterface/%.cxx $(DRA_DICT_DEP)
