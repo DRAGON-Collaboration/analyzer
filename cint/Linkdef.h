@@ -31,9 +31,9 @@
 #pragma link C++ nestedclasses;
 #pragma link C++ nestedtypedef;
 
-// #pragma link C++ class dragon::utils+;
-// #pragma link C++ class dragon+;
-// #pragma link C++ class vme+;
+#pragma link C++ class dragon::utils+;
+#pragma link C++ class dragon+;
+#pragma link C++ class vme+;
 
 #pragma link C++ defined_in ../src/Vme.hxx;
 #pragma link C++ defined_in ../src/Dragon.hxx;
@@ -65,7 +65,6 @@ class TTree;
 #pragma link C++ class std::auto_ptr<std::ifstream>+;
 #endif
 
-// dragon::utils ns classes
 #pragma link C++ class dragon::utils::AdcVariables<dragon::Bgo::MAX_CHANNELS>+;
 #pragma link C++ class dragon::utils::TdcVariables<dragon::Bgo::MAX_CHANNELS>+;
 #pragma link C++ class dragon::utils::PositionVariables<dragon::Bgo::MAX_CHANNELS>+;
@@ -73,7 +72,25 @@ class TTree;
 #pragma link C++ class dragon::utils::AdcVariables<dragon::IonChamber::MAX_CHANNELS>+;
 #pragma link C++ class dragon::utils::AdcVariables<dragon::SurfaceBarrier::MAX_CHANNELS>+;
 #pragma link C++ class dragon::utils::AdcVariables<dragon::NaI::MAX_CHANNELS>+;
+#pragma link C++ class dragon::utils::AdcVariables<1>+;
+#pragma link C++ class dragon::utils::TdcVariables<1>+;
 
+#pragma link C++ class midas::Event::Header+;
+#pragma link C++ class midas::Xml+;
+#pragma link C++ class midas::Odb+;
+#pragma link C++ class midas::Database+;
+#pragma link C++ class mxml_struct+;
+#pragma link C++ class tstamp::Diagnostics+;
+
+#pragma link C++ class dragon::Constants+;
+
+#pragma link C++ class std::vector<UDouble_t>+;
+
+#pragma link C++ class vme::V1190::Channel+;
+
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,00,0)
+// Additional streamers for ROOT6/rootcling
+// dragon::utils ns classes
 #pragma link C++ class dragon::utils::AutoPtr+;
 #pragma link C++ class dragon::utils::DsssdCalibrator::Param_t+;
 #pragma link C++ class dragon::utils::DsssdCalibrator+;
@@ -90,9 +107,7 @@ class TTree;
 #pragma link C++ class dragon::utils::less_and_valid+;
 #pragma link C++ class dragon::utils::PositionVariables<1>+;
 #pragma link C++ class dragon::utils::PositionVariables+;
-#pragma link C++ class dragon::utils::AdcVariables<1>+;
 #pragma link C++ class dragon::utils::AdcVariables+;
-#pragma link C++ class dragon::utils::TdcVariables<1>+;
 #pragma link C++ class dragon::utils::TdcVariables+;
 #pragma link C++ class dragon::utils::AdcVariables2<1>+;
 #pragma link C++ class dragon::utils::AdcVariables2+;
@@ -125,7 +140,6 @@ class TTree;
 #pragma link C++ class dragon::Scaler+;
 #pragma link C++ class dragon::Epics+;
 #pragma link C++ class dragon::Unpacker+;
-#pragma link C++ class dragon::Constants+;
 #pragma link C++ class dragon::LinearFitter+;
 #pragma link C++ class dragon::MetricPrefix+;
 #pragma link C++ class dragon::TTreeFilter+;
@@ -163,12 +177,10 @@ class TTree;
 // tstamp ns classes
 #pragma link C++ class tstamp::Queue+;
 #pragma link C++ class tstamp::OwnedQueue+;
-#pragma link C++ class tstamp::Diagnostics+;
 
 //vme ns classes
 #pragma link C++ class vme::Io32::Tsc4+;
 #pragma link C++ class vme::Io32+;
-#pragma link C++ class vme::V1190::Channel+;
 #pragma link C++ class vme::V1190::Fifo+;
 #pragma link C++ class vme::V1190+;
 #pragma link C++ class vme::V792+;
@@ -184,8 +196,6 @@ class TTree;
 // Class UDouble_t
 #pragma link C++ class UDouble_t+;
 
-#pragma link C++ class std::vector<UDouble_t>+;
-
 #pragma link C++ namespace dragon;
 #pragma link C++ namespace dragon::utils;
 #pragma link C++ namespace m2r;
@@ -194,5 +204,6 @@ class TTree;
 #pragma link C++ namespace rbsonik;
 #pragma link C++ namespace tstamp;
 #pragma link C++ namespace vme;
+#endif // ROOT6
 
 #endif

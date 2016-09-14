@@ -46,10 +46,10 @@ ROOTMAPFILE := $(patsubst %.so,%.rootmap,$(SHLIBFILE))
 
 DEFINITIONS += -DAMEPP_DEFAULT_FILE=\"$(PWD)/src/utils/mass.mas12\" 
 FPIC         = -fPIC
-INCFLAGS    += -I/opt/local/include/ -I/usr/include/ -I$(SRC) -I$(CINT)
+INCFLAGS    += -I/opt/local/include/ -I/usr/include/ -I/usr/local/include/ -I$(SRC) -I$(CINT)
 DEBUG        = -ggdb -O3 -DDEBUG
 #CXXFLAGS = -g -O2 -Wall -Wuninitialized
-CXXFLAGS     = -v -Wall $(DEBUG) $(INCFLAGS) $(DEFINITIONS)
+CXXFLAGS     = -Wall $(DEBUG) $(INCFLAGS) $(DEFINITIONS)
 CXXFLAGS    += -DHAVE_ZLIB
 CCFLAGS      = 
 
@@ -97,7 +97,7 @@ DRA_DICT_DEP     =
 
 ifeq ($(USE_ROOT),YES)
   ifeq ($(ROOTVERSION),6)
-    MAKE_DRAGON_DICT += rootcling -v -f $@ -s $(SHLIBFILE) -rml $(SHLIBFILE) \
+    MAKE_DRAGON_DICT += rootcling -f $@ -s $(SHLIBFILE) -rml $(SHLIBFILE) \
 	-rmf $(ROOTMAPFILE) -c $(CXXFLAGS) \
 	-p $(HEADERS) TTree.h $(CINT)/Linkdef.h
 # MAKE_DRAGON_DICT += rootcling -v -f $@ \
