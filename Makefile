@@ -46,7 +46,7 @@ ROOTMAPFILE := $(patsubst %.so,%.rootmap,$(SHLIBFILE))
 
 DEFINITIONS += -DAMEPP_DEFAULT_FILE=\"$(PWD)/src/utils/mass.mas12\" 
 FPIC         = -fPIC
-INCFLAGS    += -I/opt/local/include/ -I/usr/include/c++/4.8 -I$(SRC) -I$(CINT)
+INCFLAGS    += -I/opt/local/include/ -I/usr/include/ -I$(SRC) -I$(CINT)
 DEBUG        = -ggdb -O3 -DDEBUG
 #CXXFLAGS = -g -O2 -Wall -Wuninitialized
 CXXFLAGS     = -v -Wall $(DEBUG) $(INCFLAGS) $(DEFINITIONS)
