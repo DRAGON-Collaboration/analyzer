@@ -7,8 +7,10 @@ else
 $(error No config.mk file found. Please run the configure script first. Running './configure --help' will give instructions on how to do this)
 endif
 
-PLATFORM = $(shell uname -s)
-$(info $(PLATFORM))
+PLATFORM   = $(shell uname -s)
+GCCVERSION := $(shell gcc -dumpversion | awk -F. '{print $$1}')
+$(info Platform: $(PLATFORM))
+$(info gcc Version: $(GCCVERSION))
 
 INCLUDES =
 SRC   = $(PWD)/src
@@ -72,7 +74,7 @@ ifeq ($(USE_ROOT),YES)
   DEFINITIONS   += -DUSE_ROOT
   ifdef ROOTSYS
     ROOTVERSION := $(shell root-config --version | awk -F. '{print $$1}')
-    $(info $(ROOTVERSION))
+    $(info ROOT Version: $(ROOTVERSION))
     ifndef ROOTVERSION
 	$(error Could not run root-config program, check your ROOT setup script)
     endif
@@ -87,14 +89,22 @@ else
   USE_ROOTBEER = NO
 endif
 
-ifeq ($(ROOTVERSION),6)
-  ifeq ($(PLATFORM),Darwin) #clang can't find standard libs on OSX
-    CC  = gcc
-    CXX = g++
-  endif
+ifeq ($(ROOTVERSION),6) #libDragon.so & mid2root compile with clang for root6
+  ifeq ($(PLATFORM),Linux)
+    CC  = clang
+    CXX = clang++
+  else         #This is a bit wonky; libDragon.so seems to only compile with clang. However, specifying 
+    CC  = gcc  #the compiler as clang in OSX seems to cause problems with clang (specifically it has 
+    CXX = g++  #trouble finding the correct standard libraries). Specifying the compiler as g++ seems 
+  endif        #to result in the system choosing clang anyway but with no problems.
 else
-  CC  = clang
-  CXX = clang++
+CC  = gcc
+CXX = g++
+endif
+
+ifeq ($(GCCVERSION),5)
+CC  = clang
+CXX = clang++
 endif
 
 DEFINITIONS += -DAMEPP_DEFAULT_FILE=\"$(PWD)/src/utils/mass.mas12\" 
@@ -146,7 +156,7 @@ ifeq ($(USE_ROOT),YES)
   ifeq ($(ROOTVERSION),6)
     MAKE_DRAGON_DICT += rootcling -v -f $@ -s $(SHLIBFILE) -rml $(SHLIBFILE) \
 	-rmf $(ROOTMAPFILE) -c $(CXXFLAGS) \
-	-p $(HEADERS) TTree.h $(CINT)/Linkdef.h
+	-p $(HEADERS) TError.h TNamed.h TObject.h TString.h TTree.h $(CINT)/Linkdef.h
   else
     MAKE_DRAGON_DICT += rootcint -f $@ -c $(CXXFLAGS) -p $(HEADERS) \
 	TTree.h $(CINT)/Linkdef.h

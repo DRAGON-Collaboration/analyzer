@@ -1005,11 +1005,11 @@ inline void dragon::Epics::set_aliases(T* t) const
 	/*!
 	 * See dragon::Scaler::set_aliases()
 	 */
-	for(int i=0; i< variables.names.size(); ++i) {
+	for(unsigned int k=0; k< variables.names.size(); ++k) {
 		std::stringstream oldName;
-		oldName << "1*" << i << "";
+		oldName << "1*" << k << "";
 
-		std::string newName1 = variables.names[i];
+		std::string newName1 = variables.names[k];
 		for(size_t j=0; j< newName1.size(); ++j) {
 			if(newName1[j] == ' ') newName1[j] = '_';
 		}
