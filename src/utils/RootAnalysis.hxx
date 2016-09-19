@@ -42,16 +42,16 @@ enum MeasurementType_t {
 };
 
 /// Chain together all trees in multiple DRAGON files.
-void MakeChains(const char* prefix, const Int_t* runnumbers, Int_t nruns, Bool_t sonik = kFALSE, const char* format = "$DH/rootfiles/run%d.root");
+void MakeChains(const char* prefix, const Int_t* runnumbers, Int_t nruns, const char* format = "$DH/rootfiles/run%d.root", Bool_t sonik = kFALSE);
 
 /// Chain together all trees in multiple DRAGON files.
-void MakeChains(const Int_t* runnumbers, Int_t nruns, Bool_t sonik = kFALSE, const char* format = "$DH/rootfiles/run%d.root");
+void MakeChains(const Int_t* runnumbers, Int_t nruns, const char* format = "$DH/rootfiles/run%d.root", Bool_t sonik = kFALSE);
 
 /// Chain together trees using a vector instead of array
-void MakeChains(const std::vector<Int_t>& runnumbers, Bool_t sonik = kFALSE, const char* format = "$DH/rootfiles/run%d.root");
+void MakeChains(const std::vector<Int_t>& runnumbers, const char* format = "$DH/rootfiles/run%d.root", Bool_t sonik = kFALSE);
 
 /// Chain together trees using a vector instead of array
-void MakeChains(const char* prefix, const std::vector<Int_t>& runnumbers, Bool_t sonik = kFALSE, const char* format = "$DH/rootfiles/run%d.root");
+void MakeChains(const char* prefix, const std::vector<Int_t>& runnumbers, const char* format = "$DH/rootfiles/run%d.root", Bool_t sonik = kFALSE);
 
 /// Add another chain of files as a friend to an existing one
 void FriendChain(TChain* chain, const char* friend_name, const char* friend_alias,
