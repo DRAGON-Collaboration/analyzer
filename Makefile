@@ -9,8 +9,10 @@ endif
 
 PLATFORM   = $(shell uname -s)
 GCCVERSION := $(shell gcc -dumpversion | awk -F. '{print $$1}')
-$(info Platform: $(PLATFORM))
-$(info gcc Version: $(GCCVERSION))
+$(info ------------ Platform: ----------------)
+$(info $(PLATFORM))
+$(info ------------ gcc Version: -------------)
+$(info $(shell gcc -dumpversion))
 
 INCLUDES =
 SRC   = $(PWD)/src
@@ -74,7 +76,8 @@ ifeq ($(USE_ROOT),YES)
   DEFINITIONS   += -DUSE_ROOT
   ifdef ROOTSYS
     ROOTVERSION := $(shell root-config --version | awk -F. '{print $$1}')
-    $(info ROOT Version: $(ROOTVERSION))
+    $(info ------------ ROOT Version: ------------)
+    $(info $(shell root-config --version))
     ifndef ROOTVERSION
 	$(error Could not run root-config program, check your ROOT setup script)
     endif
@@ -112,12 +115,12 @@ FPIC        += -fPIC
 INCFLAGS    += -I/opt/local/include/ -I/usr/include/ -I$(SRC) -I$(CINT)
 DEBUG       += -ggdb -O3 -DDEBUG
 #CXXFLAGS = -g -O2 -Wall -Wuninitialized
-CXXFLAGS    += -v -Wall $(DEBUG) $(INCFLAGS) $(DEFINITIONS)
+CXXFLAGS    += -Wall $(DEBUG) $(INCFLAGS) $(DEFINITIONS)
 CXXFLAGS    += -DHAVE_ZLIB
 CCFLAGS     += 
 
 ifeq ($(USE_MIDAS),YES)
-$(info ************  USE_MIDAS ************)
+$(info ------------ USE_MIDAS ----------------)
   ifdef MIDASSYS
     CXXFLAGS += -DMIDASSYS
     MIDASLIBS = -lmidas -L$(MIDAS_LIB_DIR)
@@ -171,7 +174,7 @@ MID2ROOT_LIBS = -lDragon $(MIDASLIBS)
 MAKE_ALL      = $(SHLIBFILE) $(PWD)/bin/mid2root
 
 ifeq ($(USE_ROOTBEER),YES)
-$(info ************  USE_ROOTBEER ************)
+$(info ------------ USE_ROOTBEER -------------)
 MAKE_ALL      += $(PWD)/bin/rbdragon $(PWD)/bin/rbsonik
 DEFINITIONS   += -DUSE_ROOTBEER
 MID2ROOT_LIBS += -L$(PWD)/../../rootbeer/lib -lRootbeer
