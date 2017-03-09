@@ -1,7 +1,6 @@
 ///
 /// \file Dragon.hxx
-/// \author G. Christian
-/// \author C. Stanford
+/// \author D. Connolly
 /// \brief Defines dragon detector classes
 /// \attention The '//!' or '//#' comments following variable declarations are not
 ///  optional! They are actually used in processing of the file with ROOTCINT.

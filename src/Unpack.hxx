@@ -65,8 +65,8 @@ public:
 	///
 	///  Returns the event codes of unpacked events
 	std::vector<int32_t> GetUnpackedCodes() const;
-  ///
-  /// Perform actions at the beginning of a run
+	///
+	/// Perform actions at the beginning of a run
 	void HandleBor(const char* dbname);
 	///
 	/// Process function to handle singles events popped from the queue
@@ -78,7 +78,7 @@ public:
 	/// Process function for timestamp diagnostics [empty]
 	void Process(tstamp::Diagnostics*);
 	///
-  /// Switch over to coincidence mode
+	/// Switch over to coincidence mode
 	void SetCoincMode();
 	///
 	/// Set the coincidence matching window
@@ -89,32 +89,32 @@ public:
 	///
 	/// Set the queue buffering time
 	void SetQueueTime(double t);
-  ///
-  /// Unpack a head event into fHead
+	///
+	/// Unpack a head event into fHead
 	void UnpackHead(const midas::Event& event);
-  ///
-  /// Unpack a tail event into fTail
+	///
+	/// Unpack a tail event into fTail
 	void UnpackTail(const midas::Event& event);
-  ///
-  /// Unpack a coincidence event into fCoinc
+	///
+	/// Unpack a coincidence event into fCoinc
 	void UnpackCoinc(const midas::CoincEvent& event);
-  ///
-  /// Unpack a head scaler event into fHeadScaler;
+	///
+	/// Unpack a head scaler event into fHeadScaler;
 	void UnpackHeadScaler(const midas::Event& event);
-  ///
-  /// Unpack a tail scaler event into fTailScaler
+	///
+	/// Unpack a tail scaler event into fTailScaler
 	void UnpackTailScaler(const midas::Event& event);
-  ///
-  /// Unpack a aux scaler event into fAuxScaler;
+	///
+	/// Unpack a aux scaler event into fAuxScaler;
 	void UnpackAuxScaler(const midas::Event& event);
 	///
-  /// Unpack an EPICS event into fEpics
+	/// Unpack an EPICS event into fEpics
 	void UnpackEpics(const midas::Event& event);
-  ///
-  /// Unpack run parameters into fRunpar
+	///
+	/// Unpack run parameters into fRunpar
 	void UnpackRunParameters(const midas::Database& db);
-  ///
-  /// Unpack a generic midas event (from full data buffer)
+	///
+	/// Unpack a generic midas event (from full data buffer)
 	std::vector<int32_t> UnpackMidasEvent(char* databuf);
 	///
 	/// Unpack a generic midas event (from header + data)
@@ -196,7 +196,7 @@ inline void dragon::Unpacker::SetCoincMode()
 	/// If in singles mode when called, it switches over to coincidence
 	/// mode with default coincidence window and queue time. To change
 	/// these values, use SetCoincWindow() and SetQueueTime().
-	/// 
+	///
 	/// If we are already in coincidence mode, this has no effect.
 	if(!IsSinglesMode())
 		fQueue.reset(new tstamp::OwnedQueue<Unpacker>(kQueueTimeDefault*1e6, this));
@@ -221,7 +221,7 @@ inline std::vector<int32_t>
 dragon::Unpacker::GetUnpackedCodes() const
 {
 	/// Whenever a call to UnpackMidasEvent() is made, an
-	/// internal vector<int32_t> is filled with the event codes 
+	/// internal vector<int32_t> is filled with the event codes
 	/// corresponding to those event types which were unpacked into
 	/// a class structure. This function allows the caller to see what
 	/// those event codes are and, e.g. fill ROOT trees, ntuples, histograms,

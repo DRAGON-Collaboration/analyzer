@@ -63,8 +63,6 @@ class TTree;
 #pragma link C++ defined_in ../src/utils/TAtomicMass.h;
 #pragma link C++ defined_in ../src/utils/LinearFitter.hxx;
 
-
-
 #pragma link C++ class dragon::utils::AutoPtr<midas::Xml>+;
 #pragma link C++ class dragon::utils::AutoPtr<dragon::RossumData>+;
 #pragma link C++ class dragon::utils::AutoPtr<std::ifstream>+;

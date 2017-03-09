@@ -17,13 +17,13 @@ namespace dutils = dragon::utils;
 
 vme::Io32::Io32()
 {
-  ///
+	///
 	reset();
-}	
+}
 
 void vme::Io32::reset()
 {
-  ///
+	///
 	dutils::reset_data(header, trig_count, tstamp, start, end, latency, read_time,
 										 busy_time, trigger_latch, which_trigger, tsc4.trig_time);
 	for(int i=0; i< 4; ++i) {
@@ -79,7 +79,7 @@ bool vme::Io32::unpack(const midas::Event& event, const char* bankName, bool rep
 	for(int j=0; j< 4; ++j)
 		tsc4.n_fifo[j] = tsc4.fifo[j].size();
 
-  return true;
+	return true;
 }
 
 
@@ -88,13 +88,13 @@ bool vme::Io32::unpack(const midas::Event& event, const char* bankName, bool rep
 vme::V1190::V1190():
 	fMessagePeriod(0)
 {
-  ///
+	///
 	reset();
 }
 
 namespace { inline void reset_channel(vme::V1190::Channel* channel)
 {
-  ///
+	///
 	channel->nleading  = 0;
 	channel->ntrailing = 0;
 	channel->fLeading.clear();
@@ -131,7 +131,7 @@ int32_t vme::V1190::get_trailing(int16_t ch, int16_t hit) const
 
 void vme::V1190::Fifo::push_back(int32_t measurement_, int16_t channel_, int16_t number_)
 {
-  ///
+	///
 	measurement.push_back(measurement_);
 	channel.push_back(channel_);
 	number.push_back(number_);
@@ -139,7 +139,7 @@ void vme::V1190::Fifo::push_back(int32_t measurement_, int16_t channel_, int16_t
 
 void vme::V1190::Fifo::clear()
 {
-  ///
+	///
 	measurement.clear();
 	channel.clear();
 	number.clear();
@@ -147,10 +147,10 @@ void vme::V1190::Fifo::clear()
 
 void vme::V1190::reset()
 {
-  ///
+	///
 	for (int ch = 0; ch < MAX_CHANNELS; ++ch)
 		::reset_channel( &(channel[ch]) );
-	
+
 	fifo0.clear();
 	fifo1.clear();
 
@@ -217,7 +217,7 @@ bool vme::V1190::unpack_data_buffer(const uint32_t* const pbuffer)
 	}
 	else // trailing edge
 		channel[ch].fTrailing.push_back(measurement);
-	
+
 	channel[ch].nleading  = channel[ch].fLeading.size();
 	channel[ch].ntrailing = channel[ch].fTrailing.size();
 
@@ -229,7 +229,7 @@ bool vme::V1190::unpack_data_buffer(const uint32_t* const pbuffer)
 
 void vme::V1190::unpack_footer_buffer(const uint32_t* const pbuffer, const char* bankName)
 {
-  /*!
+	/*!
 	 * \param [in] pbuffer Pointer to the footer buffer
 	 * \param [in] bankName Name of the midas bank being unpacked
 	 * \note Footer also contains the GEO information, which we ignore.
@@ -237,7 +237,7 @@ void vme::V1190::unpack_footer_buffer(const uint32_t* const pbuffer, const char*
 	 * See below for the bitpacking instructions and what we read.
 	 */
 	word_count = (*pbuffer >> 0) & READ12; /// Bits 0 - 11 are the event counter (word_count)
-	int16_t evtId = (*pbuffer >> 12) & READ12; 
+	int16_t evtId = (*pbuffer >> 12) & READ12;
 	if(evtId != event_id) { /// Bits 12 - 23 are the event id (event_id), check for consistency w/ header
 		std::cerr << DRAGON_ERR_FILE_LINE;
 		dutils::Warning("vme::V1190::unpack_footer_buffer")
@@ -366,13 +366,13 @@ bool vme::V1190::unpack(const midas::Event& event, const char* bankName, bool re
 
 vme::V792::V792()
 {
-  ///
+	///
 	reset();
 }
 
 void vme::V792::reset()
 {
-  ///
+	///
 	n_ch  = 0;
 	count = 0;
 	overflow = false;
@@ -431,7 +431,7 @@ bool vme::V792::unpack_buffer(const uint32_t* const pbuffer, const char* bankNam
 	uint32_t type = (*pbuffer >> 24) & READ3;
 
 	switch (type) {
-	case DATA_BITS:    /// case DATA_BITS : See unpack_data_buffer() 
+	case DATA_BITS:    /// case DATA_BITS : See unpack_data_buffer()
 		success = unpack_data_buffer(pbuffer);
 		break;
 	case HEADER_BITS:  /// case HEADER_BITS: read number of channels (n_ch) in the event from bits 6 - 13

@@ -21,7 +21,7 @@ class TAtomicMassTable
 #endif
 {
 public:
-  /// Contains information on a nucleus
+	/// Contains information on a nucleus
 	struct Nucleus_t {
 		/// Symbol, e.g. 3He
 		char fSymbol[3];
@@ -33,7 +33,7 @@ public:
 		int fN;
 	};
 
-  /// Contains mass excess information from AME file
+	/// Contains mass excess information from AME file
 	struct MassExcess_t {
 		/// Nominal value of the mass excess (in keV)
 		double fValue; // keV
@@ -46,10 +46,10 @@ public:
 	/// Functor for map comparison
 	struct CompareNucleus_t {
 		bool operator() (const Nucleus_t& lhs, const Nucleus_t& rhs) const;
-	};	
+	};
 
 #ifndef DOXYGEN_SKIP
-	
+
 private:
 
 	typedef std::map<Nucleus_t, MassExcess_t, CompareNucleus_t> Map_t;

@@ -27,7 +27,7 @@ struct msgPrint {
 };
 struct msgDelete {
 	void operator() (std::pair<const int64_t, dutils::ADelayedMessagePrinter*>& element) { delete element.second;   }
-}; 
+};
 }
 
 void dutils::DelayedMessageFactory::Flush()

@@ -196,7 +196,7 @@ private:
  * rossumData.AverageCurrent(1000, 0, 0).Print(); // print the average current in the first FC4 iteration
  * rossumData.AverageCurrent(1000, 1, 0).Print(); // print the average current in the first FC1 iteration
  *
- * \endcode 
+ * \endcode
  */
 class RossumData: public TNamed {
 public:
@@ -445,7 +445,7 @@ public:
 		kMD1,
 		kENERGY
 	};
-	struct Measurement_t { 
+	struct Measurement_t {
 		UDouble_t pressure;
 		UDouble_t density;
 		UDouble_t md1;
@@ -540,7 +540,7 @@ private:
  * sum of measured busy times for each event. The live time is
  * defined as:
  *      (<run time> - <busy time>) / <run time>
- * 
+ *
  * Calculations can be performed for a complete run, subset of a
  * run or a chain of runs. This class also calculates the live
  * time for coincidences. For more information about how this is
@@ -568,7 +568,7 @@ public:
 	Double_t GetLivetime(const char* which) const; // fraction
 
 	/// \brief Returns the error on the livetime
-	/// \details The relative error should 
+	/// \details The relative error should
 	Double_t GetLivetimeError(const char* which) const
 		{ return GetLivetime(which) * 50/1e6; } // seconds
 
@@ -586,7 +586,7 @@ public:
 	static Double_t CalculateRuntime(midas::Database* db, const char* which,
 																	 Double_t& start, Double_t& stop); // seconds (static function)
 	/// Calculate the run time from saved ODB file
-	static Double_t CalculateRuntime(midas::Database* db, const char* which) 
+	static Double_t CalculateRuntime(midas::Database* db, const char* which)
 		{ Double_t a,b; return CalculateRuntime(db, which, a, b); } // seconds (static function)
 
 private:
@@ -614,7 +614,7 @@ private:
  *   - Coincidences arriving when both the head and tail are busy: the trigger is simply not recorded.
  *   - Coincidences arriving when either the head or is tail is busy but not the other: the coincidence
  *     will be incorrectly marked as a singles event.
- *   - Coincidences whose match window is interrupted by an uncorrelated singles event. For example, a 
+ *   - Coincidences whose match window is interrupted by an uncorrelated singles event. For example, a
  *     capture reaction happens, triggers the BGOs and then uncorrelated leaky beam triggers the end
  *     detector before the recoil gets there. This will still be marked as a coincidence event in the
  *     analysis, but the head event will not be correlated with the correct tail one. Thus the _real_
@@ -646,7 +646,7 @@ public:
 			{	return lhs.fTrigger < rhs.fTrigger;	}
 	};
 
-public:	
+public:
 	/// Set flag specifying that events are not yet sorted by trigger time
 	CoincBusytime(size_t reserve = 0);
 	/// Insert event into the colletion of triggered events
@@ -702,7 +702,7 @@ public:
 
 	/// Plot resonance strength vs. run number
 	TGraph* PlotResonanceStrength(Int_t whichSb);
-	
+
 public:
 	/// Calculate DeBroglie wavelength in the CM system
 	static UDouble_t CalculateWavelength(UDouble_t eres /*keV*/, Double_t mbeam /*amu*/, Double_t mtarget /*amu*/); // cm

@@ -25,12 +25,12 @@ namespace no_data_impl {
 
 template <class T, bool Signed>
 struct Impl {
-	static const T value() { return -1; }
+  static const T value() { return -1; }
 };
 
 template <class T>
 struct Impl <T, false> {
-	static const T value() { return std::numeric_limits<T>::max(); }
+  static const T value() { return std::numeric_limits<T>::max(); }
 };
 
 } // namespace no_data_impl
@@ -42,12 +42,12 @@ namespace dragon {
 /// Determines "throwaway" data value when some parameter is absent
 template <class T>
 struct NoData {
-	/// Get the throwaway value
-	static const T value()
-		{ 
-			/// \returns -1 if a signed type, maximim value if an unsigned type
-			return no_data_impl::Impl<T, std::numeric_limits<T>::is_signed>::value();
-		}
+  /// Get the throwaway value
+  static const T value()
+    {
+      /// \returns -1 if a signed type, maximim value if an unsigned type
+      return no_data_impl::Impl<T, std::numeric_limits<T>::is_signed>::value();
+    }
 };
 
 namespace utils {
@@ -56,15 +56,15 @@ namespace utils {
 template <class T>
 inline void reset_array(int len, T* array)
 {
-	/// Implementation:
-	std::fill_n(array, len, dragon::NoData<T>::value());
+  /// Implementation:
+  std::fill_n(array, len, dragon::NoData<T>::value());
 }
 
 /// Check if a single value is valid
 template <class T0>
 inline bool is_valid (const T0& t0)
 {
-	/// Implementation:
+  /// Implementation:
   return ( t0 != dragon::NoData<T0>::value() );
 }
 
@@ -72,18 +72,18 @@ inline bool is_valid (const T0& t0)
 template <class T>
 inline bool is_valid_all(T* const tArray, int len)
 {
-	/// Implementation:
-	T* const end = tArray + len;
-	return std::find(tArray, end, dragon::NoData<T>::value()) == end;
+  /// Implementation:
+  T* const end = tArray + len;
+  return std::find(tArray, end, dragon::NoData<T>::value()) == end;
 }
 
 /// Check if any element in an array is valid
 template <class T>
 inline bool is_valid_any(T* const tArray, int len)
 {
-	/// Implementation:
-	T* const end = tArray + len;
-	return std::find_if(tArray, end, is_valid<T>) != end;
+  /// Implementation:
+  T* const end = tArray + len;
+  return std::find_if(tArray, end, is_valid<T>) != end;
 }
 
 /// Reset one datum to NO_DATA

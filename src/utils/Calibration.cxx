@@ -128,7 +128,7 @@ Int_t dutils::DsssdCalibrator::Run(Double_t pklow, Double_t pkhigh, Double_t sig
 		}
 		for(int j=0; j<3; ++j)
 			fPeaks[i][j] = peaks[j];
-		
+
 		FitPeaks(i);
 	}
 
@@ -139,10 +139,10 @@ void dutils::DsssdCalibrator::FitPeaks(Int_t ch)
 {
 	if((UInt_t)ch > 31) return;
 	const Double_t alphaEnergies[3] = {5.15659,5.48556,5.80477}; /* Alpha energies in MeV. */
-	const Double_t dLayer = 0.0005; /* Deadlayer thickness in mm. */ 
+	const Double_t dLayer = 0.0005; /* Deadlayer thickness in mm. */
 	const Double_t aEloss[3] = {138.080,133.060,128.546}; /* Stopping Powers in MeV/mm. */
 
-	Double_t aEnergy[3]; /* Actual energy deposited */																											 
+	Double_t aEnergy[3]; /* Actual energy deposited */
 	for (int i=0; i<3; i++)
 		aEnergy[i] = alphaEnergies[i] - aEloss[i]*dLayer;
 
@@ -198,4 +198,3 @@ void dutils::DsssdCalibrator::PrintOdb(const char* outfile)
 
 	if(f != stdout) fclose(f);
 }
-

@@ -13,7 +13,7 @@
 /// fNominal = un;
 /// fErr     = us;
 /// \endcode
-/// 
+///
 #ifndef UNCERTAINTY_HXX
 #define UNCERTAINTY_HXX
 #ifndef __MAKECINT__
@@ -90,7 +90,7 @@ private:
 	double fNominal;
 	double fErr[2]; // 0 = low, 1 = high
 	double fSys[2]; // 0 = low, 1 = high
-	
+
 	friend std::ostream& operator<< (std::ostream&, const UDouble_t&);
 };
 

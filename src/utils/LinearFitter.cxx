@@ -51,7 +51,7 @@ dragon::LinearFitter::LinearFitter(int printLevel):
 	fFunction(0)
 {
 	/// Initialize internal TMinuit object
-	fMinuit->SetFCN(fcn);	
+	fMinuit->SetFCN(fcn);
 	fMinuit->SetPrintLevel(printLevel);
 
 	Double_t arglist[4];
@@ -65,7 +65,7 @@ double dragon::LinearFitter::Chi2err(double M, double B, double x, double y, dou
 {
 	double fx = M*x + B;
 	double ey = fx < y ? eyl : eyh;
-	
+
 	double num = (y-fx)*(y-fx);
 	double den = ey*ey + pow(0.5*M*(exl+exh), 2);
 	if(den == 0) // no errors
@@ -86,7 +86,7 @@ void dragon::LinearFitter::Fit(TGraph* graph)
 // Initialize parameters
 	double slp = (gGraph->GetY()[1] - gGraph->GetY()[0]) / (gGraph->GetX()[1] - gGraph->GetX()[0]);
 	double off = gGraph->GetY()[0] - slp*gGraph->GetX()[0];
-	
+
 	int ierflg;
 	double arglist[10];
 	fMinuit->mnparm(0, "offset", off, 1e-9, 0,0,ierflg);

@@ -217,7 +217,7 @@ inline void index_sort(T begin, T end, int* indices, Order order)
 {
 	std::ptrdiff_t size = end - begin;
 	index_fill(indices, indices + size);
-	std::sort(indices, indices + size, 	Isort<T, Order>(begin, order));
+	std::sort(indices, indices + size,	Isort<T, Order>(begin, order));
 }
 
 /// Sort function which returns sorted indices instead of modifying the array
@@ -230,7 +230,7 @@ inline void index_sort(T begin, T end, int* indices)
 {
 	std::ptrdiff_t size = end - begin;
 	index_fill(indices, indices + size);
-	std::sort(indices, indices + size, 	IsortLess<T> (begin));
+	std::sort(indices, indices + size,	IsortLess<T> (begin));
 }
 
 /// Maps raw vme data into another array
@@ -241,7 +241,7 @@ inline void index_sort(T begin, T end, int* indices)
  * \param [in] numch Number of channels in the output array
  * \param [in] channels Array containing the channel mapping
  * \param [in] module Vme module class containing the raw data
- * 
+ *
  * Example:
  * \code
  * vme::V792 adc;
@@ -265,11 +265,11 @@ inline void channel_map(T* output, int numch, const int* channels, const M& modu
  * \tparam T Basic type of the output array
  * \tparam M Type of the vme module
  * \param [out] output Array containing the mapped values
- * \param [in] numch Number of channels in the 
+ * \param [in] numch Number of channels in the
  * \param [in] channels Array containing the channel mapping
  * \param [in] channels Array containing the module mapping
  * \param [in] moduleArr Array of vme modules containing the raw data
- * 
+ *
  * Example:
  * \code
  * vme::V792[2] adc;
@@ -345,7 +345,7 @@ inline void channel_map_from_array(T* output, int numch, const int* const indice
  * \param [out] output Array containing the values to transform
  * \param [in] numch Number of channels in the output array
  * \param [in] transform Instance of the transformation class (or function)
- * 
+ *
  * Example:
  * \code
  * class LinearCalibrate {
@@ -406,7 +406,7 @@ inline void transform(T& output, TR transform)
 template <class T, class V>
 inline void pedestal_subtract(T& value, const V& variables)
 {
-	if(is_valid(value) == false) return;		
+	if(is_valid(value) == false) return;
 	value -= variables.pedestal; // shift
 }
 
@@ -675,7 +675,7 @@ public:
  * \endcode
  */
 template <class InputIterator>
-typename std::iterator_traits<InputIterator>::value_type 
+typename std::iterator_traits<InputIterator>::value_type
 calculate_mean (InputIterator first, InputIterator last)
 {
 	const typename std::iterator_traits<InputIterator>::value_type init = 0;
@@ -692,7 +692,7 @@ calculate_mean (InputIterator first, InputIterator last)
  * \endcode
  */
 template <class InputIterator, class InputIteratorWeights>
-typename std::iterator_traits<InputIterator>::value_type 
+typename std::iterator_traits<InputIterator>::value_type
 calculate_weighted_mean (InputIterator first, InputIterator last, InputIteratorWeights firstWeight)
 {
 	const typename std::iterator_traits<InputIterator>::value_type init = 0;
@@ -701,7 +701,7 @@ calculate_weighted_mean (InputIterator first, InputIterator last, InputIteratorW
 	return std::accumulate(first, last, init, accumulator);
 }
 
-	
+
 /// Calculate the standard deviation of a range of values
 /*!
  * Uses previously calculated mean value
@@ -714,7 +714,7 @@ calculate_weighted_mean (InputIterator first, InputIterator last, InputIteratorW
  * \endcode
  */
 template <class InputIterator>
-typename std::iterator_traits<InputIterator>::value_type 
+typename std::iterator_traits<InputIterator>::value_type
 calculate_stddev (InputIterator first, InputIterator last, typename std::iterator_traits<InputIterator>::value_type mean)
 {
 	const typename std::iterator_traits<InputIterator>::value_type init = 0;
@@ -732,10 +732,10 @@ calculate_stddev (InputIterator first, InputIterator last, typename std::iterato
  * \endcode
  */
 template <class InputIterator>
-typename std::iterator_traits<InputIterator>::value_type 
+typename std::iterator_traits<InputIterator>::value_type
 calculate_stddev (InputIterator first, InputIterator last)
 {
-	const typename std::iterator_traits<InputIterator>::value_type mean = 
+	const typename std::iterator_traits<InputIterator>::value_type mean =
 		dragon::utils::calculate_mean(first, last);
 	return dragon::utils::calculate_stddev(first, last, mean);
 }

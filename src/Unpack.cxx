@@ -30,7 +30,7 @@ dragon::Unpacker::Unpacker(dragon::Head* head,
 	fHead(head),
 	fTail(tail),
 	fCoinc(coinc),
-  fEpics(epics),
+	fEpics(epics),
 	fHeadScaler(schead),
 	fTailScaler(sctail),
 	fAuxScaler(scaux),
@@ -176,13 +176,13 @@ std::vector<int32_t> dragon::Unpacker::UnpackMidasEvent(void* header, char* data
 			UnpackHeadScaler(event);
 			break;
 		}
-	case DRAGON_TAIL_SCALER:		
+	case DRAGON_TAIL_SCALER:
 		{
 			midas::Event event(header, data, evtHeader->fDataSize);
 			UnpackTailScaler(event);
 			break;
 		}
-	case DRAGON_AUX_SCALER:		
+	case DRAGON_AUX_SCALER:
 		{
 			midas::Event event(header, data, evtHeader->fDataSize);
 			UnpackAuxScaler(event);

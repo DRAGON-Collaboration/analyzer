@@ -44,7 +44,7 @@ public:
 
 bool TAtomicMassTable::CompareNucleus_t::operator()
 	(const Nucleus_t& lhs, const Nucleus_t& rhs) const
-{ 
+{
 	if(lhs.fZ == rhs.fZ)
 		return lhs.fA < rhs.fA;
 	return lhs.fZ < rhs.fZ;
@@ -122,7 +122,7 @@ void TAtomicMassTable::ParseFile(const char* name)
 	std::string line;
 	while(std::getline(ffile, line)) {
 		if(linenum++ < num_headers) // skip headers
-			continue; 
+			continue;
 		Nucleus_t nuc;
 		MassExcess_t me;
 		if(ParseLine(line, &nuc, &me) == false) return;
@@ -189,7 +189,7 @@ bool TAtomicMassTable::ParseLine(const std::string& line, Nucleus_t* nuc, MassEx
 	// mass excess error collumn 10
 	if(me->fExtrapolated)
 		fields[10] = fields[10].substr(0, fields[10].find("#"));
-	me->fError = atof(fields[10].c_str());	
+	me->fError = atof(fields[10].c_str());
 
 	return true;
 }
@@ -210,7 +210,7 @@ double TAtomicMassTable::NuclearMass(int Z, int A) const
 {
 	const MassExcess_t* pmass = GetMassExcess(Z, A);
 	if(!pmass) return 0;
-	
+
 	return pmass->fValue + A*AMU() - Z*ElectronMass();
 }
 
@@ -235,7 +235,7 @@ double TAtomicMassTable::NuclearMass(const char* symbol) const
 {
 	const MassExcess_t* pmass = GetMassExcess(symbol);
 	if(!pmass) return 0;
-	
+
 	const Nucleus_t* nuc = GetNucleus(symbol);
 	if(!nuc) return 0;
 
@@ -320,7 +320,7 @@ double TAtomicMassTable::QValue(const char* beam, const char* target, const char
 }
 
 
-	
+
 
 
 //

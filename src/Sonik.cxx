@@ -65,7 +65,7 @@ bool check_db(const midas::Database* db, const char* cl)
 Sonik::Sonik():
 	variables()
 {
-  /// ::
+	/// ::
 	reset();
 }
 
@@ -106,7 +106,7 @@ void Sonik::calculate()
 	 * Does a linear transformation on each element in \c this->ecal[] using the slopes and offsets
 	 * from variables.adc_slope and variables.adc_offset, respectively. Also calibrates the TDC
 	 * signal; calculates ehit, hit.
- 	 */
+	 */
 	dutils::linear_calibrate(ecal, MAX_CHANNELS, variables.adc);
 
 	dutils::linear_calibrate(thit, variables.tdc);
@@ -195,8 +195,3 @@ bool Sonik::Variables::set(const midas::Database* db)
 
 	return success;
 }
-
-
-
-
-
