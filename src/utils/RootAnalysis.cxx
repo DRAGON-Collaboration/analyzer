@@ -543,7 +543,7 @@ Bool_t dragon::RossumData::OpenFile(const char* filename, Bool_t parse)
 	TString filename2 = filename;
 	Bool_t expand = gSystem->ExpandPathName(filename2);
 	if(!expand)
-		fFile.reset(new ifstream(filename2));
+		fFile.reset(new std::ifstream(filename2));
 	else
 		std::cerr << "Invalid file: " << filename2 << "\n";
 

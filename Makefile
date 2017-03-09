@@ -17,21 +17,18 @@ DEFINITIONS += -DAMEPP_DEFAULT_FILE=\"$(PWD)/src/utils/mass.mas12\"
 DYLIB        = -shared
 FPIC         = -fPIC
 INCFLAGS     = -I/opt/local/include/ -I$(SRC) -I$(CINT)
-
-DEBUG     = -ggdb -O3 -DDEBUG
-#CXXFLAGS = -g -O2 -Wall -Wuninitialized
-CXXFLAGS  = -Wall $(DEBUG) $(INCFLAGS) $(DEFINITIONS)
-CXXFLAGS += -DHAVE_ZLIB
+DEBUG        = -ggdb -O3 -DDEBUG
+#CXXFLAGS   = -g -O2 -Wall -Wuninitialized
+CXXFLAGS     = -Wall $(DEBUG) $(INCFLAGS) $(DEFINITIONS)
+CXXFLAGS    += -DHAVE_ZLIB
 
 ifeq ($(USE_ROOT),YES)
-$(info ************** USE_ROOT **************)
-DEFINITIONS += -DUSE_ROOT
+DEFINITIONS+= -DUSE_ROOT
 ifdef ROOTSYS
 ROOTVERSION := $(shell root-config --version 2>/dev/null)
 ifndef ROOTVERSION
 $(error Could not run root-config program, check your ROOT setup script)
 endif
-
 ROOTLIBS    = $(shell root-config --libs --glibs) -lXMLParser -lThread -lTreePlayer -lSpectrum -lMinuit
 INCFLAGS   += $(shell root-config --cflags --noauxcflags)
 CXXAUXFLAGS = $(shell root-config --auxcflags)
@@ -43,7 +40,7 @@ USE_ROOTBEER = NO
 endif
 
 ifeq ($(USE_MIDAS),YES)
-$(info ************** USE_MIDAS *************)
+$(info ************  USE_MIDAS ************)
 ifdef MIDASSYS
 CXXFLAGS += -DMIDASSYS
 MIDASLIBS = -lmidas -L$(MIDAS_LIB_DIR)
@@ -51,13 +48,14 @@ INCFLAGS += -I$(MIDASSYS)/include
 endif
 endif
 
-UNAME = $(shell uname)
+UNAME=$(shell uname)
+
 ifeq ($(UNAME),Darwin)
 CXXFLAGS += -DOS_LINUX -DOS_DARWIN
 ifdef MIDASSYS
 MIDAS_LIB_DIR = $(MIDASSYS)/darwin/lib
 endif
-DYLIB =-dynamiclib -single_module -undefined dynamic_lookup
+DYLIB = -dynamiclib -single_module -undefined dynamic_lookup
 FPIC  =
 RPATH =
 endif
@@ -70,21 +68,18 @@ MIDASLIBS    += -lm -lz -lutil -lnsl -lrt
 endif
 endif
 
-
 CXX += $(CXXFLAGS) $(CXXAUXFLAGS)
 CC  += $(CXXFLAGS)
-
 LINK = $(CXX) $(ROOTLIBS) $(RPATH) -L$(PWD)/lib
-
 MAKE_DRAGON_DICT =
-DR_DICT =
-DR_DICT_DEP =
+DR_DICT          =
+DR_DICT_DEP      =
+
 ifeq ($(USE_ROOT),YES)
 MAKE_DRAGON_DICT += rootcint -f $@ -c $(CXXFLAGS) -p $(HEADERS) TTree.h $(CINT)/Linkdef.h
 DR_DICT           = $(CINT)/DragonDictionary.cxx
 DR_DICT_DEP       = $(CINT)/DragonDictionary.cxx
 endif
-
 
 #### DRAGON LIBRARY ####
 OBJECTS=										\
@@ -113,10 +108,7 @@ OBJECTS += $(OBJ)/utils/Selectors.o
 OBJECTS += $(OBJ)/utils/Calibration.o
 OBJECTS += $(OBJ)/utils/LinearFitter.o
 endif
-
-
 ## END OBJECTS ##
-
 
 HEADERS=								\
 $(SRC)/midas/*.hxx						\
@@ -126,11 +118,11 @@ $(SRC)/utils/*.hxx						\
 $(SRC)/utils/*.h						\
 $(SRC)/*.hxx
 
-
 ### DRAGON LIBRARY ###
-MID2ROOT_LIBS=-lDragon $(MIDASLIBS)
+MID2ROOT_LIBS = -lDragon $(MIDASLIBS)
 
-MAKE_ALL=$(DRLIB)/libDragon.so $(PWD)/bin/mid2root
+MAKE_ALL = $(DRLIB)/libDragon.so $(PWD)/bin/mid2root
+
 ifeq ($(USE_ROOTBEER),YES)
 $(info ************ USE_ROOTBEER ************)
 MAKE_ALL      += $(PWD)/bin/rbdragon $(PWD)/bin/rbsonik
@@ -138,6 +130,7 @@ DEFINITIONS   += -DUSE_ROOTBEER
 MID2ROOT_LIBS += -L$(PWD)/../../rootbeer/lib -lRootbeer
 MID2ROOT_INC   = $(RBINC)
 endif
+
 ifeq ($(USE_ROOTANA),YES)
 MAKE_ALL += $(PWD)/bin/anaDragon
 endif
@@ -222,7 +215,7 @@ $(CINT)/rootana/CutDict.cxx: $(SRC)/rootana/Cut.hxx $(SRC)/rootana/CutLinkdef.h
 	rootcint -f $@ -c $(CXXFLAGS) $(ROOTANA_FLAGS) -p $(SRC)/rootana/Cut.hxx $(SRC)/rootana/CutLinkdef.h \
 
 $(DRLIB)/libRootanaCut.so: $(CINT)/rootana/CutDict.cxx
-	$(LINK)  $(DYLIB) $(FPIC) $(ROOTANA_FLAGS) $(ROOTANA_DEFS)  \
+	$(LINK)  $(DYLIB) $(FPIC) $(ROOTANA_FLAGS) $(ROOTANA_DEFS) \
 	-o $@ $< \
 
 libRootanaDragon.so: $(DRLIB)/libDragon.so $(CINT)/rootana/Dict.cxx $(DRLIB)/libRootanaCut.so $(ROOTANA_OBJS)
@@ -240,20 +233,11 @@ Dragon: $(OBJ)/Dragon.o
 
 
 ### FOR ROOTBEER ###
-RBINC = -I$(RB_HOME)/src
-
-RB_DRAGON_OBJECTS=					\
-$(OBJ)/rootbeer/rbdragon.o			\
-$(OBJ)/rootbeer/rbdragon_impl.o
-
-RB_SONIK_OBJECTS=				\
-$(OBJ)/rootbeer/rbdragon.o 		\
-$(OBJ)/rootbeer/rbsonik.o  		\
-$(OBJ)/rootbeer/rbsonik_impl.o
-
-RB_HEADERS= $(SRC)/rootbeer/rbdragon.hxx $(SRC)/rootbeer/rbsonik.hxx
-
-RB_DEFS=-DRB_DRAGON_HOMEDIR=$(PWD)
+RBINC             = -I$(RB_HOME)/src
+RB_DRAGON_OBJECTS = $(OBJ)/rootbeer/rbdragon.o  $(OBJ)/rootbeer/rbdragon_impl.o
+RB_SONIK_OBJECTS  = $(OBJ)/rootbeer/rbdragon.o $(OBJ)/rootbeer/rbsonik.o  $(OBJ)/rootbeer/rbsonik_impl.o
+RB_HEADERS        = $(SRC)/rootbeer/rbdragon.hxx $(SRC)/rootbeer/rbsonik.hxx
+RB_DEFS           = -DRB_DRAGON_HOMEDIR=$(PWD)
 
 $(CINT)/rootbeer/rootbeerDict.cxx: $(SRC)/rootbeer/rbsymbols.hxx $(DR_DICT_DEP) $(RB_HOME)/cint/RBDictionary.cxx $(RB_HOME)/cint/MidasDict.cxx
 	rootcint -f $@ -c $(CXXFLAGS) $(RBINC) -p $< $(CINT)/rootbeer/rblinkdef.h \

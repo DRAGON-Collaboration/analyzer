@@ -3,8 +3,7 @@ doc/Doxyfile.bak
 anaDragon
 gmon.out
 *.root
-cint/DragonDictionary.cxx
-cint/DragonDictionary.h
+*Dictionary*
 lib/libDragon.so.dSYM/
 longAttach.dat
 rbeer.log
@@ -28,6 +27,8 @@ doc/.DS_Store
 .DS_Store
 lib/*.dsym
 lib/.*
+lib/*.rootmap
+lib/*.pcm
 .nfs*
 test.xml
 examples/*.d

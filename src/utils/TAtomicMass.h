@@ -49,7 +49,6 @@ public:
 	};
 
 #ifndef DOXYGEN_SKIP
-
 private:
 
 	typedef std::map<Nucleus_t, MassExcess_t, CompareNucleus_t> Map_t;
