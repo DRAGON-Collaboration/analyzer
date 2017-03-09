@@ -471,59 +471,64 @@
 	The method used to match coincidence and singles events is to buffer every incoming event in a queue, sorted by their
 	trigger time values. In practice, this is done using a <a href=http://www.cplusplus.com/reference/set/multiset/>C++
 	standard library multiset</a>, as this container was shown to be the most efficient way in which to order events by
-	their trigger time
-	value. Whenever a new event is placed in the queue, the code checks its current "length" in time, that is, it checks the
-	time difference between the beginning of the queue (the earliest event) and the end of the queue (the latest event). If
-	this time difference is greater than a certain value (user programmable), then the code searches for timestamp matches
-	between the earliest event and all other events in the queue. Note that a "match" does not necessairily mean that the
-	trigger times are exactly the same, as this would imply that the
-	heavy ion and gamma ray were detected at exactly the same time, which is impossible for a real coincidence since the heavy
-	ion must travel for a finite amount of time (~3 @htmlonly &mu;s @endhtmlonly). Thus, we define a "match" as two triggers
-	whose time difference is within a programmable time window. Typically, this window is made significantly larger than the
-	time difference of a true coincidence (~10 @htmlonly &mu;s @endhtmlonly), and further refinements can be made later by
-	putting cuts on the data.
+	their trigger time value. Whenever a new event is placed in the queue, the code checks its current "length" in time, 
+	that is, it checks the time difference between the beginning of the queue (the earliest event) and the end of the 
+	queue (the latest event). If this time difference is greater than a certain value (user programmable), then the code 
+	searches for timestamp matches between the earliest event and all other events in the queue. Note that a "match" does 
+	not necessairily mean that the trigger times are exactly the same, as this would imply that the heavy ion and gamma 
+	ray were detected at exactly the same time, which is impossible for a real coincidence since the heavy ion must 
+	travel for a finite amount of time (~3 @htmlonly &mu;s @endhtmlonly). Thus, we define a "match" as two triggers whose 
+	time difference is within a programmable time window. Typically, this window is made significantly larger than the 
+	time difference of a true coincidence (~10 @htmlonly &mu;s @endhtmlonly), and further refinements can be made later 
+	by putting gates on the data.
 
 	\n
 	\image html tsmatch.png
 	\n
 
 	If a match is found, then the two events are analyzed as
-	coincidences, and the earliest event is removed from the queue. If no match is found, the earliest event is analyzed as
-	a singles event and then removed from the queue. As long as the maximum time difference is set large enough to cover any
-	"spread" in the arrival times, this algorithm should guarantee that every coincidence is flagged as such.	
-
-	
+	coincidences, and the earliest event is removed from the queue. If no match is found, the earliest event is analyzed 
+	as a singles event and then removed from the queue. As long as the maximum time difference is set large enough to 
+	cover any "spread" in the arrival times, this algorithm should guarantee that every coincidence is flagged as such.	
 
 	\n\n
 	\section installation Installation
 
 	This section gives an overwiew of how to obtain and install the latest version of the DRAGON data analysis
-	package.
+	package. These instructions assume that you will install the dragon analyzer package in 
+	<code>~/packages/dragon</code>. If not, it will be necessary to alter the environment variables given below 
+	accordingly. 
 	
 	\subsection dependencies Dependencies
 	For the "core" functionality, all that you will need is a working C++ compiler; there is no dependence on
 	any third-party libraries. However, you will likely want to make use of the analysis package in ROOT, in
 	which case you will need a fairly recent installation of ROOT on your system. For instructions on installing
 	ROOT, go <a href="http://root.cern.ch/drupal/content/downloading-root">here</a>. It is suggested that you install
-	a relatively recent version of ROOT (say, >= 5.30) to ensure combatibilty between the ROOT release and the
-	package code. You will also need to be sure that the $ROOTSYS environment variable is set and that $ROOTSYS/bin
-	is in your search path.
+	a relatively recent version of ROOT (say, &ge; 5.30) to ensure combatibilty between the ROOT release and the
+	package code. You will also need to be sure that the <code>$ROOTSYS</code> environment variable is set and that 
+	<code>$ROOTSYS/bin</code> is in your search path.
 
-	The optional rootbeer or rootana extensions each require ROOT to be installed
-	(and, of course, the rootana and/or rootbeer packages themselves). To look at _online_ data, you will
-	need MIDAS installed, and, if using the rootana system,
-	<a href=https://daq-plone.triumf.ca/SR/ROODY>roody</a> is required for online histogram viewing.
+	\note
+	The DRAGON analyzer package is not yet compatible with <code>ROOT6</code> (but we are working on it), so the 
+	following instructions only apply to ROOT installations &le; 5.34.36 (the latest release of ROOT version 5 as of 
+	January 2017). - D.C.
+	\endnote
+
+	The optional rootbeer or rootana extensions each require ROOT to be installed (and, of course, the rootana and/or 
+	rootbeer packages themselves). To look at _online_ data, you will need MIDAS installed, and, if using the rootana 
+	system, <a href=https://daq-plone.triumf.ca/SR/ROODY>roody</a> is required for online histogram viewing.
 
 	\subsection download Download and Compile
 
 	You can obtain the analysis package from the git repository as follows:
 	\code
+	cd ~/packages/dragon
 	git clone https://github.com/dragontriumf/analyzer
 	\endcode
 	If you don't have git installed or prefer to just get a tarball, then visit https://github.com/dragontriumf/analyzer,
-	click on the <a href=https://github.com/dragontriumf/analyzer/releases>releases</a> link and select the latest release
-	(or an earlier one if you have reason to do so). Click on either the "zip" or the "tar.gz" link to download a zip file
-	or a tarball containing the code.
+	click on the <a href=https://github.com/dragontriumf/analyzer/releases>releases</a> link and select the latest 
+	release (or an earlier one if you have reason to do so). Click on either the "zip" or the "tar.gz" link to download a
+	zip file or a tarball containing the code.
 
 	Once you have the package, you'll need to run a quick configure script before compiling. To see a list of options:
 	\code
@@ -541,61 +546,75 @@
 	\endcode
 
 	At this point,
-	compilation _should_ be as simple as typing `make`. If not, please let me (G.C.) know, and
-	we can try to fix the problem permanently so others don't run into it.
+	compilation _should_ be as simple as typing `make`. If not, please let me (G.C. or 
+	<a href="mailto:dconnolly@triumf.ca">D.C.</a>) know, and we can try to fix the problem permanently so others don't 
+	run into it.
 
-  Compilation creates a shared library `lib/libDragon.so`
+  Compilation creates a shared library `lib/libDragon.so` (and `lib/libDragon.so.dSYM` if installed on a Mac)
 	as well as an executable `bin/mid2root`. The executable lets you convert MIDAS files into ROOT trees. The library can
-	be loaded into a ROOT session by doing the following:
+	be loaded into an interactive ROOT session by issuing the following commands:
 	\code
 	.include ~/packages/dragon/analyzer/src
 	gSystem->Load("~/packages/dragon/analyzer/lib/libDragon.so");
 	\endcode
 
-	It is suggested that you add these lines to your root logon script if you have one. If you don't, create the file
-	`~/.rootlogon.C` and include the above lines in it.
-	This will give you access to all of the classes and functions in the software package from within a ROOT session or macro.
+	It is suggested that you add the appropriate lines to your root logon script if you have one. If you don't, the
+	<a href="https://root.cern.ch/root/htmldoc/guides/users-guide/ROOTUsersGuide.html#environment-setup">proper</a> way 
+	to setup your root environment is to create a file entitled <code>rootlogon.C</code> in a sensible place (such as 
+	<code>~/packages/root/macros</code>) and include the following lines in it:
+	\code
+	gInterpreter->AddIncludePath(gSystem->ExpandPathName("{$HOME}/packages/dragon/analyzer/src"));
+	gSystem->Load("${HOME}/packages/dragon/analyzer/lib/libDragon.so");
+	\endcode
 
+	Then create the file <code>~/.rootrc</code> and include the following line in it:
+	\code
+	Rint.Logon: path/to/your/rootlogon.C
+	\endcode
+
+	This will give you access to all of the dragon classes and functions in the software package from within a ROOT 
+	session or macro.
 
 	If you are using git and want to stay on top of new releases, just do:
 	\code
 	git pull https://github.com/dragontriumf/analyzer master --tags
 	\endcode
 
-	This gets you all of the new code since your last pull (or the initial clone). Note that we've started using a versioning
-	system than goes as such: vMAJOR.MINOR.PATCH, where a MAJOR version change indicates a new set of _non backwards compatible_
-	changes. MINOR indicates a feature addition that is still backwards compatible, and PATCH indicates a bigfix or other small
-	change that is backwards compatible.
+	This gets you all of the new code since your last pull (or the initial clone). Note that we've started using a 
+	versioning system than goes as such: vMAJOR.MINOR.PATCH, where a MAJOR version change indicates a new set of _non 
+	backwards compatible_ changes. MINOR indicates a feature addition that is still backwards compatible, and PATCH 
+	indicates a bugfix or other small change that is backwards compatible.
 
 	\subsection pyext Python Extension
 
-	NOTE: I have not kept up with maintaining the python extension in quite a while and it is not a 
+	\note 
+	I have not kept up with maintaining the python extension in quite a while and it is not a 
 	priority for me to do so. Really, it was just a "fun" project to play around with using `Py++` and 
 	`boost::python`. But it shouldn't take too much to get it running again if anyone is interested...
+	\endnote
 
 	If you wish to compile or use the optional (and somewhat experimental) python extension, you will first
-	need to install the boost::python library. For information on this, see:
-	<a href=http://www.boost.org/doc/libs/1_51_0/libs/python/doc/>http://www.boost.org/doc/libs/1_51_0/libs/python/doc/</a>.
-	The python libraries rely on code generated by <a href=http://sourceforge.net/scm/?type=svn&group_id=118209>Py++</a>,
-	which parses the source files and generates code to be compiled into the python libraries. It should not be necessary
-	to generate the source code yourself using Py++, as long as the repository is kept up-to-date; however, if you make
-	changes to the dragon analyzer sources, re-generation of the Py++ sources will be necessary in order to safely use
-	the python libraries.
+	need to install the boost::python library. For information on this, see: <a href=http://www.boost.org/doc/libs/1_51_0/libs/python/doc/>http://www.boost.org/doc/libs/1_51_0/libs/python/doc/</a>. The python libraries rely on code generated 
+	by <a href=http://sourceforge.net/scm/?type=svn&group_id=118209>Py++</a>, which parses the source files and generates 
+	code to be compiled into the python libraries. It should not be necessary to generate the source code yourself using 
+	Py++, as long as the repository is kept up-to-date; however, if you make changes to the dragon analyzer sources, 
+	re-generation of the Py++ sources will be necessary in order to safely use the python libraries.
 
 	To compile the python extension, simply cd into the py++ directory and type `make`, _after_ having compiled
 	the core dragon library. To be able to use the extensions from any directory, add the following to your bash
 	startup script:
-
-      export PYTHONPATH=${PYTHONPATH}:"/path/to/your/dragon/analyzer/py++/"
-			export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:"/path/to/your/dragon/analyzer/py++/"
+	\code
+	export PYTHONPATH=${PYTHONPATH}:"/path/to/your/dragon/analyzer/py++/"
+	export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:"/path/to/your/dragon/analyzer/py++/"
+	\endcode
 
 	and re-start your bash session or re-source the startup script. Now from a python session or script, you
 	can load the generated modules:
-
-      import midas
-			import vme
-			import dragon
-
+	\code
+	import midas
+	import vme
+	import dragon
+	\endcode
 
 	You can use the python 'help' function (`help dragon`, etc) to see the classes and functions
 	available in each module.
@@ -818,7 +837,7 @@
 	\endcode
 	if running locally from the back-end host, or
 	\code
-  roody -Pdraco.triumf.ca:9091
+  roody -Pdaenerys.triumf.ca:9091
 	\endcode
 	if running remotely.
 
