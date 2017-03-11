@@ -18,25 +18,25 @@ namespace dragon {
  *  \note Future developers: if more constnats are needed, please extend this file rather than hard-coding in your source files.
  *
  *  \note All values taken from 2014 CODATA values:
- *  <a href="http://physics.nist.gov/cuu/Constants/index.html">http://physics.nist.gov/cuu/Constants/index.html</a>.
+ *  <a href="http://physics.nist.gov/cuu/Constants/index.html">http://physics.nist.gov/cuu/Constants/index.html</a>
  *  These values should be updated in 2018 when the CODATA values are adjusted to adhere to the
  *  <a href="http://www.bipm.org/en/news/full-stories/2015-01/si-roadmap.html">revision of the International System of Units (SI)</a>.
  *
  *	\todo
- *  consider adding functionality (similar to TAtomicMassTable::ParseFile ) to read and parse a
+ *  consider adding functionality (similar to dragon::TAtomicMassTable::ParseFile ) to read and parse a
  *  <a href="http://physics.nist.gov/cuu/Constants/Table/allascii.txt">text file</a> containing physical constant data.
  */
 
 class Constants {
 public:
 
-	/// Avogadro's number 6.022140857(74)e23 mol^-1
+	/// Avogadro's number 6.022140857(74)e23 mol<sup>-1</sup>
 	static const double Avogadro()   { return 6.022140857e23; }
 
-	/// AMU in MeV/c^2
+	/// AMU in MeV / c<sup>2</sup>
 	static const double AMU()        { return 931.4940954; }
 
-	/// AMU uncertainty in MeV/c^2
+	/// AMU uncertainty in MeV / c<sup>2</sup>
 	static const double AMUUnc()     { return 0.0000057; }
 
 	/// AMU in kilograms
@@ -49,12 +49,12 @@ public:
 	static const double AlphaUnc() { return 0.0000000017e-3; }
 
 	/// Bohr radius in m 0.52917721067(12)
-	static const double BohrR() { return 0.52917721067e-10; }
+	static const double RohrR() { return 0.52917721067e-10; }
 
 	/// Bohr radius uncertainty
-	static const double BohrRUnc() { return 0.00000000012e-10; }
+	static const double RohrRUnc() { return 0.00000000012e-10; }
 
-	/// Boltzmann constant in eV K^-1
+	/// Boltzmann constant in eV K<sup>-1</sup>
 	static const double Boltzmann() { return 8.6173303e-5; }
 
 	/// Boltzmann constant uncertainty
@@ -69,25 +69,25 @@ public:
 	/// Electron charge squared in MeV*fm
 	static const double QeSquared() { return Alpha()*HbarC(); }
 
-	/// Electron mass in MeV/c^2 0.5109989461(31)
+	/// Electron mass in MeV / c<sup>2</sup> 0.5109989461(31)
 	static const double ElectronMass() { return 0.5109989461; }
 
 	/// Electron mass uncertainty
 	static const double EMassUnc() { return 0.0000000031; }
 
-	/// Vacuum permittivity F*m^-1
-	static const double Eps0() { return 1/(pow(TMath::C(),2)*Mu0()) }
+	/// Epsilon naught
+	static const double Eps0() { return 1/(pow(TMath::C(),2)*Mu0())*ElectronCharge()*1e-9; }
 
-	/// Hbar*c 197.3269788(12) MeV*fm
+	/// hbar*c 197.3269788(12) MeV*fm
 	static const double HbarC() { return 197.3269788; }
 
 	/// Hbar*c uncertainty
 	static const double HbarCUnc() { return 0.0000012; }
 
-	/// vacuum permeability N*A^{-2}
+	/// vacuum permeability N*A<sup>-2</sup>
 	static const double Mu0() { return 4*TMath::Pi()*1e-7; }
 
-	/// Loschmidt constant at 273.15 K and 101.325 kPa 2.6867811(15)e19 cm^-3
+	/// Loschmidt constant at 273.15 K and 101.325 kPa 2.6867811(15)e19 cm<sup>-3</sup>
 	static const double Losch() { return 2.6867811e19; }
 
 	/// Loschmidt constant uncertainty
@@ -101,6 +101,6 @@ public:
 
 };
 
-}
+} //namespace dragon
 
 #endif
