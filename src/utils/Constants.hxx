@@ -1,8 +1,6 @@
 ///
 /// \file Constants.hxx
 /// \brief Defines some useful physical constants
-/// \note Future developers: if more constnats are needed, please extend this file rather than
-///  hard-coding in your source files.
 ///
 #ifndef DRAGON_CONSTANTS_HXX
 #define DRAGON_CONSTANTS_HXX
@@ -17,13 +15,15 @@ namespace dragon {
  *  \code
  *  std::cout << "The electron charge in coulombs is: " << dragon::Constants::ElectronCharge() << "\n";
  *  \endcode
+ *  \note Future developers: if more constnats are needed, please extend this file rather than hard-coding in your source files.
+ *
  *  \note All values taken from 2014 CODATA values:
- *  <a href="http://physics.nist.gov/cuu/Constants/index.html">http://physics.nist.gov/cuu/Constants/index.html</a>
+ *  <a href="http://physics.nist.gov/cuu/Constants/index.html">http://physics.nist.gov/cuu/Constants/index.html</a>.
  *  These values should be updated in 2018 when the CODATA values are adjusted to adhere to the
  *  <a href="http://www.bipm.org/en/news/full-stories/2015-01/si-roadmap.html">revision of the International System of Units (SI)</a>.
  *
  *	\todo
- *  consider adding functionality (similar to dragon::TAtomicMassTable::ParseFile ) to read and parse a
+ *  consider adding functionality (similar to TAtomicMassTable::ParseFile ) to read and parse a
  *  <a href="http://physics.nist.gov/cuu/Constants/Table/allascii.txt">text file</a> containing physical constant data.
  */
 
@@ -49,10 +49,10 @@ public:
 	static const double AlphaUnc() { return 0.0000000017e-3; }
 
 	/// Bohr radius in m 0.52917721067(12)
-	static const double RohrR() { return 0.52917721067e-10; }
+	static const double BohrR() { return 0.52917721067e-10; }
 
 	/// Bohr radius uncertainty
-	static const double RohrRUnc() { return 0.00000000012e-10; }
+	static const double BohrRUnc() { return 0.00000000012e-10; }
 
 	/// Boltzmann constant in eV K^-1
 	static const double Boltzmann() { return 8.6173303e-5; }
@@ -75,8 +75,8 @@ public:
 	/// Electron mass uncertainty
 	static const double EMassUnc() { return 0.0000000031; }
 
-	/// Epsilon naught
-	static const double Eps0() { return 1/(pow(TMath::C(),2)*Mu0())*ElectronCharge()*1e-9; }
+	/// Vacuum permittivity F*m^-1
+	static const double Eps0() { return 1/(pow(TMath::C(),2)*Mu0()) }
 
 	/// Hbar*c 197.3269788(12) MeV*fm
 	static const double HbarC() { return 197.3269788; }

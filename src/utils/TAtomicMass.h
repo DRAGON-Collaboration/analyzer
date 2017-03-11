@@ -133,7 +133,9 @@ public:
 	static double ElectronMass() { return 510.998910; } // keV/c^2
 
 private:
+	/// Parses the file defined by <code>file</code> (default <code>AMEPP_DEFAULT_FILE=\"${DRAGONSYS}/src/utils/mass.mas12\"</code>).
 	void ParseFile(const char* = 0);
+	/// Parses line <code>line</code> of <code>file</code>
 	bool ParseLine(const std::string&, Nucleus_t*, MassExcess_t*) const;
 
 private:
