@@ -1,5 +1,7 @@
 ///
 /// \file Constants.hxx
+/// \author G. Christian
+/// \author D. Connolly
 /// \brief Defines some useful physical constants
 ///
 #ifndef DRAGON_CONSTANTS_HXX
@@ -15,6 +17,7 @@ namespace dragon {
  *  \code
  *  std::cout << "The electron charge in coulombs is: " << dragon::Constants::ElectronCharge() << "\n";
  *  \endcode
+ *
  *  \note Future developers: if more constnats are needed, please extend this file rather than hard-coding in your source files.
  *
  *  \note All values taken from 2014 CODATA values:
@@ -23,7 +26,7 @@ namespace dragon {
  *  <a href="http://www.bipm.org/en/news/full-stories/2015-01/si-roadmap.html">revision of the International System of Units (SI)</a>.
  *
  *	\todo
- *  consider adding functionality (similar to dragon::TAtomicMassTable::ParseFile ) to read and parse a
+ *  consider adding functionality (similar to TAtomicMassTable::ParseFile ) to read and parse a
  *  <a href="http://physics.nist.gov/cuu/Constants/Table/allascii.txt">text file</a> containing physical constant data.
  */
 
