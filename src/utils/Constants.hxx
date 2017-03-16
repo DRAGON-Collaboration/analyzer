@@ -18,7 +18,7 @@ namespace dragon {
  *  std::cout << "The electron charge in coulombs is: " << dragon::Constants::ElectronCharge() << "\n";
  *  \endcode
  *
- *  \note Future developers: if more constnats are needed, please extend this file rather than hard-coding in your source files.
+ *  \attention Future developers: if more constnats are needed, please extend this file rather than hard-coding in your source files.
  *
  *  \note All values taken from 2014 CODATA values:
  *  <a href="http://physics.nist.gov/cuu/Constants/index.html">http://physics.nist.gov/cuu/Constants/index.html</a>
@@ -36,14 +36,20 @@ public:
 	/// Avogadro's number 6.022140857(74)e23 mol<sup>-1</sup>
 	static const double Avogadro()   { return 6.022140857e23; }
 
-	/// AMU in MeV / c<sup>2</sup>
+	/// Avogadro uncertainty (mol<sup>-1</sup>)
+	static const double AvogadroUnc()   { return 0.000000074e23; }
+
+	/// atomic mass unit (energy equivalent) 931.4940954(57) MeV c<sup>-2</sup>
 	static const double AMU()        { return 931.4940954; }
 
-	/// AMU uncertainty in MeV / c<sup>2</sup>
+	/// atomic mass unit (energy equivalent) uncertainty (in MeV c<sup>-2</sup>)
 	static const double AMUUnc()     { return 0.0000057; }
 
-	/// AMU in kilograms
+	/// atomic mass unit 1.660539040(20) kg
 	static const double AMUkg() { return 1.660538921e-27; }
+
+	/// atomic mass unit uncertainty (in kg)
+	static const double AMUkgUnc() { return 0.000000020e-27; }
 
 	/// fine structure constant 7.2973525664(17)e-3
 	static const double Alpha() { return 7.2973525664e-3; }
@@ -57,13 +63,13 @@ public:
 	/// Bohr radius uncertainty
 	static const double RohrRUnc() { return 0.00000000012e-10; }
 
-	/// Boltzmann constant in eV K<sup>-1</sup>
+	/// Boltzmann constant 8.6173303(50)e-5 eV K<sup>-1</sup>
 	static const double Boltzmann() { return 8.6173303e-5; }
 
 	/// Boltzmann constant uncertainty
 	static const double BoltzUnc() { return 0.0000050e-5; }
 
-	/// Electron charge in A*s \note Implemented in ROOT's TMath::Qe(), but its value is outdated
+	/// Electron charge 1.6021766208(98)e-19 A*s \note Implemented in ROOT's TMath::Qe(), but its value is outdated.
 	static const double ElectronCharge() { return 1.6021766208e-19; }
 
 	/// Electron charge uncertainty
@@ -78,8 +84,8 @@ public:
 	/// Electron mass uncertainty
 	static const double EMassUnc() { return 0.0000000031; }
 
-	/// Epsilon naught
-	static const double Eps0() { return 1/(pow(TMath::C(),2)*Mu0())*ElectronCharge()*1e-9; }
+	/// Vacuum permittivity F*m<sup>-1</sup>
+	static const double Eps0() { return 1 / ( Mu0*pow(TMath::C(),2) ); }
 
 	/// hbar*c 197.3269788(12) MeV*fm
 	static const double HbarC() { return 197.3269788; }
