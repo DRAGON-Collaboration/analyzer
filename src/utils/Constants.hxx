@@ -85,7 +85,7 @@ public:
 	static const double EMassUnc() { return 0.0000000031; }
 
 	/// Vacuum permittivity F*m<sup>-1</sup>
-	static const double Eps0() { return 1 / ( Mu0*pow(TMath::C(),2) ); }
+	static const double Eps0() { return 1 / ( Mu0()*pow(TMath::C(),2) ); }
 
 	/// hbar*c 197.3269788(12) MeV*fm
 	static const double HbarC() { return 197.3269788; }
