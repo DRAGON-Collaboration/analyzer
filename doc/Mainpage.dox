@@ -509,7 +509,7 @@
 	<code>$ROOTSYS/bin</code> is in your search path.
 
 	\note
-	The DRAGON analyzer package is not yet compatible with <code>ROOT6</code> (but we are working on it), so the 
+	The DRAGON analyzer package is not yet compatible with <code>ROOT6</code> (but I am working on it), so the 
 	following instructions only apply to ROOT installations &le; 5.34.36 (the latest release of ROOT version 5 as of 
 	January 2017). - D.C.
 	\endnote
@@ -521,64 +521,80 @@
 	\subsection download Download and Compile
 
 	You can obtain the analysis package from the git repository as follows:
-	\code
+	\verbatim
 	cd ~/packages/dragon
 	git clone https://github.com/dragontriumf/analyzer
-	\endcode
+	\endverbatim
 	If you don't have git installed or prefer to just get a tarball, then visit https://github.com/dragontriumf/analyzer,
 	click on the <a href=https://github.com/dragontriumf/analyzer/releases>releases</a> link and select the latest 
 	release (or an earlier one if you have reason to do so). Click on either the "zip" or the "tar.gz" link to download a
 	zip file or a tarball containing the code.
 
 	Once you have the package, you'll need to run a quick configure script before compiling. To see a list of options:
-	\code
+	\verbatim
 	./configure --help
-	\endcode
+	\endverbatim
 	
 	In most cases, you can just run
-	\code
+	\verbatim
 	./configure
-	\endcode
+	\endverbatim
 
-	with no arguments, unless you want to use rootbeer for gui-based offline analysis, in which run
-	\code
+	with no arguments, unless you want to use rootbeer for gui-based offline analysis, in which case, run
+	\verbatim
 	./configure --with-rootbeer
-	\endcode
+	\endverbatim
 
-	At this point,
-	compilation _should_ be as simple as typing `make`. If not, please let me (G.C. or 
+	At this point, compilation _should_ be as simple as typing `make`. If not, please let me (G.C. or 
 	<a href="mailto:dconnolly@triumf.ca">D.C.</a>) know, and we can try to fix the problem permanently so others don't 
 	run into it.
+
+	\attention <b>Mac users:</b> <code>rootcint</code> stalls at a <code>rootcint</code> prompt when compiling the 
+	DragonDictionary files (as illustrated in the terminal output below):
+	\verbatim
+	# /Users/devin/packages/root/v5-34-36/cint/cint/include/iostream.h
+	463  G__CINT_IOFLAGS::G__CINT_IOFLAGS(int f = 0, int m = 0): flag(f), mask(m) {}
+	# /Users/devin/packages/root/v5-34-36/cint/cint/include/iostream.h   ;
+	!!!Calling constructor (basic_ostream<char,char_traits<char> >(0)) 0xffffffffffffffff for declaration of NullStream
+	/Users/devin/packages/root/git_root/cint/cint/src/decl.cxx:2218
+
+	!!!Constructor returned (basic_ostream<char,char_traits<char> >(0)) 0x0 for declaration of NullStream
+	/Users/devin/packages/root/git_root/cint/cint/src/decl.cxx:2247
+
+	rootcint> 
+	\endverbatim
+	Typing <code>.q</code> and pressing <code>\<RETURN\></code> \em should allow compilation to continue without 
+	further interruption.
 
   Compilation creates a shared library `lib/libDragon.so` (and `lib/libDragon.so.dSYM` if installed on a Mac)
 	as well as an executable `bin/mid2root`. The executable lets you convert MIDAS files into ROOT trees. The library can
 	be loaded into an interactive ROOT session by issuing the following commands:
-	\code
+	\verbatim
 	.include ~/packages/dragon/analyzer/src
 	gSystem->Load("~/packages/dragon/analyzer/lib/libDragon.so");
-	\endcode
+	\endverbatim
 
 	It is suggested that you add the appropriate lines to your root logon script if you have one. If you don't, the
 	<a href="https://root.cern.ch/root/htmldoc/guides/users-guide/ROOTUsersGuide.html#environment-setup">proper</a> way 
 	to setup your root environment is to create a file entitled <code>rootlogon.C</code> in a sensible place (such as 
 	<code>~/packages/root/macros</code>) and include the following lines in it:
-	\code
+	\verbatim
 	gInterpreter->AddIncludePath(gSystem->ExpandPathName("{$HOME}/packages/dragon/analyzer/src"));
 	gSystem->Load("${HOME}/packages/dragon/analyzer/lib/libDragon.so");
-	\endcode
+	\endverbatim
 
 	Then create the file <code>~/.rootrc</code> and include the following line in it:
-	\code
+	\verbatim
 	Rint.Logon: path/to/your/rootlogon.C
-	\endcode
+	\endverbatim
 
 	This will give you access to all of the dragon classes and functions in the software package from within a ROOT 
 	session or macro.
 
 	If you are using git and want to stay on top of new releases, just do:
-	\code
+	\verbatim
 	git pull https://github.com/dragontriumf/analyzer master --tags
-	\endcode
+	\endverbatim
 
 	This gets you all of the new code since your last pull (or the initial clone). Note that we've started using a 
 	versioning system than goes as such: vMAJOR.MINOR.PATCH, where a MAJOR version change indicates a new set of _non 
