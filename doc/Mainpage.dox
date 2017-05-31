@@ -526,10 +526,11 @@
 	You can obtain the analysis package from the git repository as follows:
 	\verbatim
 	cd ~/packages/dragon
-	git clone https://github.com/dragontriumf/analyzer
+	git clone https://github.com/DRAGON-Collaboration/analyzer.git
 	\endverbatim
-	If you don't have git installed or prefer to just get a tarball, then visit https://github.com/dragontriumf/analyzer,
-	click on the <a href=https://github.com/dragontriumf/analyzer/releases>releases</a> link and select the latest 
+	If you don't have git installed or prefer to just get a
+	tarball, then visit <a href=https://github.com/DRAGON-Collaboration/analyzer>https://github.com/DRAGON-Collaboration/analyzer</a>,
+	click on the <a href=https://github.com/DRAGON-Collaboration/analyzer/releases>releases</a> link and select the latest 
 	release (or an earlier one if you have reason to do so). Click on either the "zip" or the "tar.gz" link to download a
 	zip file or a tarball containing the code.
 
