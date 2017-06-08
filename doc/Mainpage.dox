@@ -553,23 +553,6 @@
 	<a href="mailto:dconnolly@triumf.ca">D.C.</a>) know, and we can try to fix the problem permanently so others don't 
 	run into it.
 
-	\attention <b>Mac users:</b> <code>rootcint</code> stalls at a <code>rootcint</code> prompt when compiling the 
-	DragonDictionary files (as illustrated in the terminal output below):
-	\verbatim
-	# /Users/devin/packages/root/v5-34-36/cint/cint/include/iostream.h
-	463  G__CINT_IOFLAGS::G__CINT_IOFLAGS(int f = 0, int m = 0): flag(f), mask(m) {}
-	# /Users/devin/packages/root/v5-34-36/cint/cint/include/iostream.h   ;
-	!!!Calling constructor (basic_ostream<char,char_traits<char> >(0)) 0xffffffffffffffff for declaration of NullStream
-	/Users/devin/packages/root/git_root/cint/cint/src/decl.cxx:2218
-
-	!!!Constructor returned (basic_ostream<char,char_traits<char> >(0)) 0x0 for declaration of NullStream
-	/Users/devin/packages/root/git_root/cint/cint/src/decl.cxx:2247
-
-	rootcint> 
-	\endverbatim
-	Typing <code>.q</code> and pressing <code>\<RETURN\></code> \em should allow compilation to continue without 
-	further interruption.
-
   Compilation creates a shared library `lib/libDragon.so` (and `lib/libDragon.so.dSYM` if installed on a Mac)
 	as well as an executable `bin/mid2root`. The executable lets you convert MIDAS files into ROOT trees. The library can
 	be loaded into an interactive ROOT session by issuing the following commands:
