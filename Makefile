@@ -30,7 +30,7 @@ ifndef ROOTVERSION
 $(error Could not run root-config program, check your ROOT setup script)
 endif
 ROOTLIBS    = $(shell root-config --libs --glibs) -lXMLParser -lThread -lTreePlayer -lSpectrum -lMinuit
-INCFLAGS   += $(shell root-config --cflags --noauxcflags)
+INCFLAGS   += $(shell root-config --noauxcflags --cflags)
 CXXAUXFLAGS = $(shell root-config --auxcflags)
 else
 $(error USE_ROOT set to true but ROOTSYS environment variable is not set.)
@@ -69,7 +69,7 @@ endif
 endif
 
 CXX += $(CXXFLAGS) $(CXXAUXFLAGS)
-CC  += $(CXXFLAGS)
+CC  += $(filterout -std=c++11,$(CXXFLAGS))
 LINK = $(CXX) $(ROOTLIBS) $(RPATH) -L$(PWD)/lib
 MAKE_DRAGON_DICT =
 DR_DICT          =
