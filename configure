@@ -35,7 +35,7 @@ USE_ROOTANA=NO
 USE_ROOTBEER=NO
 USE_MIDAS=NO
 
-if [ $HOSTNAME == smaug.triumf.ca ]; then
+if [ $HOSTNAME == 'smaug.triumf.ca' ] || [ $HOSTNAME == 'daenerys.triumf.ca' ]; then
     USE_ROOT=YES
     USE_ROOTANA=NO
     USE_ROOTBEER=YES
@@ -49,8 +49,8 @@ OMIT_NAI=0
 OMIT_GE=0
 
 RB_HOME="\$(HOME)/packages/rootbeer"
-CC=cc
-CXX=c++
+CC=clang
+CXX=clang++
 
 UNAME=`uname -a | awk '{print $1}'`
 

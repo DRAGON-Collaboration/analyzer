@@ -29,9 +29,9 @@ ROOTVERSION := $(shell root-config --version 2>/dev/null)
 ifndef ROOTVERSION
 $(error Could not run root-config program, check your ROOT setup script)
 endif
-ROOTLIBS    = $(shell root-config --libs --glibs) -lXMLParser -lThread -lTreePlayer -lSpectrum -lMinuit
-INCFLAGS   += $(shell root-config --noauxcflags --cflags)
-CXXAUXFLAGS = $(shell root-config --auxcflags)
+ROOTLIBS  = $(shell root-config --libs) -lXMLParser -lTreePlayer -lSpectrum -lMinuit
+ROOTGLIBS = $(shell root-config --glibs) -lXMLParser -lTreePlayer -lSpectrum -lMinuit
+ROOTFLAGS = $(shell root-config --noauxcflags --cflags)
 else
 $(error USE_ROOT set to true but ROOTSYS environment variable is not set.)
 endif
@@ -68,15 +68,20 @@ MIDASLIBS    += -lm -lz -lutil -lnsl -lrt
 endif
 endif
 
-CXX += $(CXXFLAGS) $(CXXAUXFLAGS)
-CC  += $(filterout -std=c++11,$(CXXFLAGS))
-LINK = $(CXX) $(ROOTLIBS) $(RPATH) -L$(PWD)/lib
+CINTFLAGS  = $(CXXFLAGS)
+CINTFLAGS += $(INCFLAGS)
+CXXFLAGS  += $(ROOTFLAGS)
+
+CXX      += $(CXXFLAGS)
+CC       += $(filterout -std=c++11,$(CXXFLAGS))
+LINK      = $(CXX) $(ROOTGLIBS) $(RPATH) -L$(PWD)/lib
+
 MAKE_DRAGON_DICT =
 DR_DICT          =
 DR_DICT_DEP      =
 
 ifeq ($(USE_ROOT),YES)
-MAKE_DRAGON_DICT += rootcint -f $@ -c $(CXXFLAGS) -p $(HEADERS) TTree.h $(CINT)/Linkdef.h
+MAKE_DRAGON_DICT += rootcint -f $@ -c $(CINTFLAGS) -p $(HEADERS) TTree.h $(CINT)/Linkdef.h
 DR_DICT           = $(CINT)/DragonDictionary.cxx
 DR_DICT_DEP       = $(CINT)/DragonDictionary.cxx
 endif
@@ -209,10 +214,10 @@ ROOTANA_HEADERS = $(SRC)/rootana/Globals.h $(SRC)/rootana/*.hxx
 ROOTANA_LIBS = -lrootana -lNetDirectory -L$(HOME)/usr/packages/rootana/libNetDirectory/ -L$(HOME)/usr/packages/rootana/lib
 
 $(CINT)/rootana/Dict.cxx: $(ROOTANA_HEADERS) $(SRC)/rootana/Linkdef.h $(CINT)/DragonDictionary.cxx
-	rootcint -f $@ -c $(CXXFLAGS) $(ROOTANA_FLAGS) -p $(ROOTANA_HEADERS) $(SRC)/rootana/Linkdef.h \
+	rootcint -f $@ -c $(CINTFLAGS) $(ROOTANA_FLAGS) -p $(ROOTANA_HEADERS) $(SRC)/rootana/Linkdef.h \
 
 $(CINT)/rootana/CutDict.cxx: $(SRC)/rootana/Cut.hxx $(SRC)/rootana/CutLinkdef.h
-	rootcint -f $@ -c $(CXXFLAGS) $(ROOTANA_FLAGS) -p $(SRC)/rootana/Cut.hxx $(SRC)/rootana/CutLinkdef.h \
+	rootcint -f $@ -c $(CINTFLAGS) $(ROOTANA_FLAGS) -p $(SRC)/rootana/Cut.hxx $(SRC)/rootana/CutLinkdef.h \
 
 $(DRLIB)/libRootanaCut.so: $(CINT)/rootana/CutDict.cxx
 	$(LINK)  $(DYLIB) $(FPIC) $(ROOTANA_FLAGS) $(ROOTANA_DEFS) \
@@ -240,7 +245,7 @@ RB_HEADERS        = $(SRC)/rootbeer/rbdragon.hxx $(SRC)/rootbeer/rbsonik.hxx
 RB_DEFS           = -DRB_DRAGON_HOMEDIR=$(PWD)
 
 $(CINT)/rootbeer/rootbeerDict.cxx: $(SRC)/rootbeer/rbsymbols.hxx $(DR_DICT_DEP) $(RB_HOME)/cint/RBDictionary.cxx $(RB_HOME)/cint/MidasDict.cxx
-	rootcint -f $@ -c $(CXXFLAGS) $(RBINC) -p $< $(CINT)/rootbeer/rblinkdef.h \
+	rootcint -f $@ -c $(CINTFLAGS) $(RBINC) -p $< $(CINT)/rootbeer/rblinkdef.h \
 
 $(OBJ)/rootbeer/rbdragon.o: $(SRC)/rootbeer/rbdragon.cxx $(SRC)/rootbeer/*.hxx $(DR_DICT_DEP) $(CINT)/rootbeer/rootbeerDict.cxx
 	$(CXX) $(RB_DEFS) $(RBINC) $(FPIC) -c \
