@@ -196,7 +196,7 @@ std::vector<int32_t> dragon::Unpacker::UnpackMidasEvent(void* header, char* data
 			}
 		case DRAGON_EPICS_SCALER:
 			{
-				// EPICS virtaul scalers data are redundant, so don't do anything
+				// EPICS virtaul scalers data are redundant, so do nothing
 				break;
 			}
 		case MIDAS_BOR:
