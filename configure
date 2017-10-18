@@ -30,16 +30,20 @@ function showhelp {
     echo ""
 }
 
-USE_ROOT=YES
-USE_ROOTANA=NO
-USE_ROOTBEER=NO
-USE_MIDAS=NO
-
 if [ $HOSTNAME == 'smaug.triumf.ca' ] || [ $HOSTNAME == 'daenerys.triumf.ca' ]; then
     USE_ROOT=YES
     USE_ROOTANA=NO
     USE_ROOTBEER=YES
     USE_MIDAS=YES
+    CC=clang
+    CXX=clang++
+else
+    USE_ROOT=YES
+    USE_ROOTANA=NO
+    USE_ROOTBEER=NO
+    USE_MIDAS=NO
+    CC=gcc
+    CXX=g++
 fi
 
 DISPLAY_MODULES=1
@@ -49,8 +53,6 @@ OMIT_NAI=0
 OMIT_GE=0
 
 RB_HOME="\$(HOME)/packages/rootbeer"
-CC=clang
-CXX=clang++
 
 UNAME=`uname -a | awk '{print $1}'`
 

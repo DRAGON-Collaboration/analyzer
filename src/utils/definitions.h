@@ -19,6 +19,7 @@
 #define DRAGON_RUN_PARAMETERS      7 /*!< Global run parameters event ID (analysis only) */
 #define DRAGON_AUX_SCALER          8 /*!< Aux scaler event ID */
 #define DRAGON_EPICS_EVENT        20 /*!< EPICS event ID */
+#define DRAGON_EPICS_SCALER       21 /*!< EPICS virtual PV ID */
 
 #define DRAGON_SCALER_READ_PERIOD 1000  /*!< Scaler readout period in milliseconds */
 

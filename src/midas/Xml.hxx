@@ -76,7 +76,7 @@ public:
 
 	/// Dump buffer to an output stream
 	void Dump(std::ostream& strm) const;
-	
+
 	/// TObject has a virtual function Dump() as well, so implement it here
 	void Dump() const { Dump(std::cout); }
 
@@ -345,7 +345,7 @@ private:
 
 	/// Convert node->value into template class
 	template <typename T> T ConvertNode(Node& node)
-		{	
+		{
 			T value;
 			std::stringstream val;
 			val << node->value;

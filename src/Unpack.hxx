@@ -57,7 +57,7 @@ public:
 	/// Returns true if we are in singles mode
 	bool IsSinglesMode() const;
 	///
-	/// Returns the length of the coincidence window in mocroseconds
+	/// Returns the length of the coincidence window in microseconds
 	double GetCoincWindow() const;
 	///
 	/// Returns the queue buffering time in seconds
@@ -119,6 +119,7 @@ public:
 	///
 	/// Unpack a generic midas event (from header + data)
 	std::vector<int32_t> UnpackMidasEvent(void* header, char* data);
+
 private:
 	/// Default queue time in seconds
 	static const int kQueueTimeDefault = 4;
