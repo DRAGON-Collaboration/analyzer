@@ -11,35 +11,35 @@
 
 
 namespace {
-inline TAtomicMassTable::Nucleus_t make_nucleus_az(int Z, int A) {
-	TAtomicMassTable::Nucleus_t nuc;
-	nuc.fA = A;
-	nuc.fZ = Z;
-	nuc.fN = A-Z;
-	sprintf(nuc.fSymbol, "XX");
+	inline TAtomicMassTable::Nucleus_t make_nucleus_az(int Z, int A) {
+		TAtomicMassTable::Nucleus_t nuc;
+		nuc.fA = A;
+		nuc.fZ = Z;
+		nuc.fN = A-Z;
+		sprintf(nuc.fSymbol, "XX");
 
-	return nuc;
-}
-
-class MatchSymbol {
-	std::string fSymbol;
-public:
-	MatchSymbol(const char* symbol): fSymbol(symbol) {
-		if(fSymbol == "n") fSymbol = "1n";
-		if(fSymbol == "p") fSymbol = "1H";
-		if(fSymbol == "d") fSymbol = "2H";
-		if(fSymbol == "t") fSymbol = "3H";
-		if(fSymbol == "a") fSymbol = "4He";
+		return nuc;
 	}
-	bool operator() (const std::pair<TAtomicMassTable::Nucleus_t,
-																	 TAtomicMassTable::MassExcess_t>& element)
+
+	class MatchSymbol {
+		std::string fSymbol;
+	public:
+		MatchSymbol(const char* symbol): fSymbol(symbol) {
+			if(fSymbol == "n") fSymbol = "1n";
+			if(fSymbol == "p") fSymbol = "1H";
+			if(fSymbol == "d") fSymbol = "2H";
+			if(fSymbol == "t") fSymbol = "3H";
+			if(fSymbol == "a") fSymbol = "4He";
+		}
+		bool operator() (const std::pair<TAtomicMassTable::Nucleus_t,
+						 TAtomicMassTable::MassExcess_t>& element)
 		{
 			const TAtomicMassTable::Nucleus_t& nuc = element.first;
 			std::stringstream symbol;
 			symbol << nuc.fA << nuc.fSymbol;
 			return symbol.str() == fSymbol;
 		}
-}; }
+	}; }
 
 
 bool TAtomicMassTable::CompareNucleus_t::operator()
@@ -129,8 +129,8 @@ void TAtomicMassTable::ParseFile(const char* name)
 		std::pair<Map_t::iterator, bool> insrt = fMassData.insert(std::make_pair(nuc, me));
 		if(!insrt.second) {
 			std::cerr << "Error: duplicate nucleus! A, N, Z = "
-								<< nuc.fA << ", " << nuc.fZ << ", " << nuc.fN << " (old): "
-								<< insrt.first->first.fA << ", " << insrt.first->first.fZ << ", " << insrt.first->first.fN << "\n";
+					  << nuc.fA << ", " << nuc.fZ << ", " << nuc.fN << " (old): "
+					  << insrt.first->first.fA << ", " << insrt.first->first.fZ << ", " << insrt.first->first.fN << "\n";
 			return;
 		}
 	}
@@ -157,7 +157,7 @@ bool TAtomicMassTable::ParseLine(const std::string& line, Nucleus_t* nuc, MassEx
 	nuc->fA = atoi(fields[4].c_str());
 	if(nuc->fA != nuc->fZ + nuc->fN) {
 		std::cerr << "Error: A != N+Z : A, N, Z = "
-							<< nuc->fA << ", " << nuc->fZ << ", " << nuc->fN << "\n";
+				  << nuc->fA << ", " << nuc->fZ << ", " << nuc->fN << "\n";
 		return false;
 	}
 
@@ -274,8 +274,19 @@ double TAtomicMassTable::QValue(int Zt, int At, int Zb, int Ab, int Ze, int Ae, 
 			return 0;
 		}
 		if(!ejectile) {
-			std::cerr << "Invalid ejectile!\n";
-			return 0;
+			if(Ze == 0 && Ae == 0){
+				std::cout << "\tQ value for "
+						  <<        target->fA   << target->fSymbol
+						  << "(" << beam->fA     << beam->fSymbol
+						  << "," << "\u03B3"
+						  << ")" << recoil->fA   << recoil->fSymbol
+						  << ": " << qval << " keV.\n\n";
+				return qval;
+			}
+			else{
+				std::cerr << "Invalid ejectile!\n";
+				return 0;
+			}
 		}
 		if(!beam) {
 			std::cerr << "Invalid beam!\n";
@@ -287,11 +298,11 @@ double TAtomicMassTable::QValue(int Zt, int At, int Zb, int Ab, int Ze, int Ae, 
 		}
 
 		std::cout << "\tQ value for "
-							<<        target->fA   << target->fSymbol
-							<< "(" << beam->fA     << beam->fSymbol
-							<< "," << ejectile->fA << ejectile->fSymbol
-							<< ")" << recoil->fA   << recoil->fSymbol
-							<< ": " << qval << " keV.\n\n";
+				  <<        target->fA   << target->fSymbol
+				  << "(" << beam->fA     << beam->fSymbol
+				  << "," << ejectile->fA << ejectile->fSymbol
+				  << ")" << recoil->fA   << recoil->fSymbol
+				  << ": " << qval << " keV.\n\n";
 	}
 
 	return qval;
@@ -300,6 +311,9 @@ double TAtomicMassTable::QValue(int Zt, int At, int Zb, int Ab, int Ze, int Ae, 
 
 double TAtomicMassTable::QValue(const char* beam, const char* target, const char* ejectile, bool print) const
 {
+	std::string gamma("g");
+	std::string ej(ejectile);
+
 	const Nucleus_t* b = GetNucleus(beam);
 	if(!b) {
 		std::cerr << "Invalid beam!\n";
@@ -309,6 +323,10 @@ double TAtomicMassTable::QValue(const char* beam, const char* target, const char
 	if(!t) {
 		std::cerr << "Invalid target!\n";
 		return 0;
+	}
+	if(ej == gamma){
+		std::cout << "Radiative Capture reaction!\n";
+		return QValue(b->fZ, b->fA, t->fZ, t->fA, 0, 0, print);
 	}
 	const Nucleus_t* e = GetNucleus(ejectile);
 	if(!e) {
