@@ -46,14 +46,6 @@ else
     CXX=g++
 fi
 
-DISPLAY_MODULES=1
-OMIT_DSSSD=0
-OMIT_IC=0
-OMIT_NAI=0
-OMIT_GE=0
-
-RB_HOME="\$(HOME)/packages/rootbeer"
-
 UNAME=`uname -a | awk '{print $1}'`
 
 if [ $UNAME == Linux ]; then
@@ -62,6 +54,9 @@ if [ $UNAME == Linux ]; then
         CC=clang
         CXX=clang++
     fi
+elif [ $UNAME == Darwin ]; then
+    CC=clang
+    CXX=clang++
 fi
 
 for var in "$@"
@@ -71,6 +66,14 @@ do
 	    exit
     fi
 done
+
+DISPLAY_MODULES=1
+OMIT_DSSSD=0
+OMIT_IC=0
+OMIT_NAI=0
+OMIT_GE=0
+
+RB_HOME="\$(HOME)/packages/rootbeer"
 
 for var in "$@"
 do

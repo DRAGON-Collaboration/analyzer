@@ -4,7 +4,7 @@
 #include <TFile.h>
 #include <TH1F.h>
 #include <TTreeFormula.h>
-#include "dragon/Coinc.hxx"
+#include "Dragon.hxx"
 
 TFile fFile ("test.root", "recreate");
 TTree fTree ("t", "TEST");
@@ -15,7 +15,7 @@ TTreeFormula* fFormula;
 
 void fill1()
 {
-	hst.Fill (coinc.head.bgo.q[0]);
+	hst.Fill (coinc.head.bgo.esort[0]);
 }
 
 void fill2()
@@ -39,7 +39,7 @@ int main(int argc , char** argv)
 
 	fTree.SetCircular(0);
 	fTree.Branch("coinc","dragon::Coinc",&coincAddr);
-	fFormula = new TTreeFormula("formula", "coinc.head.bgo.q[0]", &fTree);
+	fFormula = new TTreeFormula("formula", "coinc.head.bgo.esort[0]", &fTree);
 	assert (fFormula->GetNdim());
 
 	int nnn = 0;
@@ -48,7 +48,7 @@ int main(int argc , char** argv)
   } while (++nnn < 10000000);
 
 	printf ( "hst.GetEntries() = %f\n", hst.GetEntries() );
-	
+
 	delete fFormula;
 
 }

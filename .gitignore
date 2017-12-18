@@ -38,3 +38,4 @@ Makefile.local
 config.mk
 doc/html
 doc/latex
+test/filltest
