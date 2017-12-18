@@ -664,7 +664,7 @@ Bool_t dragon::RossumData::ParseFile()
 				static int i = 0;
 				ssname << "_" << i++ ;
 			}
-			sstitle << "Farady cup readings proceeding run " << runnum;
+			sstitle << "Farady cup readings preceding run " << runnum;
 			tree->SetNameTitle(ssname.str().c_str(), sstitle.str().c_str());
 
 			if(!fullRun) tree->Delete();

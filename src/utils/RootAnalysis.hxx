@@ -179,7 +179,7 @@ private:
  * tree containig the current, time and cup information as branches. These trees can be identified either
  * by the run number of the run started directly after the cup readings were taken, or they can be identified
  * by the timestamp corresponding to when the rossum query was started. Note that in the case of rossum readings
- * that do not proceed a run start, the timestamp is the only valid means of identification.
+ * that do not precede a run start, the timestamp is the only valid means of identification.
  *
  * Here is an example showing some of the class's more useful features:
  * \code
@@ -187,9 +187,9 @@ private:
  * // The above line constructs a dragon::RossumData instance to read information from the specified file
  *
  * rossumData.ListTrees(); // get a listing of all trees parsed from the file
- * TTree* tree = rossumData.GetTree(1000); // get a pointer to the tree proceeding run 1000
+ * TTree* tree = rossumData.GetTree(1000); // get a pointer to the tree preceding run 1000
  *
- * tree->Draw("current:time", "", "L"); // draw all cup readings vs. time, for the query proceeding run 1000
+ * tree->Draw("current:time", "", "L"); // draw all cup readings vs. time, for the query preceding run 1000
  * tree->Draw("current:time", "cup == 0", ""); // only draw FC4 readings [see AverageCurrent() for more about the cup id]
  * tree->Draw("current:time", "cup == 0 && iteration == 0", ""); // only draw the first iteration of FC4 readings
  *
@@ -327,9 +327,9 @@ public:
 		/// Average pressure across the whole run
 		UDouble_t pressure_full; // avg. pressure for whole run
 		/// FC4 current, per iteration
-		UDouble_t fc4[3]; // fc4 current, per reading (proceeding run)
+		UDouble_t fc4[3]; // fc4 current, per reading (preceding run)
 		/// FC1 current
-		UDouble_t fc1; // fc1 current proceeding run
+		UDouble_t fc1; // fc1 current preceding run
 		/// Transmission correction
 		UDouble_t trans_corr; // transmission correction
 		/// Normalization factor `R`, per sb detector
