@@ -34,7 +34,6 @@ $(error Could not run root-config program, check your ROOT setup script)
 endif
 ROOTLIBS  += -lXMLParser -lTreePlayer -lSpectrum -lMinuit
 ROOTGLIBS += -lXMLParser -lTreePlayer -lSpectrum -lMinuit
-#ROOTFLAGS = $(shell $(RC) --noauxcflags --cflags)
 else
 $(error USE_ROOT set to true but ROOTSYS environment variable is not set.)
 endif
@@ -64,14 +63,12 @@ ifeq ($(UNAME),Darwin)
 CXXFLAGS += -DOS_LINUX -DOS_DARWIN
 SOFLAGS   = -dynamiclib -single_module -undefined dynamic_lookup
 INCLUDE  += -I/opt/local/include -I/usr/local/include
-CC       += $(filter-out -std=c++11,$(CXXFLAGS))
 ifdef MIDASSYS
 MIDAS_LIB_DIR = $(MIDASSYS)/darwin/lib
 endif
 endif
 
 ifeq ($(UNAME),Linux)
-CC       += $(CXXFLAGS)
 ifdef MIDASSYS
 CXXFLAGS     += -DOS_LINUX
 MIDAS_LIB_DIR = $(MIDASSYS)/linux/lib
@@ -79,6 +76,7 @@ MIDASLIBS    += -lm -lz -lutil -lnsl -lrt
 endif
 endif
 
+CC        += $(filter-out -std=c++11,$(CXXFLAGS))
 CXXFLAGS  += $(INCLUDE)
 CINTFLAGS := $(filter-out $(ROOTCFLAGS), $(CXXFLAGS))
 CXX       += $(CXXFLAGS)
@@ -168,28 +166,28 @@ rbsonik_impl.o: $(OBJ)/rootbeer/rbsonik_impl.o
 ### OBJECT FILES ###
 
 $(OBJ)/utils/%.o: $(SRC)/utils/%.cxx $(DR_DICT_DEP)
-	$(CXX) $(FPIC) -c \
+	$(CXX) -c \
 	-o $@ $< \
 
 $(OBJ)/midas/%.o: $(SRC)/midas/%.c $(DR_DICT_DEP)
-	$(CC) $(FPIC) -c \
+	$(CC) -c \
 	-o $@ $< \
 
 $(OBJ)/midas/libMidasInterface/%.o: $(SRC)/midas/libMidasInterface/%.cxx $(DR_DICT_DEP)
-	$(CXX) $(FPIC) -c \
+	$(CXX) -c \
 	-o $@ $< \
 
 $(OBJ)/midas/%.o: $(SRC)/midas/%.cxx $(DR_DICT_DEP)
-	$(CXX) $(FPIC) -c \
+	$(CXX) -c \
 	-o $@ $< \
 
 $(OBJ)/rootana/%.o: $(SRC)/rootana/%.cxx $(CINT)/rootana/Dict.cxx
-	$(CXX) $(ROOTANA_FLAGS) $(ROOTANA_DEFS) -c $(FPIC) \
+	$(CXX) $(ROOTANA_FLAGS) $(ROOTANA_DEFS) -c  \
 	-o $@ $< \
 
 ## Must be last object rule!!
 $(OBJ)/%.o: $(SRC)/%.cxx $(DR_DICT_DEP)
-	$(CXX) $(FPIC) -c \
+	$(CXX) -c \
 	-o $@ $< \
 
 ### CINT DICTIONARY ###
@@ -224,11 +222,11 @@ $(CINT)/rootana/CutDict.cxx: $(SRC)/rootana/Cut.hxx $(SRC)/rootana/CutLinkdef.h
 	rootcint -f $@ -c $(CINTFLAGS) $(ROOTANA_FLAGS) -p $(SRC)/rootana/Cut.hxx $(SRC)/rootana/CutLinkdef.h \
 
 $(DRLIB)/libRootanaCut.so: $(CINT)/rootana/CutDict.cxx
-	$(LD)  $(SOFLAGS) $(FPIC) $(ROOTANA_FLAGS) $(ROOTANA_DEFS) \
+	$(LD)  $(SOFLAGS)  $(ROOTANA_FLAGS) $(ROOTANA_DEFS) \
 	-o $@ $< \
 
 libRootanaDragon.so: $(DRLIB)/libDragon.so $(CINT)/rootana/Dict.cxx $(DRLIB)/libRootanaCut.so $(ROOTANA_OBJS)
-	$(LD)  $(SOFLAGS) $(FPIC) $(ROOTANA_FLAGS) $(ROOTANA_DEFS)  \
+	$(LD)  $(SOFLAGS)  $(ROOTANA_FLAGS) $(ROOTANA_DEFS)  \
 	-o $@ $< $(CINT)/rootana/Dict.cxx $(ROOTANA_OBJS) -lDragon -lRootanaCut -L$(DRLIB) \
 
 $(PWD)/bin/anaDragon: $(SRC)/rootana/anaDragon.cxx $(DRLIB)/libDragon.so $(CINT)/rootana/Dict.cxx $(DRLIB)/libRootanaCut.so $(ROOTANA_OBJS) $(ROOTANA_REMOTE_OBJS)
@@ -252,19 +250,19 @@ $(CINT)/rootbeer/rootbeerDict.cxx: $(SRC)/rootbeer/rbsymbols.hxx $(DR_DICT_DEP) 
 	rootcint -f $@ -c $(CINTFLAGS) $(RBINC) -p $< $(CINT)/rootbeer/rblinkdef.h \
 
 $(OBJ)/rootbeer/rbdragon.o: $(SRC)/rootbeer/rbdragon.cxx $(SRC)/rootbeer/*.hxx $(DR_DICT_DEP) $(CINT)/rootbeer/rootbeerDict.cxx
-	$(CXX) $(RB_DEFS) $(RBINC) $(FPIC) -c \
+	$(CXX) $(RB_DEFS) $(RBINC) -c \
 	-o $@ $< \
 
 $(OBJ)/rootbeer/rbsonik.o: $(SRC)/rootbeer/rbsonik.cxx $(SRC)/rootbeer/*.hxx $(DR_DICT_DEP) $(CINT)/rootbeer/rootbeerDict.cxx
-	$(CXX) $(RB_DEFS) $(RBINC) $(FPIC) -c \
+	$(CXX) $(RB_DEFS) $(RBINC) -c \
 	-o $@ $< \
 
 $(OBJ)/rootbeer/rbdragon_impl.o: $(SRC)/rootbeer/rbdragon_impl.cxx $(SRC)/rootbeer/*.hxx $(DR_DICT_DEP) $(CINT)/rootbeer/rootbeerDict.cxx
-	$(CXX) $(RB_DEFS) $(RBINC) $(FPIC) -c \
+	$(CXX) $(RB_DEFS) $(RBINC) -c \
 	-o $@ $< \
 
 $(OBJ)/rootbeer/rbsonik_impl.o: $(SRC)/rootbeer/rbsonik_impl.cxx $(SRC)/rootbeer/*.hxx $(DR_DICT_DEP) $(CINT)/rootbeer/rootbeerDict.cxx
-	$(CXX) $(RB_DEFS) $(RBINC) $(FPIC) -c \
+	$(CXX) $(RB_DEFS) $(RBINC) -c \
 	-o $@ $< \
 
 $(PWD)/bin/rbdragon: $(CINT)/rootbeer/rootbeerDict.cxx $(RB_DRAGON_OBJECTS)
