@@ -57,7 +57,7 @@ INCLUDE  += -I$(MIDASSYS)/include
 endif
 endif
 
-UNAME=$(shell uname)
+UNAME =$(shell uname)
 
 ifeq ($(UNAME),Darwin)
 CXXFLAGS += -DOS_LINUX -DOS_DARWIN
@@ -69,17 +69,24 @@ endif
 endif
 
 ifeq ($(UNAME),Linux)
-ifdef MIDASSYS
 CXXFLAGS     += -DOS_LINUX
+ifdef MIDASSYS
 MIDAS_LIB_DIR = $(MIDASSYS)/linux/lib
 MIDASLIBS    += -lm -lz -lutil -lnsl -lrt
 endif
 endif
 
-CC        += $(filter-out -std=c++11,$(CXXFLAGS))
+CC        += $(filter-out -std=c++11, $(CXXFLAGS))
 CXXFLAGS  += $(INCLUDE)
 CINTFLAGS := $(filter-out $(ROOTCFLAGS), $(CXXFLAGS))
+
+NAME = $(shell lsb_release -si)
+ifeq ($(NAME), Ubuntu)
+CXX       += $(filter-out -std=c++11, $(CXXFLAGS)) #$(CXXFLAGS)
+else
 CXX       += $(CXXFLAGS)
+endif
+
 LD         = $(CXX) $(LDFLAGS) $(ROOTGLIBS) $(RPATH) -L$(PWD)/lib
 
 ifeq ($(USE_ROOT),YES)

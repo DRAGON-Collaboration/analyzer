@@ -49,8 +49,8 @@ fi
 UNAME=`uname -a | awk '{print $1}'`
 
 if [ $UNAME == Linux ]; then
-    LSB=`lsb_release -si`
-    if [ "$LSB" == Ubuntu ]; then
+    DIST=`lsb_release -si`
+    if [ "$DIST" == Ubuntu ]; then
         CC=clang
         CXX=clang++
     fi
