@@ -70,6 +70,7 @@ endif
 
 ifeq ($(UNAME),Linux)
 CXXFLAGS     += -DOS_LINUX
+NAME = $(shell lsb_release -si)
 ifdef MIDASSYS
 MIDAS_LIB_DIR = $(MIDASSYS)/linux/lib
 MIDASLIBS    += -lm -lz -lutil -lnsl -lrt
@@ -80,7 +81,6 @@ CC        += $(filter-out -std=c++11, $(CXXFLAGS))
 CXXFLAGS  += $(INCLUDE)
 CINTFLAGS := $(filter-out $(ROOTCFLAGS), $(CXXFLAGS))
 
-NAME = $(shell lsb_release -si)
 ifeq ($(NAME), Ubuntu)
 CXX       += $(filter-out -std=c++11, $(CXXFLAGS)) #$(CXXFLAGS)
 else
