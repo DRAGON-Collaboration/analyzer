@@ -47,9 +47,9 @@ void dutils::DsssdCalibrator::DrawSummary(Option_t* opt) const
 	if(gDirectory->Get("hdsssd"))
 		gDirectory->Get("hdsssd")->Delete();
 
-	TH2F* hdsssd = new TH2F("hdsssd", "", NDSSSD,0,NDSSSD,256,0,4096);
+	TH2F* hdsssd = new TH2F("hdsssd", "", NDSSSD,0,NDSSSD,4096,0,4096);
 	dragon::Tail* tail = new dragon::Tail();
-	fTree->SetBranchAddress("hi", &tail);
+	fTree->SetBranchAddress("tail", &tail);
 	for(Long_t evt = 0; evt < fTree->GetEntries(); ++evt) {
 		fTree->GetEntry(evt);
 		for(Int_t i=0; i< NDSSSD; ++i) {
@@ -58,6 +58,37 @@ void dutils::DsssdCalibrator::DrawSummary(Option_t* opt) const
 		}
 	}
 	hdsssd->Draw(opt);
+}
+
+void dutils::DsssdCalibrator::DrawSummaryCal(Option_t* opt)
+{
+	/// \param Opt Drawing option for the displayed histogram
+	if(!fTree) return;
+	if(gDirectory->Get("fHdcal"))
+		gDirectory->Get("fHdcal")->Delete();
+
+	fHdcal = new TH2F("fHdcal", "", NDSSSD,0,NDSSSD,4096,0,17.1);
+	dragon::Tail* tail = new dragon::Tail();
+	fTree->SetBranchAddress("tail", &tail);
+	for(Long_t evt = 0; evt < fTree->GetEntries(); ++evt) {
+		fTree->GetEntry(evt);
+		for(Int_t i=0; i< NDSSSD; ++i) {
+			Double_t val = tail->dsssd.ecal[i]*fParams[i].slope + fParams[i].offset;
+			fHdcal->Fill(i, val);
+		}
+	}
+	fHdcal->Draw(opt);
+}
+
+void dutils::DsssdCalibrator::DrawFrontCal(Option_t* opt)
+{
+	/// \param Opt Drawing option for the displayed histogram
+	if(!fTree) return;
+	// if(!(gDirectory->Get("fHdcal")))
+	// 	DrawSummaryCal("goff");
+
+	fFrontcal = (TH1D *)fHdcal->ProjectionY("frontcal",0,15,opt);
+	fFrontcal->Draw(opt);
 }
 
 dutils::DsssdCalibrator::Param_t dutils::DsssdCalibrator::GetParams(Int_t channel) const
@@ -112,7 +143,7 @@ Int_t dutils::DsssdCalibrator::Run(Double_t pklow, Double_t pkhigh, Double_t sig
 	if(!fTree) return 0;
 	Int_t nbins = pkhigh - pklow;
 	if(nbins<0) return 0;
-	nbins /= 10;
+	nbins /= 2;
 	TH1F hpeaks("hpeaks", "", nbins, pklow, pkhigh);
 	Int_t retval = 0;
 	for(Int_t i=0; i< 32; ++i) {

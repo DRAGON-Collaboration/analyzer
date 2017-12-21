@@ -10,6 +10,8 @@
 #include "Dragon.hxx"
 
 class TH1;
+class TH2F;
+class TH1D;
 class TTree;
 
 namespace midas { class Database; }
@@ -25,10 +27,17 @@ public:
 	/// Simple stuct to hold linear fit params
 	struct Param_t { Double_t slope; Double_t offset; };
 public:
+	TH2F* fHdcal;
+	TH1D* fFrontcal;
+public:
 	/// Construct from tree w/ heavy ion singles data & database containing variables
 	DsssdCalibrator(TTree* t, midas::Database* db);
 	/// Draw a summary of DSSSD energies (w/ no calibration)
 	void DrawSummary(Option_t* opt = "") const;
+	/// Draw a summary of DSSSD energies (w/ calibration)
+	void DrawSummaryCal(Option_t* opt = "");
+	/// Draw calibrated DSSSD energy spectrum of the front strips
+	void DrawFrontCal(Option_t* opt = "");
 	/// Helper routine to find triple alpha peaks in a spectrum
 	std::vector<Double_t> FindPeaks(TH1* hst, Double_t sigma = 2, Double_t threshold = 0.05) const;
 	/// Get the value of a particular peak as found by FindPeaks()
@@ -38,7 +47,7 @@ public:
 	/// Helper routine to fit alpha energy vs. ADC channel
 	void FitPeaks(Int_t ch);
 	/// Run the full calibration
-	Int_t Run(Double_t pklow = 500, Double_t pkhigh = 4100, Double_t sigma = 2, Double_t threshold = 0.05);
+	Int_t Run(Double_t pklow = 500, Double_t pkhigh = 3840, Double_t sigma = 4, Double_t threshold = 0.15);
 	/// Print a summary of the calibration results
 	void PrintResults(const char* outfile = 0);
 	/// Print the calibration results in a format that can be input into odbedit to update the calibration
@@ -51,6 +60,7 @@ private:
 	Param_t fOldParams[dragon::Dsssd::MAX_CHANNELS];
 };
 
-} }
+} //utils
+} //dragon
 
 #endif
