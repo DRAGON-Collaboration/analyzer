@@ -32,8 +32,8 @@ namespace dutils = dragon::utils;
 /// \param t Pointer to a TTree containing heavy-ion singles data
 /// \param db Pointer to a database containing the variables with which the DSSSD ecal data in _t_ were calculated.
 
-dutils::DsssdCalibrator::DsssdCalibrator(TTree* t, midas::Database* db):
-	fTree(t), fDb(db)
+dutils::DsssdCalibrator::DsssdCalibrator(TTree* t_alpha, TTree* t_pulser, midas::Database* db):
+	fAlphaTree(t_alpha), fPulserTree(t_pulser), fDb(db)
 {
 	if(!fDb) return;
 	Double_t slopes[NDSSSD], offsets[NDSSSD];
@@ -51,15 +51,15 @@ dutils::DsssdCalibrator::DsssdCalibrator(TTree* t, midas::Database* db):
 
 void dutils::DsssdCalibrator::DrawSummary(Option_t* opt) const
 {
-	if(!fTree) return;
+	if(!fAlphaTree) return;
 	if(gDirectory->Get("hdsssd"))
 		gDirectory->Get("hdsssd")->Delete();
 
 	TH2F* hdsssd = new TH2F("hdsssd", "", NDSSSD, 0, NDSSSD, 4096, 0, 4095);
 	dragon::Tail* tail = new dragon::Tail();
-	fTree->SetBranchAddress("tail", &tail);
-	for(Long_t evt = 0; evt < fTree->GetEntries(); ++evt) {
-		fTree->GetEntry(evt);
+	fAlphaTree->SetBranchAddress("tail", &tail);
+	for(Long_t evt = 0; evt < fAlphaTree->GetEntries(); ++evt) {
+		fAlphaTree->GetEntry(evt);
 		for(Int_t i=0; i< NDSSSD; ++i) {
 			Double_t val = (tail->dsssd.ecal[i] - fOldParams[i].offset) / fOldParams[i].slope;
 			hdsssd->Fill(i, val);
@@ -74,15 +74,15 @@ void dutils::DsssdCalibrator::DrawSummary(Option_t* opt) const
 
 void dutils::DsssdCalibrator::DrawSummaryCal(Option_t* opt)
 {
-	if(!fTree) return;
+	if(!fAlphaTree) return;
 	if(gDirectory->Get("fHdcal"))
 		gDirectory->Get("fHdcal")->Delete();
 
 	fHdcal = new TH2F("fHdcal", "", NDSSSD, 0, NDSSSD, 4096, 0, 4095);
 	dragon::Tail* tail = new dragon::Tail();
-	fTree->SetBranchAddress("tail", &tail);
-	for(Long_t evt = 0; evt < fTree->GetEntries(); ++evt) {
-		fTree->GetEntry(evt);
+	fAlphaTree->SetBranchAddress("tail", &tail);
+	for(Long_t evt = 0; evt < fAlphaTree->GetEntries(); ++evt) {
+		fAlphaTree->GetEntry(evt);
 		for(Int_t i = 0; i < NDSSSD; ++i) {
 			Double_t val = tail->dsssd.ecal[i]*fParams[i].slope + fParams[i].offset;
 			fHdcal->Fill(i, val);
@@ -97,54 +97,12 @@ void dutils::DsssdCalibrator::DrawSummaryCal(Option_t* opt)
 
 void dutils::DsssdCalibrator::DrawFrontCal(Option_t* opt)
 {
-	if(!fTree) return;
+	if(!fAlphaTree) return;
 	if(!(gDirectory->Get("fHdcal")))
 		DrawSummaryCal("goff");
 
 	fFrontcal = (TH1D *)fHdcal->ProjectionY("frontcal",0,15,opt);
 	fFrontcal->Draw(opt);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// Get the slope and offset for a given channel
-
-dutils::DsssdCalibrator::Param_t dutils::DsssdCalibrator::GetParams(Int_t channel) const
-{
-	if((UInt_t)channel > NDSSSD - 1) {
-		std::cerr << "Invalid channel " << channel << ", valid range is [0, 31].\n";
-		Param_t junk = {0,0};
-		return junk;
-	}
-	return fParams[channel];
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// Get the slope and offset for a given channel
-
-dutils::DsssdCalibrator::Param_t dutils::DsssdCalibrator::GetOldParams(Int_t channel) const
-{
-	if((UInt_t)channel > NDSSSD - 1) {
-		std::cerr << "Invalid channel " << channel << ", valid range is [0, 31].\n";
-		Param_t junk = {0,0};
-		return junk;
-	}
-	return fOldParams[channel];
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// Get the value of a particular peak as found by FindPeaks()
-
-Double_t dutils::DsssdCalibrator::GetPeak(Int_t channel, Int_t peak) const
-{
-	if((UInt_t)channel > NDSSSD - 1) {
-		std::cerr << "Invalid channel " << channel << ", valid range is [0, 31].\n";
-		return 0;
-	}
-	if((UInt_t)peak > 3) {
-		std::cerr << "Invalid peak " << peak << ", valid range is [0, 3].\n";
-		return 0;
-	}
-	return fPeaks[channel][peak];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -166,79 +124,8 @@ std::vector<Double_t> dutils::DsssdCalibrator::FindPeaks(TH1* hst, Double_t sigm
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Helper routine to fit alpha energy vs. ADC channel
-/// \param pklow     Low edge (in uncalibrated channel number) of the region where the peak finding algorithm should search for triple alpha peaks
-/// \param pkhigh    High edge (in uncalibrated channel number) of the region where the peak finding algorithm should search for triple alpha peaks
-/// \param Sigma     Minimum width of peaks to be found by the searching algorithm
-/// \param threshold Minimum peak height for the peak searching algorithm
-/// \note See TSpectrum::Search in ROOT's class documentation for more info on the _sigma_ and _threshold_ parameters
 
-Int_t dutils::DsssdCalibrator::Run(Double_t pklow, Double_t pkhigh, Double_t sigma, Double_t threshold, Bool_t grid)
-{
-	if(!fTree) return 0;
-	Int_t nbins = pkhigh - pklow;
-	if(nbins<0) return 0;
-	nbins /= 2;
-	TH1F hpeaks("hpeaks", "", nbins, pklow, pkhigh);
-	Int_t retval = 0;
-	for(Int_t i = 0; i < NDSSSD; ++i) {
-		char buf[16];
-		// Double_t slope = GetOldParams(i).slope, offset = GetOldParams(i).offset;
-		// sprintf(buf, "(dsssd.ecal[%d] - %f) / %f", i, offset, slope);
-		sprintf(buf, "dsssd.ecal[%d]", i);
-		fTree->Project("hpeaks", buf, "", "goff");
-		std::vector<Double_t> peaks = FindPeaks(&hpeaks, sigma, threshold);
-		if(peaks.size() != 3) {
-			std::cerr << "Number of peaks found for channel " << i << ": " << peaks.size() << " != 3, skipping!\n";
-			fParams[i].slope  = -1.99999;
-			fParams[i].offset = 0.0;
-			continue;
-		} else {
-			++retval;
-		}
-		for(int j = 0; j < 3; ++j)
-			fPeaks[i][j] = peaks[j];
-
-		FitPeaks(i, grid);
-	}
-
-	GainMatch();
-
-	return retval;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// Gainmatch the dsssd channels and find energy per bin
-
-void dutils::DsssdCalibrator::GainMatch()
-{
-	fMaxSlope = 0;
-	for (Int_t i = 0; i < NDSSSD; ++i){
-		if(fParams[i].slope > fMaxSlope){
-			fMaxSlope = fParams[i].slope;
-			fMinChan = i;
-			// cout << fMinChan << endl;
-			// cout << fMaxSlope << endl;
-		}
-	}
-
-	for(Int_t i = 0; i < NDSSSD; i++){
-		if ( i == fMinChan){
-			fParams[i].slope = 1.0;
-		}
-		else if ( fParams[i].slope < 0 ) {
-			continue;
-		}
-		else{
-			fParams[i].slope /= fMaxSlope;
-		}
-		fParams[i].offset /= fMaxSlope; //(fParams[i].intercept / fParams[i].slope);
-	}
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// Run the full calibration
-
-void dutils::DsssdCalibrator::FitPeaks(Int_t ch, Bool_t grid)
+void dutils::DsssdCalibrator::FitAlphaPeaks(Int_t ch, Bool_t grid)
 {
 	if((UInt_t)ch > NDSSSD - 1) return;
 	const Double_t alphaEnergies[3] = {5.15659,5.48556,5.80477}; /* primary alpha energies of triple alpha source in MeV. */
@@ -268,6 +155,110 @@ void dutils::DsssdCalibrator::FitPeaks(Int_t ch, Bool_t grid)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+/// Helper routine to fit pulser walk data vs ADC channel
+
+void dutils::DsssdCalibrator::FitPulserPeaks(Int_t ch, Int_t Npulser)
+{
+	if((UInt_t)ch > NDSSSD - 1) return;
+
+	TGraph gr(Npulser);
+	for(Int_t i = 0; i < gr.GetN(); ++i) {
+		gr.SetPoint(i, GetPeak(ch, i, kFALSE), 0.5*(i + 1) );
+	}
+	TFitResultPtr result = gr.Fit("pol1", "qns");
+    Float_t m          = result->Value(1);
+	fParams[ch].offset = result->Value(0);
+
+	Double_t x, y, nl = 0;
+	for(Int_t i = 0; i < Npulser; i++){
+		gr.GetPoint(i, x, y);
+		Double_t temp = std::abs( x - (m*x - fParams[ch].offset)) / (m*x - fParams[ch].offset );
+		if(temp > nl) nl = temp;
+	}
+	fParams[ch].inl = 100*(1.0 - nl);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// Gainmatch the dsssd channels and find energy per bin
+
+void dutils::DsssdCalibrator::GainMatch()
+{
+	fMaxSlope = 0;
+	for (Int_t i = 0; i < NDSSSD; ++i){
+		if(fParams[i].slope > fMaxSlope){
+			fMaxSlope = fParams[i].slope;
+			fMinChan = i;
+			// cout << fMinChan << endl;
+			// cout << fMaxSlope << endl;
+		}
+	}
+
+	for(Int_t i = 0; i < NDSSSD; i++){
+		if ( i == fMinChan){
+			fParams[i].slope = 1.0;
+		}
+		else if ( fParams[i].slope < 0 ) {
+			continue;
+		}
+		else{
+			fParams[i].slope /= fMaxSlope;
+		}
+		fParams[i].offset = (fParams[i].intercept - fParams[i].slope*fParams[i].offset) / fMaxSlope; //(fParams[i].intercept / fParams[i].slope);
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// Get the slope and offset ODB values for a given channel
+
+dutils::DsssdCalibrator::Param_t dutils::DsssdCalibrator::GetOldParams(Int_t channel) const
+{
+	if((UInt_t)channel > NDSSSD - 1) {
+		std::cerr << "Invalid channel " << channel << ", valid range is [0, 31].\n";
+		Param_t junk = {0, 0, 0, 0};
+		return junk;
+	}
+	return fOldParams[channel];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// Get the slope and offset for a given channel
+
+dutils::DsssdCalibrator::Param_t dutils::DsssdCalibrator::GetParams(Int_t channel) const
+{
+	if((UInt_t)channel > NDSSSD - 1) {
+		std::cerr << "Invalid channel " << channel << ", valid range is [0, 31].\n";
+		Param_t junk = {0, 0, 0, 0};
+		return junk;
+	}
+	return fParams[channel];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// Get the value of a particular peak as found by FindPeaks()
+
+Double_t dutils::DsssdCalibrator::GetPeak(Int_t channel, Int_t peak, Bool_t alpha) const
+{
+	if((UInt_t)channel > NDSSSD - 1) {
+		std::cerr << "Invalid channel " << channel << ", valid range is [0, 31].\n";
+		return 0;
+	}
+
+	if(alpha){
+		if((UInt_t)peak > 3) {
+			std::cerr << "Invalid peak " << peak << ", valid range is [0, 3].\n";
+			return 0;
+		}
+		return fAlphaPeaks[channel][peak];
+	} else {
+		if((UInt_t)peak > 12) {
+			std::cerr << "Invalid peak " << peak << ", valid range is [0, 12].\n";
+			return 0;
+		}
+		return fPulserPeaks[channel][peak];
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
 /// Print a summary of the calibration results
 /// \param outfile String specifying a file path for output, default (0) prints to stdout.
 
@@ -292,37 +283,91 @@ void dutils::DsssdCalibrator::PrintResults(const char* outfile)
 	// fprintf(f, "Channel\tSlope\tOffset\n");
 	for(Int_t i = 0; i < NDSSSD; ++i) {
 		fprintf(f, "%7i \t %-6g \t %-6g \t %-6g\n", i, GetParams(i).offset, GetParams(i).slope, GetParams(i).inl);
-		// fprintf(f, "%2d\t%.6g\t%.6g\n", i, GetParams(i).slope, GetParams(i).offset);
 	}
 
 	if(f != stdout) fclose(f);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// Run alpha calibration
+/// \param pklow     Low edge (in uncalibrated channel number) of the region where the peak finding algorithm should search for triple alpha peaks
+/// \param pkhigh    High edge (in uncalibrated channel number) of the region where the peak finding algorithm should search for triple alpha peaks
+/// \param Sigma     Minimum width of peaks to be found by the searching algorithm
+/// \param threshold Minimum peak height for the peak searching algorithm
+/// \param grid      Boolean for gridded (Tengblad) design - determines dead layer thickness
+/// \note See TSpectrum::Search in ROOT's class documentation for more info on the _sigma_ and _threshold_ parameters
+
+Int_t dutils::DsssdCalibrator::RunAlpha(Double_t pklow, Double_t pkhigh, Double_t sigma, Double_t threshold, Bool_t grid)
+{
+	if(!fAlphaTree) return 0;
+	Int_t nbins = pkhigh - pklow;
+	if(nbins<0) return 0;
+	nbins /= 2;
+	TH1F hpeaks("hpeaks", "", nbins, pklow, pkhigh);
+	Int_t retval = 0;
+	for(Int_t i = 0; i < NDSSSD; ++i) {
+		char buf[16];
+		Double_t offset = GetParams(i).offset;
+		sprintf(buf, "dsssd.ecal[%d] - %f", i, offset);
+		// sprintf(buf, "dsssd.ecal[%d]", i);
+		fAlphaTree->Project("hpeaks", buf, "", "goff");
+		std::vector<Double_t> peaks = FindPeaks(&hpeaks, sigma, threshold);
+		if(peaks.size() != 3) {
+			std::cerr << "Number of peaks found for channel " << i << ": " << peaks.size() << " != 3, skipping!\n";
+			fParams[i].slope  = -1.99999;
+			continue;
+		} else {
+			++retval;
+		}
+
+		for(int j = 0; j < peaks.size(); ++j)
+			fAlphaPeaks[i][j] = peaks[j];
+
+		FitAlphaPeaks(i, grid);
+	}
+
+	GainMatch();
+
+	return retval;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
-/// Print the calibration results (file or stdout) in a format that can be input
-/// into odbedit to update the calibration -- deprecated
-/// \param outfile String specifying a file path for output, default (0) prints to stdout.
+/// Run pulser calibration
+/// \param pklow     Low edge (in uncalibrated channel number) of the region where the peak finding algorithm should search for pulser peaks
+/// \param pkhigh    High edge (in uncalibrated channel number) of the region where the peak finding algorithm should search for pulser peaks
+/// \param Sigma     Minimum width of peaks to be found by the searching algorithm
+/// \param threshold Minimum peak height for the peak searching algorithm
+/// \note See TSpectrum::Search in ROOT's class documentation for more info on the _sigma_ and _threshold_ parameters
 
-void dutils::DsssdCalibrator::PrintOdb(const char* outfile)
+Int_t dutils::DsssdCalibrator::RunPulser(Double_t pklow, Double_t pkhigh, Double_t sigma, Double_t threshold)
 {
-	FILE* f = stdout;
-	if(outfile) {
-		TString fname = outfile;
-		gSystem->ExpandPathName(fname);
-		f = fopen(fname, "w");
-		if(!f) {
-			std::cerr << "Invalid file path " << outfile << "\n";
-			f = stdout;
-		}
-	}
-
+	if(!fPulserTree) return 0;
+	Int_t nbins = pkhigh - pklow;
+	if(nbins<0) return 0;
+	nbins /= 2;
+	TH1F hpeaks("hpeaks", "", nbins, pklow, pkhigh);
+	Int_t retval = 0;
 	for(Int_t i = 0; i < NDSSSD; ++i) {
-		fprintf(f, "odbedit -c \"set /dragon/dsssd/variables/adc/slope[%d] %.6g\"\n", i, GetParams(i).slope);
-		fprintf(f, "odbedit -c \"set /dragon/dsssd/variables/adc/offset[%d] %.6g\"\n", i, GetParams(i).offset);
+		char buf[16];
+		// Double_t slope = GetOldParams(i).slope, offset = GetOldParams(i).offset;
+		// sprintf(buf, "(dsssd.ecal[%d] - %f) / %f", i, offset, slope);
+		sprintf(buf, "dsssd.ecal[%d]", i);
+		fPulserTree->Project("hpeaks", buf, "", "goff");
+		std::vector<Double_t> peaks = FindPeaks(&hpeaks, sigma, threshold);
+		Int_t Npulser = peaks.size();
+		if(Npulser < 3) {
+			std::cerr << "WARNING: Insufficient number of pulser peaks found for channel " << i << ": " << peaks.size() << ", skipping pulser!\n";
+			fParams[i].offset = 0.0;
+			fParams[i].inl    = 0.0;
+			continue;
+		} else {
+			++retval;
+		}
+
+		FitPulserPeaks(i, Npulser);
 	}
 
-	if(f != stdout) fclose(f);
+	return retval;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
