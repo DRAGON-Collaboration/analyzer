@@ -22,7 +22,7 @@ typedef UChar_t   uint8_t;
 typedef UShort_t  uint16_t;
 typedef UInt_t    uint32_t;
 typedef ULong64_t uint64_t;
- 
+
 
 #endif // #ifndef __MAKECINT__
 

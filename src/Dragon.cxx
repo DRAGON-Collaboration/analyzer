@@ -115,13 +115,13 @@ bool odb_set_bank(midas::Bank_t* bank, const midas::Database* db, const char* pa
 
 dragon::RunParameters::RunParameters()
 {
-  /// ::
+	/// ::
 	reset();
 }
 
 void dragon::RunParameters::reset()
 {
-  /// ::
+	/// ::
 	double* parrays[4] = { run_start, run_stop, trigger_start, trigger_stop };
 	for(int i=0; i< 4; ++i) {
 		std::fill(parrays[i], parrays[i] + MAX_FRONTENDS, 0.);
@@ -130,7 +130,7 @@ void dragon::RunParameters::reset()
 
 bool dragon::RunParameters::read_data(const midas::Database* db)
 {
-  /// ::
+	/// ::
 	if(db == 0 || db->IsZombie()) {
 		dutils::Error("dragon::RunParameters::read_data", __FILE__, __LINE__)
 			<< "Zombie database";
@@ -157,13 +157,13 @@ bool dragon::RunParameters::read_data(const midas::Database* db)
 dragon::Bgo::Bgo():
 	variables()
 {
-  /// ::
+	/// ::
 	reset();
 }
 
 void dragon::Bgo::reset()
 {
-  /// ::
+	/// ::
 	dutils::reset_array(MAX_CHANNELS, ecal);
 	dutils::reset_array(MAX_CHANNELS, tcal);
 	dutils::reset_array(MAX_CHANNELS, esort);
@@ -221,7 +221,7 @@ dragon::Bgo::Variables::Variables()
 
 void dragon::Bgo::Variables::reset()
 {
-  /// ::
+	/// ::
 	dutils::index_fill(adc.channel, adc.channel + MAX_CHANNELS, BGO_ADC0);
 	std::fill(adc.pedestal, adc.pedestal + MAX_CHANNELS, 0);
 	std::fill(adc.offset, adc.offset + MAX_CHANNELS, 0.);
@@ -277,13 +277,13 @@ bool dragon::Bgo::Variables::set(const midas::Database* db)
 dragon::Dsssd::Dsssd():
 	variables()
 {
-  /// ::
+	/// ::
 	reset();
 }
 
 void dragon::Dsssd::reset()
 {
-  /// ::
+	/// ::
 	dutils::reset_data(efront, eback, hit_front, hit_back, tfront, tback);
 	dutils::reset_array(MAX_CHANNELS, ecal);
 }
@@ -341,7 +341,7 @@ dragon::Dsssd::Variables::Variables()
 
 void dragon::Dsssd::Variables::reset()
 {
-  /// ::
+	/// ::
 	std::fill(adc.module, adc.module + MAX_CHANNELS, DSSSD_MODULE);
 	dutils::index_fill(adc.channel, adc.channel + MAX_CHANNELS, DSSSD_ADC0);
 
@@ -396,13 +396,13 @@ bool dragon::Dsssd::Variables::set(const midas::Database* db)
 
 dragon::IonChamber::IonChamber()
 {
-  /// ::
+	/// ::
 	reset();
 }
 
 void dragon::IonChamber::reset()
 {
-  /// ::
+	/// ::
 	dutils::reset_array(MAX_CHANNELS, anode);
 	dutils::reset_array(MAX_TDC, tcal);
 	dutils::reset_data(sum);
@@ -442,7 +442,7 @@ dragon::IonChamber::Variables::Variables()
 
 void dragon::IonChamber::Variables::reset()
 {
-  /// ::
+	/// ::
 	std::fill(adc.module, adc.module + MAX_CHANNELS, DEFAULT_HI_MODULE);
 	dutils::index_fill(adc.channel, adc.channel + MAX_CHANNELS, IC_ADC0);
 
@@ -489,13 +489,13 @@ bool dragon::IonChamber::Variables::set(const midas::Database* db)
 
 dragon::Mcp::Mcp()
 {
-  /// ::
+	/// ::
 	reset();
 }
 
 void dragon::Mcp::reset()
 {
-  /// ::
+	/// ::
 	dutils::reset_data(esum, tac, x, y);
 	dutils::reset_array(MAX_CHANNELS, anode);
 	dutils::reset_array(NUM_DETECTORS, tcal);
@@ -517,7 +517,7 @@ void dragon::Mcp::read_data(const vme::V785 adcs[], const vme::V1190& tdc)
 
 void dragon::Mcp::calculate()
 {
-  /*!
+	/*!
 	 * Calibrates anode, tcal, and tac values; calculates x- and
 	 * y-positions.
 	 *
@@ -555,7 +555,7 @@ dragon::Mcp::Variables::Variables()
 
 void dragon::Mcp::Variables::reset()
 {
-  /// ::
+	/// ::
 	std::fill(adc.module, adc.module + MAX_CHANNELS, DEFAULT_HI_MODULE);
 	dutils::index_fill(adc.channel, adc.channel + MAX_CHANNELS, MCP_ADC0);
 
@@ -614,13 +614,13 @@ bool dragon::Mcp::Variables::set(const midas::Database* db)
 
 dragon::SurfaceBarrier::SurfaceBarrier()
 {
-  /// ::
+	/// ::
 	reset();
 }
 
 void dragon::SurfaceBarrier::reset()
 {
-  /// ::
+	/// ::
 	dutils::reset_array(MAX_CHANNELS, ecal);
 }
 
@@ -638,7 +638,7 @@ void dragon::SurfaceBarrier::read_data(const vme::V785 adcs[], const vme::V1190&
 
 void dragon::SurfaceBarrier::calculate()
 {
-  /*!
+	/*!
 	 * Performs calibration of energies.
 	 *
 	 * Delegates work to dutils::linear_calibrate()
@@ -657,7 +657,7 @@ dragon::SurfaceBarrier::Variables::Variables()
 
 void dragon::SurfaceBarrier::Variables::reset()
 {
-  /// ::
+	/// ::
 	std::fill(adc.module, adc.module + MAX_CHANNELS, DEFAULT_HI_MODULE);
 	dutils::index_fill(adc.channel, adc.channel + MAX_CHANNELS, SB_ADC0);
 
@@ -676,7 +676,7 @@ bool dragon::SurfaceBarrier::Variables::set(const char* dbfile)
 
 bool dragon::SurfaceBarrier::Variables::set(const midas::Database* db)
 {
-  /*!
+	/*!
 	 * \param [in] db Pointer to a constructed database.
 	 */
 	bool success = check_db(db, "dragon::SurfaceBarrier");
@@ -694,13 +694,13 @@ bool dragon::SurfaceBarrier::Variables::set(const midas::Database* db)
 
 dragon::NaI::NaI()
 {
-  /// ::
+	/// ::
 	reset();
 }
 
 void dragon::NaI::reset()
 {
-  /// ::
+	/// ::
 	dutils::reset_array(MAX_CHANNELS, ecal);
 }
 
@@ -733,7 +733,7 @@ dragon::NaI::Variables::Variables()
 
 void dragon::NaI::Variables::reset()
 {
-  /// ::
+	/// ::
 	std::fill(adc.module, adc.module + MAX_CHANNELS, DEFAULT_HI_MODULE);
 	dutils::index_fill(adc.channel, adc.channel + MAX_CHANNELS, NAI_ADC0);
 	std::fill(adc.pedestal, adc.pedestal + MAX_CHANNELS, 0);
@@ -751,7 +751,7 @@ bool dragon::NaI::Variables::set(const char* dbfile)
 
 bool dragon::NaI::Variables::set(const midas::Database* db)
 {
-  /*!
+	/*!
 	 * \param [in] db Pointer to a constructed database.
 	 */
 	bool success = check_db(db, "dragon::NaI");
@@ -769,13 +769,13 @@ bool dragon::NaI::Variables::set(const midas::Database* db)
 
 dragon::Ge::Ge()
 {
-  /// ::
+	/// ::
 	reset();
 }
 
 void dragon::Ge::reset()
 {
-  /// ::
+	/// ::
 	dutils::reset_data(ecal);
 }
 
@@ -808,7 +808,7 @@ dragon::Ge::Variables::Variables()
 
 void dragon::Ge::Variables::reset()
 {
-  /// ::
+	/// ::
 	adc.module = DEFAULT_HI_MODULE;
 	adc.channel = GE_ADC0;
 	adc.pedestal = 0;
@@ -993,13 +993,13 @@ void dragon::Head::calculate()
 
 dragon::Head::Variables::Variables()
 {
-  /// ::
+	/// ::
 	reset();
 }
 
 void dragon::Head::Variables::reset()
 {
-  /// ::
+	/// ::
 	dutils::set_bank_name(HEAD_IO32_BANK, bk_io32);
 	dutils::set_bank_name(HEAD_TSC_BANK,  bk_tsc);
 	dutils::set_bank_name(HEAD_TDC_BANK,  bk_tdc);
@@ -1058,13 +1058,13 @@ bool dragon::Head::Variables::set(const midas::Database* db)
 
 dragon::Tail::Tail()
 {
-  /// ::
+	/// ::
 	reset();
 }
 
 void dragon::Tail::reset()
 {
-  /// ::
+	/// ::
 	io32.reset();
 	v1190.reset();
 	for (int i=0; i< NUM_ADC; ++i) {
@@ -1220,13 +1220,13 @@ bool dragon::Tail::set_variables(const midas::Database* db)
 
 dragon::Tail::Variables::Variables()
 {
-  /// ::
+	/// ::
 	reset();
 }
 
 void dragon::Tail::Variables::reset()
 {
-  /// ::
+	/// ::
 	dutils::set_bank_name(TAIL_IO32_BANK,   bk_io32);
 	dutils::set_bank_name(TAIL_TSC_BANK,    bk_tsc);
 	dutils::set_bank_name(TAIL_TDC_BANK,    bk_tdc);
@@ -1294,7 +1294,7 @@ dragon::Scaler::Scaler():
 void dragon::Scaler::reset()
 {
 	/*! Sets all count, rate, and sum to zero */
-  std::fill(count, count + MAX_CHANNELS, 0);
+	std::fill(count, count + MAX_CHANNELS, 0);
 	std::fill(sum, sum + MAX_CHANNELS, 0);
 	std::fill(rate, rate + MAX_CHANNELS, 0.);
 }
@@ -1437,19 +1437,19 @@ bool dragon::Scaler::Variables::set(const midas::Database* db, const char* dir)
 
 dragon::Coinc::Coinc()
 {
-  /// ::
+	/// ::
 	reset();
 }
 
 dragon::Coinc::Coinc(const dragon::Head& head_, const dragon::Tail& tail_)
 {
-  /// ::
+	/// ::
 	compose_event(head_, tail_);
 }
 
 void dragon::Coinc::reset()
 {
-  /// ::
+	/// ::
 	head.reset();
 	tail.reset();
 	dutils::reset_data(xtrig, xtofh, xtoft);
@@ -1535,7 +1535,7 @@ bool dragon::Coinc::Variables::set(const char* dbfile)
 
 bool dragon::Coinc::Variables::set(const midas::Database* db)
 {
-  /// ::
+	/// ::
 	bool success = check_db(db, "dragon::Coinc");
 
 	if(success) success = db->ReadValue("/dragon/coinc/variables/window", window);
@@ -1579,7 +1579,7 @@ bool dragon::Epics::set_variables(const midas::Database* db)
 
 void dragon::Epics::unpack(const midas::Event& event)
 {
-  /// ::
+	/// ::
 	bool report = true;
 	int bank_len;
 	float* pch = event.GetBankPointer<float>(variables.bkname, &bank_len, report, true);

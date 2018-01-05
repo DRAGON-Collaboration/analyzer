@@ -16,194 +16,194 @@
 
 #ifdef READ1
 #error ("READ1 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ2 	
+#endif
+#ifdef READ2
 #error ("READ2 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ3 	
+#endif
+#ifdef READ3
 #error ("READ3 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ4 	
+#endif
+#ifdef READ4
 #error ("READ4 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ5 	
+#endif
+#ifdef READ5
 #error ("READ5 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ6 	
+#endif
+#ifdef READ6
 #error ("READ6 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ7 	
+#endif
+#ifdef READ7
 #error ("READ7 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ8 	
+#endif
+#ifdef READ8
 #error ("READ8 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ9 	
+#endif
+#ifdef READ9
 #error ("READ9 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ10	
+#endif
+#ifdef READ10
 #error ("READ10 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ11	
+#endif
+#ifdef READ11
 #error ("READ11 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ12	
+#endif
+#ifdef READ12
 #error ("READ12 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ13	
+#endif
+#ifdef READ13
 #error ("READ13 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ14	
+#endif
+#ifdef READ14
 #error ("READ14 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ15	
+#endif
+#ifdef READ15
 #error ("READ15 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ16	
+#endif
+#ifdef READ16
 #error ("READ16 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ17	
+#endif
+#ifdef READ17
 #error ("READ17 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ18	
+#endif
+#ifdef READ18
 #error ("READ18 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ19	
+#endif
+#ifdef READ19
 #error ("READ19 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ20	
+#endif
+#ifdef READ20
 #error ("READ20 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ21	
+#endif
+#ifdef READ21
 #error ("READ21 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ22	
+#endif
+#ifdef READ22
 #error ("READ22 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ23	
+#endif
+#ifdef READ23
 #error ("READ23 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ24	
+#endif
+#ifdef READ24
 #error ("READ24 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ25	
+#endif
+#ifdef READ25
 #error ("READ25 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ26	
+#endif
+#ifdef READ26
 #error ("READ26 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ27	
+#endif
+#ifdef READ27
 #error ("READ27 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ28	
+#endif
+#ifdef READ28
 #error ("READ28 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ29	
+#endif
+#ifdef READ29
 #error ("READ29 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ30	
+#endif
+#ifdef READ30
 #error ("READ30 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ31	
+#endif
+#ifdef READ31
 #error ("READ31 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ32	
+#endif
+#ifdef READ32
 #error ("READ32 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ33	
+#endif
+#ifdef READ33
 #error ("READ33 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ34	
+#endif
+#ifdef READ34
 #error ("READ34 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ35	
+#endif
+#ifdef READ35
 #error ("READ35 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ36	
+#endif
+#ifdef READ36
 #error ("READ36 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ37	
+#endif
+#ifdef READ37
 #error ("READ37 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ38	
+#endif
+#ifdef READ38
 #error ("READ38 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ39	
+#endif
+#ifdef READ39
 #error ("READ39 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ40	
+#endif
+#ifdef READ40
 #error ("READ40 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ41	
+#endif
+#ifdef READ41
 #error ("READ41 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ42	
+#endif
+#ifdef READ42
 #error ("READ42 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ43	
+#endif
+#ifdef READ43
 #error ("READ43 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ44	
+#endif
+#ifdef READ44
 #error ("READ44 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ45	
+#endif
+#ifdef READ45
 #error ("READ45 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ46	
+#endif
+#ifdef READ46
 #error ("READ46 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ47	
+#endif
+#ifdef READ47
 #error ("READ47 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ48	
+#endif
+#ifdef READ48
 #error ("READ48 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ49	
+#endif
+#ifdef READ49
 #error ("READ49 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ50	
+#endif
+#ifdef READ50
 #error ("READ50 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ51	
+#endif
+#ifdef READ51
 #error ("READ51 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ52	
+#endif
+#ifdef READ52
 #error ("READ52 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ53	
+#endif
+#ifdef READ53
 #error ("READ53 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ54	
+#endif
+#ifdef READ54
 #error ("READ54 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ55	
+#endif
+#ifdef READ55
 #error ("READ55 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ56	
+#endif
+#ifdef READ56
 #error ("READ56 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ57	
+#endif
+#ifdef READ57
 #error ("READ57 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ58	
+#endif
+#ifdef READ58
 #error ("READ58 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ59	
+#endif
+#ifdef READ59
 #error ("READ59 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ60	
+#endif
+#ifdef READ60
 #error ("READ60 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ61	
+#endif
+#ifdef READ61
 #error ("READ61 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ62	
+#endif
+#ifdef READ62
 #error ("READ62 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ63	
+#endif
+#ifdef READ63
 #error ("READ63 already defined, you'll need to change the name")
-#endif			 	
-#ifdef READ64	
+#endif
+#ifdef READ64
 #error ("READ64 already defined, you'll need to change the name")
 #endif
 

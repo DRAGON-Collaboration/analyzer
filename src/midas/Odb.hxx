@@ -246,7 +246,7 @@ template<> inline int Odb::ReadArray<std::string>(const char* path, std::string*
 			if (status != SUCCESS) break;
 			array[i] = buf;
 		}
-		
+
 		if (status == SUCCESS) return true;
 	}
 

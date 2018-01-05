@@ -39,7 +39,7 @@ int main(int argc , char** argv)
 
 	fTree.SetCircular(0);
 	fTree.Branch("coinc","dragon::Coinc",&coincAddr);
-	fFormula = new TTreeFormula("formula", "coinc.head.bgo.q[0]", &fTree);
+	fFormula = new TTreeFormula("formula", "coinc.head.bgo.esort[0]", &fTree);
 	assert (fFormula->GetNdim());
 
 	int nnn = 0;
@@ -48,7 +48,7 @@ int main(int argc , char** argv)
   } while (++nnn < 10000000);
 
 	printf ( "hst.GetEntries() = %f\n", hst.GetEntries() );
-	
+
 	delete fFormula;
 
 }

@@ -3,8 +3,7 @@ doc/Doxyfile.bak
 anaDragon
 gmon.out
 *.root
-lib/DragonDictionary.cxx
-lib/DragonDictionary.h
+*Dictionary*
 lib/libDragon.so.dSYM/
 longAttach.dat
 rbeer.log
@@ -39,3 +38,4 @@ Makefile.local
 config.mk
 doc/html
 doc/latex
+test/filltest

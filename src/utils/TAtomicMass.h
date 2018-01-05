@@ -21,7 +21,7 @@ class TAtomicMassTable
 #endif
 {
 public:
-  /// Contains information on a nucleus
+	/// Contains information on a nucleus
 	struct Nucleus_t {
 		/// Symbol, e.g. 3He
 		char fSymbol[3];
@@ -33,7 +33,7 @@ public:
 		int fN;
 	};
 
-  /// Contains mass excess information from AME file
+	/// Contains mass excess information from AME file
 	struct MassExcess_t {
 		/// Nominal value of the mass excess (in keV)
 		double fValue; // keV
@@ -49,7 +49,6 @@ public:
 	};
 
 #ifndef DOXYGEN_SKIP
-	
 private:
 
 	typedef std::map<Nucleus_t, MassExcess_t, CompareNucleus_t> Map_t;
@@ -134,7 +133,9 @@ public:
 	static double ElectronMass() { return 510.998910; } // keV/c^2
 
 private:
+	/// Parses the file defined by <code>file</code> (default <code>AMEPP_DEFAULT_FILE=\"${DRAGONSYS}/src/utils/mass.mas12\"</code>).
 	void ParseFile(const char* = 0);
+	/// Parses line <code>line</code> of <code>file</code>
 	bool ParseLine(const std::string&, Nucleus_t*, MassExcess_t*) const;
 
 private:

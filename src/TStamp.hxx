@@ -21,7 +21,7 @@ class Diagnostics;
  * coincidence events have been received from the data source. Then, check if the early event
  * has any coincidence matches, and, if so, to process the events together. Then the earliest
  * event is processed as a singles event and removed from the queue.
- * 
+ *
  * The interface consists of Push() and Pop() functions to insert and remove events from the
  * queue, Size() to get the queue length, and Flush() to explicitly empty  the queue. To
  * set how coincidence and singles events should be handled, the class provides the private
@@ -59,7 +59,7 @@ public:
 private:
 	/// Maximum allowable time interval between the first and last event stored in the queue.
 	double fMaxDelta;
-	
+
 	/// Internal container of events waiting to be matched
 	MultiSet_t fEvents;
 
@@ -85,7 +85,7 @@ public:
 
 	/// Erase the earliest event in the queue, first searching for coincidences.
 	virtual void Pop(int32_t& singles_id, bool& found_coinc);
- 
+
 	/// Flush all events from the queue.
 	virtual void Flush(int max_time = -1, tstamp::Diagnostics* diagnostics = 0);
 
@@ -142,11 +142,11 @@ private:
  * some other class (the "owner"). The owning class will perform the work of handling
  * singles or coincidence events popped from the queue (see below).
  * \tparam T The type of class owning the queue; must have the following member functions:
- * 
+ *
  * - <tt> void Process(const midas::Event&); </tt>
  * - <tt> void Process(const midas::Event&, cont midas::Event&); </tt>
  * - <tt> void Process(tstamp::Diagnostics*); </tt>
- * 
+ *
  * to handle singles and coincidence events, respectively.
  */
 template <class T>
@@ -154,12 +154,12 @@ class OwnedQueue: public Queue {
 private:
 	/// Reference to the class "owning" the queue
 	T& fOwner;
-	
+
 public:
 	/// Calls base constructor with maxDelta argument; sets fOwner
 	OwnedQueue(double maxDelta, T* owner):
 		tstamp::Queue(maxDelta), fOwner(*owner) { }
-	
+
 	/// Empty
 	~OwnedQueue() { }
 
@@ -167,7 +167,7 @@ private:
 	/// Calls <tt> fOwner.Process(const midas::Event&); </tt>
 	void HandleSingle(const midas::Event& event) const
 		{ fOwner.Process(event); }
-	
+
 	/// Calls <tt> fOwner.Process(const midas::Event&, const midas::Event&); </tt>
 	void HandleCoinc(const midas::Event& event1, const midas::Event& event2) const
 		{ fOwner.Process(event1, event2); }

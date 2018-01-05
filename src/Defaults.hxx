@@ -6,7 +6,7 @@
  * \code
  *** Sketch of channel mappings ***
 
- ** HEAVY-ION ** 
+ ** HEAVY-ION **
 
  ADC0
  0..3 = MCP_ANODE[]

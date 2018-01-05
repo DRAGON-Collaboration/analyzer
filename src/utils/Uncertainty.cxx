@@ -44,13 +44,13 @@ UDouble_t UDouble_t::operator+ (const UDouble_t& rhs) const
 	out.fSys[1]  = add_quadriture(fSys[1], rhs.fSys[1]);
 
 	out.fNominal += rhs.fNominal;
-	
+
 	return out;
 }
 
 UDouble_t UDouble_t::operator- (const UDouble_t& rhs) const
 {
-  UDouble_t out (*this);
+	UDouble_t out (*this);
 
 	out.fErr[0]  = add_quadriture(fErr[0], rhs.fErr[0]);
 	out.fErr[1] = add_quadriture(fErr[1], rhs.fErr[1]);
@@ -65,7 +65,7 @@ UDouble_t UDouble_t::operator- (const UDouble_t& rhs) const
 
 UDouble_t UDouble_t::operator* (const UDouble_t& rhs) const
 {
-  UDouble_t out (*this);
+	UDouble_t out (*this);
 
 	double lowRel  = add_quadriture(GetRelErrLow(),  rhs.GetRelErrLow());
 	double highRel = add_quadriture(GetRelErrHigh(), rhs.GetRelErrHigh());
@@ -79,13 +79,13 @@ UDouble_t UDouble_t::operator* (const UDouble_t& rhs) const
 	out.SetRelErrHigh(highRel);
 
 	out.SetRelSysErr(lowRelS, highRelS);
-	
+
 	return out;
 }
 
 UDouble_t UDouble_t::operator/ (const UDouble_t& rhs) const
 {
-  UDouble_t out (*this);
+	UDouble_t out (*this);
 
 	double lowRel  = add_quadriture(GetRelErrLow(),  rhs.GetRelErrLow());
 	double highRel = add_quadriture(GetRelErrHigh(), rhs.GetRelErrHigh());

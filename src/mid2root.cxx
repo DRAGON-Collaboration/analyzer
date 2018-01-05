@@ -29,7 +29,7 @@
 #ifndef DOXYGEN_SKIP
 namespace {
 bool arg_return = false;
-const char* const msg_use = 
+const char* const msg_use =
 	"usage: mid2root <input file> [-o <output file>] [-v <xml odb>] [-histos <*.xml> ] "
 	"[--singles] [--overwrite] [--quiet <n>] [--help]\n";
 }
@@ -177,7 +177,7 @@ int help()
 	m2r::cerr
 		<< "\nmid2root: A program to convert DRAGON experiment data from MIDAS format into ROOT Trees.\n" << msg_use;
 
-	const char* msg_args = 
+	const char* msg_args =
 		"\n"
 		"Program arguments:\n"
 		"\n"
@@ -336,7 +336,7 @@ int main_(int argc, char** argv)
 		gErrorIgnoreLevel = 3001; // Suppress error if $DH isn't available
 		Bool_t have_DH = !(gSystem->ExpandPathName(outdir));
 		gErrorIgnoreLevel = gel; // reset error level
-		
+
 		dhcheck:
 		if (have_DH) { // Check for $DH/rootfiles
 			outdir += "/rootfiles";
@@ -412,7 +412,7 @@ int main_(int argc, char** argv)
 							<< "\' for writing.\n\n";
 		return 1;
 	}
-	
+
 	//
 	// Create TTrees, set branches, etc.
 	const int nIds = 9;
@@ -510,7 +510,7 @@ int main_(int argc, char** argv)
 
 	dragon::Unpacker
 		unpack (&head, &tail, &coinc, &epics, &head_scaler, &tail_scaler, &aux_scaler, &runpar, &tsdiag, options.fSingles);
-	
+
 	//
 	// Set coincidence variables
 	if(!options.fSingles) {
@@ -533,7 +533,7 @@ int main_(int argc, char** argv)
 	else {
 		m2r::cout << "\nRunning in singles mode.\n\n";
 	}
-	
+
 	//
 	// Begin-of-run initialization
 	unpack.HandleBor(options.fOdb.c_str());
@@ -542,7 +542,7 @@ int main_(int argc, char** argv)
 	// ODB parameters
 	std::auto_ptr<midas::Database> db0(0); // run start
 	std::auto_ptr<midas::Database> db1(0); // run stop
-	
+
 	//
 	// Loop over events in the midas file
 	int nnn = 0;
@@ -597,7 +597,7 @@ int main_(int argc, char** argv)
 		while (1) {
 			qsize = unpack.FlushQueueIterative(); // Fills classes implicitly
 			if (qsize == 0) break;
-			
+
 			// Explicitly fill TTrees
 			std::vector<Int_t> which = unpack.GetUnpackedCodes();
 			for (int i=0; i< nIds; ++i) {
@@ -615,7 +615,7 @@ int main_(int argc, char** argv)
 					}
 				}
 			}
-		} 
+		}
 	}
 
 	m2r::cout << "\nDone!\n\n";
@@ -696,7 +696,7 @@ int main(int argc, char** argv)
 // to be created and filled.
 
 //
-// Include necessary rootbeer headers 
+// Include necessary rootbeer headers
 #include "Main.hxx"
 #include "Rint.hxx"
 #include "Event.hxx"
@@ -728,7 +728,7 @@ rb::Main* rb::GetMain() { return new m2r::Main(); }
 namespace m2r {
 
 //
-// Rootbeer associates histograms with a data address using 
+// Rootbeer associates histograms with a data address using
 // classes derived from rb::Event, which contain a wrapper
 // to classes holding user data. However, here we don't want
 // to use all of this, so we can fake it by just copying
@@ -752,7 +752,7 @@ public:
 	//
 	// Initialize data wrapper with template arguments
 	EventTemplate(): fWrapper(STR, this, B, "") { }
-  //
+	//
 	// Copy data at an address to the data wrapper
 	void SetData(const void* addr) { *fWrapper = *reinterpret_cast<const T*>(addr); }
 private:
@@ -793,8 +793,8 @@ void rb::Rint::RegisterEvents()
 	RegisterEvent<m2r::SonikEvent> (0,                  "SonikEvent");
 	RegisterEvent<m2r::HeadEvent>  (DRAGON_HEAD_EVENT,   "HeadEvent");
 	RegisterEvent<m2r::TailEvent>  (DRAGON_TAIL_EVENT,   "TailEvent");
-  RegisterEvent<m2r::CoincEvent> (DRAGON_COINC_EVENT, "CoincEvent");
-  RegisterEvent<m2r::EpicsEvent> (DRAGON_EPICS_EVENT, "EpicsEvent");
+	RegisterEvent<m2r::CoincEvent> (DRAGON_COINC_EVENT, "CoincEvent");
+	RegisterEvent<m2r::EpicsEvent> (DRAGON_EPICS_EVENT, "EpicsEvent");
 	RegisterEvent<m2r::HeadScaler> (DRAGON_HEAD_SCALER, "HeadScaler");
 	RegisterEvent<m2r::TailScaler> (DRAGON_TAIL_SCALER, "TailScaler");
 	RegisterEvent<m2r::AuxScaler>  (DRAGON_AUX_SCALER,  "AuxScaler");
@@ -813,7 +813,7 @@ void m2r::fill_histos(int eventCode, void* addr)
 {
 	m2r::AEvent* event = dynamic_cast<m2r::AEvent*>(rb::Rint::gApp()->GetEvent(eventCode));
 	if(!event) return;
-	
+
 	event->SetData(addr);
 	event->GetHistManager()->FillAll();
 }
@@ -847,7 +847,7 @@ int main(int argc, char** argv)
 		"for instructions on how to install ROOT. Once it is set up, re-\n"
 		"compile the DRAGON analyzer with USE_ROOT=YES set in the Makefile."
 		"\n\n";
-	
+
 	std::cerr << msg;
 	return 0;
 }

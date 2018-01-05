@@ -56,7 +56,7 @@ public:
 	AStrm& operator<<(StandardEndLine)
 		{	return operator<< ("\n"); }
 #endif
-	
+
 	/// Empty constructor
 	AStrm(std::ostream* strm = 0): fStream(strm) {}
 	/// Empty destructor
@@ -263,7 +263,7 @@ namespace dragon { namespace utils {
 class ADelayedMessagePrinter {
 protected:
 	/// See concrete template class constructor
- 	ADelayedMessagePrinter(const char* location, int32_t period = 0,
+	ADelayedMessagePrinter(const char* location, int32_t period = 0,
 												 const char* file = "", int line = -1,
 												 const char* message = 0):
 		fPeriod(period), fNumErrors(0), fLocation(location), fFile(file), fLine(line)
@@ -276,7 +276,7 @@ public:
 	/// Set message period
 	void  SetPeriod(int32_t period) { fPeriod = period; }
 	/// Reset message counter to zero
-	void  ResetCounter() { fNumErrors = 0;  }	
+	void  ResetCounter() { fNumErrors = 0;  }
 	/// Reset the message to null string
 	void  ResetMessage() { fMessage = ""; }
 	/// Return reference to message string, can use this to change the message
@@ -301,11 +301,11 @@ protected:
 	std::string fMessage;
 	/// Message location
 	std::string fLocation;
-	/// Message file location 
+	/// Message file location
 	std::string fFile;
 	/// Message line location
 	int fLine;
-};	
+};
 
 /// Class for delayed error printing
 /*! Useful, for example if we have lots of repeating error
@@ -320,8 +320,8 @@ public:
 	 *  \param line Line from where the message originates
 	 *  \param period How often to print the message (0 = only when explicitly requested)
 	 *  \param message The message, if NULL can be set later using GetMessage()
-	 */ 
- 	DelayedMessagePrinter(const char* location, int32_t period = 0,
+	 */
+	DelayedMessagePrinter(const char* location, int32_t period = 0,
 												const char* file = "", int line = -1,
 												const char* message = 0):
 		ADelayedMessagePrinter(location, period, file, line, message) { }
@@ -389,17 +389,17 @@ public:
 		{
 			///
 			/// Frees memory associated to the printer and removes it from the collection
-			/// 
+			///
 			/// \param base Base part of the key
 			/// \param code Offset part of the key
 
-			int64_t key = (int64_t)base + code;	
+			int64_t key = (int64_t)base + code;
 			std::map<int64_t, ADelayedMessagePrinter*>::iterator i = fPrinters.find(key);
 			if(i!=fPrinters.end()) { delete i->second; fPrinters.erase(i); }
 			else Warning("DeleteDelayedMessagePrinter")
 						 << "No delayed error handler with  key " << key << ", doing nothing.";
 		}
-	
+
 	/// Print messages for all registered printers
 	void Flush();
 
@@ -447,4 +447,3 @@ extern DelayedMessageFactory gDelayedMessageFactory;
 
 
 #endif // #ifndef DRAGON_ERROR_HXX
-

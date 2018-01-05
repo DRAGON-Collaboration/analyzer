@@ -1,6 +1,6 @@
 ///
 /// \file Selectors.hxx
-/// \brief Defines generic and specific TSelector classes for use with 
+/// \brief Defines generic and specific TSelector classes for use with
 /// DRAGON data.
 ///
 #ifndef DRAGON_ROOT_SELECTORS_HXX
@@ -642,16 +642,16 @@ public:
 
 public:
 	/// Construct from slope and offset array
- 	DsssdCalibrate(Double_t* slopes, Double_t* offsets);
+	DsssdCalibrate(Double_t* slopes, Double_t* offsets);
 	/// Construct from database class instance
 	DsssdCalibrate(midas::Database* odb);
 	/// Construct from database file
 	DsssdCalibrate(const char* odbfile);
 	/// Clean up
- 	~DsssdCalibrate();
+	~DsssdCalibrate();
 	/// Initialization routines
 	void Init(TTree*);
- 	/// 
+	///
 	void Begin(TTree*);
 	///
 	Bool_t Process(Long64_t entry);

@@ -34,7 +34,7 @@
 
 namespace dutils = dragon::utils;
 
-namespace { 
+namespace {
 //
 // Alias for surface barrier max channels
 const Int_t NSB = dragon::SurfaceBarrier::MAX_CHANNELS;
@@ -88,7 +88,7 @@ public:
 
 //
 // Delete a pointer and reset to NULL
-template <class T> void Zap(T*& t) 
+template <class T> void Zap(T*& t)
 {
 	if(!t) return;
 	delete t;
@@ -111,7 +111,7 @@ void dragon::MakeChains(const char* prefix, const Int_t* runnumbers, Int_t nruns
 	/// \param [in] runnumbers Pointer to a valid array of desired run numbers to chain together.
 	/// \param [in] nruns Length of _runnumbers_.
 	/// \param format String specifying the file name format, uses _printf_ syntax.
-	/// 
+	///
 	/// \note Does not return anything, but creates `new` heap-allocated TChains that become part of
 	/// the present ROOT directory; these must be deleted by the user.
 	if ( !(sonik) ){
@@ -126,7 +126,7 @@ void dragon::MakeChains(const char* prefix, const Int_t* runnumbers, Int_t nruns
 			new TChain(Form("%s7",  "t"), "Glocal run parameters.")
 		};
 		Int_t nchains = sizeof(chain) / sizeof(TChain*);
-	
+
 		for(Int_t i=0; i< nruns; ++i) {
 			char fname[4096];
 			sprintf(fname, format, runnumbers[i]);
@@ -152,7 +152,6 @@ void dragon::MakeChains(const char* prefix, const Int_t* runnumbers, Int_t nruns
 		chain[6]->SetName(Form("%s6",  prefix));
 		chain[7]->SetName(Form("%s7",  prefix));
 	}
-	
 	else{
 		TChain* chain[] = {
 			new TChain(Form("%s0",  "t"), "SONIK event."),
@@ -166,7 +165,6 @@ void dragon::MakeChains(const char* prefix, const Int_t* runnumbers, Int_t nruns
 			new TChain(Form("%s7",  "t"), "Glocal run parameters.")
 		};
 		Int_t nchains = sizeof(chain) / sizeof(TChain*);
-	
 		for(Int_t i=0; i< nruns; ++i) {
 			char fname[4096];
 			sprintf(fname, format, runnumbers[i]);
@@ -191,7 +189,7 @@ void dragon::MakeChains(const char* prefix, const Int_t* runnumbers, Int_t nruns
 		// chain[4]->SetName(Form("%s5",  prefix));
 		chain[3]->SetName(Form("%s20", prefix));
 		chain[4]->SetName(Form("%s6",  prefix));
-		chain[5]->SetName(Form("%s7",  prefix));		
+		chain[5]->SetName(Form("%s7",  prefix));
 	}
 }
 
@@ -222,7 +220,7 @@ void dragon::FriendChain(TChain* chain, const char* friend_name, const char* fri
 	///
 	Int_t runnum;
 	TChain* friendchain = new TChain(friend_name);
-	
+
 	TString format0(format);
 	gSystem->ExpandPathName(format0);
 	for(Int_t i=0; i< chain->GetNtrees(); ++i) {
@@ -272,7 +270,7 @@ Double_t dragon::MetricPrefix::Get(const char* prefix)
 
 		m["y"]   = 1e-24; // yocto
 		m["z"]   = 1e-21; // zepto
- 		m["a"]   = 1e-18; // atto
+		m["a"]   = 1e-18; // atto
 		m["f"]   = 1e-15; // femto
 		m["p"]   = 1e-12; // pico
 		m["n"]   = 1e-9;  // nano
@@ -365,7 +363,7 @@ void dragon::TTreeFilter::SetFilterCondition(TTree* tree, const char* condition)
 	///
 	/// \param tree The input TTree to be filtered
 	/// \param condition String specifying the filter condition. Should be a boolean
-	///  expresion involving valid parameters of _tree_. See ROOT's 
+	///  expresion involving valid parameters of _tree_. See ROOT's
 	///  <a href=http://root.cern.ch/root/html/TTree.html#TTree:Draw@2> ocumentation on
 	///  TTree::Draw()</a> for more information.
 	/// \note If _tree_ has already been set as an input, the effect of this method is
@@ -431,12 +429,12 @@ Int_t dragon::TTreeFilter::Run()
 
 	for(Map_t::iterator i = fInputs.begin(); i != fInputs.end(); ++i) {
 		if(CheckCondition(i->first) == kFALSE) {
-			utils::Warning("TTreeFilter::Run", __FILE__, __LINE__) 
+			utils::Warning("TTreeFilter::Run", __FILE__, __LINE__)
 				<< "Invalid filter condition: \"" << GetFilterCondition(i->first)
 				<< "\" for TTree at " << i->first << ", skipping.";
 			continue;
 		}
-		
+
 		// Construct arguments
 		ThreadArgs_t *args = new ThreadArgs_t();
 		args->fIn     = i->first;
@@ -448,10 +446,10 @@ Int_t dragon::TTreeFilter::Run()
 		TThread *thread =	GetThreaded() ? new TThread(run_thread, args) : 0;
 		threads.push_back(std::make_pair(thread, args));
 	}
-	
+
 	//
 	// Initial message
-	std::cout 
+	std::cout
 		<< "Running the following filters:\n"
 		<< "\t<tree name>, <num events>, <filter condition>\n";
 	for(size_t i=0; i< threads.size(); ++i)
@@ -485,7 +483,7 @@ Int_t dragon::TTreeFilter::Run()
 		Long64_t nnn = nout64 ? *nout64 : 0;
 		std::cout << "\t" << threads[i].second->fIn->GetName() << ", " << nnn << "\n";
 
-		if(GetThreaded()) 
+		if(GetThreaded())
 			delete threads[i].first;
 		if(1)
 			delete threads[i].second;
@@ -664,7 +662,7 @@ Bool_t dragon::RossumData::ParseFile()
 				static int i = 0;
 				ssname << "_" << i++ ;
 			}
-			sstitle << "Farady cup readings proceeding run " << runnum;
+			sstitle << "Farady cup readings preceding run " << runnum;
 			tree->SetNameTitle(ssname.str().c_str(), sstitle.str().c_str());
 
 			if(!fullRun) tree->Delete();
@@ -709,7 +707,7 @@ UDouble_t dragon::RossumData::AverageCurrent(Int_t run, Int_t cup, Int_t iterati
 	/// \param skipEnd Length of time in seconds to skip at the end of the cup readings
 	/// \returns Average current value for the parameters specified. This is returned as a class
 	/// that holds both the nominal average value and the 1-sigma error. The 1-sigma error is
-	/// calculated as the standard deviation of each individual cup reading over the specified 
+	/// calculated as the standard deviation of each individual cup reading over the specified
 	/// diration. Note that to see the mean & error as part of a ROOT session, you can do
 	/// \code
 	/// rossumData->AverageCurrent(1000, 0, 0)->Print();
@@ -758,13 +756,13 @@ UDouble_t dragon::RossumData::AverageCurrent(Int_t run, Int_t cup, Int_t iterati
 			time.push_back(time_);
 		}
 	}
-	
+
 	//
 	// Find last time
 	const std::vector<Double_t>::iterator::difference_type diffLast =
 		std::lower_bound(time.begin(), time.end(), time.back() - skipEnd, std::less_equal<Double_t>()) - time.begin();
 
-	const std::vector<Double_t>::iterator lastCurrent = 
+	const std::vector<Double_t>::iterator lastCurrent =
 		current.begin() + diffLast;
 
 	Double_t avg = utils::calculate_mean(current.begin(), lastCurrent);
@@ -861,7 +859,7 @@ Int_t dragon::BeamNorm::ReadSbCounts(TFile* datafile, Double_t pkLow0, Double_t 
 	Int_t runnum = 0;
 	midas::Database* db = static_cast<midas::Database*>(datafile->Get("odbstop"));
 	if(db) haveRunnum = db->ReadValue("/Runinfo/Run number", runnum);
-	if(!db || !haveRunnum) {		 
+	if(!db || !haveRunnum) {
 		dutils::Error("BeamNorm::ReadSbCounts", __FILE__, __LINE__)
 			<< "couldn't read run number from TFile at " << datafile;
 		return 0;
@@ -891,7 +889,7 @@ Int_t dragon::BeamNorm::ReadSbCounts(TFile* datafile, Double_t pkLow0, Double_t 
 
 	AutoResetBranchAddresses Rst3_(t3);
 	AutoResetBranchAddresses Rst20_(t20);
-			
+
 	Long64_t ncounts[NSB];
 	Long64_t ncounts_full[NSB];
 	for(int i=0; i< NSB; ++i) {
@@ -961,7 +959,7 @@ Int_t dragon::BeamNorm::ReadSbCounts(TFile* datafile, Double_t pkLow0, Double_t 
 		const Double_t pressureSigma = utils::calculate_stddev(pressure.begin(), pressure.end(), pressureMean);
 		rundata->pressure_full = UDouble_t (pressureMean, pressureSigma);
 	}
-	
+
 	rundata->live_time = live;
 	rundata->live_time_head  = live_full[0];
 	rundata->live_time_tail  = live_full[1];
@@ -982,7 +980,7 @@ void dragon::BeamNorm::ReadFC4(Int_t runnum, Double_t skipBegin, Double_t skipEn
 	for(int i=0; i< 3; ++i) {
 		rundata->fc4[i] = fRossum->AverageCurrent(runnum, 0, i, skipBegin, skipEnd);
 	}
-	
+
 	rundata->fc1 = fRossum->AverageCurrent(runnum, 1, 0, skipBegin, skipEnd);
 }
 
@@ -1002,7 +1000,7 @@ void dragon::BeamNorm::CalculateNorm(Int_t run, Int_t chargeState)
 			UDouble_t qe (TMath::Qe(), TMath::QeUncertainty());
 			rundata->sbnorm[i]  = fc4avg * rundata->pressure * rundata->time;
 			rundata->sbnorm[i] /= (qe * (double)chargeState * (rundata->sb_counts[i] / rundata->live_time));
-			
+
 			if(rundata->pressure_full.GetNominal() != 0) {
 				rundata->nbeam[i] = (rundata->sb_counts_full[i] / rundata->live_time_tail) * rundata->sbnorm[i] / rundata->pressure_full;
 			}
@@ -1049,7 +1047,7 @@ UInt_t dragon::BeamNorm::GetParams(const char* param, std::vector<Double_t> *run
 	if(formula.GetNdim() == 0) return 0;
 	TLeaf* leaf = formula.GetLeaf(0);
 	if(!leaf) return 0;
-	
+
 	TString form = param, form1, form2;
 	if(!strcmp(leaf->GetTypeName(), "UDouble_t")) {
 		form1 = form2 = param;
@@ -1057,9 +1055,9 @@ UInt_t dragon::BeamNorm::GetParams(const char* param, std::vector<Double_t> *run
 		form1 += ".GetErrLow()";
 		form2 += ".GetErrHigh()";
 	}
-	 
+
 	std::vector<Double_t> central, low, high;
-	
+
 	this->Draw("runnum", "", "goff");
 	for(Int_t i=0; i< fRunDataTree.GetEntries(); ++i)
 		runnum->push_back(fRunDataTree.GetV1()[i]);
@@ -1082,26 +1080,26 @@ UInt_t dragon::BeamNorm::GetParams(const char* param, std::vector<Double_t> *run
 	}
 	for(Int_t i=0; i< fRunDataTree.GetEntries(); ++i)
 		parval->push_back(UDouble_t(central[i], low[i], high[i]));
-	
+
 	return runnum->size();
 }
 
 TGraph* dragon::BeamNorm::Plot(const char* param, Marker_t marker, Color_t markerColor)
 {
-	/// \param param String specifying the parameter to plot, should be a member of 
+	/// \param param String specifying the parameter to plot, should be a member of
 	///  dragon::BeamNorm::RunData
 	/// \param marker Marker symbol
 	/// \param markerColor Marker color
 	/// \returns TGraph pointer containing _param_ vs. run number, responsibility is on the
 	///  user to delete this. In case of error, returns 0.
-	/// 
+	///
 	///  Also draws the returned TGraph in its own window.
-	
+
 	TGraphAsymmErrors* gr = 0;
 	std::vector<Double_t>  runnum;
 	std::vector<UDouble_t> parval;
 	UInt_t npar = GetParams(param, &runnum, &parval);
-	
+
 	if(npar) {
 		gr = PlotUncertainties(runnum.size(), &runnum[0], &parval[0]);
 		gr->SetMarkerStyle(marker);
@@ -1109,18 +1107,18 @@ TGraph* dragon::BeamNorm::Plot(const char* param, Marker_t marker, Color_t marke
 		gr->Draw("AP");
 	}
 	return gr;
-}	
+}
 
 TGraphErrors* dragon::BeamNorm::PlotVal(const TString& valstr, int which, Marker_t marker, Color_t markerColor)
 {
-	/// \param valstr String specifying the parameter to plot, should be a member of 
+	/// \param valstr String specifying the parameter to plot, should be a member of
 	///  dragon::BeamNorm::RunData
 	/// \param which Specifies which array index to plot, ignored if valstr is not an array
 	/// \param marker Marker symbol
 	/// \param markerColor Marker color
 	/// \returns TGraphErrors pointer containing _param_ vs. run number, responsibility is on the
 	///  user to delete this. In case of error, returns 0.
-	/// 
+	///
 	///  Also draws the returned TGraph in its own window.
 
 	std::vector<double> rn, val, err;
@@ -1205,7 +1203,7 @@ TGraphErrors* dragon::BeamNorm::PlotVal(const TString& valstr, int which, Marker
 		gr->Draw("AP");
 	}
 
-	return gr;	
+	return gr;
 }
 
 TGraphErrors* dragon::BeamNorm::PlotNbeam(double sbnorm, int which, Marker_t marker, Color_t markerColor)
@@ -1216,7 +1214,7 @@ TGraphErrors* dragon::BeamNorm::PlotNbeam(double sbnorm, int which, Marker_t mar
 		rn.push_back(rd->runnum);
 
 		UDouble_t nbm = (rd->sb_counts_full[which] / rd->live_time_tail) * sbnorm / rd->pressure_full;
-		
+
 		val.push_back(nbm.GetNominal());
 		err.push_back(nbm.GetErrLow());
 	}
@@ -1297,7 +1295,7 @@ void dragon::BeamNorm::CalculateRecoils(TFile* datafile, const char* treename, c
 		}
 	} catch (RunData*) {
 		null_rundata(rundata);
-	}	
+	}
 }
 
 Long64_t dragon::BeamNorm::Draw(const char* varexp, const char* selection, Option_t* option,
@@ -1323,7 +1321,7 @@ void dragon::BeamNorm::BatchCalculate(TChain* chain, Int_t chargeBeam, Double_t 
 {
 	TObjArray* flist = chain->GetListOfFiles();
 	for(Int_t i=0; i< flist->GetEntries(); ++i) {
-		if(!i) 
+		if(!i)
 			std::cout << "Calculating normalization for runs ";
 
 		std::auto_ptr<TFile> file (TFile::Open(flist->At(i)->GetTitle()));
@@ -1380,7 +1378,7 @@ UDouble_t dragon::BeamNorm::CalculateEfficiency(Bool_t print)
 	UDouble_t eff (1, 0);
 	for(std::map<std::string, UDouble_t>::iterator it = fEfficiencies.begin(); it != fEfficiencies.end(); ++it) {
 		eff *= it->second;
-	}	
+	}
 	if(print) {
 		std::cout << eff*100. << " %\n";
 	}
@@ -1448,13 +1446,13 @@ dragon::LiveTimeCalculator::LiveTimeCalculator():
 	Reset();
 }
 
-dragon::LiveTimeCalculator::LiveTimeCalculator(TFile* file, Bool_t calculate): 
+dragon::LiveTimeCalculator::LiveTimeCalculator(TFile* file, Bool_t calculate):
 	fFile(file)
 {
 	/// \param file Pointer to TFile containing run data. Takes no ownership.
 	/// \param calculate If set to true, performs a full-run live time calculation
 	///  on initialization
-	
+
 	Reset();
 	if(calculate) Calculate();
 }
@@ -1479,7 +1477,7 @@ inline int get_which_indx(const char* which) {
 
 inline Double_t get_from_array(const Double_t* arr, const char* which, const char* func) {
 	int indx = get_which_indx(which);
-	
+
 	if(indx < 0) {
 		dutils::Error(func, __FILE__, __LINE__)
 			<< "Invalid specification \"" << which
@@ -1584,9 +1582,9 @@ Double_t dragon::LiveTimeCalculator::CalculateRuntime(midas::Database* db, const
 	db->ReadArray("/Experiment/Run Parameters/TSC_TriggerStop",  trigStop,  2);
 
 	// Append rollovers to stop time
-	const Double_t rolltime = 0xffffffff / 20e6; // 32-bit clock rollover in seconds	
+	const Double_t rolltime = 0xffffffff / 20e6; // 32-bit clock rollover in seconds
 	int nroll = tclock / rolltime;
-	for(int i=0; i<2; ++i) trigStop[i] += nroll*rolltime;	
+	for(int i=0; i<2; ++i) trigStop[i] += nroll*rolltime;
 
 	// now calculte the appropriate run time
 	switch(get_which_indx(which)) {
@@ -1637,7 +1635,7 @@ inline Double_t correct_rollover_fe_bug(TBranch* trigBranch, Double_t& trig_time
 					<< "rollCorrect != 0 and host is not jabberwock!";
 		}
 	}
-	
+
 	return rollCorrect;
 } }
 
@@ -1700,7 +1698,7 @@ void dragon::LiveTimeCalculator::DoCalculate(Double_t tbegin, Double_t tend)
 
 		// Correct TSC4 rollover for early runs taken with a frontend bug
 		Double_t rollCorrect = correct_rollover_fe_bug(trigBranch, trig_time);
-		
+
 		Long64_t busyTotal = 0;
 		Long64_t nentries = trees[i]->GetEntries();
 		for(Long64_t entry = 0; entry< nentries; ++entry) {
@@ -1795,7 +1793,7 @@ void dragon::LiveTimeCalculator::CalculateChain(TChain* chain)
 
 // ============ class dragon::CoincBusytime ============ //
 
-// ====== Helper class ====== // 
+// ====== Helper class ====== //
 namespace {
 struct AccumulateBusy {
 	struct Output_t {
@@ -1842,7 +1840,7 @@ void dragon::CoincBusytime::AddEvent(Double_t trigger, Double_t busy)
 	///
 	/// \param trigger Trigger time in microseconds
 	/// \param busy Busy time in microseconds
- 
+
 	fIsSorted = false;
 	dragon::CoincBusytime::Event evt(trigger, busy);
 	try {
@@ -1871,37 +1869,37 @@ Double_t dragon::CoincBusytime::Calculate()
 	/// First, sort the collection of events by the trigger time. Then sum up all of
 	/// the busy times, but ignoring any overlap. To accomplish this, use the
 	/// `std::accumulate` algorithm, with a custom "accumulator" function which
-  /// ignores overlap by storing the last "end time" of an event and removing
+	/// ignores overlap by storing the last "end time" of an event and removing
 	/// any overlap between the begin time of the present event and the previous
 	/// end time. The code below shows how this is accomplished.
 	/// \code
-  /// struct AccumulateBusy {
-  /// 	struct Output_t {
-  /// 		Double_t fEnd;
-  /// 		Double_t fTotalBusy;
-  /// 	};
-  /// 
-  /// 	Output_t operator() (const Output_t& current, const dragon::CoincBusytime::Event& additional);
-  /// };
-  /// 
-  /// AccumulateBusy::Output_t AccumulateBusy::operator() (const Output_t& current, const dragon::CoincBusytime::Event& additional)
-  /// {
-  /// 	Output_t out = current;
-  /// 
-  /// 	if( current.fEnd < additional.fTrigger ) { // no overlap
-  /// 		out.fTotalBusy += additional.fBusy;
-  /// 		out.fEnd = additional.End();
-  /// 	}
-  /// 	else if( current.fEnd < additional.End() ) { // incomplete overlap
-  /// 		out.fTotalBusy += (additional.End() - current.fEnd);
-  /// 		out.fEnd = additional.End();
-  /// 	}
-  /// 	else { // complete overlap
-  /// 		;
-  /// 	}
-  /// 
-  /// 	return out;
-  /// }
+	/// struct AccumulateBusy {
+	///		struct Output_t {
+	///			Double_t fEnd;
+	///			Double_t fTotalBusy;
+	///		};
+	///
+	///		Output_t operator() (const Output_t& current, const dragon::CoincBusytime::Event& additional);
+	/// };
+	///
+	/// AccumulateBusy::Output_t AccumulateBusy::operator() (const Output_t& current, const dragon::CoincBusytime::Event& additional)
+	/// {
+	///		Output_t out = current;
+	///
+	///		if( current.fEnd < additional.fTrigger ) { // no overlap
+	///			out.fTotalBusy += additional.fBusy;
+	///			out.fEnd = additional.End();
+	///		}
+	///		else if( current.fEnd < additional.End() ) { // incomplete overlap
+	///			out.fTotalBusy += (additional.End() - current.fEnd);
+	///			out.fEnd = additional.End();
+	///		}
+	///		else { // complete overlap
+	///			;
+	///		}
+	///
+	///		return out;
+	/// }
 	///
 	/// Double_t dragon::CoincBusytime::Calculate()
 	/// {
@@ -2053,7 +2051,7 @@ dragon::StoppingPowerCalculator::GetMeasurement(Int_t index) const
 		dutils::Error("StoppingPowerCalculator::GetMeasurement", __FILE__, __LINE__)
 			<< "invalid index " << index << ", valid options are [0, ) " << fEnergies.size();
 	}
-	
+
 	return retval;
 }
 
@@ -2087,7 +2085,7 @@ TGraph* dragon::StoppingPowerCalculator::PlotMeasurements(XAxisType_t xaxis, YAx
 
 	TGraph* out = 0;
 	if(!fEnergies.empty()) {
-		
+
 		const UDouble_t* x = xaxis == kDENSITY ? &fDensities[0] : &fPressures[0];
 		const UDouble_t* y = yaxis == kMD1     ? &fMd1[0]       : &fEnergies[0];
 
@@ -2111,7 +2109,7 @@ UDouble_t dragon::StoppingPowerCalculator::CalculateEbeam(TGraph** plot)
 
 	UDouble_t out(0,0);
 	std::auto_ptr<TGraph> g(new TGraphAsymmErrors(GetNmeasurements()));
-	
+
 	//
 	// calculate density, energy w/ random errors only
 	std::vector<UDouble_t> pres(GetNmeasurements()), energy(GetNmeasurements());
@@ -2131,7 +2129,7 @@ UDouble_t dragon::StoppingPowerCalculator::CalculateEbeam(TGraph** plot)
 	out = fit.GetOffset();
 
 	//
-  // plot if requested
+	// plot if requested
 	if(plot) {
 		*plot = (TGraph*)g->Clone();
 		(*plot)->SetMarkerStyle(21);
@@ -2145,7 +2143,7 @@ UDouble_t dragon::StoppingPowerCalculator::CalculateEbeam(TGraph** plot)
 	}
 
 	return out;
-	
+
 }
 
 UDouble_t dragon::StoppingPowerCalculator::CalculateEpsilon(TGraph** plot, UDouble_t* ebeam)
@@ -2155,7 +2153,7 @@ UDouble_t dragon::StoppingPowerCalculator::CalculateEpsilon(TGraph** plot, UDoub
 	///  a plot of energy vs. density upon successful return. Passing a non-NULL
 	///  plot argument also causes the plot to be drawn with option "AP". The default
 	///  argument (NULL) bypasses any plotting and simply calculates the epsilon parameter.
-  ///
+	///
 	/// \param [out] ebeam Pointer to UDouble_t holding beam energy from offset of linear fit.
 	///
 	/// \returns The `epslion` parameter used in calculations of omega-gamma, in units of
@@ -2167,7 +2165,7 @@ UDouble_t dragon::StoppingPowerCalculator::CalculateEpsilon(TGraph** plot, UDoub
 
 	UDouble_t out(0,0);
 	std::auto_ptr<TGraph> g(new TGraphAsymmErrors(GetNmeasurements()));
-	
+
 	//
 	// calculate density, energy w/ random errors only
 	std::vector<UDouble_t> dens(GetNmeasurements()), energy(GetNmeasurements());
@@ -2200,7 +2198,7 @@ UDouble_t dragon::StoppingPowerCalculator::CalculateEpsilon(TGraph** plot, UDoub
 		// *ebeam *= fTargetLength / fTargetLength.GetNominal();
 	}
 	//
-  // plot if requested
+	// plot if requested
 	if(plot) {
 		*plot = (TGraph*)g->Clone();
 		(*plot)->SetMarkerStyle(21);
@@ -2247,7 +2245,7 @@ UDouble_t dragon::ResonanceStrengthCalculator::CalculateResonanceStrength(Int_t 
 	/// \param whichSb Specify the surface barrier detector to use
 	///  for normalization
 	/// \returns Resonance strenght in eV.
-	
+
 	if(!fBeamNorm) return UDouble_t(0,0);
 	UDouble_t yield = fBeamNorm->CalculateYield(whichSb, type, print);
 	UDouble_t wavelength = CalculateWavelength(fResonanceEnergy, fBeamMass, fTargetMass);
@@ -2326,7 +2324,7 @@ dragon::LabCM::LabCM(int Zbeam, int Abeam, int Ztarget, int Atarget)
 	/// \param Ztarget Target charge
 	/// \param Atarget Target mass number
 	/// \attention Uses "nuclear" (fully ionized) masses.
-	
+
 	Init(Zbeam, Abeam, Ztarget, Atarget, 0.);
 }
 
@@ -2342,7 +2340,7 @@ dragon::LabCM::LabCM(int Zbeam, int Abeam, int Ztarget, int Atarget, double ecm)
 	/// \param Atarget Target mass number
 	/// \param ecm Center-of-mass kinetic energy in keV
 	/// \attention Uses "nuclear" (fully ionized) masses.
-	
+
 	Init(Zbeam, Abeam, Ztarget, Atarget, ecm);
 }
 
@@ -2374,7 +2372,7 @@ void dragon::LabCM::SetEcm(double ecm)
 void dragon::LabCM::SetEbeam(double ebeam)
 {
 	/// \param ebeam Beam energy in keV
-	
+
 	double E1tot = ebeam + fM1; // total energy
 	double Ecmtot = sqrt(fM1*fM1 + fM2*fM2 + 2*fM2*E1tot);
 	fTcm = Ecmtot - fM1 - fM2;
@@ -2383,14 +2381,14 @@ void dragon::LabCM::SetEbeam(double ebeam)
 void dragon::LabCM::SetV2beam(double ebeam)
 {
 	/// \param ebeam Beam energy in keV/u
-	
+
 	SetEbeam(ebeam*fM1/dragon::Constants::AMU()); // keV/u -> keV
 }
 
 void dragon::LabCM::SetEtarget(double etarget)
 {
 	/// \param etarget Target energy in keV
-	
+
 	double E2tot = etarget + fM2; // total energy
 	double Ecmtot = sqrt(fM1*fM1 + fM2*fM2 + 2*fM1*E2tot);
 	fTcm = Ecmtot - fM1 - fM2;
@@ -2399,7 +2397,7 @@ void dragon::LabCM::SetEtarget(double etarget)
 void dragon::LabCM::SetV2target(double etarget)
 {
 	/// \param etarget Target energy in keV/u
-	
+
 	SetEbeam(etarget*fM2/dragon::Constants::AMU()); // keV/u -> keV
 }
 
@@ -2482,7 +2480,7 @@ UDouble_t dragon::CrossSectionCalculator::Calculate(Int_t whichSB, const char* p
 
 	std::vector<Double_t> cx, cxerror;
 	std::vector<Int_t>::iterator irun = fBeamNorm->GetRuns().begin();
-	
+
 	while(irun !=  fBeamNorm->GetRuns().end()) {
 		dragon::BeamNorm::RunData* rd = fBeamNorm->GetRunData(*irun++);
 		if(rd == 0) break;
@@ -2523,7 +2521,7 @@ TGraph* dragon::CrossSectionCalculator::Plot(Marker_t marker, Color_t color)
 	if(fBeamNorm == 0) return 0;
 	Int_t npoints = fCrossSections.size();
 	if(npoints == 0) return 0;
-	
+
 	std::vector<Double_t> runs = get_runs(fBeamNorm);
 	if(runs.size() != fCrossSections.size()) {
 		utils::Error("Print",__FILE__,__LINE__) << "runs.size() != fCrossSections.size()";

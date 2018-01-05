@@ -24,7 +24,7 @@ void tstamp::Queue::HandleCoinc(const midas::Event& event1,
 }
 
 void tstamp::Queue::HandleSingle(const midas::Event& e) const
-{ 
+{
 	/*!
 	 * In the base class, simply prints information on the event.
 	 * \param event Reference to the event being handled.
@@ -33,7 +33,7 @@ void tstamp::Queue::HandleSingle(const midas::Event& e) const
 }
 
 void tstamp::Queue::HandleDiagnostics(tstamp::Diagnostics* d) const
-{ 
+{
 	/*!
 	 * In the base class, prints diagnostic fields.
 	 */
@@ -87,9 +87,9 @@ void tstamp::Queue::Push(const midas::Event& event, tstamp::Diagnostics* diagnos
 		}
 	}
 
-  // Erase event from the front of the queue, but first collect some
+	// Erase event from the front of the queue, but first collect some
 	// diagnostic info
-	
+
 	assert(fEvents.size() > 0);
 	bool haveCoinc = false;
 	int32_t singlesId = -1;
@@ -112,7 +112,7 @@ void tstamp::Queue::Pop(int32_t& singles_id, bool& found_coinc)
 	 * Then the function loops over each of the matches and calls HandleCoinc() on
 	 * the two events. Finally, the function calls HandleSingle() on the earliest
 	 * event and then deletes it from the queue.
-	 * 
+	 *
 	 * \param [out] singles_id MIDAS event ID of the removed (handled) singles event.
 	 * A return value of -1 means the queue was empty (no event handled).
 	 * \param [out] found_coinc Set to true if a coincidence match was found, false
@@ -224,7 +224,7 @@ void tstamp::Queue::FillDiagnostics(tstamp::Diagnostics* d, double tdiff, bool h
 		for(int i=0; i< Diagnostics::MAX_TYPES; ++i)
 			d->singles_rate[i] = d->n_singles[i] / time;
 	}
-	else { 
+	else {
 		d->coinc_rate = 0.;
 		std::fill(d->singles_rate, d->singles_rate + Diagnostics::MAX_TYPES, 0.);
 	}
