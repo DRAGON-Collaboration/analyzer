@@ -19,47 +19,124 @@ else
 $(error No config.mk file found. Please run the configure script first. Running './configure --help' will give instructions on how to do this)
 endif
 
-PLATFORM   = $(shell uname -s)
-GCCVERSION := $(shell gcc -dumpversion | awk -F. '{print $$1}')
-$(info ------------ Platform: ----------------)
-$(info $(PLATFORM))
-$(info ------------ gcc Version: -------------)
-$(info $(shell gcc -dumpversion))
-
 INCLUDES =
-SRC   = $(PWD)/src
-UTILS = $(SRC)/utils
-OBJ   = $(PWD)/obj
-CINT  = $(PWD)/cint
-DRLIB = $(PWD)/lib
-TEST  = $(PWD)/test
+SRC      = $(PWD)/src
+UTILS    = $(SRC)/utils
+OBJ      = $(PWD)/obj
+CINT     = $(PWD)/cint
+DRLIB    = $(PWD)/lib
+TEST     = $(PWD)/test
+
+### Variable definitions
+ifeq ($(USE_ROOT),YES)
+DEFINITIONS   += -DUSE_ROOT
+ROOTSYS = $(shell $(RC) --prefix)
+ifdef ROOTSYS
+ROOTVERSION := $(shell $(RC) --version | awk -F. '{print $$1}')
+$(info ------------ ROOT Version: ------------)
+ROOTVERSION = $(shell $(RC) --version)
+$(info $(ROOTVERSION))
+$(info ------------ ROOT Version: ------------)
+ifndef ROOTVERSION
+$(error Could not run root-config program, check your ROOT setup script)
+endif
+ROOTLIBS    += -lXMLParser -lTreePlayer -lSpectrum -lMinuit
+ROOTGLIBS   += -lXMLParser -lTreePlayer -lSpectrum -lMinuit
+else
+$(error USE_ROOT set to true but ROOTSYS environment variable is not set.)
+endif
+else
+USE_ROOTBEER = NO
+endif
+
+DEFINITIONS += -DAMEPP_DEFAULT_FILE=\"$(PWD)/src/utils/mass16.txt\" -D_GLIBCXX_USE_CXX11_ABI=0
+INCLUDE     += -I$(SRC) -I$(CINT) -I$(LIB)
+# DEBUG       += -ggdb -O3 -DDEBUG
+# CXXFLAGS     = -g -O2 -Wall -Wuninitialized
+# CXXFLAGS    += -Wall $(DEBUG) $(INCLUDE)
+CXXFLAGS    += $(DEFINITIONS) -DHAVE_ZLIB
+CCFLAGS     +=
+
+ifeq ($(USE_MIDAS),YES)
+$(info ------------ USE_MIDAS ----------------)
+ifdef MIDASSYS
+CXXFLAGS += -DMIDASSYS
+MIDASLIBS = -lmidas -L$(MIDAS_LIB_DIR)
+INCLUDE  += -I$(MIDASSYS)/include
+endif
+endif
+
+ifeq ($(PLATFORM),macosx)
+CXXFLAGS += -DOS_LINUX -DOS_DARWIN
+DYLIB = -m64 -dynamiclib -single_module -undefined dynamic_lookup
+INCLUDE  += -I/opt/local/include -I/usr/local/include
+ifdef MIDASSYS
+MIDAS_LIB_DIR = $(MIDASSYS)/darwin/lib
+endif
+endif
+
+ifeq ($(PLATFORM),linux)
+DYLIB     = -shared
+CXXFLAGS += -DOS_LINUX
+NAME      = $(shell lsb_release -si)
+ifdef MIDASSYS
+MIDAS_LIB_DIR = $(MIDASSYS)/linux/lib
+MIDASLIBS    += -lm -lz -lutil -lnsl -lrt
+endif
+endif
+
+# CXX += $(CXXFLAGS)
+# CC  += $(CCFLAGS)
+# LINK = $(CXX) $(ROOTLIBS) $(RPATH) -L$(PWD)/lib
+
+CC        += $(filter-out -std=c++11, $(CXXFLAGS))
+CXXFLAGS  += $(INCLUDE)
+CINTFLAGS := $(filter-out ($(ROOTCFLAGS)), $(CXXFLAGS))
+
+ifeq ($(NAME), Ubuntu)
+CXX       += $(filter-out -std=c++11, $(CXXFLAGS))
+else
+CXX       += $(CXXFLAGS)#$(filter-out -stdlib=libc++, $(CXXFLAGS))#
+endif
+
+LD         = $(CXX) $(LDFLAGS) $(ROOTGLIBS) $(RPATH) -L$(PWD)/lib
+
+ifeq ($(USE_ROOT),YES)
+ifeq ($(ROOTVERSION),6)
+MAKE_DRAGON_DICT += rootcling -v -f $@ -s $(SHLIBFILE) -rml $(SHLIBFILE) -rmf $(ROOTMAPFILE) -c $(CINTFLAGS) \
+-p $(HEADERS) TError.h TNamed.h TObject.h TString.h TTree.h $(CINT)/Linkdef.h
+else
+MAKE_DRAGON_DICT += rootcint -f $@ -c $(CXXFLAGS) -p $(HEADERS) TTree.h $(CINT)/Linkdef.h
+endif
+DRA_DICT           = $(DRLIB)/DragonDictionary.cxx
+DRA_DICT_DEP       = $(DRLIB)/DragonDictionary.cxx
+endif
 
 SHLIBFILE    = $(DRLIB)/libDragon.so
 ROOTMAPFILE := $(patsubst %.so,%.rootmap,$(SHLIBFILE))
 
-HEADERS=						\
-$(SRC)/midas/*.hxx				\
-$(SRC)/midas/*.h			\
+HEADERS=								\
+$(SRC)/midas/*.hxx						\
+$(SRC)/midas/*.h						\
 $(SRC)/midas/libMidasInterface/*.h		\
-$(SRC)/utils/*.hxx				\
-$(SRC)/utils/*.h				\
+$(SRC)/utils/*.hxx						\
+$(SRC)/utils/*.h						\
 $(SRC)/*.hxx
 
 #### OBJECTS ####
-OBJECTS=									\
-$(OBJ)/midas/mxml.o						\
-$(OBJ)/midas/Odb.o							\
-$(OBJ)/midas/Xml.o							\
+OBJECTS=										\
+$(OBJ)/midas/mxml.o								\
+$(OBJ)/midas/Odb.o								\
+$(OBJ)/midas/Xml.o								\
 $(OBJ)/midas/libMidasInterface/TMidasFile.o		\
 $(OBJ)/midas/libMidasInterface/TMidasEvent.o	\
-$(OBJ)/midas/Event.o					\
-\
-$(OBJ)/Unpack.o				\
-$(OBJ)/TStamp.o						\
-$(OBJ)/Vme.o				\
-$(OBJ)/Dragon.o				\
-$(OBJ)/Sonik.o				\
-$(OBJ)/utils/Uncertainty.o		\
+$(OBJ)/midas/Event.o							\
+$(OBJ)/Unpack.o									\
+$(OBJ)/TStamp.o									\
+$(OBJ)/Vme.o									\
+$(OBJ)/Dragon.o									\
+$(OBJ)/Sonik.o									\
+$(OBJ)/utils/Uncertainty.o						\
 $(OBJ)/utils/ErrorDragon.o
 
 ifeq ($(USE_MIDAS), YES)
@@ -74,112 +151,6 @@ OBJECTS += $(OBJ)/utils/LinearFitter.o
 OBJECTS += $(OBJ)/utils/TAtomicMass.o
 endif
 ## END OBJECTS ##
-
-DEFINITIONS  =
-FPIC         =
-INCFLAGS     =
-DEBUG        =
-CXXFLAGS     =
-CXXFLAGS     =
-CCFLAGS      =
-
-### Variable definitions
-ifeq ($(USE_ROOT),YES)
-DEFINITIONS   += -DUSE_ROOT
-ROOTSYS = $(shell $(RC) --prefix)
-ifdef ROOTSYS
-ROOTVERSION := $(shell $(RC) --version | awk -F. '{print $$1}')
-$(info ------------ ROOT Version: ------------)
-ROOTVERSION = $(shell $(RC) --version)
-$(info $(ROOTVERSION))
-ifndef ROOTVERSION
-$(error Could not run root-config program, check your ROOT setup script)
-endif
-ROOTLIBS    += -lXMLParser -lTreePlayer -lSpectrum -lMinuit
-ROOTGLIBS   += -lXMLParser -lTreePlayer -lSpectrum -lMinuit
-INCFLAGS    += -I$(shell $(RC) --incdir)
-CXXFLAGS    += $(shell $(RC) --cflags)
-CXXAUXFLAGS += $(shell $(RC) --auxcflags)
-else
-$(error USE_ROOT set to true but ROOTSYS environment variable is not set.)
-endif
-else
-USE_ROOTBEER = NO
-endif
-
-# ifeq ($(ROOTVERSION),6) #libDragon.so & mid2root compile with clang for root6
-# ifeq ($(PLATFORM),Linux)
-# CC  = clang
-# CXX = clang++
-# else         #This is a bit wonky; libDragon.so seems to only compile with clang. However, specifying
-# CC  = gcc  #the compiler as clang in OSX seems to cause problems with clang (specifically it has
-# CXX = g++  #trouble finding the correct standard libraries). Specifying the compiler as g++ seems
-# endif        #to result in the system choosing clang anyway but with no problems.
-# else
-# CC  = gcc
-# CXX = g++
-# endif
-
-ifeq ($(GCCVERSION),5)
-CC  = clang
-CXX = clang++
-endif
-
-DEFINITIONS += -DAMEPP_DEFAULT_FILE=\"$(PWD)/src/utils/mass16.txt\" -D_GLIBCXX_USE_CXX11_ABI=0
-FPIC        += -fPIC
-INCFLAGS    += -I/opt/local/include/ -I/usr/include/ -I$(SRC) -I$(CINT)
-DEBUG       += -ggdb -O3 -DDEBUG
-#CXXFLAGS = -g -O2 -Wall -Wuninitialized
-CXXFLAGS    += -Wall $(DEBUG) $(INCFLAGS) $(DEFINITIONS)
-CXXFLAGS    += -DHAVE_ZLIB
-CCFLAGS     +=
-
-ifeq ($(USE_MIDAS),YES)
-$(info ------------ USE_MIDAS ----------------)
-ifdef MIDASSYS
-CXXFLAGS += -DMIDASSYS
-MIDASLIBS = -lmidas -L$(MIDAS_LIB_DIR)
-INCFLAGS += -I$(MIDASSYS)/include
-endif
-endif
-
-ifeq ($(PLATFORM),Darwin)
-CXXFLAGS += -DOS_LINUX -DOS_DARWIN
-ifdef MIDASSYS
-MIDAS_LIB_DIR = $(MIDASSYS)/darwin/lib
-endif
-DYLIB = -m64 -dynamiclib -single_module -undefined dynamic_lookup
-# FPIC  =
-RPATH =
-endif
-
-ifeq ($(PLATFORM),Linux)
-DYLIB     = -shared
-CXXFLAGS += -DOS_LINUX
-ifdef MIDASSYS
-MIDAS_LIB_DIR = $(MIDASSYS)/linux/lib
-MIDASLIBS    += -lm -lz -lutil -lnsl -lrt
-endif
-endif
-
-CXX += $(CXXFLAGS)
-CC  += $(CCFLAGS)
-LINK = $(CXX) $(ROOTLIBS) $(RPATH) -L$(PWD)/lib
-
-MAKE_DRAGON_DICT =
-DRA_DICT         =
-DRA_DICT_DEP     =
-
-ifeq ($(USE_ROOT),YES)
-ifeq ($(ROOTVERSION),6)
-MAKE_DRAGON_DICT += rootcling -v -f $@ -s $(SHLIBFILE) -rml $(SHLIBFILE) -rmf $(ROOTMAPFILE) -c $(CXXFLAGS) \
--p $(HEADERS) TError.h TNamed.h TObject.h TString.h TTree.h $(CINT)/Linkdef.h
-else
-MAKE_DRAGON_DICT += rootcint -f $@ -c $(CXXFLAGS) -p $(HEADERS) TTree.h $(CINT)/Linkdef.h
-endif
-DRA_DICT           = $(DRLIB)/DragonDictionary.cxx
-DRA_DICT_DEP       = $(DRLIB)/DragonDictionary.cxx
-endif
 
 ### MID2ROOT LIBRARY ###
 MID2ROOT_LIBS = -lDragon $(MIDASLIBS)
@@ -203,13 +174,13 @@ all:  $(MAKE_ALL)
 libDragon: $(SHLIBFILE)
 
 $(SHLIBFILE): $(DRA_DICT_DEP) $(OBJECTS)
-	$(LINK) $(DYLIB) $(FPIC) $(MIDASLIBS) $(OBJECTS) $(DRA_DICT) \
+	$(LD) $(DYLIB) $(MIDASLIBS) $(OBJECTS) $(DRA_DICT) \
 	-o $@ \
 
 mid2root: $(PWD)/bin/mid2root
 
 $(PWD)/bin/mid2root: src/mid2root.cxx $(DRLIB)/libDragon.so
-	$(LINK) $(MID2ROOT_INC) $(MID2ROOT_LIBS) $< \
+	$(LD) $(MID2ROOT_INC) $(MID2ROOT_LIBS) $< \
 	-o $@ \
 
 rbdragon.o: $(OBJ)/rootbeer/rbdragon.o
@@ -276,19 +247,19 @@ $(CINT)/rootana/CutDict.cxx: $(SRC)/rootana/Cut.hxx $(SRC)/rootana/CutLinkdef.h
 	-p $(SRC)/rootana/Cut.hxx $(SRC)/rootana/CutLinkdef.h \
 
 $(DRLIB)/libRootanaCut.so: $(CINT)/rootana/CutDict.cxx
-	$(LINK)  $(DYLIB) $(FPIC) $(ROOTANA_FLAGS) $(ROOTANA_DEFS)  \
+	$(LD)  $(DYLIB) $(FPIC) $(ROOTANA_FLAGS) $(ROOTANA_DEFS)  \
 	-o $@ $< \
 
 libRootanaDragon.so: $(DRLIB)/libDragon.so $(CINT)/rootana/Dict.cxx \
 	$(DRLIB)/libRootanaCut.so $(ROOTANA_OBJS)
-	$(LINK)  $(DYLIB) $(FPIC) $(ROOTANA_FLAGS) $(ROOTANA_DEFS)  \
+	$(LD)  $(DYLIB) $(FPIC) $(ROOTANA_FLAGS) $(ROOTANA_DEFS)  \
 	-o $@ $<
 	$(CINT)/rootana/Dict.cxx $(ROOTANA_OBJS) -lDragon -lRootanaCut -L$(DRLIB) \
 
 $(PWD)/bin/anaDragon: $(SRC)/rootana/anaDragon.cxx $(DRLIB)/libDragon.so \
 	$(CINT)/rootana/Dict.cxx $(DRLIB)/libRootanaCut.so \
 	$(ROOTANA_OBJS) $(ROOTANA_REMOTE_OBJS) \
-	$(LINK) $(ROOTANA_FLAGS) $(ROOTANA_DEFS) \
+	$(LD) $(ROOTANA_FLAGS) $(ROOTANA_DEFS) \
 	-o $@
 	$< $(CINT)/rootana/Dict.cxx $(ROOTANA_OBJS)
 	-lDragon -lRootanaCut -L$(DRLIB) $(ROOTANA_LIBS) $(MIDASLIBS) \
@@ -328,11 +299,11 @@ $(OBJ)/rootbeer/rbsonik_impl.o: $(SRC)/rootbeer/rbsonik_impl.cxx $(SRC)/rootbeer
 	-o $@ $< \
 
 $(PWD)/bin/rbdragon: $(CINT)/rootbeer/rootbeerDict.cxx $(RB_DRAGON_OBJECTS)
-	$(LINK) $^ $(RBINC) -L$(PWD)/../../rootbeer/lib  -lDragon -lRootbeer -lrbMidas \
+	$(LD) $^ $(RBINC) -L$(PWD)/../../rootbeer/lib  -lDragon -lRootbeer -lrbMidas \
 	-o $@ \
 
 $(PWD)/bin/rbsonik: $(CINT)/rootbeer/rootbeerDict.cxx $(RB_SONIK_OBJECTS)
-	$(LINK) $^ $(RBINC) -L$(PWD)/../../rootbeer/lib  -lDragon -lRootbeer -lrbMidas \
+	$(LD) $^ $(RBINC) -L$(PWD)/../../rootbeer/lib  -lDragon -lRootbeer -lrbMidas \
 	-o $@ \
 
 Timestamp: $(OBJ)/rootbeer/Timestamp.o
@@ -383,19 +354,19 @@ Tail.o:           $(OBJ)/dragon/Tail.o
 Scaler.o:         $(OBJ)/dragon/Scaler.o
 
 test/%: test/%.cxx $(DRLIB)/libDragon.so
-	$(LINK) \
+	$(LD) \
 	$< -o $@ \
 	-DMIDASSYS -lDragon -L$(DRLIB) $(MIDASLIBS) -DODB_TEST -I$(PWD)/src
 
 
 odbtest: $(DRLIB)/libDragon.so
-	$(LINK) src/midas/Odb.cxx \
+	$(LD) src/midas/Odb.cxx \
 	-o test/odbtest -DMIDASSYS \
 	-lDragon -L$(DRLIB) $(MIDASLIBS) \
 	-DODB_TEST -I$(PWD)/src
 
 filltest: test/filltest.cxx $(DRLIB)/libDragon.so
-	$(LINK) test/filltest.cxx \
+	$(LD) test/filltest.cxx \
 	-o bin/filltest \
 	-DMIDAS_BUFFERS \
 	-lDragon -L$(DRLIB) -I$(PWD)/src \
