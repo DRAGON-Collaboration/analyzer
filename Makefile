@@ -27,12 +27,16 @@ CINT     = $(PWD)/cint
 DRLIB    = $(PWD)/lib
 TEST     = $(PWD)/test
 
+SHLIBFILE    = $(DRLIB)/libDragon.so
+ROOTMAPFILE := $(patsubst %.so,%.rootmap,$(SHLIBFILE))
+
 ### Variable definitions
 ifeq ($(USE_ROOT),YES)
 DEFINITIONS   += -DUSE_ROOT
 ROOTSYS = $(shell $(RC) --prefix)
 ifdef ROOTSYS
-ROOTVERSION := $(shell $(RC) --version | awk -F. '{print $$1}')
+ROOTVERSION := $(shell $(RC) --version | awk -F. '{print $1}')
+$(info ------------ USE_ROOT ----------------)
 $(info ------------ ROOT Version: ------------)
 ROOTVERSION = $(shell $(RC) --version)
 $(info $(ROOTVERSION))
@@ -49,8 +53,8 @@ else
 USE_ROOTBEER = NO
 endif
 
-DEFINITIONS += -DAMEPP_DEFAULT_FILE=\"$(PWD)/src/utils/mass16.txt\" -D_GLIBCXX_USE_CXX11_ABI=0
-INCLUDE     += -I$(SRC) -I$(CINT) -I$(LIB)
+DEFINITIONS += -DAMEPP_DEFAULT_FILE=\"$(PWD)/src/utils/mass16.txt\"#-D_GLIBCXX_USE_CXX11_ABI=0
+INCLUDE     += -I$(SRC) -I$(CINT)
 # DEBUG       += -ggdb -O3 -DDEBUG
 # CXXFLAGS     = -g -O2 -Wall -Wuninitialized
 # CXXFLAGS    += -Wall $(DEBUG) $(INCLUDE)
@@ -92,13 +96,7 @@ endif
 CC        += $(filter-out -std=c++11, $(CXXFLAGS))
 CXXFLAGS  += $(INCLUDE)
 CINTFLAGS := $(filter-out ($(ROOTCFLAGS)), $(CXXFLAGS))
-
-ifeq ($(NAME), Ubuntu)
-CXX       += $(filter-out -std=c++11, $(CXXFLAGS))
-else
-CXX       += $(CXXFLAGS)#$(filter-out -stdlib=libc++, $(CXXFLAGS))#
-endif
-
+CXX       += $(CXXFLAGS)
 LD         = $(CXX) $(LDFLAGS) $(ROOTGLIBS) $(RPATH) -L$(PWD)/lib
 
 ifeq ($(USE_ROOT),YES)
@@ -111,9 +109,6 @@ endif
 DRA_DICT           = $(DRLIB)/DragonDictionary.cxx
 DRA_DICT_DEP       = $(DRLIB)/DragonDictionary.cxx
 endif
-
-SHLIBFILE    = $(DRLIB)/libDragon.so
-ROOTMAPFILE := $(patsubst %.so,%.rootmap,$(SHLIBFILE))
 
 HEADERS=								\
 $(SRC)/midas/*.hxx						\
@@ -179,7 +174,7 @@ $(SHLIBFILE): $(DRA_DICT_DEP) $(OBJECTS)
 
 mid2root: $(PWD)/bin/mid2root
 
-$(PWD)/bin/mid2root: src/mid2root.cxx $(DRLIB)/libDragon.so
+$(PWD)/bin/mid2root: src/mid2root.cxx $(SHLIBFILE)
 	$(LD) $(MID2ROOT_INC) $(MID2ROOT_LIBS) $< \
 	-o $@ \
 
@@ -190,29 +185,23 @@ rbdragon_impl.o: $(OBJ)/rootbeer/rbdragon_impl.o
 ### OBJECT FILES ###
 
 $(OBJ)/utils/%.o: $(SRC)/utils/%.cxx $(DRA_DICT_DEP)
-	$(CXX) $(FPIC) -c \
-	-o $@ $< \
+	$(CXX) -c -o $@ $< \
 
 $(OBJ)/midas/%.o: $(SRC)/midas/%.c $(DRA_DICT_DEP)
-	$(CC) $(FPIC) -c \
-	-o $@ $< \
+	$(CC) -c -o $@ $< \
 
 $(OBJ)/midas/%.o: $(SRC)/midas/%.cxx $(DRA_DICT_DEP)
-	$(CXX) $(FPIC) -c \
-	-o $@ $< \
+	$(CXX) -c -o $@ $< \
 
 $(OBJ)/midas/libMidasInterface/%.o: $(SRC)/midas/libMidasInterface/%.cxx $(DRA_DICT_DEP)
-	$(CXX) $(FPIC) -c \
-	-o $@ $< \
+	$(CXX) -c -o $@ $< \
 
 $(OBJ)/rootana/%.o: $(SRC)/rootana/%.cxx $(CINT)/rootana/Dict.cxx
-	$(CXX) $(ROOTANA_FLAGS) $(ROOTANA_DEFS) -c $(FPIC) \
-	-o $@ $< \
+	$(CXX) $(ROOTANA_FLAGS) $(ROOTANA_DEFS) -c -o $@ $< \
 
 ## Must be last object rule!!
 $(OBJ)/%.o: $(SRC)/%.cxx $(DRA_DICT_DEP)
-	$(CXX) $(FPIC) -c \
-	-o $@ $< \
+	$(CXX) -c -o $@ $< \
 
 ### CINT DICTIONARY ###
 dict: $(DRA_DICT)
@@ -229,9 +218,9 @@ ROOTANA_REMOTE_OBJS=				\
 $(ROOTANA)/libNetDirectory/netDirectoryServer.o
 
 ROOTANA_OBJS=					\
-$(OBJ)/rootana/Application.o			\
-$(OBJ)/rootana/Callbacks.o			\
-$(OBJ)/rootana/HistParser.o			\
+$(OBJ)/rootana/Application.o	\
+$(OBJ)/rootana/Callbacks.o		\
+$(OBJ)/rootana/HistParser.o		\
 $(OBJ)/rootana/Directory.o
 
 ROOTANA_HEADERS = $(SRC)/rootana/Globals.h $(SRC)/rootana/*.hxx
@@ -247,12 +236,12 @@ $(CINT)/rootana/CutDict.cxx: $(SRC)/rootana/Cut.hxx $(SRC)/rootana/CutLinkdef.h
 	-p $(SRC)/rootana/Cut.hxx $(SRC)/rootana/CutLinkdef.h \
 
 $(DRLIB)/libRootanaCut.so: $(CINT)/rootana/CutDict.cxx
-	$(LD)  $(DYLIB) $(FPIC) $(ROOTANA_FLAGS) $(ROOTANA_DEFS)  \
+	$(LD)  $(DYLIB)  $(ROOTANA_FLAGS) $(ROOTANA_DEFS)  \
 	-o $@ $< \
 
 libRootanaDragon.so: $(DRLIB)/libDragon.so $(CINT)/rootana/Dict.cxx \
 	$(DRLIB)/libRootanaCut.so $(ROOTANA_OBJS)
-	$(LD)  $(DYLIB) $(FPIC) $(ROOTANA_FLAGS) $(ROOTANA_DEFS)  \
+	$(LD)  $(DYLIB)  $(ROOTANA_FLAGS) $(ROOTANA_DEFS)  \
 	-o $@ $<
 	$(CINT)/rootana/Dict.cxx $(ROOTANA_OBJS) -lDragon -lRootanaCut -L$(DRLIB) \
 
@@ -283,19 +272,19 @@ $(CINT)/rootbeer/rootbeerDict.cxx: $(SRC)/rootbeer/rbsymbols.hxx $(DRA_DICT_DEP)
 	rootcint -f $@ -c $(CXXFLAGS) $(RBINC) -p $< $(CINT)/rootbeer/rblinkdef.h \
 
 $(OBJ)/rootbeer/rbdragon.o: $(SRC)/rootbeer/rbdragon.cxx $(SRC)/rootbeer/*.hxx $(DRA_DICT_DEP) $(CINT)/rootbeer/rootbeerDict.cxx
-	$(CXX) $(RB_DEFS) $(RBINC) $(FPIC) -c \
+	$(CXX) $(RB_DEFS) $(RBINC) -c \
 	-o $@ $< \
 
 $(OBJ)/rootbeer/rbsonik.o: $(SRC)/rootbeer/rbsonik.cxx $(SRC)/rootbeer/*.hxx $(DRA_DICT_DEP) $(CINT)/rootbeer/rootbeerDict.cxx
-	$(CXX) $(RB_DEFS) $(RBINC) $(FPIC) -c \
+	$(CXX) $(RB_DEFS) $(RBINC) -c \
 	-o $@ $< \
 
 $(OBJ)/rootbeer/rbdragon_impl.o: $(SRC)/rootbeer/rbdragon_impl.cxx $(SRC)/rootbeer/*.hxx $(DRA_DICT_DEP) $(CINT)/rootbeer/rootbeerDict.cxx
-	$(CXX) $(RB_DEFS) $(RBINC) $(FPIC) -c \
+	$(CXX) $(RB_DEFS) $(RBINC) -c \
 	-o $@ $< \
 
 $(OBJ)/rootbeer/rbsonik_impl.o: $(SRC)/rootbeer/rbsonik_impl.cxx $(SRC)/rootbeer/*.hxx $(DRA_DICT_DEP) $(CINT)/rootbeer/rootbeerDict.cxx
-	$(CXX) $(RB_DEFS) $(RBINC) $(FPIC) -c \
+	$(CXX) $(RB_DEFS) $(RBINC) -c \
 	-o $@ $< \
 
 $(PWD)/bin/rbdragon: $(CINT)/rootbeer/rootbeerDict.cxx $(RB_DRAGON_OBJECTS)

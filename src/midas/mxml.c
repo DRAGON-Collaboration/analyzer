@@ -13,7 +13,7 @@
      mxml_start_element(writer, name);
      mxml_write_attribute(writer, name, value);
      mxml_write_value(writer, value);
-     mxml_end_element(writer); 
+     mxml_end_element(writer);
      ...
    mxml_close_file(writer);
 
@@ -83,9 +83,9 @@
 #if defined(__GNUC__) && !defined(__MAKECINT__)
 #   define MXML_GNUC_PRINTF( format_idx, arg_idx )          \
    __attribute__((format (printf, format_idx, arg_idx)))
-#   define MXML_GNUC_SCANF( format_idx, arg_idx )           \
+#   define MXML_GNUC_SCANF( format_idx, arg_idx )       \
    __attribute__((format (scanf, format_idx, arg_idx)))
-#   define MXML_GNUC_FORMAT( arg_idx )                      \
+#   define MXML_GNUC_FORMAT( arg_idx )          \
    __attribute__((format_arg (arg_idx)))
 #else
 #   define MXML_GNUC_PRINTF( format_idx, arg_idx )
@@ -154,7 +154,7 @@ void mxml_deallocate(void)
 int mxml_write_line(MXML_WRITER *writer, const char *line)
 {
    int len;
-   
+
    len = (int)strlen(line);
 
    if (writer->buffer) {
@@ -224,7 +224,7 @@ void mxml_suppress_date(int suppress)
 /**
  * open a file and write XML header
  */
-MXML_WRITER *mxml_open_file(const char *file_name) 
+MXML_WRITER *mxml_open_file(const char *file_name)
 {
    char str[256], line[1000];
    time_t now;
@@ -285,7 +285,7 @@ void mxml_encode(char *src, int size, int translate)
    pd = _encode_buffer;
    for (ps = src ; *ps && (size_t)pd - (size_t)_encode_buffer < (size_t)(size-10) ; ps++) {
 
-     if (translate) { /* tranlate "<", ">", "&", """, "'" */
+      if (translate) { /* tranlate "<", ">", "&", """, "'" */
          switch (*ps) {
          case '<':
             strcpy(pd, "&lt;");
@@ -311,7 +311,7 @@ void mxml_encode(char *src, int size, int translate)
             *pd++ = *ps;
          }
       } else {
-       switch (*ps) { /* translate only illegal XML characters "<" and "&" */
+         switch (*ps) { /* translate only illegal XML characters "<" and "&" */
          case '<':
             strcpy(pd, "&lt;");
             pd += 4;
@@ -365,10 +365,10 @@ void mxml_decode(char *str)
          p++; // skip unknown entity
       }
    }
-/*   if (str[0] == '\"' && str[strlen(str)-1] == '\"') {
-      memmove(str, str+1, strlen(str+1) + 1);
-      str[strlen(str)-1] = 0;
-   }*/
+   /*   if (str[0] == '\"' && str[strlen(str)-1] == '\"') {
+        memmove(str, str+1, strlen(str+1) + 1);
+        str[strlen(str)-1] = 0;
+        }*/
 }
 
 /*------------------------------------------------------------------*/
@@ -413,7 +413,7 @@ int mxml_start_element1(MXML_WRITER *writer, const char *name, int indent)
       writer->stack = (char **)mxml_malloc(sizeof(char *));
    else
       writer->stack = (char **)mxml_realloc(writer->stack, sizeof(char *)*(writer->level+1));
-   
+
    writer->stack[writer->level] = (char *) mxml_malloc(strlen(name_enc)+1);
    strcpy(writer->stack[writer->level], name_enc);
    writer->level++;
@@ -449,7 +449,7 @@ int mxml_end_element(MXML_WRITER *writer)
 
    if (writer->level == 0)
       return 0;
-   
+
    writer->level--;
 
    if (writer->element_is_open) {
@@ -674,7 +674,7 @@ PMXML_NODE mxml_add_special_node_at(PMXML_NODE parent, int node_type, const char
    assert(parent->child);
 
    /* move following nodes one down */
-   if (idx < parent->n_children) 
+   if (idx < parent->n_children)
       for (i=parent->n_children ; i > idx ; i--)
          memcpy(&parent->child[i], &parent->child[i-1], sizeof(MXML_NODE));
 
@@ -691,7 +691,7 @@ PMXML_NODE mxml_add_special_node_at(PMXML_NODE parent, int node_type, const char
    strlcpy(pnode->name, node_name, sizeof(pnode->name));
    pnode->node_type = node_type;
    pnode->parent = parent;
-   
+
    parent->n_children++;
 
    if (value && *value) {
@@ -762,7 +762,7 @@ int mxml_add_tree_at(PMXML_NODE parent, PMXML_NODE tree, int idx)
    }
    assert(parent->child);
 
-   if (idx < parent->n_children) 
+   if (idx < parent->n_children)
       for (i=parent->n_children ; i > idx ; i--) {
          /* move following nodes one down */
          memcpy(&parent->child[i], &parent->child[i-1], sizeof(MXML_NODE));
@@ -980,7 +980,7 @@ int mxml_find_nodes1(PMXML_NODE tree, const char *xml_path, PMXML_NODE **nodelis
                   /* search node with attribute */
                   if (strcmp(pnode->child[i].name, node_name) == 0)
                      if (mxml_get_attribute(pnode->child+i, cond_name[k]) &&
-                        strcmp(mxml_get_attribute(pnode->child+i, cond_name[k]), cond_value[k]) == 0)
+                         strcmp(mxml_get_attribute(pnode->child+i, cond_name[k]), cond_value[k]) == 0)
                         cond_satisfied++;
                }
                else {
@@ -1024,7 +1024,7 @@ int mxml_find_nodes1(PMXML_NODE tree, const char *xml_path, PMXML_NODE **nodelis
 int mxml_find_nodes(PMXML_NODE tree, const char *xml_path, PMXML_NODE **nodelist)
 {
    int status, found = 0;
-   
+
    status = mxml_find_nodes1(tree, xml_path, nodelist, &found);
 
    if (status == 0)
@@ -1048,7 +1048,7 @@ PMXML_NODE mxml_find_node(PMXML_NODE tree, const char *xml_path)
    if (n > 0) {
       pnode = node[0];
       mxml_free(node);
-   } else 
+   } else
       pnode = NULL;
 
    return pnode;
@@ -1093,7 +1093,7 @@ char *mxml_get_attribute(PMXML_NODE pnode, const char *name)
    int i;
 
    assert(pnode);
-   for (i=0 ; i<pnode->n_attributes ; i++) 
+   for (i=0 ; i<pnode->n_attributes ; i++)
       if (strcmp(pnode->attribute_name+i*MXML_NAME_LENGTH, name) == 0)
          return pnode->attribute_value[i];
 
@@ -1118,7 +1118,7 @@ int mxml_replace_node_value(PMXML_NODE pnode, const char *value)
       pnode->value = (char *)mxml_malloc(strlen(value)+1);
    else
       pnode->value = NULL;
-   
+
    if (value)
       strcpy(pnode->value, value);
 
@@ -1131,7 +1131,7 @@ int mxml_replace_node_value(PMXML_NODE pnode, const char *value)
    replace value os a subnode, like
 
    <parent>
-     <child>value</child>
+   <child>value</child>
    </parent>
 
    if pnode=parent, and "name"="child", then "value" gets replaced
@@ -1140,7 +1140,7 @@ int mxml_replace_subvalue(PMXML_NODE pnode, const char *name, const char *value)
 {
    int i;
 
-   for (i=0 ; i<pnode->n_children ; i++) 
+   for (i=0 ; i<pnode->n_children ; i++)
       if (strcmp(pnode->child[i].name, name) == 0)
          break;
 
@@ -1159,7 +1159,7 @@ int mxml_replace_attribute_name(PMXML_NODE pnode, const char *old_name, const ch
 {
    int i;
 
-   for (i=0 ; i<pnode->n_attributes ; i++) 
+   for (i=0 ; i<pnode->n_attributes ; i++)
       if (strcmp(pnode->attribute_name+i*MXML_NAME_LENGTH, old_name) == 0)
          break;
 
@@ -1179,7 +1179,7 @@ int mxml_replace_attribute_value(PMXML_NODE pnode, const char *attrib_name, cons
 {
    int i;
 
-   for (i=0 ; i<pnode->n_attributes ; i++) 
+   for (i=0 ; i<pnode->n_attributes ; i++)
       if (strcmp(pnode->attribute_name+i*MXML_NAME_LENGTH, attrib_name) == 0)
          break;
 
@@ -1221,7 +1221,7 @@ int mxml_delete_node(PMXML_NODE pnode)
          else
             mxml_free(parent->child);
       }
-   } else 
+   } else
       mxml_free_tree(pnode);
 
    return TRUE;
@@ -1233,7 +1233,7 @@ int mxml_delete_attribute(PMXML_NODE pnode, const char *attrib_name)
 {
    int i, j;
 
-   for (i=0 ; i<pnode->n_attributes ; i++) 
+   for (i=0 ; i<pnode->n_attributes ; i++)
       if (strcmp(pnode->attribute_name+i*MXML_NAME_LENGTH, attrib_name) == 0)
          break;
 
@@ -1285,7 +1285,7 @@ PMXML_NODE read_error(PMXML_NODE root, const char *file_name, int line_number, c
       strlcat(error, str, error_size);
    if (error_line)
       *error_line = line_number;
-   
+
    mxml_free(msg);
    mxml_free_tree(root);
 
@@ -1332,7 +1332,7 @@ PMXML_NODE mxml_parse_buffer(const char *buf, char *error, int error_size, int *
             return read_error(HERE, "Unexpected end of file");
 
          if (strncmp(p, "!--", 3) == 0) {
-            
+
             /* found comment */
 
             pnew = mxml_add_special_node(ptree, COMMENT_NODE, "Comment", NULL);
@@ -1344,7 +1344,7 @@ PMXML_NODE mxml_parse_buffer(const char *buf, char *error, int error_size, int *
             p += 3;
             if (strstr(p, "-->") == NULL)
                return read_error(HERE, "Unterminated comment");
-            
+
             while (strncmp(p, "-->", 3) != 0) {
                if (*p == '\n')
                   line_number++;
@@ -1370,7 +1370,7 @@ PMXML_NODE mxml_parse_buffer(const char *buf, char *error, int error_size, int *
             p++;
             if (strstr(p, "?>") == NULL)
                return read_error(HERE, "Unterminated ?...? element");
-            
+
             while (strncmp(p, "?>", 2) != 0) {
                if (*p == '\n')
                   line_number++;
@@ -1409,7 +1409,7 @@ PMXML_NODE mxml_parse_buffer(const char *buf, char *error, int error_size, int *
             p++;
 
          } else {
-            
+
             /* found normal element */
             if (*p == '/') {
                end_element = TRUE;
@@ -1445,12 +1445,12 @@ PMXML_NODE mxml_parse_buffer(const char *buf, char *error, int error_size, int *
                if (strcmp(ptree->name, node_name) != 0)
                   return read_error(HERE, "Found </%s>, expected </%s>", node_name, ptree->name);
                ptree->line_number_end = line_number;
-               
+
                /* go up one level on the tree */
                ptree = ptree->parent;
 
             } else {
-            
+
                if (ptree == NULL)
                   return read_error(HERE, "Unexpected second top level node");
 
@@ -1721,9 +1721,9 @@ int mxml_parse_entity(char **buf, const char *file_name, char *error, int error_
                status = 1;
                goto error;
             }
-  
+
             entity_line_number[nentity] = line_number;
-            
+
             pv = p + 7;
             while (*pv == ' ')
                pv++;
@@ -1992,7 +1992,7 @@ int mxml_parse_entity(char **buf, const char *file_name, char *error, int error_
    } while (*p);
    *pv = 0;
 
-error:
+ error:
 
    if (buffer != NULL)
       mxml_free(buffer);
@@ -2068,7 +2068,7 @@ int mxml_write_subtree(MXML_WRITER *writer, PMXML_NODE tree, int indent)
    for (i=0 ; i<tree->n_attributes ; i++)
       if (!mxml_write_attribute(writer, tree->attribute_name+i*MXML_NAME_LENGTH, tree->attribute_value[i]))
          return FALSE;
-   
+
    if (tree->value)
       if (!mxml_write_value(writer, tree->value))
          return FALSE;
@@ -2096,7 +2096,7 @@ int mxml_write_tree(const char *file_name, PMXML_NODE tree)
       return FALSE;
 
    for (i=0 ; i<tree->n_children ; i++)
-     if (tree->child[i].node_type == ELEMENT_NODE) /* skip PI and comments */
+      if (tree->child[i].node_type == ELEMENT_NODE) /* skip PI and comments */
          if (!mxml_write_subtree(writer, &tree->child[i], TRUE))
             return FALSE;
 
@@ -2162,8 +2162,8 @@ void mxml_debug_tree(PMXML_NODE tree, int level)
    for (j=0 ; j<tree->n_attributes ; j++) {
       for (i=0 ; i<level ; i++)
          printf("  ");
-      printf("%s: %s\n", tree->attribute_name+j*MXML_NAME_LENGTH, 
-         tree->attribute_value[j]);
+      printf("%s: %s\n", tree->attribute_name+j*MXML_NAME_LENGTH,
+             tree->attribute_value[j]);
    }
 
    for (i=0 ; i<level ; i++)
@@ -2186,7 +2186,7 @@ void mxml_debug_tree(PMXML_NODE tree, int level)
 /*------------------------------------------------------------------*/
 
 /**
- * free memory of XML tree, must be called after any 
+ * free memory of XML tree, must be called after any
  * mxml_create_root_node() or mxml_parse_file()
  */
 void mxml_free_tree(PMXML_NODE tree)
@@ -2207,7 +2207,7 @@ void mxml_free_tree(PMXML_NODE tree)
       mxml_free(tree->attribute_name);
       mxml_free(tree->attribute_value);
    }
-   
+
    if (tree->value)
       mxml_free(tree->value);
 
@@ -2219,46 +2219,46 @@ void mxml_free_tree(PMXML_NODE tree)
 /*------------------------------------------------------------------*/
 
 /*
-void mxml_test()
-{
-   char err[256];
-   PMXML_NODE tree, tree2, node;
+  void mxml_test()
+  {
+  char err[256];
+  PMXML_NODE tree, tree2, node;
 
-   tree = mxml_parse_file("c:\\tmp\\test.xml", err, sizeof(err));
-   tree2 = mxml_clone_tree(tree);
+  tree = mxml_parse_file("c:\\tmp\\test.xml", err, sizeof(err));
+  tree2 = mxml_clone_tree(tree);
 
-   printf("Orig:\n");
-   mxml_debug_tree(tree, 0);
+  printf("Orig:\n");
+  mxml_debug_tree(tree, 0);
 
-   printf("\nClone:\n");
-   mxml_debug_tree(tree2, 0);
+  printf("\nClone:\n");
+  mxml_debug_tree(tree2, 0);
 
-   printf("\nCombined:\n");
-   node = mxml_find_node(tree2, "cddb"); 
-   mxml_add_tree(tree, node);
-   mxml_debug_tree(tree, 0);
+  printf("\nCombined:\n");
+  node = mxml_find_node(tree2, "cddb");
+  mxml_add_tree(tree, node);
+  mxml_debug_tree(tree, 0);
 
-   mxml_free_tree(tree);
-}
+  mxml_free_tree(tree);
+  }
 */
 
 /*------------------------------------------------------------------*/
- /**
+/**
    mxml_basename deletes any prefix ending with the last slash '/' character
    present in path. mxml_dirname deletes the filename portion, beginning with
    the last slash '/' character to the end of path. Followings are examples
    from these functions
 
-    path               dirname   basename
-    "/"                "/"       ""
-    "."                "."       "."
-    ""                 ""        ""
-    "/test.txt"        "/"       "test.txt"
-    "path/to/test.txt" "path/to" "test.txt"
-    "test.txt          "."       "test.txt"
+   path               dirname   basename
+   "/"                "/"       ""
+   "."                "."       "."
+   ""                 ""        ""
+   "/test.txt"        "/"       "test.txt"
+   "path/to/test.txt" "path/to" "test.txt"
+   "test.txt          "."       "test.txt"
 
    Under Windows, '\\' and ':' are recognized ad separator too.
- */
+*/
 
 void mxml_basename(char *path)
 {
@@ -2329,13 +2329,13 @@ PMXML_NODE mxml_get_node_at_line(PMXML_NODE tree, int line_number)
 
    if (tree->line_number_start == line_number)
       return tree;
-   
+
    for (i=0 ; i<tree->n_children ; i++) {
       pn = mxml_get_node_at_line(&tree->child[i], line_number);
       if (pn)
          return pn;
    }
-    
+
    return NULL;
 }
 
