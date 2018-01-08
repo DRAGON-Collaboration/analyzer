@@ -31,20 +31,10 @@
 #pragma link C++ nestedclasses;
 #pragma link C++ nestedtypedef;
 
-#pragma link C++ class dragon::utils+;
-#pragma link C++ class dragon+;
-#pragma link C++ class vme+;
-
 #pragma link C++ defined_in ../src/Vme.hxx;
 #pragma link C++ defined_in ../src/Dragon.hxx;
 #pragma link C++ defined_in ../src/Sonik.hxx;
 #pragma link C++ defined_in ../src/utils/VariableStructs.hxx;
-
-class TH1;
-class TTree;
-#pragma link C++ function dragon::Scaler::plot<TTree, TH1>(TTree*, const char*, const char*, Option_t*);
-#pragma link C++ function dragon::Scaler::set_aliases(TTree*, Bool_t);
-#pragma link C++ function dragon::Epics::set_aliases(TTree*);
 
 #pragma link C++ defined_in ../src/TStamp.hxx;
 #pragma link C++ defined_in ../src/utils/ErrorDragon.hxx;
@@ -54,6 +44,17 @@ class TTree;
 #pragma link C++ defined_in ../src/utils/Uncertainty.hxx;
 #pragma link C++ defined_in ../src/utils/TAtomicMass.h;
 #pragma link C++ defined_in ../src/utils/LinearFitter.hxx;
+#pragma link C++ nestedclass;
+
+#pragma link C++ class dragon::utils+;
+#pragma link C++ class dragon+;
+#pragma link C++ class vme+;
+
+class TH1;
+class TTree;
+#pragma link C++ function dragon::Scaler::plot<TTree, TH1>(TTree*, const char*, const char*, Option_t*);
+#pragma link C++ function dragon::Scaler::set_aliases(TTree*, Bool_t);
+#pragma link C++ function dragon::Epics::set_aliases(TTree*);
 
 #pragma link C++ class dragon::utils::AutoPtr<midas::Xml>+;
 #pragma link C++ class dragon::utils::AutoPtr<dragon::RossumData>+;
@@ -91,7 +92,6 @@ class TTree;
 #if ROOT_VERSION_CODE >= ROOT_VERSION(6,00,0)
 // Additional streamers for ROOT6/rootcling
 // dragon::utils ns classes
-#pragma link C++ class dragon::utils::AutoPtr+;
 #pragma link C++ class dragon::utils::DsssdCalibrator::Param_t+;
 #pragma link C++ class dragon::utils::DsssdCalibrator+;
 #pragma link C++ class dragon::utils::ChangeErrorIgnore+;
@@ -101,29 +101,12 @@ class TTree;
 #pragma link C++ class dragon::utils::Error+;
 #pragma link C++ class dragon::utils::Warning+;
 #pragma link C++ class dragon::utils::ADelayedMessagePrinter+;
-#pragma link C++ class dragon::utils::DelayedMessagePrinter+;
 #pragma link C++ class dragon::utils::DelayedMessageFactory+;
-#pragma link C++ class dragon::utils::greater_and_valid+;
-#pragma link C++ class dragon::utils::less_and_valid+;
 #pragma link C++ class dragon::utils::PositionVariables<1>+;
-#pragma link C++ class dragon::utils::PositionVariables+;
-#pragma link C++ class dragon::utils::AdcVariables+;
-#pragma link C++ class dragon::utils::TdcVariables+;
-#pragma link C++ class dragon::utils::AdcVariables2<1>+;
-#pragma link C++ class dragon::utils::AdcVariables2+;
-#pragma link C++ class dragon::utils::TdcVariables2<1>+;
-#pragma link C++ class dragon::utils::TdcVariables2+;
-#pragma link C++ class dragon::utils::AdcVariablesN<1, Order>+;
-#pragma link C++ class dragon::utils::AdcVariablesN+;
-#pragma link C++ class dragon::utils::TdcVariablesN<1, Order>+;
-#pragma link C++ class dragon::utils::TdcVariablesN+;
 
 //dragon ns classes
-#pragma link C++ class dragon::TdcChannel<5>+;
 #pragma link C++ class dragon::TdcChannel<5>::Variables+;
-#pragma link C++ class dragon::TdcChannel<MAX_RF_HITS>+;
-#pragma link C++ class dragon::TdcChannel<MAX_RF_HITS>::Variables+;
-
+#pragma link C++ class dragon::TdcChannel<5>+;
 #pragma link C++ class dragon::RunParameters+;
 #pragma link C++ class dragon::Bgo+;
 #pragma link C++ class dragon::Dsssd+;
@@ -132,7 +115,6 @@ class TTree;
 #pragma link C++ class dragon::SurfaceBarrier+;
 #pragma link C++ class dragon::NaI+;
 #pragma link C++ class dragon::Ge+;
-#pragma link C++ class dragon::TdcChannel+;
 #pragma link C++ class dragon::HiTof+;
 #pragma link C++ class dragon::Head+;
 #pragma link C++ class dragon::Tail+;
@@ -150,8 +132,6 @@ class TTree;
 #pragma link C++ class dragon::StoppingPowerCalculator+;
 #pragma link C++ class dragon::StoppingPowerCalculator::Measurement_t+;
 #pragma link C++ class dragon::LiveTimeCalculator+;
-#pragma link C++ class dragon::CoincBusyTime+;
-#pragma link C++ class dragon::CoincBusyTime::Event+;
 #pragma link C++ class dragon::ResonanceStrengthCalculator+;
 #pragma link C++ class dragon::CrossSectionCalculator+;
 #pragma link C++ class dragon::ASelector+;
@@ -159,7 +139,6 @@ class TTree;
 #pragma link C++ class dragon::TailSelector+;
 #pragma link C++ class dragon::CoincSelector+;
 #pragma link C++ class dragon::ScalerSelector+;
-#pragma link C++ class dragon::NoData+;
 
 // midas ns classes
 #pragma link C++ class midas+;
@@ -176,7 +155,6 @@ class TTree;
 
 // tstamp ns classes
 #pragma link C++ class tstamp::Queue+;
-#pragma link C++ class tstamp::OwnedQueue+;
 
 //vme ns classes
 #pragma link C++ class vme::Io32::Tsc4+;
@@ -198,10 +176,7 @@ class TTree;
 
 #pragma link C++ namespace dragon;
 #pragma link C++ namespace dragon::utils;
-#pragma link C++ namespace m2r;
 #pragma link C++ namespace midas;
-#pragma link C++ namespace rbdragon;
-#pragma link C++ namespace rbsonik;
 #pragma link C++ namespace tstamp;
 #pragma link C++ namespace vme;
 #endif // ROOT6

@@ -1648,13 +1648,13 @@ bool dragon::Epics::Variables::set(const midas::Database* db)
 	 */
 	bool success = check_db(db, "dragon::Epics");
 
-	int length = db->ReadArrayLength("/Equipment/Epics/Settings/Names EPICS_Values");
+	int length = db->ReadArrayLength("/Equipment/Epics/Settings/names Epics_Values");
 	if(length < 0) success = false;
 
 	if(success) {
 		names.clear();
 		names.resize(length);
-		success = db->ReadArray("/Equipment/Epics/Settings/Names EPICS_Values", &names[0], length);
+		success = db->ReadArray("/Equipment/Epics/Settings/names Epics_Values", &names[0], length);
 	}
 	if(success) success = odb_set_bank(&bkname, db, "/dragon/epics/bank_name");
 
