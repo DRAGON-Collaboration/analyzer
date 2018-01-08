@@ -1,4 +1,5 @@
 //! \file UserLinkdef.h
+//! \author D. Connolly
 //! \brief User-defined portion of the CINT Linkdef file.
 //!
 //! \full This file is where you can tell CINT about the classes you've written to store and analyze
@@ -28,8 +29,15 @@
 #pragma link off all globals;
 #pragma link off all classes;
 #pragma link off all functions;
-#pragma link C++ nestedclasses;
+#pragma link off all typedefs;
+#pragma link C++ nestedclass;
 #pragma link C++ nestedtypedef;
+
+#pragma link C++ namespace dragon;
+#pragma link C++ namespace dragon::utils;
+#pragma link C++ namespace midas;
+#pragma link C++ namespace tstamp;
+#pragma link C++ namespace vme;
 
 #pragma link C++ defined_in ../src/Vme.hxx;
 #pragma link C++ defined_in ../src/Dragon.hxx;
@@ -44,7 +52,6 @@
 #pragma link C++ defined_in ../src/utils/Uncertainty.hxx;
 #pragma link C++ defined_in ../src/utils/TAtomicMass.h;
 #pragma link C++ defined_in ../src/utils/LinearFitter.hxx;
-#pragma link C++ nestedclass;
 
 #pragma link C++ class dragon::utils+;
 #pragma link C++ class dragon+;
@@ -104,6 +111,15 @@ class TTree;
 #pragma link C++ class dragon::utils::DelayedMessageFactory+;
 #pragma link C++ class dragon::utils::PositionVariables<1>+;
 
+// dragon ns free functions
+#pragma link C++ function dragon::MakeChains;
+#pragma link C++ function dragon::OpenRun;
+
+#pragma link C++ function dragon::MeasurementWeightedAverage(std::vector<UDouble_t>::iterator, std::vector<UDouble_t>::iterator);
+#pragma link C++ function dragon::MeasurementWeightedAverage(UDouble_t*, UDouble_t*);
+
+#pragma link C++ enum dragon::MeasurementType_t;
+
 //dragon ns classes
 #pragma link C++ class dragon::TdcChannel<5>::Variables+;
 #pragma link C++ class dragon::TdcChannel<5>+;
@@ -139,6 +155,8 @@ class TTree;
 #pragma link C++ class dragon::TailSelector+;
 #pragma link C++ class dragon::CoincSelector+;
 #pragma link C++ class dragon::ScalerSelector+;
+#pragma link C++ class dragon::CoincBusytime+;
+#pragma link C++ class dragon::DsssdCalibrate+;
 
 // midas ns classes
 #pragma link C++ class midas+;
@@ -174,11 +192,6 @@ class TTree;
 // Class UDouble_t
 #pragma link C++ class UDouble_t+;
 
-#pragma link C++ namespace dragon;
-#pragma link C++ namespace dragon::utils;
-#pragma link C++ namespace midas;
-#pragma link C++ namespace tstamp;
-#pragma link C++ namespace vme;
 #endif // ROOT6
 
 #endif

@@ -1,7 +1,7 @@
 ///
 /// \file Constants.hxx
-/// \author G. Christian
 /// \author D. Connolly
+/// \author G. Christian
 /// \brief Defines some useful physical constants
 ///
 #ifndef DRAGON_CONSTANTS_HXX
@@ -34,79 +34,79 @@ class Constants {
 public:
 
 	/// Avogadro's number 6.022140857(74)e23 mol<sup>-1</sup>
-	static const double Avogadro()   { return 6.022140857e23; }
+	static double Avogadro()   { return 6.022140857e23; }
 
 	/// Avogadro uncertainty (mol<sup>-1</sup>)
-	static const double AvogadroUnc()   { return 0.000000074e23; }
+	static double AvogadroUnc()   { return 0.000000074e23; }
 
 	/// atomic mass unit (energy equivalent) 931.4940954(57) MeV c<sup>-2</sup>
-	static const double AMU()        { return 931.4940954; }
+	static double AMU()        { return 931.4940954; }
 
 	/// atomic mass unit (energy equivalent) uncertainty (in MeV c<sup>-2</sup>)
-	static const double AMUUnc()     { return 0.0000057; }
+	static double AMUUnc()     { return 0.0000057; }
 
 	/// atomic mass unit 1.660539040(20) kg
-	static const double AMUkg() { return 1.660538921e-27; }
+	static double AMUkg() { return 1.660538921e-27; }
 
 	/// atomic mass unit uncertainty (in kg)
-	static const double AMUkgUnc() { return 0.000000020e-27; }
+	static double AMUkgUnc() { return 0.000000020e-27; }
 
 	/// fine structure constant 7.2973525664(17)e-3
-	static const double Alpha() { return 7.2973525664e-3; }
+	static double Alpha() { return 7.2973525664e-3; }
 
 	/// fine structure constant uncertainty
-	static const double AlphaUnc() { return 0.0000000017e-3; }
+	static double AlphaUnc() { return 0.0000000017e-3; }
 
 	/// Bohr radius in m 0.52917721067(12)
-	static const double RohrR() { return 0.52917721067e-10; }
+	static double RohrR() { return 0.52917721067e-10; }
 
 	/// Bohr radius uncertainty
-	static const double RohrRUnc() { return 0.00000000012e-10; }
+	static double RohrRUnc() { return 0.00000000012e-10; }
 
 	/// Boltzmann constant 8.6173303(50)e-5 eV K<sup>-1</sup>
-	static const double Boltzmann() { return 8.6173303e-5; }
+	static double Boltzmann() { return 8.6173303e-5; }
 
 	/// Boltzmann constant uncertainty
-	static const double BoltzUnc() { return 0.0000050e-5; }
+	static double BoltzUnc() { return 0.0000050e-5; }
 
 	/// Electron charge 1.6021766208(98)e-19 A*s \note Implemented in ROOT's TMath::Qe(), but its value is outdated.
-	static const double ElectronCharge() { return 1.6021766208e-19; }
+	static double ElectronCharge() { return 1.6021766208e-19; }
 
 	/// Electron charge uncertainty
-	static const double ElectronChargeUnc() { return 0.0000000098e-19; }
+	static double ElectronChargeUnc() { return 0.0000000098e-19; }
 
 	/// Electron charge squared in MeV*fm
-	static const double QeSquared() { return Alpha()*HbarC(); }
+	static double QeSquared() { return Alpha()*HbarC(); }
 
 	/// Electron mass in MeV / c<sup>2</sup> 0.5109989461(31)
-	static const double ElectronMass() { return 0.5109989461; }
+	static double ElectronMass() { return 0.5109989461; }
 
 	/// Electron mass uncertainty
-	static const double EMassUnc() { return 0.0000000031; }
+	static double EMassUnc() { return 0.0000000031; }
 
 	/// Vacuum permittivity F*m<sup>-1</sup>
-	static const double Eps0() { return 1 / ( Mu0()*pow(TMath::C(),2) ); }
+	static double Eps0() { return 1 / ( Mu0()*pow(TMath::C(),2) ); }
 
 	/// hbar*c 197.3269788(12) MeV*fm
-	static const double HbarC() { return 197.3269788; }
+	static double HbarC() { return 197.3269788; }
 
 	/// Hbar*c uncertainty
-	static const double HbarCUnc() { return 0.0000012; }
+	static double HbarCUnc() { return 0.0000012; }
 
 	/// vacuum permeability N*A<sup>-2</sup>
-	static const double Mu0() { return 4*TMath::Pi()*1e-7; }
+	static double Mu0() { return 4*TMath::Pi()*1e-7; }
 
 	/// Loschmidt constant at 273.15 K and 101.325 kPa 2.6867811(15)e19 cm<sup>-3</sup>
-	static const double Losch() { return 2.6867811e19; }
+	static double Losch() { return 2.6867811e19; }
 
 	/// Loschmidt constant uncertainty
-	static const double LoschUnc() { return 0.0000015; }
+	static double LoschUnc() { return 0.0000015; }
 
 	/// NIST normal temperature in K
-	static const double T_std() { return 293.15; }
+	static double T_std() { return 293.15; }
 
 	/// standard atm in Torr
-	static const double P_std() { return 760; }
+	static double P_std() { return 760; }
 
 };
 

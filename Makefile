@@ -31,19 +31,45 @@ SHLIBFILE    = $(DRLIB)/libDragon.so
 ROOTMAPFILE := $(patsubst %.so,%.rootmap,$(SHLIBFILE))
 
 ### Variable definitions
+ifeq ($(PLATFORM),macosx)
+CXXFLAGS += -DOS_LINUX -DOS_DARWIN
+DYLIB = -m64 -dynamiclib -single_module -undefined dynamic_lookup
+INCLUDE  += -I/opt/local/include -I/usr/local/include
+ifdef MIDASSYS
+MIDAS_LIB_DIR = $(MIDASSYS)/darwin/lib
+endif
+endif
+
+ifeq ($(PLATFORM),linux)
+DYLIB     = -shared
+CXXFLAGS += -DOS_LINUX
+NAME      = $(shell lsb_release -si)
+ifdef MIDASSYS
+MIDAS_LIB_DIR = $(MIDASSYS)/linux/lib
+MIDASLIBS    += -lm -lz -lutil -lnsl -lrt
+endif
+endif
+
 ifeq ($(USE_ROOT),YES)
 DEFINITIONS   += -DUSE_ROOT
 ROOTSYS = $(shell $(RC) --prefix)
-ifdef ROOTSYS
 ROOTVERSION := $(shell $(RC) --version | awk -F. '{print $1}')
+ifdef ROOTSYS
 $(info ------------ USE_ROOT ----------------)
 $(info ------------ ROOT Version: ------------)
-ROOTVERSION = $(shell $(RC) --version)
-$(info $(ROOTVERSION))
-$(info ------------ ROOT Version: ------------)
+$(info $(shell $(RC) --version))
+$(info ---------------------------------------)
 ifndef ROOTVERSION
 $(error Could not run root-config program, check your ROOT setup script)
 endif
+ifeq ($(ROOTVERSION),6)
+MAKE_DRAGON_DICT += rootcling -v -f $@ -s $(SHLIBFILE) -rml $(SHLIBFILE) -rmf $(ROOTMAPFILE) -c $(CINTFLAGS) \
+-p $(HEADERS) TError.h TNamed.h TObject.h TString.h TTree.h $(CINT)/Linkdef.h
+else
+MAKE_DRAGON_DICT += rootcint -f $@ -c $(CINTFLAGS) -p $(HEADERS) TTree.h $(CINT)/Linkdef.h
+endif
+DRA_DICT          = $(DRLIB)/DragonDictionary.cxx
+DRA_DICT_DEP      = $(DRLIB)/DragonDictionary.cxx
 ROOTLIBS    += -lXMLParser -lTreePlayer -lSpectrum -lMinuit
 ROOTGLIBS   += -lXMLParser -lTreePlayer -lSpectrum -lMinuit
 else
@@ -70,45 +96,11 @@ INCLUDE  += -I$(MIDASSYS)/include
 endif
 endif
 
-ifeq ($(PLATFORM),macosx)
-CXXFLAGS += -DOS_LINUX -DOS_DARWIN
-DYLIB = -m64 -dynamiclib -single_module -undefined dynamic_lookup
-INCLUDE  += -I/opt/local/include -I/usr/local/include
-ifdef MIDASSYS
-MIDAS_LIB_DIR = $(MIDASSYS)/darwin/lib
-endif
-endif
-
-ifeq ($(PLATFORM),linux)
-DYLIB     = -shared
-CXXFLAGS += -DOS_LINUX
-NAME      = $(shell lsb_release -si)
-ifdef MIDASSYS
-MIDAS_LIB_DIR = $(MIDASSYS)/linux/lib
-MIDASLIBS    += -lm -lz -lutil -lnsl -lrt
-endif
-endif
-
-# CXX += $(CXXFLAGS)
-# CC  += $(CCFLAGS)
-# LINK = $(CXX) $(ROOTLIBS) $(RPATH) -L$(PWD)/lib
-
 CC        += $(filter-out -std=c++11, $(CXXFLAGS))
 CXXFLAGS  += $(INCLUDE)
 CINTFLAGS := $(filter-out ($(ROOTCFLAGS)), $(CXXFLAGS))
 CXX       += $(CXXFLAGS)
 LD         = $(CXX) $(LDFLAGS) $(ROOTGLIBS) $(RPATH) -L$(PWD)/lib
-
-ifeq ($(USE_ROOT),YES)
-ifeq ($(ROOTVERSION),6)
-MAKE_DRAGON_DICT += rootcling -v -f $@ -s $(SHLIBFILE) -rml $(SHLIBFILE) -rmf $(ROOTMAPFILE) -c $(CINTFLAGS) \
--p $(HEADERS) TError.h TNamed.h TObject.h TString.h TTree.h $(CINT)/Linkdef.h
-else
-MAKE_DRAGON_DICT += rootcint -f $@ -c $(CXXFLAGS) -p $(HEADERS) TTree.h $(CINT)/Linkdef.h
-endif
-DRA_DICT           = $(DRLIB)/DragonDictionary.cxx
-DRA_DICT_DEP       = $(DRLIB)/DragonDictionary.cxx
-endif
 
 HEADERS=								\
 $(SRC)/midas/*.hxx						\
