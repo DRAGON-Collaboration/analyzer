@@ -24,7 +24,6 @@
 //! \endcode
 //! (note that the '+' at the end is required except in special cases).
 #ifdef __MAKECINT__
-#include <RVersion.h>
 
 #pragma link off all globals;
 #pragma link off all classes;
@@ -67,11 +66,9 @@ class TTree;
 #pragma link C++ class dragon::utils::AutoPtr<dragon::RossumData>+;
 #pragma link C++ class dragon::utils::AutoPtr<std::ifstream>+;
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,30,0)
 #pragma link C++ class std::auto_ptr<midas::Xml>+;
 #pragma link C++ class std::auto_ptr<dragon::RossumData>+;
 #pragma link C++ class std::auto_ptr<std::ifstream>+;
-#endif
 
 #pragma link C++ class dragon::utils::AdcVariables<dragon::Bgo::MAX_CHANNELS>+;
 #pragma link C++ class dragon::utils::TdcVariables<dragon::Bgo::MAX_CHANNELS>+;
@@ -96,8 +93,6 @@ class TTree;
 
 #pragma link C++ class vme::V1190::Channel+;
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,00,0)
-// Additional streamers for ROOT6/rootcling
 // dragon::utils ns classes
 #pragma link C++ class dragon::utils::DsssdCalibrator::Param_t+;
 #pragma link C++ class dragon::utils::DsssdCalibrator+;
@@ -192,6 +187,4 @@ class TTree;
 // Class UDouble_t
 #pragma link C++ class UDouble_t+;
 
-#endif // ROOT6
-
-#endif
+#endif // __MAKECINT__

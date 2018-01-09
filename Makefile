@@ -79,6 +79,12 @@ else
 USE_ROOTBEER = NO
 endif
 
+ifeq ($(NAME),Ubuntu)
+ifeq ($(ROOTVERSION),5)
+DEFINITIONS += -D_GLIBCXX_USE_CXX11_ABI=0
+endif
+endif
+
 DEFINITIONS += -DAMEPP_DEFAULT_FILE=\"$(PWD)/src/utils/mass16.txt\"#-D_GLIBCXX_USE_CXX11_ABI=0
 INCLUDE     += -I$(SRC) -I$(CINT)
 # DEBUG       += -ggdb -O3 -DDEBUG
@@ -99,7 +105,18 @@ endif
 CC        += $(filter-out -std=c++11, $(CXXFLAGS))
 CXXFLAGS  += $(INCLUDE)
 CINTFLAGS := $(filter-out ($(ROOTCFLAGS)), $(CXXFLAGS))
-CXX       += $(CXXFLAGS)
+
+ifeq ($(NAME),Ubuntu)
+ifeq ($(ROOTVERSION),5)
+CXX += $(filter-out -std=c++11, $(CXXFLAGS))
+else
+CXX += $(CXXFLAGS)
+endif
+else
+CXX += $(CXXFLAGS)
+endif
+
+# CXX       += $(CXXFLAGS)
 LD         = $(CXX) $(LDFLAGS) $(ROOTGLIBS) $(RPATH) -L$(PWD)/lib
 
 HEADERS=								\
