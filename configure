@@ -89,8 +89,14 @@ do
     elif [ $var == "--with-rootana" ]; then
 	    USE_ROOTANA=YES
     elif [ $var == "--with-rootbeer" ]; then
-	    USE_ROOTBEER=YES
-        RB_HOME=$HOME/packages/rootbeer
+        if [ $USE_ROOT == "NO" ]; then
+            echo "error: USE_ROOT set to false but USE_ROOTBEER set to true!"
+            echo "Switching off USE_ROOTBEER! To enable, set USE_ROOT to true and reconfigure."
+            USE_ROOT=NO
+        else
+	        USE_ROOTBEER=YES
+            RB_HOME=$HOME/packages/rootbeer
+        fi
     elif [ $var == "--with-midas" ]; then
 	    USE_MIDAS=YES
         if [ -z $MIDASSYS ]; then
