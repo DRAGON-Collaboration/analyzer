@@ -18,7 +18,7 @@ ifeq ($(ROOTMAJORVERSION),6)
 MAKE_DRAGON_DICT += rootcling -v -f $@ -s $(SHLIBFILE) -rml $(SHLIBFILE) -rmf $(ROOTMAPFILE) -c $(CINTFLAGS) \
 -p $(HEADERS) TError.h TNamed.h TObject.h TString.h TTree.h $(CINT)/Linkdef.h
 else
-MAKE_DRAGON_DICT += rootcint -f $@ -c $(CINTFLAGS) -p $(HEADERS) TTree.h $(CINT)/Linkdef5.h
+MAKE_DRAGON_DICT += rootcint -v -f $@ -s $(SHLIBFILE) -rml $(SHLIBFILE) -rmf $(ROOTMAPFILE) -c $(CINTFLAGS) -p $(HEADERS) TTree.h $(CINT)/Linkdef5.h
 endif
 DRA_DICT          = $(DRLIB)/DragonDictionary.cxx
 DRA_DICT_DEP      = $(DRLIB)/DragonDictionary.cxx
