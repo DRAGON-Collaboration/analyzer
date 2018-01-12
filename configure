@@ -225,11 +225,10 @@ elif [ $UNAME == "Linux" ]; then
     if [ $DIST == "Ubuntu" ]; then
         echo "DEFINITIONS += -D_GLIBCXX_USE_CXX11_ABI=0" >> config.mk
     fi
-fi
-echo "" >> config.mk
-if [ $DIST == Ubuntu ] && [ $ROOTMAJORVERSION == 5 ]; then
-    echo "## The following var is necessary when installing on Ubuntu with ROOT v5 because Ubuntu is very picky" >> config.mk
-    echo "NAME = Ubuntu5" >> config.mk
+    if [ $DIST == Ubuntu ] && [ $ROOTMAJORVERSION == 5 ]; then
+        echo "## The following var is necessary when installing on Ubuntu with ROOT v5 because Ubuntu is very picky" >> config.mk
+        echo "NAME = Ubuntu5" >> config.mk
+    fi
 fi
 echo "" >> config.mk
 if [ $USE_MIDAS == "YES" ]; then
