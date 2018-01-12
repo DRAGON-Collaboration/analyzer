@@ -50,7 +50,7 @@ fi
 UNAME=`uname -a | awk '{print $1}'`
 
 if [ $UNAME == Linux ]; then
-    DIST=`lsb_release -si`
+    DIST=`lsb_release -si | awk '{print $1}'`
     if [ "$DIST" == Ubuntu ]; then
         CC=clang
         CXX=clang++
@@ -121,7 +121,7 @@ AMEPP_DEFAULT_FILE=$PWD/src/utils/mass16.txt
 echo "### config.mk ###" > config.mk
 echo "### Makefile created by ./configure script ###" >> config.mk
 echo "" >> config.mk
-echo "DEFINITIONS = -DAMEPP_DEFAULT_FILE=\"\$(PWD)/src/utils/mass16.txt\"" >> config.mk
+echo "DEFINITIONS = -DAMEPP_DEFAULT_FILE=\\\"\$(PWD)/src/utils/mass16.txt\\\"" >> config.mk
 echo "" >> config.mk
 echo "### Variable definitions ###" >> config.mk
 echo "SRC      = $PWD/src" >> config.mk
