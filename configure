@@ -179,9 +179,14 @@ if [ $USE_ROOT == "YES" ]; then
     echo "### USE_ROOT ###" >> config.mk
     echo "DEFINITIONS     += -DUSE_ROOT" >> config.mk
     RC=root-config
+    ROOTSYS=`$RC --prefix`
     ROOTVERSION=`$RC --version`
     ROOTMAJORVERSION=`$RC --version | awk -F. '{print $1}'`
-    ROOTSYS=`$RC --prefix`
+    if [ $ROOTMAJORVERSION == 6 ];then
+        ROOTCINT=rootcling
+    else
+        ROOTCINT=rootcint
+    fi
     if [ -z ${ROOTSYS} ]; then
         echo "error: USE_ROOT set to true but ROOTSYS environment variable is not set."
         rm -rf config.mk
