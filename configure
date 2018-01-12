@@ -45,6 +45,8 @@ else
     CXX=g++
 fi
 
+
+
 UNAME=`uname -a | awk '{print $1}'`
 
 if [ $UNAME == Linux ]; then
@@ -53,9 +55,10 @@ if [ $UNAME == Linux ]; then
         CC=clang
         CXX=clang++
     fi
-elif [ $UNAME == Darwin ]; then
-    CC=clang
-    CXX=clang++
+else if [ $UNAME == Darwin ]; then
+         CC=clang
+         CXX=clang++
+     fi
 fi
 
 for var in "$@"
@@ -72,7 +75,12 @@ OMIT_IC=0
 OMIT_NAI=0
 OMIT_GE=0
 
-RB_HOME="\$(HOME)/packages/rootbeer"
+SRC=$PWD/src
+UTILS=$SRC/utils
+OBJ=$PWD/obj
+CINT=$PWD/cint
+DRLIB=$PWD/lib
+TEST=$PWD/test
 
 for var in "$@"
 do
@@ -82,8 +90,13 @@ do
 	    USE_ROOTANA=YES
     elif [ $var == "--with-rootbeer" ]; then
 	    USE_ROOTBEER=YES
+        RB_HOME=$HOME/packages/rootbeer
     elif [ $var == "--with-midas" ]; then
 	    USE_MIDAS=YES
+        if [ -z $MIDASSYS ]; then
+            echo "error: USE_MIDAS set to true but MIDASSYS environment variable not set; switching off"
+            USE_MIDAS=NO
+        fi
     elif [ $var == "--without-modules" ]; then
 	    DISPLAY_MODULES=0
     elif [ $var == "--without-dsssd" ]; then
@@ -103,36 +116,49 @@ do
     fi
 done
 
-echo "" > config.mk
-echo "DEFINITIONS=" >> config.mk
+AMEPP_DEFAULT_FILE=$PWD/src/utils/mass16.txt
+
+echo "### config.mk ###" > config.mk
+echo "### Makefile created by ./configure script ###" >> config.mk
 echo "" >> config.mk
-echo "## Uncomment (Comment) to (not) export \"raw\" modules for viewing in ROOT tree" >> config.mk
-if [ $DISPLAY_MODULES != 0 ]; then >> config.mk
-                                   echo "DEFINITIONS+=-DDISPLAY_MODULES" >> config.mk
-else >> config.mk
-     echo "#DEFINITIONS+=-DDISPLAY_MODULES" >> config.mk
-fi >> config.mk
+echo "DEFINITIONS = -DAMEPP_DEFAULT_FILE=\"\$(PWD)/src/utils/mass16.txt\"" >> config.mk
 echo "" >> config.mk
-echo "## (Un)comment to (not) ignore corresponding heavy-ion detectors" >> config.mk
-if [ $OMIT_DSSSD != 0 ]; then >> config.mk
-                              echo "DEFINITIONS+=DRAGON_OMIT_DSSSD" >> config.mk
+echo "### Variable definitions ###" >> config.mk
+echo "SRC      = $PWD/src" >> config.mk
+echo "UTILS    = $SRC/utils" >> config.mk
+echo "OBJ      = $PWD/obj" >> config.mk
+echo "CINT     = $PWD/cint" >> config.mk
+echo "DRLIB    = $PWD/lib" >> config.mk
+echo "TEST     = $PWD/test" >> config.mk
+echo "INCLUDE += -I$SRC -I$CINT" >> config.mk
+echo "" >> config.mk
+echo "### Uncomment (Comment) to (not) export \"raw\" modules for viewing in ROOT tree" >> config.mk
+if [ $DISPLAY_MODULES != 0 ]; then
+    echo "DEFINITIONS += -DDISPLAY_MODULES" >> config.mk
+else
+     echo "#DEFINITIONS += -DDISPLAY_MODULES" >> config.mk
+fi
+echo "" >> config.mk
+echo "### (Un)comment to (not) ignore corresponding heavy-ion detectors" >> config.mk
+if [ $OMIT_DSSSD != 0 ]; then
+    echo "DEFINITIONS += -DDRAGON_OMIT_DSSSD" >> config.mk
 else >> config.mk
-     echo "#DEFINITIONS+=DRAGON_OMIT_DSSSD" >> config.mk
+     echo "#DEFINITIONS += -DDRAGON_OMIT_DSSSD" >> config.mk
 fi >> config.mk
-if [ $OMIT_IC != 0 ]; then >> config.mk
-                           echo "DEFINITIONS+=DRAGON_OMIT_IC" >> config.mk
+if [ $OMIT_IC != 0 ]; then
+    echo "DEFINITIONS += -DDRAGON_OMIT_IC" >> config.mk
 else >> config.mk
-     echo "#DEFINITIONS+=DRAGON_OMIT_IC" >> config.mk
+     echo "#DEFINITIONS += -DDRAGON_OMIT_IC" >> config.mk
 fi >> config.mk
-if [ $OMIT_NAI != 0 ]; then >> config.mk
-                            echo "DEFINITIONS+=DRAGON_OMIT_NAI" >> config.mk
+if [ $OMIT_NAI != 0 ]; then
+    echo "DEFINITIONS += -DDRAGON_OMIT_NAI" >> config.mk
 else >> config.mk
-     echo "#DEFINITIONS+=DRAGON_OMIT_NAI" >> config.mk
+     echo "#DEFINITIONS += -DDRAGON_OMIT_NAI" >> config.mk
 fi >> config.mk
-if [ $OMIT_GE != 0 ]; then >> config.mk
-                           echo "DEFINITIONS+=DRAGON_OMIT_GE" >> config.mk
+if [ $OMIT_GE != 0 ]; then
+    echo "DEFINITIONS += -DDRAGON_OMIT_GE" >> config.mk
 else >> config.mk
-     echo "#DEFINITIONS+=DRAGON_OMIT_GE" >> config.mk
+     echo "#DEFINITIONS += -DDRAGON_OMIT_GE" >> config.mk
 fi >> config.mk
 echo "" >> config.mk
 echo "### Set to YES (NO) to turn on (off) root [or rootbeer, or rootana, or ...] usage ###" >> config.mk
@@ -141,13 +167,111 @@ echo "USE_ROOTANA  = $USE_ROOTANA" >> config.mk
 echo "USE_ROOTBEER = $USE_ROOTBEER" >> config.mk
 echo "USE_MIDAS    = $USE_MIDAS" >> config.mk
 echo "" >> config.mk
+if [ $USE_ROOT == "YES" ]; then
+    echo "### USE_ROOT ###" >> config.mk
+    echo "DEFINITIONS     += -DUSE_ROOT" >> config.mk
+    RC=root-config
+    ROOTVERSION=`$RC --version`
+    ROOTMAJORVERSION=`$RC --version | awk -F. '{print $1}'`
+    ROOTSYS=`$RC --prefix`
+    if [ -z ${ROOTSYS} ]; then
+        echo "error: USE_ROOT set to true but ROOTSYS environment variable is not set."
+        rm -rf config.mk
+        exit 1
+    else
+        echo "ROOTSYS          = $ROOTSYS" >> config.mk
+        echo "ROOTVERSION      = $ROOTVERSION" >> config.mk
+        echo "ROOTMAJORVERSION = $ROOTMAJORVERSION" >> config.mk
+        echo "" >> config.mk
+        echo "### include ROOT Makefile ###" >> config.mk
+        if [ `which $RC 2>&1 | sed -ne "s@.*/$RC@$RC@p"` == "$RC" ]; then
+            MKARCH=`$RC --etcdir`/Makefile.arch
+        fi
+        if [ -z ${MKARCH+x} ]; then
+            ROOTSYS=`$RC --prefix`
+            echo "include $ROOTSYS/etc/Makefile.arch" >> config.mk
+        else
+            echo "include $MKARCH" >> config.mk
+        fi
+    fi
+fi
 echo "" >> config.mk
+echo "### $UNAME ###" >> config.mk
+if [ $UNAME == "Darwin" ]; then
+    echo "UNAME = $UNAME" >> config.mk
+    echo "CXXFLAGS    += -DOS_LINUX -DOS_DARWIN" >> config.mk
+    echo "DYLIB        = -m64 -dynamiclib -single_module -undefined dynamic_lookup" >> config.mk
+    echo "INCLUDE     += -I/opt/local/include -I/usr/local/include" >> config.mk
+elif [ $UNAME == "Linux" ]; then
+    echo "### $DIST ###" >> config.mk
+    echo "UNAME        = $UNAME" >> config.mk
+    echo "DIST         = $DIST" >> config.mk
+    echo "DYLIB        = -shared" >> config.mk
+    echo "CXXFLAGS    += -DOS_LINUX" >> config.mk
+    if [ $DIST == "Ubuntu" ]; then
+        echo "DEFINITIONS += -D_GLIBCXX_USE_CXX11_ABI=0" >> config.mk
+    fi
+else
+    echo "error: Operating system not supported!"
+    exit 1
+fi
 echo "" >> config.mk
-echo "### Set ROOTBEER home directory (ignore if USE_ROOTBEER=NO) ###" >> config.mk
-echo "RB_HOME = $RB_HOME" >> config.mk
+if [ $DIST == Ubuntu ] && [ $ROOTMAJORVERSION == 5 ]; then
+    echo "## The following var is necessary when installing on Ubuntu with ROOT v5 because Ubuntu is very picky" >> config.mk
+    echo "NAME = Ubuntu5" >> config.mk
+fi
 echo "" >> config.mk
+if [ $USE_MIDAS == "YES" ]; then
+    echo "### USE_MIDAS ###" >> config.mk
+    if [ $UNAME == "Linux" ]; then
+        echo "MIDAS_LIB_DIR = $MIDASSYS/linux/lib" >> config.mk
+        echo "MIDASLIBS    += -lm -lz -lutil -lnsl -lrt" >> config.mk
+    elif [ $UNAME == "Darwin" ]; then
+        echo "MIDAS_LIB_DIR = $MIDASSYS/darwin/lib" >> config.mk
+    fi
+    echo "CXXFLAGS += -D$MIDASSYS" >> config.mk
+    echo "MIDASLIBS = -L$MIDAS_LIB_DIR -lmidas" >> config.mk
+    echo "INCLUDE  += -I$MIDASSYS/include" >> config.mk
+fi
 echo "" >> config.mk
+if [ $USE_ROOTBEER == YES ]; then
+    echo "### USE_ROOTBEER ###" >> config.mk echo
+    echo "RBINC             = -I$RB_HOME/src" >> config.mk
+    echo "RB_DRAGON_OBJECTS = $OBJ/rootbeer/rbdragon.o  $OBJ/rootbeer/rbdragon_impl.o" >> config.mk
+    echo "RB_SONIK_OBJECTS  = $OBJ/rootbeer/rbdragon.o $OBJ/rootbeer/rbsonik.o  $OBJ/rootbeer/rbsonik_impl.o" >> config.mk
+    echo "RB_HEADERS        = $SRC/rootbeer/rbdragon.hxx $SRC/rootbeer/rbsonik.hxx" >> config.mk
+    echo "RB_DEFS           = -DRB_DRAGON_HOMEDIR=$PWD" >> config.mk
+
+    echo "RB_HOME        = $RB_HOME" >> config.mk
+    echo "MAKE_ALL      += $PWD/bin/rbdragon $PWD/bin/rbsonik" >> config.mk
+    echo "DEFINITIONS   += -DUSE_ROOTBEER" >> config.mk
+    echo "MID2ROOT_LIBS += -L$PWD/../../rootbeer/lib -lRootbeer" >> config.mk
+    echo "MID2ROOT_INC  += $RBINC" >> config.mk
+fi
+echo "" >> config.mk
+if [ $USE_ROOTANA == "YES" ]; then
+    echo "### USE_ROOTANA ###" >> config.mk
+    echo "MAKE_ALL     += $PWD/bin/anaDragon" >> config.mk
+    echo "ROOTANA       = $HOME/usr/packages/rootana" >> config.mk
+    echo "ROOTANA_FLAGS = -ansi -Df2cFortran -I$ROOTANA" >> config.mk
+    echo "ROOTANA_DEFS  = -DROOTANA_DEFAULT_HISTOS=$HOME/usr/packages/dragon/analyzer/histos.dat" >> config.mk
+    echo "ROOTANA_REMOTE_OBJS =				            \\" >> config.mk
+    echo "              $ROOTANA/libNetDirectory/netDirectoryServer.o" >> config.mk
+    echo ""
+    echo "ROOTANA_OBJS =                                \\" >> config.mk
+    echo "              $OBJ/rootana/Application.o    \\" >> config.mk
+    echo "              $OBJ/rootana/Callbacks.o      \\" >> config.mk
+    echo "              $OBJ/rootana/HistParser.o     \\" >> config.mk
+    echo "              $OBJ/rootana/Directory.o" >> config.mk
+    echo "" >>config.mk
+    echo "ROOTANA_HEADERS = $SRC/rootana/Globals.h $SRC/rootana/*.hxx" >> config.mk
+    echo "ROOTANA_LIBS    = -L$HOME/usr/packages/rootana/libNetDirectory/ -L$HOME/usr/packages/rootana/lib -lrootana -lNetDirectory" >> config.mk
+fi
 echo "### CHOOSE YOUR COMPILER IF YOU WANT ###" >> config.mk
 echo "CXX = $CXX" >> config.mk
 echo "CC  = $CC" >> config.mk
 echo "" >> config.mk
+
+# Local Variables:
+# mode: sh
+# End:
