@@ -59,6 +59,9 @@ else if [ $UNAME == Darwin ]; then
          CC=clang
          CXX=clang++
      fi
+else
+    echo "error: Operating system not supported!"
+    exit 1
 fi
 
 for var in "$@"
@@ -217,9 +220,6 @@ elif [ $UNAME == "Linux" ]; then
     if [ $DIST == "Ubuntu" ]; then
         echo "DEFINITIONS += -D_GLIBCXX_USE_CXX11_ABI=0" >> config.mk
     fi
-else
-    echo "error: Operating system not supported!"
-    exit 1
 fi
 echo "" >> config.mk
 if [ $DIST == Ubuntu ] && [ $ROOTMAJORVERSION == 5 ]; then

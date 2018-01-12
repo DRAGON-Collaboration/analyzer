@@ -22,8 +22,8 @@ MAKE_DRAGON_DICT += rootcint -f $@ -c $(CINTFLAGS) -p $(HEADERS) TTree.h $(CINT)
 endif
 DRA_DICT          = $(DRLIB)/DragonDictionary.cxx
 DRA_DICT_DEP      = $(DRLIB)/DragonDictionary.cxx
-ROOTLIBS    += -lXMLParser -lTreePlayer -lSpectrum -lMinuit
-ROOTGLIBS   += -lXMLParser -lTreePlayer -lSpectrum -lMinuit
+ROOTLIBS         += -lXMLParser -lTreePlayer -lSpectrum -lMinuit
+ROOTGLIBS        += -lXMLParser -lTreePlayer -lSpectrum -lMinuit
 endif
 
 ifeq ($(USE_MIDAS),YES)
@@ -117,7 +117,6 @@ rbdragon.o: $(OBJ)/rootbeer/rbdragon.o
 rbdragon_impl.o: $(OBJ)/rootbeer/rbdragon_impl.o
 
 ### OBJECT FILES ###
-
 $(OBJ)/utils/%.o: $(SRC)/utils/%.cxx $(DRA_DICT_DEP)
 	$(CXX) -c -o $@ $< \
 
@@ -220,13 +219,10 @@ clean: rootana_clean
 	rm -f $(DRA_DICT) $(SHLIBFILE) $(ROOTMAPFILE) $(OBJECTS) $(RB_DRAGON_OBJECTS) $(RB_SONIK_OBJECTS) $(DRLIB)/*.pcm $(DRLIB)/*.h
 
 #### FOR DOXYGEN ####
-
 doc::
 	cd doc ; doxygen Doxyfile ; cd ..
 
-
 #### FOR UNIT TESTING ####
-
 mxml.o:           $(OBJ)/midas/libMidasInterface/mxml.o
 strlcpy.o:        $(OBJ)/midas/libMidasInterface/strlcpy.o
 Odb.o:            $(OBJ)/midas/Odb.o
@@ -256,7 +252,6 @@ test/%: test/%.cxx $(DRLIB)/libDragon.so
 	$(LD) \
 	$< -o $@ \
 	-DMIDASSYS -lDragon -L$(DRLIB) $(MIDASLIBS) -DODB_TEST -I$(PWD)/src
-
 
 odbtest: $(DRLIB)/libDragon.so
 	$(LD) src/midas/Odb.cxx \
