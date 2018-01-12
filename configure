@@ -6,33 +6,34 @@ function showhelp {
     echo "Possible flags are as follows:"
     echo ""
     echo "Package extensions:"
-    echo "    --without-root Do not compile features depending on ROOT."
-    echo "    --with-rootana Compile ROOTANA online analysis extensions, requires ROOTANA installed on your system."
+    echo "    --without-root  Do not compile features depending on ROOT."
+    echo "    --with-rootana  Compile ROOTANA online analysis extensions, requires ROOTANA installed on your system."
     echo "    --with-rootbeer Compile ROOTBEER executable, requires ROOTBEER to be installed on your system."
-    echo "    --with-midas Compile using a locally installed version of MIDAS. This allows online analysis"
-    echo "                 to be performed from your computer, but it it not necessary to analyze offline MIDAS files."
+    echo "    --with-midas    Compile using a locally installed version of MIDAS. This allows online analysis"
+    echo "                    to be performed from your computer, but it it not necessary to analyze offline MIDAS files."
     echo ""
     echo "Conditional compilations:"
     echo "    --without-display-modules Do not export vme::XXX classes into ROOT trees."
-    echo "    --without-dsssd Omit all DSSSD code."
-    echo "    --without-ic    Omit all Ion Chamber code."
-    echo "    --without-nai   Omit all sodium-iodide code."
-    echo "    --without-hpge  Omit all HPGe code."
+    echo "    --without-dsssd           Omit all DSSSD code."
+    echo "    --without-ic              Omit all Ion Chamber code."
+    echo "    --without-nai             Omit all sodium-iodide code."
+    echo "    --without-hpge            Omit all HPGe code."
     echo ""
     echo "Optional things to set:"
     echo "    --rb-home=<rootbeer home directory> (Default: ~/packages/rootbeer)"
-    echo "    --cxx=<C++ compiler command> (default c++)"
-    echo "    --cc=<C compiler commane> (default cc)"
+    echo "    --cxx=<C++ compiler command>        (default c++)"
+    echo "    --cc=<C compiler commane>           (default cc)"
     echo ""
     echo "Other:"
-    echo "    --help Show this help message."
+    echo "    --disable-cxx11-abi Set -D_GLIBCXX_USE_CXX11_ABI=0"
+    echo "    --help              Show this help message."
     echo ""
 }
 
 if [ $HOSTNAME == 'smaug.triumf.ca' ] || [ $HOSTNAME == 'daenerys.triumf.ca' ]; then
     USE_ROOT=YES
     USE_ROOTANA=NO
-    USE_ROOTBEER=YES
+    USE_ROOTBEER=NO
     USE_MIDAS=YES
     CC=clang
     CXX=clang++
@@ -46,30 +47,9 @@ else
 fi
 
 
-
 UNAME=`uname -a | awk '{print $1}'`
 
-if [ $UNAME == Linux ]; then
-    DIST=`lsb_release -si | awk '{print $1}'`
-    if [ "$DIST" == Ubuntu ]; then
-        CC=clang
-        CXX=clang++
-    fi
-elif [ $UNAME == Darwin ]; then
-         CC=clang
-         CXX=clang++
-else
-    echo "error: Operating system not supported!"
-    exit 1
-fi
-
-for var in "$@"
-do
-    if   [ $var == "--help" ]; then
-	    showhelp
-	    exit
-    fi
-done
+AMEPP_DEFAULT_FILE=$PWD/src/utils/mass16.txt
 
 DISPLAY_MODULES=1
 OMIT_DSSSD=0
@@ -84,21 +64,46 @@ CINT=$PWD/cint
 DRLIB=$PWD/lib
 TEST=$PWD/test
 
+if [ $UNAME == Linux ]; then
+    DIST=`lsb_release -si | awk '{print $1}'`
+    if [ "$DIST" == Ubuntu ]; then
+        CC=clang
+        CXX=clang++
+    fi
+elif [ $UNAME == Darwin ]; then
+    CC=clang
+    CXX=clang++
+else
+    echo "error: Operating system not supported!"
+    exit 1
+fi
+
+for var in "$@"
+do
+    if   [ $var == "--help" ]; then
+	    showhelp
+	    exit
+    fi
+done
+
 for var in "$@"
 do
     if   [ $var == "--without-root" ]; then
 	    USE_ROOT=NO
     elif [ $var == "--with-rootana" ]; then
+        if [ $USE_ROOT == "NO" ]; then
+            echo "Note: USE_ROOTANA = YES but USE_ROOT = NO; switching on USE_ROOT!"
+            USE_ROOT=YES
+        fi
 	    USE_ROOTANA=YES
+        ROOTANA=$HOME/packages/rootana
     elif [ $var == "--with-rootbeer" ]; then
         if [ $USE_ROOT == "NO" ]; then
-            echo "error: USE_ROOT set to false but USE_ROOTBEER set to true!"
-            echo "Switching off USE_ROOTBEER! To enable, set USE_ROOT to true and reconfigure."
-            USE_ROOT=NO
-        else
+            echo "Note: USE_ROOTBEER = YES but USE_ROOT = NO; switching on USE_ROOT!"
+            USE_ROOT=YES
+        fi
 	        USE_ROOTBEER=YES
             RB_HOME=$HOME/packages/rootbeer
-        fi
     elif [ $var == "--with-midas" ]; then
 	    USE_MIDAS=YES
         if [ -z $MIDASSYS ]; then
@@ -121,10 +126,10 @@ do
 	    CC=`echo $var | cut -d'=' -f 2`
     elif [[ $var == --rb-home=* ]]; then
 	    RB_HOME=`echo $var | cut -d'=' -f 2`
+    elif [[ $var == --use-cxx11-abi ]]; then
+        CX11_ABI=YES
     fi
 done
-
-AMEPP_DEFAULT_FILE=$PWD/src/utils/mass16.txt
 
 echo "### config.mk ###" > config.mk
 echo "### Makefile created by ./configure script ###" >> config.mk
@@ -132,11 +137,12 @@ echo "" >> config.mk
 echo "DEFINITIONS = -DAMEPP_DEFAULT_FILE=\\\"\$(PWD)/src/utils/mass16.txt\\\"" >> config.mk
 echo "" >> config.mk
 echo "### Variable definitions ###" >> config.mk
-echo "SRC      = $PWD/src" >> config.mk
-echo "UTILS    = $SRC/utils" >> config.mk
-echo "OBJ      = $PWD/obj" >> config.mk
-echo "CINT     = $PWD/cint" >> config.mk
-echo "DRLIB    = $PWD/lib" >> config.mk
+echo "SRC      = \$(PWD)/src" >> config.mk
+echo "UTILS    = \$(SRC)/utils" >> config.mk
+echo "OBJ      = \$(PWD)/obj" >> config.mk
+echo "CINT     = \$(PWD)/cint" >> config.mk
+echo "DRLIB    = \$(PWD)/lib" >> config.mk
+echo "BIN      = \$(PWD)/bin" >> config.mk
 echo "TEST     = $PWD/test" >> config.mk
 echo "INCLUDE += -I$SRC -I$CINT" >> config.mk
 echo "" >> config.mk
@@ -144,7 +150,7 @@ echo "### Uncomment (Comment) to (not) export \"raw\" modules for viewing in ROO
 if [ $DISPLAY_MODULES != 0 ]; then
     echo "DEFINITIONS += -DDISPLAY_MODULES" >> config.mk
 else
-     echo "#DEFINITIONS += -DDISPLAY_MODULES" >> config.mk
+    echo "#DEFINITIONS += -DDISPLAY_MODULES" >> config.mk
 fi
 echo "" >> config.mk
 echo "### (Un)comment to (not) ignore corresponding heavy-ion detectors" >> config.mk
@@ -196,6 +202,7 @@ if [ $USE_ROOT == "YES" ]; then
         echo "ROOTVERSION      = $ROOTVERSION" >> config.mk
         echo "ROOTMAJORVERSION = $ROOTMAJORVERSION" >> config.mk
         echo "ROOTCINT         = $ROOTCINT" >> config.mk
+        echo "MAKE_ALL        += \$(SHLIBFILE) \$(PWD)/bin/mid2root" >> config.mk
         echo "" >> config.mk
         echo "### include ROOT Makefile ###" >> config.mk
         if [ `which $RC 2>&1 | sed -ne "s@.*/$RC@$RC@p"` == "$RC" ]; then
@@ -208,11 +215,15 @@ if [ $USE_ROOT == "YES" ]; then
             echo "include $MKARCH" >> config.mk
         fi
     fi
+    echo "--------------- USE_ROOT --------------"
+    echo "------------ ROOT Version: ------------"
+    echo "               $ROOTVERSION"
+    echo "---------------------------------------"
 fi
 echo "" >> config.mk
 echo "### $UNAME ###" >> config.mk
 if [ $UNAME == "Darwin" ]; then
-    echo "UNAME = $UNAME" >> config.mk
+    echo "UNAME        = $UNAME" >> config.mk
     echo "CXXFLAGS    += -DOS_LINUX -DOS_DARWIN" >> config.mk
     echo "DYLIB        = -m64 -dynamiclib -single_module -undefined dynamic_lookup" >> config.mk
     echo "INCLUDE     += -I/opt/local/include -I/usr/local/include" >> config.mk
@@ -223,58 +234,69 @@ elif [ $UNAME == "Linux" ]; then
     echo "DYLIB        = -shared" >> config.mk
     echo "CXXFLAGS    += -DOS_LINUX" >> config.mk
     if [ $DIST == "Ubuntu" ]; then
-        echo "DEFINITIONS += -D_GLIBCXX_USE_CXX11_ABI=0" >> config.mk
+        if [ $CXX11_ABI == "YES"]; then
+            echo "DEFINITIONS += -D_GLIBCXX_USE_CXX11_ABI=1" >> config.mk
+        else
+            echo "DEFINITIONS += -D_GLIBCXX_USE_CXX11_ABI=0" >> config.mk
+        fi
     fi
     if [ $DIST == Ubuntu ] && [ $ROOTMAJORVERSION == 5 ]; then
-        echo "## The following var is necessary when installing on Ubuntu with ROOT v5 because Ubuntu is very picky" >> config.mk
+        echo "### The following var is necessary when installing on Ubuntu with ROOT v5 because Ubuntu is very picky" >> config.mk
         echo "NAME = Ubuntu5" >> config.mk
     fi
 fi
 echo "" >> config.mk
 if [ $USE_MIDAS == "YES" ]; then
+    echo "-------------- USE_MIDAS --------------"
     echo "### USE_MIDAS ###" >> config.mk
     if [ $UNAME == "Linux" ]; then
+        MIDAS_LIB_DIR=$MIDASSYS/linux/lib
         echo "MIDAS_LIB_DIR = $MIDASSYS/linux/lib" >> config.mk
         echo "MIDASLIBS    += -lm -lz -lutil -lnsl -lrt" >> config.mk
     elif [ $UNAME == "Darwin" ]; then
-        echo "MIDAS_LIB_DIR = $MIDASSYS/darwin/lib" >> config.mk
+        MIDAS_LIB_DIR=$MIDASSYS/darwin/lib
+        echo "MIDAS_LIB_DIR = $MIDAS_LIB_DIR" >> config.mk
     fi
-    echo "CXXFLAGS += -D$MIDASSYS" >> config.mk
-    echo "MIDASLIBS = -L$MIDAS_LIB_DIR -lmidas" >> config.mk
-    echo "INCLUDE  += -I$MIDASSYS/include" >> config.mk
+    echo "DEFINITIONS += -DMIDASSYS" >> config.mk
+    echo "MIDASLIBS    = -L$MIDAS_LIB_DIR -lmidas" >> config.mk
+    echo "INCLUDE     += -I$MIDASSYS/include" >> config.mk
 fi
 echo "" >> config.mk
 if [ $USE_ROOTBEER == YES ]; then
+    echo "------------ USE_ROOTBEER -------------"
+    RB_HOME=$HOME/packages/rootbeer
     echo "### USE_ROOTBEER ###" >> config.mk echo
+    echo "DEFINITIONS      += -DUSE_ROOTBEER" >> config.mk
+    echo "RB_HOME           = $RB_HOME" >> config.mk
     echo "RBINC             = -I$RB_HOME/src" >> config.mk
-    echo "RB_DRAGON_OBJECTS = $OBJ/rootbeer/rbdragon.o  $OBJ/rootbeer/rbdragon_impl.o" >> config.mk
-    echo "RB_SONIK_OBJECTS  = $OBJ/rootbeer/rbdragon.o $OBJ/rootbeer/rbsonik.o  $OBJ/rootbeer/rbsonik_impl.o" >> config.mk
     echo "RB_HEADERS        = $SRC/rootbeer/rbdragon.hxx $SRC/rootbeer/rbsonik.hxx" >> config.mk
     echo "RB_DEFS           = -DRB_DRAGON_HOMEDIR=$PWD" >> config.mk
-
-    echo "RB_HOME        = $RB_HOME" >> config.mk
-    echo "MAKE_ALL      += $PWD/bin/rbdragon $PWD/bin/rbsonik" >> config.mk
-    echo "DEFINITIONS   += -DUSE_ROOTBEER" >> config.mk
-    echo "MID2ROOT_LIBS += -L$PWD/../../rootbeer/lib -lRootbeer" >> config.mk
-    echo "MID2ROOT_INC  += $RBINC" >> config.mk
+    echo "MID2ROOT_LIBS    += -L$PWD/../../rootbeer/lib -lRootbeer" >> config.mk
+    echo "MID2ROOT_INC     += -I$RB_HOME/src" >> config.mk
+    echo "RB_DRAGON_OBJECTS = $OBJ/rootbeer/rbdragon.o  $OBJ/rootbeer/rbdragon_impl.o" >> config.mk
+    echo "RB_SONIK_OBJECTS  = $OBJ/rootbeer/rbdragon.o $OBJ/rootbeer/rbsonik.o  $OBJ/rootbeer/rbsonik_impl.o" >> config.mk
+    echo "MAKE_ALL         += $PWD/bin/rbdragon $PWD/bin/rbsonik" >> config.mk
 fi
 echo "" >> config.mk
 if [ $USE_ROOTANA == "YES" ]; then
+    echo "------------- USE_ROOTANA -------------"
+    ROOTANA=$HOME/packages/rootana
     echo "### USE_ROOTANA ###" >> config.mk
-    echo "MAKE_ALL     += $PWD/bin/anaDragon" >> config.mk
-    echo "ROOTANA       = $HOME/usr/packages/rootana" >> config.mk
-    echo "ROOTANA_FLAGS = -ansi -Df2cFortran -I$ROOTANA" >> config.mk
-    echo "ROOTANA_DEFS  = -DROOTANA_DEFAULT_HISTOS=$HOME/usr/packages/dragon/analyzer/histos.dat" >> config.mk
+    echo "DEFINITIONS        += -DUSE_ROOTANA" >> config.mk
+    echo "ROOTANA             = $ROOTANA" >> config.mk
+    echo "ROOTANA_FLAGS       = -ansi -Df2cFortran -I$ROOTANA" >> config.mk
+    echo "ROOTANA_DEFS        = -DROOTANA_DEFAULT_HISTOS=$HOME/usr/packages/dragon/analyzer/histos.dat" >> config.mk
+    echo "MAKE_ALL           += \$(PWD)/bin/anaDragon" >> config.mk
     echo "ROOTANA_REMOTE_OBJS =				            \\" >> config.mk
-    echo "              $ROOTANA/libNetDirectory/netDirectoryServer.o" >> config.mk
-    echo ""
-    echo "ROOTANA_OBJS =                                \\" >> config.mk
-    echo "              $OBJ/rootana/Application.o    \\" >> config.mk
-    echo "              $OBJ/rootana/Callbacks.o      \\" >> config.mk
-    echo "              $OBJ/rootana/HistParser.o     \\" >> config.mk
-    echo "              $OBJ/rootana/Directory.o" >> config.mk
+    echo "              \$(ROOTANA)/libNetDirectory/netDirectoryServer.o" >> config.mk
     echo "" >>config.mk
-    echo "ROOTANA_HEADERS = $SRC/rootana/Globals.h $SRC/rootana/*.hxx" >> config.mk
+    echo "ROOTANA_OBJS =                                \\" >> config.mk
+    echo "              \$(OBJ)/rootana/Application.o    \\" >> config.mk
+    echo "              \$(OBJ)/rootana/Callbacks.o      \\" >> config.mk
+    echo "              \$(OBJ)/rootana/HistParser.o     \\" >> config.mk
+    echo "              \$(OBJ)/rootana/Directory.o" >> config.mk
+    echo "" >> config.mk
+    echo "ROOTANA_HEADERS = \$(SRC)/rootana/Globals.h \$(SRC)/rootana/*.hxx" >> config.mk
     echo "ROOTANA_LIBS    = -L$HOME/usr/packages/rootana/libNetDirectory/ -L$HOME/usr/packages/rootana/lib -lrootana -lNetDirectory" >> config.mk
 fi
 echo "### CHOOSE YOUR COMPILER IF YOU WANT ###" >> config.mk
