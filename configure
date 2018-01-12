@@ -195,6 +195,7 @@ if [ $USE_ROOT == "YES" ]; then
         echo "ROOTSYS          = $ROOTSYS" >> config.mk
         echo "ROOTVERSION      = $ROOTVERSION" >> config.mk
         echo "ROOTMAJORVERSION = $ROOTMAJORVERSION" >> config.mk
+        echo "ROOTCINT         = $ROOTCINT" >> config.mk
         echo "" >> config.mk
         echo "### include ROOT Makefile ###" >> config.mk
         if [ `which $RC 2>&1 | sed -ne "s@.*/$RC@$RC@p"` == "$RC" ]; then
