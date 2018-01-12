@@ -55,10 +55,9 @@ if [ $UNAME == Linux ]; then
         CC=clang
         CXX=clang++
     fi
-else if [ $UNAME == Darwin ]; then
+elif [ $UNAME == Darwin ]; then
          CC=clang
          CXX=clang++
-     fi
 else
     echo "error: Operating system not supported!"
     exit 1
