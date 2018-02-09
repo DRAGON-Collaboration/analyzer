@@ -1,6 +1,6 @@
 ///
 /// \file Calibration.hxx
-/// \author G. Christian
+/// \author G. Christian and D. Connolly
 /// \brief Contains classes to help with calibrating DRAGON detectors
 ///
 #ifndef DRAGON_CALIB_HEADER
@@ -25,33 +25,28 @@ namespace utils {
 class DsssdCalibrator {
 public:
 	/// Simple stuct to hold linear fit params
-	struct Param_t { Double_t slope; Double_t offset; };
+	struct Param_t { Double_t slope; Double_t offset; Double_t inl; Double_t intercept; };
 public:
+	Double_t fMaxSlope, fMinChan;
 	TH2F* fHdcal;
 	TH1D* fFrontcal;
 public:
-	/// Construct from tree w/ heavy ion singles data & database containing variables
 	DsssdCalibrator(TTree* t, midas::Database* db);
-	/// Draw a summary of DSSSD energies (w/ no calibration)
 	void DrawSummary(Option_t* opt = "") const;
-	/// Draw a summary of DSSSD energies (w/ calibration)
 	void DrawSummaryCal(Option_t* opt = "");
-	/// Draw calibrated DSSSD energy spectrum of the front strips
 	void DrawFrontCal(Option_t* opt = "");
-	/// Helper routine to find triple alpha peaks in a spectrum
 	std::vector<Double_t> FindPeaks(TH1* hst, Double_t sigma = 2, Double_t threshold = 0.05) const;
-	/// Get the value of a particular peak as found by FindPeaks()
+	void GainMatch();
 	Double_t GetPeak(Int_t channel, Int_t peak) const;
-	/// Get the slope and offset for a given channel
 	Param_t GetParams(Int_t channel) const;
-	/// Helper routine to fit alpha energy vs. ADC channel
-	void FitPeaks(Int_t ch);
-	/// Run the full calibration
-	Int_t Run(Double_t pklow = 500, Double_t pkhigh = 3840, Double_t sigma = 4, Double_t threshold = 0.15);
-	/// Print a summary of the calibration results
+	Param_t GetOldParams(Int_t channel) const;
+	void FitPeaks(Int_t ch, Bool_t grid = kTRUE);
+	Int_t Run(Double_t pklow = 500, Double_t pkhigh = 3840, Double_t sigma = 4, Double_t threshold = 0.15, Bool_t grid = kTRUE);
 	void PrintResults(const char* outfile = 0);
-	/// Print the calibration results in a format that can be input into odbedit to update the calibration
 	void PrintOdb(const char* outfile = 0);
+	void WriteJson(const char* outfile = "$DH/../calibration/dsssdcal.json");
+	void WriteOdb(Bool_t json = kTRUE, Bool_t xml = kTRUE);
+	void WriteXml(const char* outfile = "$DH/../calibration/dsssdcal.xml");
 private:
 	TTree* fTree;
 	midas::Database* fDb;
