@@ -7,7 +7,7 @@
 /// \code
 /// .include "/path/to/dragon/analyzer/src"
 /// gSystem->Load("/path/to/dragon/analyzer/lib/libDragon.so");
-/// 
+///
 /// .x FriendChain.C
 /// \endcode
 /// Note that the first two lines only have to be called once in a ROOT session. You may want
@@ -18,7 +18,7 @@
 /// \code
 ///  gROOT->ProcessLine(".include \"/path/to/dragon/analyzer/src\"");
 /// \endcode
-/// 
+///
 /// When you have successfully executed this file, you will have full access to the "friended" branches,
 /// as if they were part of the initial tree. You can, for example, draw the calibrated DSSSD front strip
 /// energy vs. the uncalibrated one:
@@ -38,12 +38,12 @@
 	// The file formats should correspond to the actual location and naming scheme of your real files
 	// (note that the `%d` gets substituted with the actual run number).
 	dragon::FriendChain(t3, "t3_dsssdcal", "recal",
-											"~/data/dragon/DAQ_test/data/rootfiles/run%d.root",
-											"~/data/dragon/DAQ_test/data/rootfiles/run%d_dsssd_recal.root");
+						"~/data/dragon/DAQ_test/data/rootfiles/run%d.root",
+						"~/data/dragon/DAQ_test/data/rootfiles/run%d_dsssd_recal.root");
 
 	// This line does the same as above, except for coincidences
 	dragon::FriendChain(t5, "t5_dsssdcal", "recal",
-											"~/data/dragon/DAQ_test/data/rootfiles/run%d.root",
-											"~/data/dragon/DAQ_test/data/rootfiles/run%d_dsssd_recal.root");
+						"~/data/dragon/DAQ_test/data/rootfiles/run%d.root",
+						"~/data/dragon/DAQ_test/data/rootfiles/run%d_dsssd_recal.root");
 }
 /// \endcond

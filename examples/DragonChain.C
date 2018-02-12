@@ -5,7 +5,7 @@
 /// \code
 /// .include "/path/to/dragon/analyzer/src"
 /// gSystem->Load("/path/to/dragon/analyzer/lib/libDragon.so");
-/// 
+///
 /// .x DragonChain.C
 /// \endcode
 /// Note that the first two lines only have to be called once in a ROOT session. You may want
@@ -49,6 +49,6 @@
 	// case you should change the last argument to correspond to the actual location
 	// and naming format of your ROOT files. The last argument means that we expect
 	// the file names to expand to ~/data/dragon/DAQ_test/data/rootfiles/run397.root, etc.
-	dragon::MakeChains(runnumbers, nruns, "~/data/dragon/DAQ_test/data/rootfiles/run%d.root");	
+	dragon::MakeChains(runnumbers, nruns, "~/data/dragon/DAQ_test/data/rootfiles/run%d.root");
 }
 /// \endcond

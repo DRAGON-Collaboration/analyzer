@@ -82,7 +82,7 @@ public:
 	Event(char* buf, int size);
 
 	/// Copy constructor
-	Event(const Event& other) { CopyDerived(other); }
+	Event(const Event& other):TMidasEvent(other) { CopyDerived(other); }
 
 	/// Assignment operator
 	Event& operator= (const Event& other)

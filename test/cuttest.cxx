@@ -8,12 +8,12 @@
 void f(bool is_new)
 {
 	if (is_new)
-	{
-		printf("creating\n");
-		std::ofstream ofs ("test.C");
-		ofs << "#include \"Base.h\"\n";
-		ofs << "struct Derived: public Base { void f() { printf(\"Derived!\\n\"); } };\n";
-	}
+		{
+			printf("creating\n");
+			std::ofstream ofs ("test.C");
+			ofs << "#include \"Base.h\"\n";
+			ofs << "struct Derived: public Base { void f() { printf(\"Derived!\\n\"); } };\n";
+		}
 
 	gROOT->ProcessLine(".L test.C+");
 

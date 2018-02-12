@@ -40,26 +40,26 @@
 	// slopes and offsets contained in the specified XML file. To change them, edit
 	// the fields `<keyarray name="slope" type="DOUBLE" num_values="32">` and
 	// `<keyarray name="offset" type="DOUBLE" num_values="32">`
-	// You could also do this "manually" without the XML file by passing arrays 
+	// You could also do this "manually" without the XML file by passing arrays
 	// to the constructor (see commented region for an example).
 	dragon::DsssdCalibrate dsssdcal("dsssd_variables.xml");
 
 	/* "Manual" option
-		 const double slopes[] = {
-		 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
-		 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
-		 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
-		 0.1, 0.1
-		 };
-		 const double offsets[] = {
-		 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
-		 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
-		 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
-		 0., 0.
-		 };
+	   const double slopes[] = {
+	   0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
+	   0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
+	   0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
+	   0.1, 0.1
+	   };
+	   const double offsets[] = {
+	   0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+	   0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+	   0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+	   0., 0.
+	   };
 
-		 dragon::DsssdCalibrate dsssdcal(slopes, offsets);
-	 */
+	   dragon::DsssdCalibrate dsssdcal(slopes, offsets);
+	*/
 
 	// Run the calibration on all of the events in the chains you created
 	t3->Process(&dsssdcal);

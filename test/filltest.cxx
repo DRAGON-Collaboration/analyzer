@@ -43,9 +43,9 @@ int main(int argc , char** argv)
 	assert (fFormula->GetNdim());
 
 	int nnn = 0;
-  do {
+	do {
 		fillfunc();
-  } while (++nnn < 10000000);
+	} while (++nnn < 10000000);
 
 	printf ( "hst.GetEntries() = %f\n", hst.GetEntries() );
 
