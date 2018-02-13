@@ -78,7 +78,7 @@ void dutils::DsssdCalibrator::DrawSummaryCal(Option_t* opt)
 	if(gDirectory->Get("fHdcal"))
 		gDirectory->Get("fHdcal")->Delete();
 
-	fHdcal = new TH2F("fHdcal", "", NDSSSD, 0, NDSSSD, 4096, 0, 4095);
+	fHdcal = new TH2D("fHdcal", "", NDSSSD, 0, NDSSSD, 4096, 0, 4095);
 	dragon::Tail* tail = new dragon::Tail();
 	fTree->SetBranchAddress("tail", &tail);
 	for(Long_t evt = 0; evt < fTree->GetEntries(); ++evt) {
@@ -112,7 +112,7 @@ dutils::DsssdCalibrator::Param_t dutils::DsssdCalibrator::GetParams(Int_t channe
 {
 	if((UInt_t)channel > NDSSSD - 1) {
 		std::cerr << "Invalid channel " << channel << ", valid range is [0, 31].\n";
-		Param_t junk = {0,0};
+		Param_t junk = {0, 0, 0, 0};
 		return junk;
 	}
 	return fParams[channel];
@@ -125,7 +125,7 @@ dutils::DsssdCalibrator::Param_t dutils::DsssdCalibrator::GetOldParams(Int_t cha
 {
 	if((UInt_t)channel > NDSSSD - 1) {
 		std::cerr << "Invalid channel " << channel << ", valid range is [0, 31].\n";
-		Param_t junk = {0,0};
+		Param_t junk = {0, 0, 0, 0};
 		return junk;
 	}
 	return fOldParams[channel];
@@ -291,7 +291,8 @@ void dutils::DsssdCalibrator::PrintResults(const char* outfile)
 	fprintf(f, "%-7s \t %-8s \t %-7s \t %-7s\n","=======","======","======","======");
 	// fprintf(f, "Channel\tSlope\tOffset\n");
 	for(Int_t i = 0; i < NDSSSD; ++i) {
-		fprintf(f, "%7i \t %-6g \t %-6g \t %-6g\n", i, GetParams(i).offset, GetParams(i).slope, GetParams(i).inl);
+		fprintf(f, "%7i \t %-6g \t %-6g \t %-6g\n", i, GetParams(i).offset, GetParams(i).slope, 0.0);
+		// fprintf(f, "%7i \t %-6g \t %-6g \t %-6g\n", i, GetParams(i).offset, GetParams(i).slope, GetParams(i).inl);
 		// fprintf(f, "%2d\t%.6g\t%.6g\n", i, GetParams(i).slope, GetParams(i).offset);
 	}
 
@@ -397,35 +398,53 @@ void dutils::DsssdCalibrator::WriteXml(const char* outfile)
     std::ofstream ofs(gSystem->ExpandPathName(outfile));
 
     ofs << "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n";
-    ofs << "<odb root=\"/dragon/dsssd/variables/adc\" filename=\"" <<
+    ofs << "<odb root=\"/\" filename=\"" <<
 		outfile << "\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"/Users/dragon/packages/midas/odb.xsd\">\n";
 
-    ofs << "  <keyarray name=\"channel\" type=\"INT\" num_values=\"32\">\n";
+    ofs << "  <dir name=\"dragon\">\n";
+    ofs << "    <dir name=\"dsssd\">\n";
+    ofs << "      <dir name=\"variables\">\n";
+    ofs << "        <dir name=\"adc\">\n";
+    ofs << "          <keyarray name=\"channel\" type=\"INT\" num_values=\"32\">\n";
     for(int i = 0; i < NDSSSD; ++i) {
-        ofs << "    <value index=\"" << i << "\">" << i << "</value>\n";
+        ofs << "            <value index=\"" << i << "\">" << i << "</value>\n";
     }
-    ofs << "  </keyarray>\n";
+    ofs << "          </keyarray>\n";
 
-    ofs << "  <keyarray name=\"module\" type=\"INT\" num_values=\"32\">\n";
+    ofs << "          <keyarray name=\"module\" type=\"INT\" num_values=\"32\">\n";
     for(int i = 0; i< NDSSSD; ++i) {
-        ofs << "    <value index=\"" << i << "\">1</value>\n";
+        ofs << "            <value index=\"" << i << "\">1</value>\n";
     }
-    ofs << "  </keyarray>\n";
+    ofs << "          </keyarray>\n";
 
-    ofs << "  <keyarray name=\"slope\" type=\"DOUBLE\" num_values=\"32\">\n";
+    ofs << "          <keyarray name=\"slope\" type=\"DOUBLE\" num_values=\"32\">\n";
     for(int i = 0; i< NDSSSD; ++i) {
-        ofs << "    <value index=\"" << i << "\">" << GetParams(i).slope << "</value>\n";
+        ofs << "            <value index=\"" << i << "\">" << GetParams(i).slope << "</value>\n";
     }
-    ofs << "  </keyarray>\n";
+    ofs << "          </keyarray>\n";
 
     ofs << "          <keyarray name=\"offset\" type=\"DOUBLE\" num_values=\"32\">\n";
     for(int i = 0; i< NDSSSD; ++i) {
-        ofs << "    <value index=\"" << i << "\">" << GetParams(i).offset << "</value>\n";
+        ofs << "            <value index=\"" << i << "\">" << GetParams(i).offset << "</value>\n";
     }
-    ofs << "  </keyarray>\n";
+    ofs << "          </keyarray>\n";
+    ofs << "        </dir>\n";
+    ofs << "        <dir name=\"tdc_front\">\n";
+    ofs << "          <key name=\"channel\" type=\"INT\">4</key>\n";
+    ofs << "          <key name=\"slope\" type=\"DOUBLE\">0.1</key>\n";
+    ofs << "          <key name=\"offset\" type=\"DOUBLE\">0</key>\n";
+    ofs << "        </dir>\n";
+    ofs << "        <dir name=\"tdc_back\">\n";
+    ofs << "          <key name=\"channel\" type=\"INT\">5</key>\n";
+    ofs << "          <key name=\"slope\" type=\"DOUBLE\">0.1</key>\n";
+    ofs << "          <key name=\"offset\" type=\"DOUBLE\">0</key>\n";
+    ofs << "        </dir>\n";
+    ofs << "      </dir>\n";
+    ofs << "    </dir>\n";
+    ofs << "  </dir>\n";
     ofs << "</odb>\n";
 
     ofs.close();
 
-    std::cout << "ATTENTION: Current odb state saved to dsssdcal.xml in ${DH}/../calibration/ !\n";
+    std::cout << "ATTENTION: Current odb state saved as " << outfile << "\n";
 }

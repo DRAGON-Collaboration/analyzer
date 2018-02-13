@@ -10,8 +10,9 @@
 #include "Dragon.hxx"
 
 class TH1;
-class TH2F;
+class TH2;
 class TH1D;
+class TH2D;
 class TTree;
 
 namespace midas { class Database; }
@@ -28,7 +29,7 @@ public:
 	struct Param_t { Double_t slope; Double_t offset; Double_t inl; Double_t intercept; };
 public:
 	Double_t fMaxSlope, fMinChan;
-	TH2F* fHdcal;
+	TH2D* fHdcal;
 	TH1D* fFrontcal;
 public:
 	DsssdCalibrator(TTree* t, midas::Database* db);

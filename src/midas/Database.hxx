@@ -14,7 +14,7 @@
 #include <TNamed.h>
 
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,30,0)
-#define NO_AUTO_PTR1
+#define NO_AUTO_PTR 1
 
 //
 // ROOT doesn't play nice with std::auto_ptr until version 5.30 or so.
@@ -45,7 +45,7 @@ class Database
 #endif
 {
 public:
-#ifdef NO_AUTO_PTR1
+#ifdef NO_AUTO_PTR
 #define XML_POINTER_t dragon::utils::AutoPtr<midas::Xml>
 #else
 #define XML_POINTER_t std::auto_ptr<midas::Xml>
