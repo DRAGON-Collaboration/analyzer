@@ -33,7 +33,7 @@ function showhelp {
 if [ $HOSTNAME == 'smaug.triumf.ca' ] || [ $HOSTNAME == 'daenerys.triumf.ca' ]; then
     USE_ROOT=YES
     USE_ROOTANA=NO
-    USE_ROOTBEER=NO
+    USE_ROOTBEER=YES
     USE_MIDAS=YES
     CC=clang
     CXX=clang++
@@ -102,6 +102,7 @@ do
         fi
 	    USE_ROOTANA=YES
         ROOTANA=$HOME/packages/rootana
+        mkdir ./lib/rootana
     elif [ $var == "--with-rootbeer" ]; then
         if [ $USE_ROOT == "NO" ]; then
             echo "Note: USE_ROOTBEER = YES but USE_ROOT = NO; switching on USE_ROOT!"
@@ -136,8 +137,10 @@ do
     fi
 done
 
+DATE=`date`
+
 echo "### config.mk ###" > config.mk
-echo "### Makefile created by ./configure script ###" >> config.mk
+echo "### Makefile created by ./configure script on $DATE ###" >> config.mk
 echo "" >> config.mk
 echo "DEFINITIONS = -DAMEPP_DEFAULT_FILE=\\\"\$(PWD)/src/utils/mass16.txt\\\"" >> config.mk
 echo "" >> config.mk
@@ -185,6 +188,9 @@ echo "USE_ROOT     = $USE_ROOT" >> config.mk
 echo "USE_ROOTANA  = $USE_ROOTANA" >> config.mk
 echo "USE_ROOTBEER = $USE_ROOTBEER" >> config.mk
 echo "USE_MIDAS    = $USE_MIDAS" >> config.mk
+echo "" >> config.mk
+echo "### MID2ROOT LIBRARY ###" >> config.mk
+echo "MID2ROOT_LIBS = -lDragon \$(MIDASLIBS)" >> config.mk
 echo "" >> config.mk
 if [ $USE_ROOT == "YES" ]; then
     echo "### USE_ROOT ###" >> config.mk
@@ -246,7 +252,7 @@ elif [ $UNAME == "Linux" ]; then
         fi
     fi
     if [ $DIST == Ubuntu ] && [ $ROOTMAJORVERSION == 5 ]; then
-        echo "### The following var is necessary when installing on Ubuntu with ROOT v5 because Ubuntu is very picky" >> config.mk
+        echo "### The following var is necessary when installing on Ubuntu with ROOT v5 because Ubuntu is very picky ###" >> config.mk
         echo "NAME = Ubuntu5" >> config.mk
     fi
 fi
@@ -271,13 +277,17 @@ fi
 echo "" >> config.mk
 if [ $USE_ROOTBEER == YES ]; then
     RB_HOME=$HOME/packages/rootbeer
+    if [ -z $PWD/lib/rootbeer ]; then
+        mkdir $PWD/lib/rootbeer
+    fi
     echo "### USE_ROOTBEER ###" >> config.mk echo
     echo "DEFINITIONS      += -DUSE_ROOTBEER" >> config.mk
     echo "RB_HOME           = $RB_HOME" >> config.mk
     echo "RBINC             = -I$RB_HOME/src" >> config.mk
+    echo "RB_LIBS           = -L$RB_HOME/lib -lRootbeer -lrbMidas" >> config.mk
     echo "RB_HEADERS        = $SRC/rootbeer/rbdragon.hxx $SRC/rootbeer/rbsonik.hxx" >> config.mk
     echo "RB_DEFS           = -DRB_DRAGON_HOMEDIR=$PWD" >> config.mk
-    echo "MID2ROOT_LIBS    += -L$PWD/../../rootbeer/lib -lRootbeer" >> config.mk
+    echo "MID2ROOT_LIBS    += -L$RB_HOME/lib -lRootbeer" >> config.mk
     echo "MID2ROOT_INC     += -I$RB_HOME/src" >> config.mk
     echo "RB_DRAGON_OBJECTS = $OBJ/rootbeer/rbdragon.o  $OBJ/rootbeer/rbdragon_impl.o" >> config.mk
     echo "RB_SONIK_OBJECTS  = $OBJ/rootbeer/rbdragon.o $OBJ/rootbeer/rbsonik.o  $OBJ/rootbeer/rbsonik_impl.o" >> config.mk
@@ -290,6 +300,9 @@ fi
 echo "" >> config.mk
 if [ $USE_ROOTANA == "YES" ]; then
     ROOTANA=$HOME/packages/rootana
+    if [ -z $PWD/lib/rootana ]; then
+        mkdir $PWD/lib/rootana
+    fi
     echo "### USE_ROOTANA ###" >> config.mk
     echo "DEFINITIONS        += -DUSE_ROOTANA" >> config.mk
     echo "ROOTANA             = $ROOTANA" >> config.mk
