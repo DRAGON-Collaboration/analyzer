@@ -11,10 +11,10 @@ ROOTMAPFILE := $(patsubst %.so,%.rootmap,$(SHLIBFILE))
 
 ifeq ($(USE_ROOT),YES)
 ifeq ($(ROOTMAJORVERSION),6)
-MAKE_DRAGON_DICT += $(ROOTCINT) -v -f $@ -s $(SHLIBFILE) -rml $(SHLIBFILE) -rmf $(ROOTMAPFILE) -c $(CINTFLAGS) \
+MAKE_DRAGON_DICT += $(ROOTCINT) -f $@ -s $(SHLIBFILE) -rml $(SHLIBFILE) -rmf $(ROOTMAPFILE) -c $(CINTFLAGS) \
 -p $(HEADERS) TError.h TNamed.h TObject.h TString.h TTree.h $(CINT)/Linkdef.h
 else
-MAKE_DRAGON_DICT += $(ROOTCINT) -v -f $@ -s $(SHLIBFILE) -c $(CINTFLAGS) -p $(HEADERS) TTree.h $(CINT)/Linkdef5.h
+MAKE_DRAGON_DICT += $(ROOTCINT) -f $@ -c $(CINTFLAGS) -p $(HEADERS) TTree.h $(CINT)/Linkdef5.h
 endif
 DRA_DICT          = $(DRLIB)/DragonDictionary.cxx
 DRA_DICT_DEP      = $(DRLIB)/DragonDictionary.cxx
@@ -85,9 +85,6 @@ OBJECTS += $(OBJ)/utils/TAtomicMass.o
 endif
 ## END OBJECTS ##
 
-### MID2ROOT LIBRARY ###
-MID2ROOT_LIBS = -lDragon $(MIDASLIBS)
-
 all:  $(MAKE_ALL)
 
 libDragon: $(SHLIBFILE)
@@ -100,9 +97,9 @@ mid2root: $(PWD)/bin/mid2root
 $(PWD)/bin/mid2root: src/mid2root.cxx $(SHLIBFILE)
 	$(LD) $(MID2ROOT_INC) $(MID2ROOT_LIBS) $< -o $@ \
 
-rbdragon.o: $(OBJ)/rootbeer/rbdragon.o
+#rbdragon.o: $(OBJ)/rootbeer/rbdragon.o
 
-rbdragon_impl.o: $(OBJ)/rootbeer/rbdragon_impl.o
+# rbdragon_impl.o: $(OBJ)/rootbeer/rbdragon_impl.o
 
 ### OBJECT FILES ###
 $(OBJ)/utils/%.o: $(SRC)/utils/%.cxx $(DRA_DICT_DEP)
@@ -117,7 +114,7 @@ $(OBJ)/midas/%.o: $(SRC)/midas/%.cxx $(DRA_DICT_DEP)
 $(OBJ)/midas/libMidasInterface/%.o: $(SRC)/midas/libMidasInterface/%.cxx $(DRA_DICT_DEP)
 	$(CXX) -c -o $@ $< \
 
-$(OBJ)/rootana/%.o: $(SRC)/rootana/%.cxx $(DRLIB)/anaDragonDict.cxx
+$(OBJ)/rootana/%.o: $(SRC)/rootana/%.cxx $(ANA_DRAGON_DICT)
 	$(CXX) $(ROOTANA_FLAGS) $(ROOTANA_DEFS) -c -o $@ $< \
 
 ## Must be last object rule!!
@@ -130,11 +127,11 @@ dict: $(DRA_DICT)
 $(DRA_DICT):  $(HEADERS) $(CINT)/Linkdef.h
 	$(MAKE_DRAGON_DICT) \
 
-$(DRLIB)/anaDragonDict.cxx: $(ROOTANA_HEADERS) $(DRA_DICT) $(SRC)/rootana/Linkdef.h
-	$(ROOTCINT) -f $@ -c $(CXXFLAGS) $(ROOTANA_FLAGS) -p $(ROOTANA_HEADERS) $(SRC)/rootana/Linkdef.h \
+$(ANA_DRAGON_DICT): $(ROOTANA_HEADERS) $(DRA_DICT) $(SRC)/rootana/Linkdef.h
+	$(ROOTCINT) -f $@ -c $(CINTFLAGS) $(ROOTANA_FLAGS) -p $(ROOTANA_HEADERS) $(SRC)/rootana/Linkdef.h \
 
 $(DRLIB)/CutDict.cxx: $(SRC)/rootana/Cut.hxx $(SRC)/rootana/CutLinkdef.h
-	$(ROOTCINT) -f $@ -c $(CXXFLAGS) $(ROOTANA_FLAGS) -p $(SRC)/rootana/Cut.hxx $(SRC)/rootana/CutLinkdef.h \
+	$(ROOTCINT) -f $@ -c $(CINTFLAGS) $(ROOTANA_FLAGS) -p $(SRC)/rootana/Cut.hxx $(SRC)/rootana/CutLinkdef.h \
 
 libRootanaCut: $(DRLIB)/libRootanaCut.so
 
@@ -143,45 +140,48 @@ $(DRLIB)/libRootanaCut.so: $(DRLIB)/CutDict.cxx
 
 libRootanaDragon: $(DRLIB)/libRootanaDragon.so
 
-$(DRLIB)/libRootanaDragon.so: $(DRLIB)/libDragon.so $(DRLIB)/anaDragonDict.cxx $(DRLIB)/libRootanaCut.so $(ROOTANA_OBJS)
-	$(LD) $(DYLIB)  $(ROOTANA_FLAGS) $(ROOTANA_DEFS) -o $@ $< $(DRLIB)/anaDragonDict.cxx $(ROOTANA_OBJS) \
+$(DRLIB)/libRootanaDragon.so: $(SHLIBFILE) $(ANA_DRAGON_DICT) $(DRLIB)/libRootanaCut.so $(ROOTANA_OBJS)
+	$(LD) $(DYLIB)  $(ROOTANA_FLAGS) $(ROOTANA_DEFS) -o $@ $< $(ANA_DRAGON_DICT) $(ROOTANA_OBJS) \
 	-lDragon -lRootanaCut -L$(DRLIB) \
 
-$(PWD)/bin/anaDragon: $(SRC)/rootana/anaDragon.cxx $(DRLIB)/libDragon.so $(DRLIB)/anaDragonDict.cxx $(DRLIB)/libRootanaCut.so $(ROOTANA_OBJS) $(ROOTANA_REMOTE_OBJS)
-	$(LD) $(ROOTANA_FLAGS) $(ROOTANA_DEFS) -o $@ $< $(DRLIB)/anaDragonDict.cxx $(ROOTANA_OBJS)
+anaDragon: $(PWD)/bin/anaDragon
+
+$(PWD)/bin/anaDragon: $(SRC)/rootana/anaDragon.cxx $(SHLIBFILE) $(ANA_DRAGON_DICT) $(DRLIB)/libRootanaCut.so $(ROOTANA_OBJS) $(ROOTANA_REMOTE_OBJS)
+	$(LD) $(ROOTANA_FLAGS) $(ROOTANA_DEFS) -o $@ $< $(ANA_DRAGON_DICT) $(ROOTANA_OBJS) \
 	-lDragon -lRootanaCut -L$(DRLIB) $(ROOTANA_LIBS) $(MIDASLIBS) \
 
 rootana_clean:
-	rm -f $(ROOTANA_OBJS) $(PWD)/bin/anaDragon $(DRLIB)/libRootanaDragon $(DRLIB)/libRootanaCut
+	rm -f $(ANA_DRAGON_DICT) $(ROOTANA_OBJS) $(PWD)/bin/anaDragon
 
 Dragon: $(OBJ)/Dragon.o
 
-$(DRLIB)/rootbeer/rootbeerDict.cxx: $(SRC)/rootbeer/rbsymbols.hxx $(DRA_DICT_DEP) $(RB_HOME)/cint/RBDictionary.cxx $(RB_HOME)/cint/MidasDict.cxx
-	$(ROOTCINT) -f $@ -c $(CXXFLAGS) $(RBINC) -p $< $(CINT)/rootbeer/rblinkdef.h \
+$(RB_DICT): $(SRC)/rootbeer/rbsymbols.hxx $(DRA_DICT_DEP) $(RB_HOME)/cint/RBDictionary.cxx $(RB_HOME)/cint/MidasDict.cxx
+	$(ROOTCINT) -f $@ -c $(CINTFLAGS) $(RBINC) -p $< $(CINT)/rootbeer/rblinkdef.h \
 
-$(OBJ)/rootbeer/rbdragon.o: $(SRC)/rootbeer/rbdragon.cxx $(SRC)/rootbeer/*.hxx $(DRA_DICT_DEP) $(DRLIB)/rootbeer/rootbeerDict.cxx
-	$(CXX) $(RB_DEFS) $(RBINC) -c \
-	-o $@ $< \
+$(OBJ)/rootbeer/rbdragon.o: $(SRC)/rootbeer/rbdragon.cxx $(SRC)/rootbeer/*.hxx $(DRA_DICT_DEP) $(RB_DICT)
+	$(CXX) $(RB_DEFS) $(RBINC) -c -o $@ $< \
 
-$(OBJ)/rootbeer/rbsonik.o: $(SRC)/rootbeer/rbsonik.cxx $(SRC)/rootbeer/*.hxx $(DRA_DICT_DEP) $(DRLIB)/rootbeer/rootbeerDict.cxx
-	$(CXX) $(RB_DEFS) $(RBINC) -c \
-	-o $@ $< \
+$(OBJ)/rootbeer/rbsonik.o: $(SRC)/rootbeer/rbsonik.cxx $(SRC)/rootbeer/*.hxx $(DRA_DICT_DEP) $(RB_DICT)
+	$(CXX) $(RB_DEFS) $(RBINC) -c -o $@ $< \
 
-$(OBJ)/rootbeer/rbdragon_impl.o: $(SRC)/rootbeer/rbdragon_impl.cxx $(SRC)/rootbeer/*.hxx $(DRA_DICT_DEP) $(DRLIB)/rootbeer/rootbeerDict.cxx
-	$(CXX) $(RB_DEFS) $(RBINC) -c \
-	-o $@ $< \
+$(OBJ)/rootbeer/rbdragon_impl.o: $(SRC)/rootbeer/rbdragon_impl.cxx $(SRC)/rootbeer/*.hxx $(DRA_DICT_DEP) $(RB_DICT)
+	$(CXX) $(RB_DEFS) $(RBINC) -c -o $@ $< \
 
-$(OBJ)/rootbeer/rbsonik_impl.o: $(SRC)/rootbeer/rbsonik_impl.cxx $(SRC)/rootbeer/*.hxx $(DRA_DICT_DEP) $(DRLIB)/rootbeer/rootbeerDict.cxx
-	$(CXX) $(RB_DEFS) $(RBINC) -c \
-	-o $@ $< \
+$(OBJ)/rootbeer/rbsonik_impl.o: $(SRC)/rootbeer/rbsonik_impl.cxx $(SRC)/rootbeer/*.hxx $(DRA_DICT_DEP) $(RB_DICT)
+	$(CXX) $(RB_DEFS) $(RBINC) -c -o $@ $< \
 
-$(PWD)/bin/rbdragon: $(DRLIB)/rootbeer/rootbeerDict.cxx $(RB_DRAGON_OBJECTS)
-	$(LD) $^ $(RBINC) -L$(PWD)/../../rootbeer/lib  -lDragon -lRootbeer -lrbMidas \
-	-o $@ \
+rbdragon: $(PWD)/bin/rbdragon
 
-$(PWD)/bin/rbsonik: $(DRLIB)/rootbeer/rootbeerDict.cxx $(RB_SONIK_OBJECTS)
-	$(LD) $^ $(RBINC) -L$(PWD)/../../rootbeer/lib  -lDragon -lRootbeer -lrbMidas \
-	-o $@ \
+rbsonik: $(PWD)/bin/rbsonik
+
+$(PWD)/bin/rbdragon: $(RB_DICT) $(RB_DRAGON_OBJECTS)
+	$(LD) $^ $(RBINC) $(RB_LIBS) -lDragon -o $@ \
+
+$(PWD)/bin/rbsonik: $(RB_DICT) $(RB_SONIK_OBJECTS)
+	$(LD) $^ $(RBINC) $(RB_LIBS) -lDragon -o $@ \
+
+rootbeer_clean:
+	rm -f $(RB_DICT) $(PWD)/bin/rbdragon $(PWD)/bin/rbsonik
 
 Timestamp: $(OBJ)/rootbeer/Timestamp.o
 
@@ -192,8 +192,9 @@ DragonEvents: $(OBJ)/rootbeer/DragonEvents.o
 DragonRootbeer: $(OBJ)/rootbeer/DragonRootbeer.o
 
 #### REMOVE EVERYTHING GENERATED BY MAKE ####
-clean: rootana_clean
-	rm -f $(DRA_DICT) $(SHLIBFILE) $(ROOTMAPFILE) $(OBJECTS) $(RB_DRAGON_OBJECTS) $(RB_SONIK_OBJECTS) $(DRLIB)/*.pcm $(DRLIB)/*.h
+.PHONY: clean
+clean: $(CLEAN_ALL)
+	rm -f $(DRA_DICT) $(SHLIBFILE) $(ROOTMAPFILE) $(OBJECTS) $(RB_DRAGON_OBJECTS) $(RB_SONIK_OBJECTS) $(DRLIB)/*.so $(DRLIB)/*.pcm $(DRLIB)/*.h $(PWD)/bin/mid2root
 
 #### FOR DOXYGEN ####
 doc::
@@ -225,18 +226,18 @@ Head.o:           $(OBJ)/dragon/Head.o
 Tail.o:           $(OBJ)/dragon/Tail.o
 Scaler.o:         $(OBJ)/dragon/Scaler.o
 
-test/%: test/%.cxx $(DRLIB)/libDragon.so
+test/%: test/%.cxx $(SHLIBFILE)
 	$(LD) \
 	$< -o $@ \
 	-DMIDASSYS -lDragon -L$(DRLIB) $(MIDASLIBS) -DODB_TEST -I$(PWD)/src
 
-odbtest: $(DRLIB)/libDragon.so
+odbtest: $(SHLIBFILE)
 	$(LD) src/midas/Odb.cxx \
 	-o test/odbtest -DMIDASSYS \
 	-lDragon -L$(DRLIB) $(MIDASLIBS) \
 	-DODB_TEST -I$(PWD)/src
 
-filltest: test/filltest.cxx $(DRLIB)/libDragon.so
+filltest: test/filltest.cxx $(SHLIBFILE)
 	$(LD) test/filltest.cxx \
 	-o bin/filltest \
 	-DMIDAS_BUFFERS \
