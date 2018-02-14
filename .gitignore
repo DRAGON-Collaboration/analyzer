@@ -29,6 +29,8 @@ lib/*.dsym
 lib/.*
 lib/*.rootmap
 lib/*.pcm
+lib/rootbeer
+lib/rootana
 .nfs*
 test.xml
 examples/*.d
