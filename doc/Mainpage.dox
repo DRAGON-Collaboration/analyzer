@@ -62,135 +62,135 @@ In the standard configuration, the head and tail DAQ systems read data from the 
     - Two CAEN V785 32-channel, peak-sensing ADCs.
     - One CAEN V1190B 64-channel multi-hit TDC.
 
-  Additionally, both sides contain a VME processor or "frontend" which runs the MIDAS data-acquisition code
-  and is connected via the network to a "backend" computer ['smaug'] which performs analysis and logging
-  (writing to disk) functions.
+Additionally, both sides contain a VME processor or "frontend" which runs the MIDAS data-acquisition code
+and is connected via the network to a "backend" computer ['smaug'] which performs analysis and logging
+(writing to disk) functions.
 
-  \subsection trigger Trigger
-  The following figure shows a simplified diagram of the trigger logic (identical for head and tail DAQs):\n\n
-  \image html trigger.png
-  \n\n
+\subsection trigger Trigger
+The following figure shows a simplified diagram of the trigger logic (identical for head and tail DAQs):\n\n
+\image html trigger.png
+\n\n
 
-  The logic starts with up to eight digital (descriminator) NIM signals being sent into a NIM -> ECL level converter.
-  The output is then sent via a ribbon cable to the "ECL inputs" of the IO32. The eight signals are then processed
-  in the IO32's internal FPGA. First they are sent through a bitmask, where individual channels can be ignored
-  by writing the appropriate bits to an FPGA register. This allows individual channels to be removed from or
-  added to the trigger logic without physically unplugging/plugging in any cables. From here, the unmasked channels
-  are ORed to create a single "master" trigger signal, which is output via a LEMO cable from the IO32. This signal
-  is then routed back into the IO32 via one of its NIM inputs: it is sent into either NIM input 2 or 3. These two
-  signals (NIM in 2 and 3) are ORed internally and sent through an FPGA logic sequence to generate three output
-  signals:
+The logic starts with up to eight digital (descriminator) NIM signals being sent into a NIM -> ECL level converter.
+The output is then sent via a ribbon cable to the "ECL inputs" of the IO32. The eight signals are then processed
+in the IO32's internal FPGA. First they are sent through a bitmask, where individual channels can be ignored
+by writing the appropriate bits to an FPGA register. This allows individual channels to be removed from or
+added to the trigger logic without physically unplugging/plugging in any cables. From here, the unmasked channels
+are ORed to create a single "master" trigger signal, which is output via a LEMO cable from the IO32. This signal
+is then routed back into the IO32 via one of its NIM inputs: it is sent into either NIM input 2 or 3. These two
+signals (NIM in 2 and 3) are ORed internally and sent through an FPGA logic sequence to generate three output
+signals:
 
-  1. "Trigger"
-  2. "Gate"
-  3. "TDC Trigger"
+1. "Trigger"
+2. "Gate"
+3. "TDC Trigger"
 
-  The "trigger" signal is routed back into the IO32, where it sets off the internal logic to identify that an
-  event has occured. This also prompts the generation of a "busy" signal which can be used to block the generation
-  of additional triggers while the current event is processing. The arrival time of the "trigger" signal is also
-  stored in an internal register, and serves as the "timestamp" to identify coincidence vs. singles events (more
-  on this later). The "gate" signal is a NIM logic pulse with a	programmable width, and it is routed into the ADC(s)
-  to serve as their common integration or peak-finding window. The "TDC trigger" signal is also a NIM logic pulse,
-  which can be delayed by a programmable amount of time. It is routed into the TDC, where it serves as the "trigger"
-  (this is similar to a "stop" signal - the TDC will time pulses arriving within a programmable time window proceeding
-  the arrival of the trigger).
-  
-  
-  \subsection data Data Format
+The "trigger" signal is routed back into the IO32, where it sets off the internal logic to identify that an
+event has occured. This also prompts the generation of a "busy" signal which can be used to block the generation
+of additional triggers while the current event is processing. The arrival time of the "trigger" signal is also
+stored in an internal register, and serves as the "timestamp" to identify coincidence vs. singles events (more
+on this later). The "gate" signal is a NIM logic pulse with a	programmable width, and it is routed into the ADC(s)
+to serve as their common integration or peak-finding window. The "TDC trigger" signal is also a NIM logic pulse,
+which can be delayed by a programmable amount of time. It is routed into the TDC, where it serves as the "trigger"
+(this is similar to a "stop" signal - the TDC will time pulses arriving within a programmable time window proceeding
+the arrival of the trigger).
 
-  \subsubsection midas MIDAS
-  
-  This section gives a brief overview of the MIDAS data format and, more importantly, how it is
-  decoded for DRAGON data analysis. This is in no way exhaustive, and for more information, the reader should
-  consult the <a href="http://midas.psi.ch/htmldoc/index.html">MIDAS documentation page</a>. Readers who are already
-  familiar with the MIDAS data format may wish to skip to the \link midasbanks MIDAS Banks \endlink section where
-  the specifics of DRAGON data are discussed.
 
-  MIDAS files are first organized into "events". For DRAGON, each event corresponds to a single trigger of the
-  VME system(s). The analysis code handles everything on an event-by-event basis: each event block is fully
-  analyzed before moving onto the next one. This means that the analyzer code needs some way of obtaining the
-  individual blocks of data that correspond to a single event. This is mostly handled using "library" functions
-  provided as part of the MIDAS package - in other words, we let the MIDAS developers handle the details of
-  grabbing each event's data and simply incorporate the functions they have written into our own codes.
+\subsection data Data Format
 
-  Events are obtained in different ways depending on whether we are analyzing "online" data (data that are being
-  generated in real time and sent to the backend analyzer via the network) or "offline" data (data stored in a
-  MIDAS [.mid] file on disk). For online data, we use a set of routines that periodically poll the frontend computer,
-  asking if any new events have been generated. When the frontend responds with a new event, the corresponding data
-  are copied into a section of RAM allocated to the analysis program (often called the "event buffer"). At this point,
-  the data now are part of the analysis program, and can be further processed using a suite of specifically designed
-  analysis routines. For offline data, we again make use of stock MIDAS routines to extract event data into a local
+\subsubsection midas MIDAS
+
+This section gives a brief overview of the MIDAS data format and, more importantly, how it is
+decoded for DRAGON data analysis. This is in no way exhaustive, and for more information, the reader should
+consult the <a href="http://midas.psi.ch/htmldoc/index.html">MIDAS documentation page</a>. Readers who are already
+familiar with the MIDAS data format may wish to skip to the \link midasbanks MIDAS Banks \endlink section where
+the specifics of DRAGON data are discussed.
+
+MIDAS files are first organized into "events". For DRAGON, each event corresponds to a single trigger of the
+VME system(s). The analysis code handles everything on an event-by-event basis: each event block is fully
+analyzed before moving onto the next one. This means that the analyzer code needs some way of obtaining the
+individual blocks of data that correspond to a single event. This is mostly handled using "library" functions
+provided as part of the MIDAS package - in other words, we let the MIDAS developers handle the details of
+grabbing each event's data and simply incorporate the functions they have written into our own codes.
+
+Events are obtained in different ways depending on whether we are analyzing "online" data (data that are being
+generated in real time and sent to the backend analyzer via the network) or "offline" data (data stored in a
+MIDAS [.mid] file on disk). For online data, we use a set of routines that periodically poll the frontend computer,
+asking if any new events have been generated. When the frontend responds with a new event, the corresponding data
+are copied into a section of RAM allocated to the analysis program (often called the "event buffer"). At this point,
+the data now are part of the analysis program, and can be further processed using a suite of specifically designed
+analysis routines. For offline data, we again make use of stock MIDAS routines to extract event data into a local
 buffer for analysis. However, here we aren't asking for events in real time; instead, we're extracting them from a
 file consisting of a series of events strung together. To do this, we use a set of functions that understand the
-  detailed structure of a MIDAS file and can figure out the exact blocks of data corresponding to single events.
+detailed structure of a MIDAS file and can figure out the exact blocks of data corresponding to single events.
 
-  Once we have obtained an event and stored it in a local analysis buffer, the next step is to identify the individual
-  packets containing data from the various VME modules. Actually, there is one important step coming before this: the
-  individual events are placed into a local buffer (a "buffer of buffers") and, after a certain amount of time,
-  pre-analyzed to check for coincidence matches. For more on this, see the section on \link coincmatch coincidence matching
-  \endlink. Anyway, as
-  mentioned, once we have a single, defined event we need to break it down into packets or "banks" in order to analyze
-  the data from individual VME modules. Each bank contains a header with some unique identifying information about the
-  bank, and from there the actual bank data follow. In the header, each bank is identified by a unique 4-character string.
-  All we have to do, then, is use library routines which search for banks keyed by their ID strings. If the corresponding
-  bank is present within the current event, the routine will return a pointer to the memory address of the beginning of the
-  bank, along with some other relevant information, such as the total amount of data in the event and the type of data
-  being stored.
+Once we have obtained an event and stored it in a local analysis buffer, the next step is to identify the individual
+packets containing data from the various VME modules. Actually, there is one important step coming before this: the
+individual events are placed into a local buffer (a "buffer of buffers") and, after a certain amount of time,
+pre-analyzed to check for coincidence matches. For more on this, see the section on \link coincmatch coincidence matching
+\endlink. Anyway, as
+mentioned, once we have a single, defined event we need to break it down into packets or "banks" in order to analyze
+the data from individual VME modules. Each bank contains a header with some unique identifying information about the
+bank, and from there the actual bank data follow. In the header, each bank is identified by a unique 4-character string.
+All we have to do, then, is use library routines which search for banks keyed by their ID strings. If the corresponding
+bank is present within the current event, the routine will return a pointer to the memory address of the beginning of the
+bank, along with some other relevant information, such as the total amount of data in the event and the type of data
+being stored.
 
-  The actual data are simply a series of bits organized into constant-sized chunks. Each "chunk" is a unique datum (a
-  number), corresponding to one of the <a href="http://en.wikipedia.org/wiki/C_data_types">C/C++ data types</a>. Depending
-  on how the data were written, each number could be the most basic source of information, summarizing everything there
-  is to know about a given parameter, or it could be further sub-divided into smaller pieces of information given by the
-  sequence of bits that make up the number within the computer. If the data are "bitpacked," then typically the code will
-  make use of bit shifting and bit masking operators to extrack the information from the desired bits (more on this in the
-  example below).
+The actual data are simply a series of bits organized into constant-sized chunks. Each "chunk" is a unique datum (a
+number), corresponding to one of the <a href="http://en.wikipedia.org/wiki/C_data_types">C/C++ data types</a>. Depending
+on how the data were written, each number could be the most basic source of information, summarizing everything there
+is to know about a given parameter, or it could be further sub-divided into smaller pieces of information given by the
+sequence of bits that make up the number within the computer. If the data are "bitpacked," then typically the code will
+make use of bit shifting and bit masking operators to extrack the information from the desired bits (more on this in the
+example below).
 
 The only way to know how to properly handle the data is to know ahead of time
-  how the data were written and how their relevant information is written into the various chunks of data making up a MIDAS
-  bank. A typical analysis code will loop over all of the data in the bank, and then decide how to handle it based either
-  on foreknowledge of the exact bank structure or on information contained in specific bits within each word.
+how the data were written and how their relevant information is written into the various chunks of data making up a MIDAS
+bank. A typical analysis code will loop over all of the data in the bank, and then decide how to handle it based either
+on foreknowledge of the exact bank structure or on information contained in specific bits within each word.
 
-  As an example, take a slightly modified version of the code to unpack V792 ADC data:
-  \code
-    bool vme::V792::unpack(const midas::Event& event, const char* bankName, bool reportMissing)
-    {
-      bool ret = true; // return value
-    
-      // Search for a MIDAS bank with the correct name (the value of the variable 'bankName')
-      int bank_len;
-      uint32_t* pbank32 = event.GetBankPointer<uint32_t>(bankName, &bank_len, reportMissing, true);
-    
-      // pbank32 is now set to the address of the bank with name 'bankName'. We know ahead of time that
-      // the bank contains a set of longwords (uint32_t), and bank_len is now set to the number of longwords
-      // stored in the bank.
-    
-      // Loop over all data words in the bank
-      for (int i=0; i< bank_len; ++i) {
-    
-        // Read bits 24, 25, 26 to figure out the type of data in this particular longword
-        uint32_t type = (*pbuffer >> 24) & 0x7;
-    		
-        // Now decide what to do based on the value of 'type'
-        switch (type) {
-    
-        case 0x0: // Data bits
-        // Figure out the measurement value, copy into vme::V792 class data.
-        break;
-    
-        case 0x2: // Header bits
-        // Read relevant header information and proceed.
-        break;
-    
-        // ... etc for other data types ... //
-    
-        default:
-        break;
-    
-        } // Note: Somewhere along the line, set 'ret' to 'false' if there was an error.
-      }
-    
-      return ret;
+As an example, take a slightly modified version of the code to unpack V792 ADC data:
+\code
+  bool vme::V792::unpack(const midas::Event& event, const char* bankName, bool reportMissing)
+  {
+    bool ret = true; // return value
+  
+    // Search for a MIDAS bank with the correct name (the value of the variable 'bankName')
+    int bank_len;
+    uint32_t* pbank32 = event.GetBankPointer<uint32_t>(bankName, &bank_len, reportMissing, true);
+  
+    // pbank32 is now set to the address of the bank with name 'bankName'. We know ahead of time that
+    // the bank contains a set of longwords (uint32_t), and bank_len is now set to the number of longwords
+    // stored in the bank.
+  
+    // Loop over all data words in the bank
+    for (int i=0; i< bank_len; ++i) {
+  
+      // Read bits 24, 25, 26 to figure out the type of data in this particular longword
+      uint32_t type = (*pbuffer >> 24) & 0x7;
+  		
+      // Now decide what to do based on the value of 'type'
+      switch (type) {
+  
+      case 0x0: // Data bits
+      // Figure out the measurement value, copy into vme::V792 class data.
+      break;
+  
+      case 0x2: // Header bits
+      // Read relevant header information and proceed.
+      break;
+  
+      // ... etc for other data types ... //
+  
+      default:
+      break;
+  
+      } // Note: Somewhere along the line, set 'ret' to 'false' if there was an error.
     }
+  
+    return ret;
+  }
 \endcode
 
 If you are unfamiliar with C/C++ bit shifting and masking, the line `(*pbuffer >> 24)  & 0x7` might be confusing
@@ -207,55 +207,43 @@ figure to help visualize the process:
 The frontend codes generate four different types of events, with the following characteristics:
 
 1. "Head Event"
-
   - Event Id: 1 (or DRAGON_HEAD_EVENT in definitions.h)
-
-    - MIDAS Equipment: `HeadVME`
-    - Trigger condition: OR of all BGO channels
-    - Banks:
-      1. "VTRH": IO32 data
-      2. "ADC0": V792 QDC data
-      3. "TDC0": V1190 TDC data
-      4. "TSCH": Timestamp counter data from the IO32
-
+  - MIDAS Equipment: `HeadVME`
+  - Trigger condition: OR of all BGO channels
+  - Banks:
+    1. "VTRH": IO32 data
+    2. "ADC0": V792 QDC data
+    3. "TDC0": V1190 TDC data
+    4. "TSCH": Timestamp counter data from the IO32
+\n
 2. "Head Scaler Event"
-
   - Event Id: 2 (or DRAGON_HEAD_SCALER in definitions.h)
-
-    - MIDAS Equipment: `HeadScaler`
-    - Trigger condition: polled once per second
-    - Banks:
-
-      1. "SCHD": Scaler counts (for the current read period, ~1 second)
-      2. "SCHS": Scaler sum (since the beginning of the run)
-      3. "SCHR": Scaler rates (counts/second for the current read period)
-
+  - MIDAS Equipment: `HeadScaler`
+  - Trigger condition: polled once per second
+  - Banks:
+    1. "SCHD": Scaler counts (for the current read period, ~1 second)
+    2. "SCHS": Scaler sum (since the beginning of the run)
+    3. "SCHR": Scaler rates (counts/second for the current read period)
+\n
 3. "Tail Event"
-
   - Event Id: 3 (or DRAGON_TAIL_EVENT in definitions.h)
-
-    - MIDAS Equipment: `TailVME`
-    - Trigger condition: OR of all heavy ion detectors
-    - Banks:
-
-      1. "VTRT": IO32 data
-      2. "TLQ0": V785 ADC data (unit 0).
-      3. "TLQ1": V785 ADC data (unit 1).
-      4. "TLT0": V1190 TDC data
-      5. "TSCT": Timestamp counter data from the IO32
-
+  - MIDAS Equipment: `TailVME`
+  - Trigger condition: OR of all heavy ion detectors
+  - Banks:
+    1. "VTRT": IO32 data
+    2. "TLQ0": V785 ADC data (unit 0).
+    3. "TLQ1": V785 ADC data (unit 1).
+    4. "TLT0": V1190 TDC data
+    5. "TSCT": Timestamp counter data from the IO32
+\n
 4. "Tail Scaler Event"
-
   - Event Id: 4 (or DRAGON_TAIL_SCALER in definitions.h)
-
-    - MIDAS Equipment: `TailScaler`
-    - Trigger condition: polled once per second
-    - Banks:
-
-      1. "SCTD": Scaler counts (for the current read period, ~1 second)
-      2. "SCTS": Scaler sum (since the beginning of the run)
-      3. "SCTR": Scaler rates (counts/second for the current read period)
-
+  - MIDAS Equipment: `TailScaler`
+  - Trigger condition: polled once per second
+  - Banks:
+    1. "SCTD": Scaler counts (for the current read period, ~1 second)
+    2. "SCTS": Scaler sum (since the beginning of the run)
+    3. "SCTR": Scaler rates (counts/second for the current read period)
 
 \subsubsection caenadc CAEN V792/V785 ADC
 
@@ -453,33 +441,29 @@ pulses arriving beyond the limits of the FIFO are ignored.
 The TSC banks are arranged as follows (all 32-bit unsigned integers).
 
 1. Version number (firmware revision tag).
-   - Currently ignored other than a check that the version numbner is a known one.\n\n
-
+   - Currently ignored other than a check that the version numbner is a known one.\n
+\n
 2. Bank timestamp (time at which the TSC bank was composed).
-   - Currently ignored.\n\n
-
+   - Currently ignored.\n
+\n
 3. TSC routing bits (sets TSC signal routing for the frontend)
-   - Ignored for analysis.\n\n
-
+   - Ignored for analysis.\n
+\n
 4. TSC control
    - Contains the following bitpacked information:
-     1. Bits 13..0
-        - Number of TSC words in the FIFO
-     2. Bit 14
-        - FIFO overflow marker
-     3. Bits 21..15
-        - Upper 8 bits common to each TSC in the FIFO
-     4. Upper bits rollover
-        - Firmware limits each TSC measurement to 38 bits, which rolls over in ~3.8 hours. Runs could occasionally go longer than this, so we manually count the number of rollovers in the upper 8 bits in the frontend code and write it here.\n\n
-
-5. FIFO (depth given by TSC control as noted above)
+     1. Bits 13..0 - Number of TSC words in the FIFO
+     2. Bit 14 - FIFO overflow marker
+     3. Bits 21..15 - Upper 8 bits common to each TSC in the FIFO.\n
+\n
+5. Upper bits rollover
+   - Firmware limits each TSC measurement to 38 bits, which rolls over in ~3.8 hours. Runs could occasionally go longer than this, so we manually count the number of rollovers in the upper 8 bits in the frontend code and write it here.\n
+\n
+6. FIFO (depth given by TSC control as noted above)
    - Each entry is bitpacked as follows:
-     1. Bits 0..29
-        - Lower 30 bits of the timestamp entry (combine with upper 8 bits plus upper bits rollover marker)
-     2. Bits 30..31
-        - Channel marker (0,1,2,3) for this TSC measurement\n\n
-
-6. Overflow marker: additional word `== 0xFFFFFFFF` is written if the TSC is in an overflow condition.
+     1. Bits 0..29 - Lower 30 bits of the timestamp entry (combine with upper 8 bits plus upper bits rollover marker)
+     2. Bits 30..31 - Channel marker (0,1,2,3) for this TSC measurement\n
+\n
+7. Overflow marker: additional word `== 0xFFFFFFFF` is written if the TSC is in an overflow condition.
    - Currently ignored because TSC control gives the same information.
 
 \subsubsection coincmatch Coincidence Matching
@@ -522,6 +506,7 @@ package. These instructions assume that you will install the dragon analyzer pac
 accordingly. 
 
 \subsection dependencies Dependencies
+
 For the "core" functionality, all that you will need is a working C++ compiler; there is no dependence on
 any third-party libraries. However, you will likely want to make use of the analysis package in ROOT, in
 which case you will need a fairly recent installation of ROOT on your system. For instructions on installing
@@ -531,12 +516,13 @@ package code. You will also need to be sure that the <code>$ROOTSYS</code> envir
 <code>$ROOTSYS/bin</code> is in your search path.
 
 \attention
-<b>Ubuntu users:</b> compiling the DRAGON analyzer package evidently requires <code>clang</code> (<code>sudo apt-get install clang clang++</code>).
+<b>Ubuntu users:</b> compiling the DRAGON analyzer package evidently requires <code>clang</code> (<code>sudo apt-get
+install clang clang++</code>).
 
 \note
-The DRAGON analyzer package is now compatible with <code>ROOT6</code> , but should be considered beta until it has been tested more rigorously.
-Please report bugs to <a href="mailto:dconnolly@triumf.ca">dconnolly@triumf.ca</a> or file an issue <a href="https://github.com/DRAGON-Collaboration/analyzer/issues">here</a>.
-\endnote
+The DRAGON analyzer package is now compatible with ROOT6, but ROOT6 functionality should be considered beta until
+it has been tested more rigorously. Please report bugs to <a href="mailto:dconnolly@triumf.ca">dconnolly@triumf.ca</a>
+or file an issue <a href="https://github.com/DRAGON-Collaboration/analyzer/issues">here</a>.
 
 The optional rootbeer or rootana extensions each require ROOT to be installed (and, of course, the rootana and/or 
 rootbeer packages themselves). To look at _online_ data, you will need MIDAS installed, and, if using the rootana 
@@ -544,23 +530,24 @@ system, <a href="https://daq-plone.triumf.ca/SR/ROODY">roody</a> is required for
 
 \subsection download Download and Compile
 
-You can obtain the analysis package from the git repository as follows:
+One may obtain the analysis package from the <a href="https://github.com/DRAGON-Collaboration/analyzer">git repository</a>
+as follows:
 \verbatim
-cd ~/packages/dragon
 git clone https://github.com/DRAGON-Collaboration/analyzer
 \endverbatim
-If you don't have git installed or prefer to download a tarball, then visit <a href="https://github.com/DRAGON-Collaboration/analyzer">https://github.com/DRAGON-Collaboration/analyzer</a>,
-click on the <a href="https://github.com/DRAGON-Collaboration/analyzer/releases">releases link</a> and select the latest release
-(or an earlier one if you have reason to do so). Click on either the "zip" or the "tar.gz" link to download a zip file or a tarball
-containing the code.
+If you don't have git installed or prefer to download a tarball, then visit
+<a href="https://github.com/DRAGON-Collaboration/analyzer">https://github.com/DRAGON-Collaboration/analyzer</a>,
+click on the <a href="https://github.com/DRAGON-Collaboration/analyzer/releases">releases link</a> and select the latest
+release (or an earlier one if you have reason to do so). Click on either the "zip" or the "tar.gz" link to download a zip
+file or a tarball containing the code.
 
-Once the package is obtained, it is necessary to run a configure script in order to set the appropriate environment variables before compiling.
-To see a list of options, type:
+Once the package is obtained, it is necessary to run a configure script in order to set the appropriate environment
+variables before compiling. To see a list of options, type:
 \verbatim
 ./configure --help
 \endverbatim
 
-In most cases, one can run
+In most cases, one may simply run
 \verbatim
 ./configure
 \endverbatim
@@ -696,7 +683,6 @@ you specify a directory, any histogram definitions succeeding it will be members
 directory line is encountered. If any histograms are defined before the first "DIR:" command, they will belong to
 the "top level" directory (e.g. in a TFile, their owning directory will be the TFile itself).
 \n\n
-
 -# TH1D: Create a 1d histogram.\n
 Should be succeeded by two lines: 1) the argument to a TH1D constructor, and 2)
 the parameter to display in the histogram.\n
@@ -710,7 +696,6 @@ TH1D:
 title "Bgo energy, channel 0 [singles]", and ranging from 0 to
 4096 with 256 bins. The parameter to be displayed in the histogram would be rootana::gHead.bgo.ecal[0].
 \n\n
-
 -# TH2D: Create a 2d histogram.\n
 Succeeding lines are in the same spirit as the 1d case, except a third line is added to specify the y-axis parameter.\n
 Example:
@@ -722,27 +707,24 @@ TH2D:
 \endcode
 Creates a histogram of rootana::gCoinc.head.bgo.ecal[1] [x-axis] vs. rootana::gCoinc.head.bgo.ecal[0] [y-axis].
 \n\n
-
 -# TH3D Create a 3d histogram.\n
 Following the same pattern as 1d and 2d - add a third line to specify the
 z-axis parameter.
 \n\n
-
 -# SCALER: Create a "scaler" histogram, that is a 1d histogram whose x-axis represents event number and
 y-axis represents number of counts (basically, abuse histogram to make it into a bar chart).\n
 The lines following a "SCALER:" command are 1) Constructor for a 1d histogram, which defines the x-axis (event)
 range and binning. Typically you want to start at zero and bin with 1 bin per channel. Note that the histogram
 will automatically extend itself if the number of events exceeds the x-axis range. 2) The scaler parameter you
 want to histogram.
-\n
+\n\n
 Example:
 \code
 SCALER:
   ("rate_ch0", "Rate of scaler channel 0", 5000, 0, 5000);
   rootana::gHeadScaler.rate[0]
 \endcode
-\n
-
+\n\n
 -# SUMMARY: Create a "summary" histogram, that is a histogram which displays information on multiple channels
 at once, like this:\n\n
 \image html summary.png
@@ -765,7 +747,6 @@ SUMMARY:
 This would create a summary histogram of the 30 BGO detector energies contained in the rootana::gHead.bgo.ecal
 array (bgo.ecal[0] -> bgo.ecal[29]).
 \n\n
-
 -# CUT: Defines a cut.\n
 This defines a "cut" or "gate" condition that will be applied to the histogram defined directly before it.
 The cut condition is specified as a logical condition consisting of rootana::Cut derived classes. For more information
@@ -790,7 +771,6 @@ This would create the following cut:\n\n
 \image html cut.png
 It is also possible to pre-define and then re-use graphical cut using the "CMD:" option (see next).
 \n\n
-
 -# CMD: Evaluates a series of commands in CINT.\n
 The succeeding lines are a series of C++ statements to be evaluated literally in the CINT interpreter, closed
 	by a line containing only "END".

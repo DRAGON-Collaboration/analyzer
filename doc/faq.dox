@@ -12,6 +12,13 @@
 \ref panic_6 "6. The MIDAS status page won't load." \n
 \ref panic_7 "7. How do I recover from a corrupted ODB?" \n
 \ref panic_8 "8. Something isn't working and I have no idea what's going on!"\n
+\ref panic_9 "9. There is a problem with the DAQ that is not listed here." \n
+\n
+\ref install_faq \n
+\ref install_1 "1. Compilation of \c libDragon.so and/or \c mid2root fails on Ubuntu." \n
+\ref install_2 "2. Compilation of \c libDragon.so and/or \c mid2root fails on Mac OS X High Sierra (OS X 10.13.x)." \n
+\ref install_3 "3. Do I need to install MIDAS in order to use the DRAGON analyzer package?" \n
+\ref install_4 "4. I had to compile ROOT with \c cmake; do I also have to compile the DRAGON analyzer package with \c cmake?" \n
 \n
 \ref hardware_fe \n
 \ref fe_1 "1. How to I add or remove a detector signal from the trigger?" \n
@@ -57,10 +64,11 @@
 
 \anchor panic_1 <b> 1. Program `xyz` has crashed/hung and it's affecting the data taking.</b>
 
-  MIDAS is supposed to have a built in "watchdog" system for removing any crashed programs from the experiment so
-  that they cannot influence the data taking. However, if a program has registered start or stop transitions and has
-  become hung but not fully crashed, it can block the stopping or starting of runs. If this is the case, you will want
-  to kill the offending program manually. Open a secure shell to the host machine running the program and type:
+  MIDAS is supposed to have a built in "watchdog" system for removing any crashed programs from the experiment
+  so that they cannot influence the data taking. However, if a program has registered start or stop
+  transitions and has become hung but not fully crashed, it can block the stopping or starting of runs. If
+  this is the case, you will want to kill the offending program manually. Open a secure shell to the host
+  machine running the program and type:
   \code
   ps aux | grep program_name
   \endcode
@@ -71,18 +79,18 @@
   USER              PID  %CPU %MEM      VSZ    RSS   TT  STAT STARTED      TIME COMMAND
   \endcode
 
-  To kill the offending program, type <code>kill xxxxxx</code>, where <code>xxxxxx</code> is the process ID. If this
-  doesn't work, try again with <code>kill -9 xxxxxx</code>. Once you have killed the program, the data taking should
-  work again; however, you may want to do a stop run/start run cycle to reset things.
+  To kill the offending program, type <code>kill xxxxxx</code>, where <code>xxxxxx</code> is the process ID.
+  If this doesn't work, try again with <code>kill -9 xxxxxx</code>. Once you have killed the program, the data
+  taking should work again; however, you may want to do a stop run/start run cycle to reset things.
 
 \anchor panic_2 <b> 2. MIDAS got hung up when I tried to start or stop a run.</b>
 
-  Open a shell, ssh into smaug (`ssh dragon@smaug` or just `ssh smaug` if working on daenerys) and then run the
-  command `odbedit`. Once in this program, issue the command `stop now -v` (or `start now -v`). The this may solve the
-  problem on it's own, but if not you should see from the output where the transition is getting hung up. If so, kill
-  the offending program (see 1. above) and try again to start/stop the run. Then try re-starting the program you killed,
-  and then try starting a new run to see if the problem is fixed. If there are still problems, more drastic measures may
-  be necessary (see below).
+  Open a shell, ssh into smaug (`ssh dragon@smaug` or just `ssh smaug` if working on daenerys) and then run
+  the command `odbedit`. Once in this program, issue the command `stop now -v` (or `start now -v`). The this
+  may solve the problem on it's own, but if not you should see from the output where the transition is getting
+  hung up. If so, kill the offending program (see 1. above) and try again to start/stop the run. Then try
+  re-starting the program you killed, and then try starting a new run to see if the problem is fixed. If there
+  are still problems, more drastic measures may be necessary (see below).
 
 \anchor panic_3 <b> 3. Program `xyz` won't stay open.</b>
 
@@ -104,36 +112,37 @@
 
 \anchor panic_5 <b> 5. The MIDAS status page is spewing errors and I have no idea what they mean.</b>
 
-  As long as the errors are not coming from one of the frontends (fe_head, fe_tail) then it is likely something
-  non-cricual (probably a bug in one of the analysis codes). In this case, it is not worth stopping data-taking
-  to investigate. If the errors are swamping the MDIAS message system, close the offending client until someone
-  who can debug the problem is around.
+  As long as the errors are not coming from one of the frontends (fe_head, fe_tail) then it is likely
+  something non-cricual (probably a bug in one of the analysis codes). In this case, it is not worth stopping
+  data-taking to investigate. If the errors are swamping the MDIAS message system, close the offending client
+  until someone who can debug the problem is around.
 
   If you are getting the occational error from one of the frontends about "V792 trigger problem", then this
   is a known, albeit not fully understood issue. You can continue to safely take data if this is the case.
 
 \anchor panic_6 <b> 6. The MIDAS status page won't load.</b>
 
-  There seems to be an issue with the mhttpd program that causes the MIDAS page to get hung up. This doesn't seem
-  to affect the rest of the DAQ, but it does make operation difficult. If this happens, try the following:
+  There seems to be an issue with the mhttpd program that causes the MIDAS page to get hung up. This doesn't
+  seem to affect the rest of the DAQ, but it does make operation difficult. If this happens, try the
+  following:
 
   1. Open a terminal and ssh as dragon@smaug.triumf.ca (no password necessary from <code>daenerys</code>).
-
+  \n
   2. \anchor stat_2 Kill the mhttpd server by typing the following:
   \code
   pgrep mhttpd | xargs kill
   \endcode
-
+  \n
   3. Type the following to see if the process was killed:
   \code
   ps ux | grep mhttpd
   \endcode
-
+  \n
   4. If not, try \ref stat_2 "step 2" again but with <code>kill -9</code>:
   \code
   pgrep mhttpd | xargs kill -9
   \endcode
-
+  \n
   5. Check again for mhttpd. Assuming the `kill -9` worked, run the following command:
   \code
   mhttpd --https 8443 --http 8081 -D
@@ -145,7 +154,7 @@
 
 \parblock
   1. Stop the front-ends, mlogger, mhttpd, etc. (this can be accomplished by running `kill_daq.sh`).
-
+  \n
   2. Remove the shared memory associated to ODB buffer.
     - Find the shared memory segment
       \code
@@ -155,34 +164,38 @@
       \code
       ipcrm shm <shmid>
       \endcode
-      where `shmid` is the id of the shared memory process you wich to delete
-
+      where `shmid` is the id of the shared memory process you wish to delete
+  \n
   3. \anchor corrupt_3 Move the old ODB files. These will be in the location given by Exptab, e.g. ~/online
   \code
   cd online
   mv .ODB.SHM .ODB.SHM.BAD
   \endcode
-
+  \n
   4. Restart ODB with larger size using odbedit e.g.
   \code
   odbedit -s 100000000
   \endcode
-
-  5. Reload the last saved ODB dump you have (see save and reload the ODB). These dumps are stored in the current data logging directory (`$DH`) and have the form `runxxxx.xml`. So from odbedit you do something like
+  \n
+  5. Reload the last saved ODB dump you have (see save and reload the ODB). These dumps are stored in the
+  current data logging directory (`$DH`) and have the form `runxxxx.xml`. So from odbedit you do something
+  like
   \code
   odbedit> cd /
   odbedit> load /path/to/$DH/runxxxx.xml
   \endcode
   \warning
-  Take care to load ODB dumps only when in the ODB root directory (i.e. - `/`), as loading a file loads the keys present in the file <i>at the current path</i> (i.e. - loading `runxxxx.xml` when in the directory `/Equipment` loads the entire ODB again starting at the `/Equipment` directory).
+  Take care to load ODB dumps only when in the ODB root directory (i.e. - `/`), as loading a file loads the
+  keys present in the file <i>at the current path</i> (i.e. - loading `runxxxx.xml` when in the directory
+  `/Equipment` loads the entire ODB again starting at the `/Equipment` directory).
 
   Your ODB should now be fixed, and you can restart the DAQ using the `start_daq.sh` script.\n
-
   \note
-  It is sometimes necessary to also remove the other shared memory buffers in `~/online` (e.g. - `.SYSMSG.SHM`, `.MSG.SHM`, etc.).
-
+  It is sometimes necessary to also remove the other shared memory buffers in `~/online` (e.g. -
+  `.SYSMSG.SHM`, `.MSG.SHM`, etc.).
   \attention
-  If the above steps do not solve the problem, it may be necessary to reboot `smaug` and start at \ref corrupt_3 "step 3".
+  If the above steps do not solve the problem, it may be necessary to reboot `smaug` and start at \ref
+  corrupt_3 "step 3".
 
 \endparblock
 
@@ -196,23 +209,66 @@
      from the link on the MIDAS programs page) and do `ps ux | grep program_name`; there should be
      only one instance of the program running. If there is more than one, kill all of them, then
      re-start the program from the MIDAS programs page or directly from a terminal.
-
+     \n\n
   2. Start up any other clients that aren't automatically started by the `start_daq.sh` command (anaDragon,
      rootbeer, dragonscaler, feepics) and then try to resume data taking. If everything is looking okay, then
      you have probably fixed things.
-
-  3. If Steps a & b haven't solved the problem, log into smaug and issue the command `kill_daq.sh`; then
-     go downstairs and reboot the VME crates. There are two crates, located near each of the electronics racks.
-     They are the relatively small, white-colored VME crates with horizontally-oriented modules. To reboot a crate,
-     flip off the power switch, wait ~20 seconds and then switch it back on again. Verify that the crate powers up
-     correctly and that the status lights on the front of all of the modules are green.
+     \n\n
+  3. If Steps 1 and 2 haven't solved the problem, log into smaug and issue the command `kill_daq.sh`; then
+     go downstairs and reboot the VME crates. There are two crates, located near each of the electronics
+     racks. They are the relatively small, white-colored VME crates with horizontally-oriented modules. To
+     reboot a crate, flip off the power switch, wait ~20 seconds and then switch it back on again. Verify
+     that the crate powers up correctly and that the status lights on the front of all of the modules are
+     green.
 
      After rebooting the crates, go back to smaug and type `start_daq.sh`, then start over again at step (b).
 
   If you are able to get things back to a working state, continue running but make a note of what happened and
-  any details that you think might be relevant in case this might be useful in later figuring out what went wrong
-  and potentially fixing the problem.
+  any details that you think might be relevant in case this might be useful in later figuring out what went
+  wrong and potentially fixing the problem.
 
+\anchor panic_9 <b> 9. There is a problem with the DAQ that is not listed here. </b>
+
+  For MIDAS / DAQ problems not addressed above (or remedied by any of the above actions), please consult the
+  <a href="https://midas.triumf.ca/elog/Midas/">MIDAS elog</a>,
+  the <a href="https://midas.triumf.ca/MidasWiki/index.php/FAQ">MIDAS faq page</a>,
+  the <a href="https://midas.triumf.ca/MidasWiki/index.php/Main_Page#Documentation">MIDAS documentation</a>,
+  the <a href="https://midas.triumf.ca/MidasWiki/index.php/Main_Page">MIDAS wiki</a>, or a DRAGON expert.
+
+\section install_faq Installation Problems
+
+\anchor install_1 <b>1. Compilation of \c libDragon.so and/or \c mid2root fails on Ubuntu.</b>
+
+  I have found Ubuntu to be very picky when compiling the DRAGON analyzer package, and have tried to avoid
+  difficulties by setting appropriate compile time environment variables in the \c configure script and
+  Makefile. Installation on Ubuntu does require dependencies beoynd those mentiond in \ref installation
+  "the installation instructions", namely that \c clang and \c clang++ be installed (<code>sudo apt-get
+  install clang clang++</code>), and typically it is necessary to set the macro \c _GLIBCXX_USE_CXX11_ABI=0
+  (switched off by default in the \c configure script). However, I have found that this switch <i>causes</i>
+  compilation failure from time to time, so there is an option to switch it on in the \c configure script;
+  try reconfiguring and recompiling as follows:
+  \code
+  make clean
+  ./configure --use-cxx11-abi
+  make
+  \endcode
+
+\anchor install_2 <b>2. Compilation of \c libDragon.so and/or \c mid2root fails on Mac OS X High Sierra (OS X 10.13.x).</b>
+
+  If compilation fails on High Sierra, it is likely that you have installed ROOT v5.xx/xx, which is apparently
+  incompatible with OS X High Sierra and the ROOT developers evidently have no plans to continue support for
+  ROOT v5 on Mac.
+
+\anchor install_3 <b>3. Do I need to install MIDAS in order to use the DRAGON analyzer package?</b>
+
+  MIDAS is \b not required to install the DRAGON analyzer package. If you are a user and wish to install the
+  DRAGON analyzer package for the purposes of offline data analysis, installation of MIDAS is not recommended.
+
+\anchor install_4 <b>4. I had to compile ROOT with \c cmake; do I also have to compile the DRAGON analyzer package with \c cmake?</b>
+
+  No, the DRAGON analyzer package is currently compiled using a \c bash configure script and gnu make. The
+  package is not currently set up for compilation with \c cmake (but it might be worthwhile to investigate the
+  possibility of setting up compilation with \c cmake).
 
 \section hardware_fe Frontend and Hardware
 
@@ -229,17 +285,17 @@
   variables start at 0). Setting the `ChannelEnable[n]` variable to `y` adds the signal to the trigger, while
   `n` removes it.
 
-  You can look here: http://trshare.triumf.ca/~gchristian/dragon/frontend/html/hardware.html#ecl_in for a listing
-  of which detectors are plugged into which ECL channels.
+  You can look here: http://trshare.triumf.ca/~gchristian/dragon/frontend/html/hardware.html#ecl_in for a
+  listing of which detectors are plugged into which ECL channels.
 
 \anchor fe_2 <b> 2. What are all those signals going into and out of the IO32?</b>
 
-  See the following page:	http://trshare.triumf.ca/~gchristian/dragon/frontend/html/hardware.html for an overview
-  of the signals originating from and going into the IO32.
+  See the following page:	http://trshare.triumf.ca/~gchristian/dragon/frontend/html/hardware.html for an
+  overview of the signals originating from and going into the IO32.
 
 \anchor fe_3 <b> 3. What about the scalers?</b>
 
-  Scaler inputs are discussed at http://trshare.triumf.ca/~gchristian/dragon/frontend/html/hardware.html#scalers
+  Scaler inputs are discussed at <a href="http://trshare.triumf.ca/~gchristian/dragon/frontend/html/hardware.html#scalers">http://trshare.triumf.ca/~gchristian/dragon/frontend/html/hardware.html#scalers</a>
 
 \anchor fe_4 <b> 4. What about the EPICS scalers?</b>
 
@@ -275,40 +331,42 @@
   status page and click `Apply BGO Thresholds` to make the change. Finally, start a new run for the new
   threshold values to take effect.
 
-  Note that this only sets the correct keV threshold when the array is gain matched in the standard manner, that
-  is, placing the 6.13 MeV <SUP>13</SUP>C peak at channel 1471 (or 6.13 MeV using the standard ADC slopes of 0.00415).
-  For alternative gain matching, the relationship between threshold value and keV will need to be figured out empirically.
+  Note that this only sets the correct keV threshold when the array is gain matched in the standard manner,
+  that is, placing the 6.13 MeV <SUP>13</SUP>C peak at channel 1471 (or 6.13 MeV using the standard ADC slopes
+  of 0.00415). For alternative gain matching, the relationship between threshold value and keV will need to be
+  figured out empirically.
 
 \anchor fe_9 <b> 9. How do I change the TDC maximum hit option?</b>
 
-  The TDC maximum hit option is set through the `/Equipment/TailVME/Settings/V1190/MaxHits` variable (replace `TailVME`
-  with `HeadVME` for the BGO side). If this variable is set to a power of two (the result, not the power, i.e. set to
-  `64` not `6`) then the set value will be the TDC Max Hits setting. If it's set to `0xffff`, then the max hits option
-  is disabled and the TDC will record as many events as it can hold in memory. Note that the max hits option is common
-  to a bank of 16 channels, i.e. if max hits is set to 64, then TDC channels 0 - 15 can only hold 64 events, 16-31 can
-  only hold 64 events, etc. Also note that an event means a leading or a trailing edge pulse, so one leading+trailing
-  signal will count as two events.  For this reason, it is suggested to leave the MaxHits variable set to `0xffff` to
-  avoid corwding out a needed signal with unneeded ones.
+  The TDC maximum hit option is set through the `/Equipment/TailVME/Settings/V1190/MaxHits` variable (replace
+  `TailVME` with `HeadVME` for the BGO side). If this variable is set to a power of two (the result, not the
+  power, i.e. set to `64` not `6`) then the set value will be the TDC Max Hits setting. If it's set to
+  `0xffff`, then the max hits option is disabled and the TDC will record as many events as it can hold in
+  memory. Note that the max hits option is common to a bank of 16 channels, i.e. if max hits is set to 64,
+  then TDC channels 0 - 15 can only hold 64 events, 16-31 can only hold 64 events, etc. Also note that an
+  event means a leading or a trailing edge pulse, so one leading+trailing signal will count as two events.
+  For this reason, it is suggested to leave the MaxHits variable set to `0xffff` to avoid corwding out a
+  needed signal with unneeded ones.
 
 \anchor fe_10 <b> 10. How can I set ADC thresholds, or suppress readout of no-data events?</b>
 
-  The CAEN V785/V792 ADCs have the option to suppress the readout of data that falls below some set value. Typically,
-  this might be desired to suppress the read out of QDC pedestals or ADC "zero value" peaks to save disk space and
-  reduce read out time.
+  The CAEN V785/V792 ADCs have the option to suppress the readout of data that falls below some set value.
+  Typically, this might be desired to suppress the read out of QDC pedestals or ADC "zero value" peaks to
+  save disk space and reduce read out time.
 
-  These settings are controlled in the ODB via `/Equipment/TailVME/Settings/V785/` (sub `HeadVME` for `TailVME` and
-  `V792` for `V785` for the BGO side). The `EnableThreshold` variable either turns on or off zero suppression. Setting
-  this variable to `n` means that all data are read out, regardless of the size of the converted value. Setting it to
-  yes means that only data above threshold values are read out. If there are multiple ADCS, the `EnableThreshold` is an
-  array, with each index being common to one of the ADCs (currently in the tail, [0] means the non-DSSSD ADC and [1] the
-  DSSSD ADC).
+  These settings are controlled in the ODB via `/Equipment/TailVME/Settings/V785/` (sub `HeadVME` for
+  `TailVME` and `V792` for `V785` for the BGO side). The `EnableThreshold` variable either turns on or off
+  zero suppression. Setting this variable to `n` means that all data are read out, regardless of the size of
+  the converted value. Setting it to yes means that only data above threshold values are read out. If there
+  are multiple ADCS, the `EnableThreshold` is an array, with each index being common to one of the ADCs
+  (currently in the tail, [0] means the non-DSSSD ADC and [1] the DSSSD ADC).
 
-  The threshold values are controlled by the `Threshold`
-  array, with each index corresponding to the same channel in the ADC, or in the case of multiple ADCs, the array index
-  corresponds to the channel plus an offset. For example, currently the tail setup has two ADCs, so indices 0-31 control
-  channels 0-31 in `ADC0` (which is the non-DSSSD ADC), and indices 32-63 control channels 0-31 in `ADC1` (the DSSSD
-  ADC). The threshold values should be set to a multiple of 16, if not they will be rounded down to the closest
-  multiple of 16.
+  The threshold values are controlled by the `Threshold` array, with each index corresponding to the same
+  channel in the ADC, or in the case of multiple ADCs, the array index corresponds to the channel plus an
+  offset. For example, currently the tail setup has two ADCs, so indices 0-31 control channels 0-31 in `ADC0`
+  (which is the non-DSSSD ADC), and indices 32-63 control channels 0-31 in `ADC1` (the DSSSD ADC). The
+  threshold values should be set to a multiple of 16, if not they will be rounded down to the closest multiple
+  of 16.
 
 \section online Online Analysis
 
@@ -346,17 +404,17 @@
   or command line. If you make major changes, be sure to save them (in a different file) using the blue
   `Save` button on the `rootbeer histograms` page.
 
-  To connect to online MIDAS data, click `Attach Online` on the `rootbeer` window. To manipulate canvases/refresh
-  rate, use the `Canvas` section of the `rootbeer` window. Note that by double clicking on a canvas (or pad) _outside_
-  the histogram region, you can make that canvas (pad) take focus. You can draw a histogram in the current canvas
-  (pad) by cicking the blue `Draw` button on the `rootbeer histograms` window when the desired histogram is selected
-  in the window above it (or double clicking the desired histogram should have the same effect). Note that histograms
-  are drawn using the `Draw option:` box contents as the `opt` argument, i.e. filling the `Draw option:` box with
-  `COLZ`draws a 2d histogram in color, etc.
+  To connect to online MIDAS data, click `Attach Online` on the `rootbeer` window. To manipulate
+  canvases/refresh rate, use the `Canvas` section of the `rootbeer` window. Note that by double clicking on a
+  canvas (or pad) _outside_ the histogram region, you can make that canvas (pad) take focus. You can draw a
+  histogram in the current canvas (pad) by cicking the blue `Draw` button on the `rootbeer histograms` window
+  when the desired histogram is selected in the window above it (or double clicking the desired histogram
+  should have the same effect). Note that histograms are drawn using the `Draw option:` box contents as the
+  `opt` argument, i.e. filling the `Draw option:` box with `COLZ`draws a 2d histogram in color, etc.
 
   All histograms are automatically cleared (zeroed)
-  at the beginning of a new run, or you can use the `Zero All` and `Zero Current` buttons to manually zero those
-  histograms which are currently drawn in a canvas. If you want to zero _every_ histogram manually, type
+  at the beginning of a new run, or you can use the `Zero All` and `Zero Current` buttons to manually zero
+  those histograms which are currently drawn in a canvas. If you want to zero _every_ histogram manually, type
   `rb::hist::ClearAll()` in the command window.
 
   This is just a bare-bones basic introduction; there is more info avaialable at
@@ -380,10 +438,12 @@
 
 \anchor off_2 <b> 2. I am using `ROOT6` and recieve the following warning when working with dragon root files created with ROOT5:</b>
   \code
-  Warning in <TStreamerInfo::BuildOld>: Cannot convert dragon::Head::trf from type: dragon::TdcChannel<MAX_RF_HITS> to type: dragon::TdcChannel<5>, skip element
+  Warning in <TStreamerInfo::BuildOld>: Cannot convert dragon::Head::trf from type:
+  dragon::TdcChannel<MAX_RF_HITS> to type: dragon::TdcChannel<5>, skip element
   \endcode
 
-  As far as I can tell, this is functionally inconsequential, but if the warning bothers you, entering the following before loading the root file should solve the issue:
+  As far as I can tell, this is functionally inconsequential, but if the warning bothers you, entering the
+  following before loading the root file should solve the issue:
   \code
   ROOT::AddClassAlternate("dragon::TdcChannel<5>","dragon::TdcChannel<MAX_RF_HITS>")
   \endcode
@@ -401,22 +461,22 @@
 \anchor off_4 <b> 4. How can I re-analyze a MIDAS file using different variables?</b>
 
   The `mid2root` program allows users to specify an XML file containing the variables to be used for analysis
-  and unpacking into ROOT trees. This is done by using the `-v` flag to specify the desired XML file. The supplied
-  argument must be a valid XML file in the same format as those generated by MIDAS. Since this format is quite hard
-  to generate by hand, it is suggested to first copy one of the `run***.xml` files from the logger data directory
-  and then edit this to update variables as desired.
+  and unpacking into ROOT trees. This is done by using the `-v` flag to specify the desired XML file. The
+  supplied argument must be a valid XML file in the same format as those generated by MIDAS. Since this format
+  is quite hard to generate by hand, it is suggested to first copy one of the `run***.xml` files from the
+  logger data directory and then edit this to update variables as desired.
 
 \anchor off_5 <b> 5. What if I just want to calibrate the DSSSD (or BGO, etc.)? Do I have to re-analyze every MIDAS file, or is there a better way?</b>
 
-  Re-analyzing a whole set of MIDAS files just to calibrate one or two detectors is indeed inefficient. However,
-  it is possible to do the calibration by looping through the events in the _ROOT_ file, applying the calibration,
-  and saving the results in an external file. Then using the
-  <a href="http://root.cern.ch/root/html/TTree.html#TTree:AddFriend">TTre::AddFriend</a> utility, you can view the
-  results on an event-by-event basis, just as if they were members of the original tree.
+  Re-analyzing a whole set of MIDAS files just to calibrate one or two detectors is indeed inefficient.
+  However, it is possible to do the calibration by looping through the events in the _ROOT_ file, applying the
+  calibration, and saving the results in an external file. Then using the
+  <a href="http://root.cern.ch/root/html/TTree.html#TTree:AddFriend">TTre::AddFriend</a> utility, you can view
+  the results on an event-by-event basis, just as if they were members of the original tree.
 
-  For the DSSSDs, a "selector" class has already been written to facilitate re-calibrating the array and saving
-  the results in separate files, run-by-run. See the dragon::DsssdCalibrate class documentation and the file
-  DsssdCalibration.C in the examples directory.
+  For the DSSSDs, a "selector" class has already been written to facilitate re-calibrating the array and
+  saving the results in separate files, run-by-run. See the dragon::DsssdCalibrate class documentation and the
+  file DsssdCalibration.C in the examples directory.
 
 \anchor off_6 <b> 6. Now that I've converted MIDAS files into ROOT format, how can I see the data?</b>
 
@@ -454,8 +514,8 @@
   \endcode
   Typically this method is best if you need to loop over many entries and use a large number of parameters
   in your loop code. Otherwise, the syntax is quite cumbersome, and it is rather poor performance-wise since
-  you have to read _all_ of the data from every event, rather than just the branches you want.\n\n
-
+  you have to read _all_ of the data from every event, rather than just the branches you want.
+  \n\n
   2. Use TLeaf::GetValue()
   \code
   t3->GetEntry(0); // load the 0th entry in the tree
@@ -467,8 +527,8 @@
   t3->GetEntry(0);
   double dsssd15 = t3->GetLeaf("dsssd.ecal")->GetValue(15);
   \endcode
-  This method is nice if you just want to get the values of a few parameters for a few events.\n\n
-
+  This method is nice if you just want to get the values of a few parameters for a few events.
+  \n\n
   3. Use TTree::Draw() -
   \code
   t3->Draw("mcp.tac", "", "goff"); // no graphics output, but the drawn data are saved event-by-event in arrays
@@ -508,37 +568,39 @@
 \anchor off_8 <b> 8. I'm really new to C++/ROOT and have no idea how to even get started looking at data. Any advice?</b>
 
 \parblock
-  ROOT does indeed have a steep learning curve, and most of the documentation on their website assumes a certain level of familiarity with C++.
+  ROOT does indeed have a steep learning curve, and most of the documentation on their website assumes a
+  certain level of familiarity with C++.
 
 <!--  For the true beginners, Greg Christian wrote a ROOT guide a few years ago for a different group that can hopefully be useful. Some of it is specific to that group, but the basics are the same. It is available online here: <a href="http://www.cord.edu/dept/physics/mona/manuals/root_guide.pdf"</a> -->
 
-  Useful resources include the <a href="http://root.cern.ch/drupal/content/users-guide">ROOT guide</a> (though this often is not the best for beginners),
-  the <a href="https://root.cern.ch/guides/primer">ROOT Primer</a>, and the <a href="https://root.cern.ch/doc/master/group__Tutorials.html">ROOT Tutorials</a>
-  (the code for which are also included with your installation of ROOT at `$ROOTSYS/tutorials`). Often, a good reference is the
-  <a href="https://root.cern.ch/doc/v610/index.html">ROOT reference documentation</a>
+  Useful resources include the <a href="http://root.cern.ch/drupal/content/users-guide">ROOT guide</a> (though
+  this often is not the best for beginners), the <a href="https://root.cern.ch/guides/primer">ROOT Primer</a>,
+  and the <a href="https://root.cern.ch/doc/master/group__Tutorials.html">ROOT Tutorials</a> (the code for
+  which are also included with your installation of ROOT at `$ROOTSYS/tutorials`). Often, a good reference is
+  the <a href="https://root.cern.ch/doc/v610/index.html">ROOT reference documentation</a>
   (e.g. - <a href="http://root.cern.ch/root/html/TTree.html">the class documentation for TTree</a>).
 
-  A useful resource for C++ is <a href="http://www.cplusplus.com/">cplusplus.com</a>, and the <a href="http://www.cplusplus.com/doc/tutorial/">tutorials</a> therein.
+  A useful resource for C++ is <a href="http://www.cplusplus.com/">cplusplus.com</a>, and the
+  <a href="http://www.cplusplus.com/doc/tutorial/">tutorials</a> therein.
 
 \endparblock
 
 \anchor off_9 <b> 9. I can never remember all of the parameter names in the ROOT trees. Is there a way to find this out easily?</b>
 
-  Use the TTree::StartViewer() command, e.g. `t3->StartViewer()` to see a complete graphical listing of all avaiable
-  parameters in a given tree. Alternatively, you can use TTree::Print, e.g. `t3->Print()` to see a textual listing
-  of available parameters.
+  Use the TTree::StartViewer() command, e.g. `t3->StartViewer()` to see a complete graphical listing of all
+  avaiable parameters in a given tree. Alternatively, you can use TTree::Print, e.g. `t3->Print()` to see a
+  textual listing of available parameters.
 
 \anchor off_10 <b> 10. How do you make plots of energy vs. channel in offline analysis from Trees. For example: DSSSD energy vs channel?</b>
 
-  Take advantage of `TTree::Draw()` and its features for parsing arrays. To draw DSSSD energy vs. channel just do the
-  following:
+  Take advantage of `TTree::Draw()` and its features for parsing arrays. To draw DSSSD energy vs. channel just
+  do the following:
   \code
   t3->Draw("Iteration$:dsssd.ecal[]>>hst(400,0,4000,32,0,32)", "", "colz");
   \endcode
 
   For more information on the options available using `TTree::Draw()`, see the
   <a href=http://root.cern.ch/root/html/TTree.html#TTree:Draw@2>class method documentation</a>.
-
 
 \section offline_online Generic (Online/Offline) Analysis
 
@@ -549,9 +611,9 @@
 
   Long answer:
   Each detector element in DRAGON is represented by a C++ class in the analyzer. Each detector class contains
-  data members which correspond to experimental parameters recorded by the corresponding detector. By arranging
-  the various detector classes in a hierarchy, we create a tree-like structure describing experiment parameters.
-  For example, the DSSSD parameters are arranged as follows:
+  data members which correspond to experimental parameters recorded by the corresponding detector. By
+  arranging the various detector classes in a hierarchy, we create a tree-like structure describing experiment
+  parameters. For example, the DSSSD parameters are arranged as follows:
   \code
   class Dsssd {
   public:
@@ -580,43 +642,45 @@
   };
   \endcode
 
-  This sets the DSSSD as a sub-element of Tail, with each of the DSSSD data members being sub-elements of DSSSD.
-  Thus the full hierarchy for, say, the energy of channel 16 is `tail.dsssd.ecal[16]`.	When using ROOT, the class
-  hierarchy is parsed into a TTree branch structure, meaning that the parameter name for
+  This sets the DSSSD as a sub-element of Tail, with each of the DSSSD data members being sub-elements of
+  DSSSD. Thus the full hierarchy for, say, the energy of channel 16 is `tail.dsssd.ecal[16]`.	When using
+  ROOT, the class hierarchy is parsed into a TTree branch structure, meaning that the parameter name for
   DSSSD energy, channel 16 is exactly as noted.
 
 \anchor oloff_2 <b>2. What am I looking at when I look at the TDC (tcal) or tof parameters?</b>
 
-  This can get a little confusing because of the way the TDCs operate. Briefly, in order to cover the range of times
-  we need, we have to send the TDC a "stop-like" signal that comes _after_ any measurement pulse. This "stop" is generated
-  by the IO32 with a programmable delay relative to the trigger. Making the delay introduces a jitter to the stop signal,
-  so any measurement value coming from the TDC will also contain the same jitter.
+  This can get a little confusing because of the way the TDCs operate. Briefly, in order to cover the range of
+  times we need, we have to send the TDC a "stop-like" signal that comes _after_ any measurement pulse. This
+  "stop" is generated by the IO32 with a programmable delay relative to the trigger. Making the delay
+  introduces a jitter to the stop signal, so any measurement value coming from the TDC will also contain the
+  same jitter.
 
-  The jitter mentioned above is common to every measurement channel, so it can be removed by simply subtracting channels
-  from each other in software. However, this is _not_ done in the default anaylzer for the `tcal` parameters - what you
-  are looking at when you view, say, `bgo.tcal[0]` contains jitter. The `tcal` parameters have, however, been calibrated
-  into nanoseconds by multiplying by a slope of 0.1 (the nominal resolution of the TDC is 100 ps / channel the way we
-  operate it). If you want to view calibrated times without jitter, the easiest thing to do is to subtract off the trigger
-  time (`tcal0`) yourself, i.e.
+  The jitter mentioned above is common to every measurement channel, so it can be removed by simply
+  subtracting channels from each other in software. However, this is _not_ done in the default anaylzer for
+  the `tcal` parameters - what you are looking at when you view, say, `bgo.tcal[0]` contains jitter. The
+  `tcal` parameters have, however, been calibrated into nanoseconds by multiplying by a slope of 0.1 (the
+  nominal resolution of the TDC is 100 ps / channel the way we operate it). If you want to view calibrated
+  times without jitter, the easiest thing to do is to subtract off the trigger time (`tcal0`) yourself, i.e.
   \code
   t1->Draw("bgo.tcal[0] - tcal0")
   \endcode
 
-  The time-of-flight parameters (e.g. `coinc.xtofh`, `hi.tof.mcp_dsssd`, etc.) _do_ have jitter subtracted since they are
-  calculated by subtracting two `tcal` values from each other.
+  The time-of-flight parameters (e.g. `coinc.xtofh`, `hi.tof.mcp_dsssd`, etc.) _do_ have jitter subtracted
+  since they are calculated by subtracting two `tcal` values from each other.
 
 \anchor oloff_3 <b>3. How is the coincidence matching done?</b>
 
-  See <a href=index.html#coincmatch> this section</a> for an overview of the algorithm used for coincidence matching. The
-  same algorithm is used whether in online or offline mode. Also, see the documentation on tstamp::Queue for some more
-  details about the implementation of the matching algorithm.
+  See <a href=index.html#coincmatch> this section</a> for an overview of the algorithm used for coincidence
+  matching. The same algorithm is used whether in online or offline mode. Also, see the documentation on
+  tstamp::Queue for some more details about the implementation of the matching algorithm.
 
 \anchor oloff_4 <b>4. Are EPICS data logged anywhere?</b>
 
-  Yes, every time the EPICS frontend polls a channel for data, it sends the results to the `SYSTEM` buffer. From there, they
-  go into both the online analysis pipeline and into the saved `run***.mid` file if data recording is turned on. The analyzer
-  upacks EPICS events into a ROOT tree (`t20`) with two parameters (in addition to a MIDAS event header): channel number
-  [`ch`] and value [`val`]. So to see, for intance, the recorded values of EPICS channel 0 versus time, plot the following:
+  Yes, every time the EPICS frontend polls a channel for data, it sends the results to the `SYSTEM` buffer.
+  From there, they go into both the online analysis pipeline and into the saved `run***.mid` file if data
+  recording is turned on. The analyzer upacks EPICS events into a ROOT tree (`t20`) with two parameters (in
+  addition to a MIDAS event header): channel number [`ch`] and value [`val`]. So to see, for intance, the
+  recorded values of EPICS channel 0 versus time, plot the following:
   \code
   t20->Draw("val:header.fTimeStamp", "ch == 0");
   \endcode
