@@ -52,7 +52,7 @@ PROJECT_LOGO           =
 # If a relative path is entered, it will be relative to the location
 # where doxygen was started. If left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       =/Users/dragon/online/html/dragon/analyzer 
+OUTPUT_DIRECTORY       =$(HOME)/online/html/dragon/analyzer
 #/Users/dragon/packages/dragon/analyzer/doc
 
 # If the CREATE_SUBDIRS tag is set to YES, then doxygen will create
