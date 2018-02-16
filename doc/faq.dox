@@ -19,6 +19,7 @@
 \ref install_2 "2. Compilation of \c libDragon.so and/or \c mid2root fails on Mac OS X High Sierra (OS X 10.13.x)." \n
 \ref install_3 "3. Do I need to install MIDAS in order to use the DRAGON analyzer package?" \n
 \ref install_4 "4. I had to compile ROOT with \c cmake; do I also have to compile the DRAGON analyzer package with \c cmake?" \n
+\ref install_5 "5. My problem is not addressed here." \n
 \n
 \ref hardware_fe \n
 \ref fe_1 "1. How to I add or remove a detector signal from the trigger?" \n
@@ -239,12 +240,12 @@
 
 \anchor install_1 <b>1. Compilation of \c libDragon.so and/or \c mid2root fails on Ubuntu.</b>
 
-  I have found Ubuntu to be very picky when compiling the DRAGON analyzer package, and have tried to avoid
+  I have found Ubuntu to be very picky about compiling the DRAGON analyzer package, and have tried to avoid
   difficulties by setting appropriate compile time environment variables in the \c configure script and
   Makefile. Installation on Ubuntu does require dependencies beoynd those mentiond in \ref installation
-  "the installation instructions", namely that \c clang and \c clang++ be installed (<code>sudo apt-get
+  "the installation instructions", namely, it requires that \c clang and \c clang++ be installed (<code>sudo apt-get
   install clang clang++</code>), and typically it is necessary to set the macro \c _GLIBCXX_USE_CXX11_ABI=0
-  (switched off by default in the \c configure script). However, I have found that this switch <i>causes</i>
+  (switched off by default in the \c configure script). However, I have found that this switch causes
   compilation failure from time to time, so there is an option to switch it on in the \c configure script;
   try reconfiguring and recompiling as follows:
   \code
@@ -255,9 +256,9 @@
 
 \anchor install_2 <b>2. Compilation of \c libDragon.so and/or \c mid2root fails on Mac OS X High Sierra (OS X 10.13.x).</b>
 
-  If compilation fails on High Sierra, it is likely that you have installed ROOT v5.xx/xx, which is apparently
-  incompatible with OS X High Sierra and the ROOT developers evidently have no plans to continue support for
-  ROOT v5 on Mac.
+  If compilation fails on High Sierra, it is likely that you have installed (or your environment points to ) ROOT 5.xx/xx,
+  which is evidently incompatible with OS X High Sierra and the ROOT developers apparently have no plans to continue support
+  for ROOT v5 on Mac.
 
 \anchor install_3 <b>3. Do I need to install MIDAS in order to use the DRAGON analyzer package?</b>
 
@@ -269,6 +270,12 @@
   No, the DRAGON analyzer package is currently compiled using a \c bash configure script and gnu make. The
   package is not currently set up for compilation with \c cmake (but it might be worthwhile to investigate the
   possibility of setting up compilation with \c cmake).
+
+\anchor install_5 <b>5. My problem is not addressed here.</b>
+
+  If your problem is not addressed above, <a href="mailto:dconnolly@triumf.ca">contact me</a> for futher assistance.
+  Please also include any relevant troubleshooting information, such as the compiler output, platform, which compiler was
+  used, ROOT version, etc.
 
 \section hardware_fe Frontend and Hardware
 
@@ -285,43 +292,44 @@
   variables start at 0). Setting the `ChannelEnable[n]` variable to `y` adds the signal to the trigger, while
   `n` removes it.
 
-  You can look here: http://trshare.triumf.ca/~gchristian/dragon/frontend/html/hardware.html#ecl_in for a
+  You can look here: http://trshare.triumf.ca/~dconnolly/dragon/frontend/html/hardware.html#ecl_in for a
   listing of which detectors are plugged into which ECL channels.
 
 \anchor fe_2 <b> 2. What are all those signals going into and out of the IO32?</b>
 
-  See the following page:	http://trshare.triumf.ca/~gchristian/dragon/frontend/html/hardware.html for an
+  See the following page:	http://trshare.triumf.ca/~dconnolly/dragon/frontend/html/hardware.html for an
   overview of the signals originating from and going into the IO32.
 
 \anchor fe_3 <b> 3. What about the scalers?</b>
 
-  Scaler inputs are discussed at <a href="http://trshare.triumf.ca/~gchristian/dragon/frontend/html/hardware.html#scalers">http://trshare.triumf.ca/~gchristian/dragon/frontend/html/hardware.html#scalers</a>
+  Scaler inputs are discussed at <a href="http://trshare.triumf.ca/~dconnolly/dragon/frontend/html/hardware.html#scalers">http://trshare.triumf.ca/~dconnolly/dragon/frontend/html/hardware.html#scalers</a>
 
 \anchor fe_4 <b> 4. What about the EPICS scalers?</b>
 
-  See the <a href=http://trshare.triumf.ca/~gchristian/dragon/frontend/html/hardware.html#epicsscalers>
+  See the <a href=http://trshare.triumf.ca/~dconnolly/dragon/frontend/html/hardware.html#epicsscalers>
   EPICS scaler page</a> for a listing of EPICS scaler inputs.
 
 \anchor fe_5 <b> 5. What about other signals? Is there a drawing of what goes where?</b>
 
   Currently, there isn't a full drawing of all connections, but it is on the to-do list. In the meantime,
-  you can refer to the <a href=http://trshare.triumf.ca/~gchristian/dragon/frontend/html/hardware.html>
-  hardware</a> and <a href=http://trshare.triumf.ca/~gchristian/dragon/frontend/html/trigger.html>
+  you can refer to the <a href=http://trshare.triumf.ca/~dconnolly/dragon/frontend/html/hardware.html>
+  hardware</a> and <a href=http://trshare.triumf.ca/~dconnolly/dragon/frontend/html/trigger.html>
   trigger logic</a> pages to get an idea of what the signals are for and what the various inputs/outputs
   to the VME modules are. Nearly everything else in the setup, electronics wise, (i.e. all of the NIM
   modules) is pretty sparse and hopefully can be figured out from cable tracing.
 
-  There is also a <a href=http://trshare.triumf.ca/~gchristian/dragon/frontend/html/hardware.html#adc_in>
+  There is also a <a href=http://trshare.triumf.ca/~dconnolly/dragon/frontend/html/hardware.html#adc_in>
   section of the hardware page</a> giving the channel mapping for ADCs and TDCs.
 
 \anchor fe_6 <b> 6. How to I operate the new frontend?</b>
 
-  See the operation guide at http://trshare.triumf.ca/~gchristian/dragon/frontend/html/operation.html
+  See the operation guide at
+  <a href="http://trshare.triumf.ca/~dconnolly/dragon/frontend/html/operation.html">http://trshare.triumf.ca/~dconnolly/dragon/frontend/html/operation.html"
 
 \anchor fe_7 <b> 7. What parts of the frontend are configurable? How do I control it?</b>
 
   Most of the frontend options (gate widths, delays, etc.) are controlled by ODB variables.
-  See the operation guide http://trshare.triumf.ca/~gchristian/dragon/frontend/html/operation.html
+  See the operation guide http://trshare.triumf.ca/~dconnolly/dragon/frontend/html/operation.html
   for more information.
 
 \anchor fe_8 <b> 8. How do I adjust BGO CFD thresholds?</b>
@@ -367,6 +375,11 @@
   (which is the non-DSSSD ADC), and indices 32-63 control channels 0-31 in `ADC1` (the DSSSD ADC). The
   threshold values should be set to a multiple of 16, if not they will be rounded down to the closest multiple
   of 16.
+
+\anchor fe_11 <b> 10. My question is not addressed here.</b>
+
+  For questions on DRAGON's frontend not addressed above, please consult the DRAGON Frontend Documentation or
+  a DRAGON expert.
 
 \section online Online Analysis
 
