@@ -501,9 +501,9 @@ cover any "spread" in the arrival times, this algorithm should guarantee that ev
 \section installation Installation
 
 This section gives an overwiew of how to obtain and install the latest version of the DRAGON data analysis
-package. These instructions assume that you will install the dragon analyzer package in 
-<code>~/packages/dragon</code>. If not, it will be necessary to alter the environment variables given below 
-accordingly. 
+package.
+\note These instructions assume that you will install the dragon analyzer package in  <code>~/packages/dragon</code>. If not,
+it will be necessary to alter the paths given below accordingly. 
 
 \subsection dependencies Dependencies
 
@@ -533,6 +533,8 @@ system, <a href="https://daq-plone.triumf.ca/SR/ROODY">roody</a> is required for
 One may obtain the analysis package from the <a href="https://github.com/DRAGON-Collaboration/analyzer">git repository</a>
 as follows:
 \verbatim
+mkdir -p ~/packages/dragon
+cd ~/packages/dragon
 git clone https://github.com/DRAGON-Collaboration/analyzer
 \endverbatim
 If you don't have git installed or prefer to download a tarball, then visit
@@ -559,8 +561,8 @@ Compilation creates a shared library `lib/libDragon.so` (and `lib/libDragon.so.d
 as well as an executable `bin/mid2root`. The executable converts MIDAS files to ROOT trees. The library can
 be loaded into an interactive ROOT session by issuing the following commands:
 \code
-.include /path/to/your/dragon/analyzer/src
-gSystem->Load("/path/to/your/dragon/analyzer/lib/libDragon.so");
+root[] .include ~/packages/dragon/analyzer/src
+root[] gSystem->Load("~/packages/dragon/analyzer/lib/libDragon.so");
 \endcode
 
 It is strongly suggested that you add the appropriate lines to your root logon script if you have one. If you don't, the
@@ -568,8 +570,8 @@ It is strongly suggested that you add the appropriate lines to your root logon s
 to set up your root environment</a> is to create a file entitled <code>rootlogon.C</code> in a sensible place (such as 
 <code>~/packages/root/macros</code>) and include the following lines in it:
 \code
-  gInterpreter->AddIncludePath(gSystem->ExpandPathName("${HOME}/path/to/your/dragon/analyzer/src"));
-  gSystem->Load("/path/to/your/dragon/analyzer/lib/libDragon.so");
+  gInterpreter->AddIncludePath(gSystem->ExpandPathName("${HOME}/packages/dragon/analyzer/src"));
+  gSystem->Load("${HOME}/packages/dragon/analyzer/lib/libDragon.so");
 \endcode
 
 Then create the file `${HOME}/.rootrc` and include the following line in it:
