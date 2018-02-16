@@ -67,8 +67,10 @@ For the "core" functionality, all that you will need is a working C++ compiler; 
 
 ---
 ```diff
--- Warning: Ubuntu users: compiling the DRAGON analyzer package evidently requires clang 
---          (sudo apt-get install clang clang++).
+-- Warning: Ubuntu users: compiliation of the DRAGON analyzer package on ubuntu evidently requires clang
+```
+```
+sudo apt-get install clang clang++
 ```
 ---
 
@@ -104,12 +106,12 @@ At this point, compilation should be as simple as typing make. If not, please [l
 
 Compilation creates a shared library `lib/libDragon.so` (and `lib/libDragon.so.dSYM` if installed on a Mac) as well as an executable `bin/mid2root`. The executable converts MIDAS files to ROOT trees. The library can be loaded into an interactive ROOT session by issuing the following commands:
 ```
-root [] .include /path/to/your/dragon/analyzer/src
-root [] gSystem->Load("/path/to/your/dragon/analyzer/lib/libDragon.so");
+root[] .include /path/to/your/dragon/analyzer/src
+root[] gSystem->Load("/path/to/your/dragon/analyzer/lib/libDragon.so");
 ```
 
 It is strongly suggested that you add the appropriate lines to your root logon script if you have one. If you don't, [the proper way to set up your root environment](https://root.cern.ch/root/htmldoc/guides/users-guide/ROOTUsersGuide.html#environment-setup) is to create a file entitled `rootlogon.C` in a sensible place (such as `~/packages/root/macros`) and include the following lines in it:
-```c++
+```cpp
 gInterpreter->AddIncludePath(gSystem->ExpandPathName("${HOME}/path/to/your/dragon/analyzer/src"));
 gSystem->Load("/path/to/your/dragon/analyzer/lib/libDragon.so");
 ```
@@ -119,7 +121,7 @@ Then create the file `${HOME}/.rootrc` and include the following line in it:
 Rint.Logon: /path/to/your/rootlogon.C
 ```
 
-This will give you access to all of the dragon classes and functions in the software package from within a ROOT session or macro.
+This will give you access to all of the dragon classes and functions in the software package from within a ROOT session or macro. Examples of these scripts are provided: [script/.rootrc](.rootrc) [script/rootlogon.C](rootlogon.C)
 
 If you are using git and want to stay on top of new releases, just do:
 ```
