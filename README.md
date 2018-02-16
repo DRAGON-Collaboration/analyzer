@@ -19,9 +19,11 @@ If you have a specific question about package, you may want to check out the [FA
 
 ## __Installation (Quick Start)__
 
-<aside class="notice">
-These instructions assume that you will install the dragon analyzer package in ~/packages/dragon.
-</aside>
+---
+```diff
+++ Note: These instructions assume that you will install the dragon analyzer package in ~/packages/dragon
+```
+---
 
 There are two methods for obtaining and installing the code:
 
@@ -59,21 +61,23 @@ For installation troublshooting, please visit the [faq page](http://trshare.triu
 
 ## __Installation__
 
-<aside class="notice">These instructions assume that you will install the dragon analyzer package in `~/packages/dragon`</aside>
-
-
 ### __Dependencies__
 
 For the "core" functionality, all that you will need is a working C++ compiler; there is no dependence on any third-party libraries. However, you will likely want to make use of the analysis package in ROOT, in which case you will need a fairly recent installation of ROOT on your system. For instructions on installing ROOT, go here. It is suggested that you install a relatively recent version of ROOT (say, ≥ 5.30) to ensure combatibilty between the ROOT release and the package code. You will also need to be sure that the $ROOTSYS environment variable is set and that $ROOTSYS/bin is in your search path.
 
-<aside class="warning">
-  Ubuntu users: compiling the DRAGON analyzer package evidently requires clang (sudo apt-get install clang clang++).
-</aside>
+---
+```diff
+-- Warning: Ubuntu users: compiling the DRAGON analyzer package evidently requires clang 
+--          (sudo apt-get install clang clang++).
+```
+---
 
-
-<aside class="notice">
-The DRAGON analyzer package is now compatible with ROOT6, but ROOT6 functionality should be considered beta until it has been tested more rigorously. Please report bugs to dconnolly@triumf.ca or file an issue here.
-</aside>
+---
+```diff 
+++ Note: 
+```
+> The DRAGON analyzer package is now compatible with ROOT6, but ROOT6 functionality should be considered beta until it has been tested more rigorously. Please report bugs to [dconnolly@triumf.ca](mailto:dconnolly@triumf.ca) or [file an issue here]().
+---
 
 
 The optional rootbeer or rootana extensions each require ROOT to be installed (and, of course, the rootana and/or rootbeer packages themselves). To look at online data, you will need MIDAS installed, and, if using the rootana system, roody is required for online histogram viewing.
