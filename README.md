@@ -13,7 +13,7 @@ At it's core, the package is simply a collection of routines to extract ("unpack
 
 In addition to the "core", this package also includes code to interface with the rootana data analysis package distributed as part of MIDAS and the rootbeer program for data visualization. Each of these packages is designed for "user friendly" viewing of data in histograms, either from saved files or real-time online data. Both require that a relatively recent version of ROOT be installed on your system, and, additionally, MIDAS must be installed in order to look at online data (offline data viewing should be possible without a MIDAS installation, however).
 
-There is also an optional extension to create python wrappers for the DRAGON classes, allowing data to be analyzed in python independent of ROOT/PyRoot. This package is somewhat in the experimental stage at the moment and requires installation of [__Boost.Python__](http://www.boost.org/doc/libs/1_51_0/libs/python/doc/) to compile the libraries.
+There is also an optional extension to create python wrappers for the DRAGON classes, allowing data to be analyzed in python independent of ROOT/PyRoot. This package is somewhat in the experimental stage at the moment and requires installation of [__Boost.Python__](http://www.boost.org/doc/libs/1_66_0/libs/python/doc/html/index.html) to compile the libraries.
 
 If you have a specific question about package, you may want to check out the [FAQ page](http://trshare.triumf.ca/~dconnolly/dragon/analyzer/faq.html) to see if it's addresed there, or visit the [Main Documentation page](http://trshare.triumf.ca/~dconnolly/dragon/analyzer/html/index.html)
 
@@ -28,22 +28,22 @@ If you have a specific question about package, you may want to check out the [FA
 There are two methods for obtaining and installing the code:
 
 1. Clone the git repository:
-  ```
-  mkdir -p ~/packages/dragon
-  cd ~/packages/dragon
-  git clone https://github.com/DRAGON-Collaboration/analyzer
-  cd analyzer
-  ./configure (--with-options if desired)
-  make
-  ```
+```
+mkdir -p ~/packages/dragon
+cd ~/packages/dragon
+git clone https://github.com/DRAGON-Collaboration/analyzer
+cd analyzer
+./configure (--with-options if desired)
+make
+```
 
 2. Download a [release](https://github.com/DRAGON-Collaboration/analyzer/releases)
-  ```
-  tar -xzvf analyzer-1.x.x.tar.gz  --or-- unzip analyzer-1.x.x.zip
-  cd analyzer
-  ./configure (--with-options if desired)
-  make
-  ```
+```
+tar -xzvf analyzer-1.x.x.tar.gz  --or-- unzip analyzer-1.x.x.zip
+cd analyzer
+./configure (--with-options if desired)
+make
+```
 
 The library can be loaded into an interactive ROOT session by issuing the following commands:
 ```
@@ -52,9 +52,10 @@ root[] gSystem->Load("/path/to/your/dragon/analyzer/lib/libDragon.so");
 ```
 
 To convert a MIDAS file to a ROOT file (assuming `~/packages/dragon/analyzer/bin` is in your search path), issue the command
+
 ```
 mid2root runxxxx.mid
-````
+```
 
 For installation troublshooting, please visit the [faq page](http://trshare.triumf.ca/~dconnolly/dragon/analyzer/html/faq.html#install_faq)
 
@@ -80,7 +81,6 @@ sudo apt-get install clang clang++
 ```
 > The DRAGON analyzer package is now compatible with ROOT6, but ROOT6 functionality should be considered beta until it has been tested more rigorously. Please report bugs to [dconnolly@triumf.ca](mailto:dconnolly@triumf.ca) or [file an issue here]().
 ---
-
 
 The optional rootbeer or rootana extensions each require ROOT to be installed (and, of course, the rootana and/or rootbeer packages themselves). To look at online data, you will need MIDAS installed, and, if using the rootana system, roody is required for online histogram viewing.
 
