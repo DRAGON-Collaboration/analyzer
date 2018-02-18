@@ -1,4 +1,4 @@
-# __Dragon Analyzer__
+# __DRAGON Analyzer__
 
 #### Authors
 - G. Christian
@@ -7,23 +7,23 @@
 
 ## __Introduction__
 
-This software package is developed for the analysis of data collected in DRAGON experiments at TRIUMF. The software is intended for experiments run with the "new" (c. 2013) DRAGON data-acquisition system (VME hardware + timestamp coincidence matching).
+This software package is developed for the analysis of data collected in [DRAGON](http://dragon.triumf.ca) experiments at [TRIUMF](). The software is intended for experiments run with the "new" (c. 2013) DRAGON data-acquisition system (VME hardware + timestamp coincidence matching).
 
 At it's core, the package is simply a collection of routines to extract ("unpack") the MIDAS data generated during an experiment into a format that is more suitable for human consumption, as well as to perform some of the more basic and commonly needed analysis tasks. From here, users can further process the data using their own codes, or they can interface with a visualization library to view the data in histograms, either online or offline. The core of the package is written in "plain" C++, that is without any dependence on libraries other than the standard library.
 
-In addition to the "core", this package also includes code to interface with the rootana data analysis package distributed as part of MIDAS and the rootbeer program for data visualization. Each of these packages is designed for "user friendly" viewing of data in histograms, either from saved files or real-time online data. Both require that a relatively recent version of ROOT be installed on your system, and, additionally, MIDAS must be installed in order to look at online data (offline data viewing should be possible without a MIDAS installation, however).
+In addition to the "core", this package also includes code to interface with the [rootana](https://bitbucket.org/tmidas/rootana) data analysis package distributed as part of [MIDAS](https://midas.triumf.ca) and the [rootbeer](https://trshare.triumf.ca/~gchristian/rootbeer) program for data visualization. Each of these packages is designed for "user friendly" viewing of data in histograms, either from saved files or real-time online data. Both require that a relatively recent version of [ROOT](https://root.cern.ch) be installed on your system and, additionally, MIDAS must be installed in order to look at online data (offline data viewing should be possible without a MIDAS installation, however).
 
-There is also an optional extension to create python wrappers for the DRAGON classes, allowing data to be analyzed in python independent of ROOT/PyRoot. This package is somewhat in the experimental stage at the moment and requires installation of [__Boost.Python__](http://www.boost.org/doc/libs/1_66_0/libs/python/doc/html/index.html) to compile the libraries.
+There is also an optional extension to create python wrappers for the DRAGON classes, allowing data to be analyzed in python independent of ROOT/PyRoot. This package is somewhat in the experimental stage at the moment and requires installation of [`Boost.Python`](http://www.boost.org/doc/libs/1_66_0/libs/python/doc/html/index.html) to compile the libraries.
 
-If you have a specific question about package, you may want to check out the [FAQ page](http://trshare.triumf.ca/~dconnolly/dragon/analyzer/faq.html) to see if it's addresed there, or visit the [Main Documentation page](http://trshare.triumf.ca/~dconnolly/dragon/analyzer/html/index.html)
+If you have a specific question about this package, you may want to check out the [FAQ page](http://trshare.triumf.ca/~dconnolly/dragon/analyzer/faq.html) to see if it's addresed there, or visit the [Main Documentation page](http://trshare.triumf.ca/~dconnolly/dragon/analyzer/html/index.html)
 
-## __Installation (Quick Start)__
+## __Quick Start Guide__
 
----
+***
 ```diff
 ++ Note: These instructions assume that you will install the dragon analyzer package in ~/packages/dragon
 ```
----
+***
 
 There are two methods for obtaining and installing the code:
 
@@ -64,23 +64,23 @@ For installation troublshooting, please visit the [faq page](http://trshare.triu
 
 ### __Dependencies__
 
-For the "core" functionality, all that you will need is a working C++ compiler; there is no dependence on any third-party libraries. However, you will likely want to make use of the analysis package in ROOT, in which case you will need a fairly recent installation of ROOT on your system. For instructions on installing ROOT, go here. It is suggested that you install a relatively recent version of ROOT (say, ≥ 5.30) to ensure combatibilty between the ROOT release and the package code. You will also need to be sure that the $ROOTSYS environment variable is set and that $ROOTSYS/bin is in your search path.
+For the "core" functionality, all you will need is a working C++ compiler; there is no dependence on any third-party libraries. However, you will likely want to make use of the analysis package in ROOT, in which case you will need a fairly recent installation of ROOT on your system. For instructions on installing ROOT, go [here](https://root.cern.ch/building-root). It is suggested that you install a relatively recent version of ROOT (say, ≥ 5.30) to ensure combatibilty between the ROOT release and the package code. You will also need to be sure that the `$ROOTSYS` environment variable is set and that `$ROOTSYS/bin` is in your search path. This is typically accomplished by sourcing the `thisroot.sh` or `thisroot.csh` script in `$ROOTSYS/bin` from your startup script (e.g. - `~/.bashrc`).
 
----
+***
 ```diff
 -- Warning: Ubuntu users: compiliation of the DRAGON analyzer package on ubuntu evidently requires clang
 ```
 ```
 sudo apt-get install clang clang++
 ```
----
+***
 
----
+***
 ```diff 
 ++ Note: 
 ```
 > The DRAGON analyzer package is now compatible with ROOT6, but ROOT6 functionality should be considered beta until it has been tested more rigorously. Please report bugs to [dconnolly@triumf.ca](mailto:dconnolly@triumf.ca) or [file an issue here]().
----
+***
 
 The optional rootbeer or rootana extensions each require ROOT to be installed (and, of course, the rootana and/or rootbeer packages themselves). To look at online data, you will need MIDAS installed, and, if using the rootana system, roody is required for online histogram viewing.
 
@@ -125,7 +125,7 @@ This will give you access to all of the dragon classes and functions in the soft
 
 If you are using git and want to stay on top of new releases, just do:
 ```
-git pull https://github.com/dragontriumf/analyzer master --tags
+git pull https://github.com/DRAGON-Collaboration/analyzer master --tags
 ```
 
-This gets you all of the new code since your last pull (or the initial clone). Note that we've started using a versioning system than goes as such: `vMAJOR.MINOR.PATCH`, where a MAJOR version change indicates a new set of non backwards compatible changes. MINOR indicates a feature addition that is still backwards compatible, and PATCH indicates a bugfix or other small change that is backwards compatible.
+(or just `git pull`) from within the repository directory (`~/packages/dragon/analyzer`). This gets you all of the new code since your last pull (or the initial clone). Note that we've started using a versioning system than goes as such: `vMAJOR.MINOR.PATCH`, where a MAJOR version change indicates a new set of non backwards compatible changes. MINOR indicates a feature addition that is still backwards compatible, and PATCH indicates a bugfix or other small change that is backwards compatible.

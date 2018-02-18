@@ -1,5 +1,4 @@
-/**
-
+/*!
 \page faq FAQ
 \tableofcontents
 
@@ -57,13 +56,14 @@
 \ref oloff_1 "1. What do all the parameter names mean? How can I find the parameter name corresponding to xyz signal?" \n
 \ref oloff_2 "2. What am I looking at when I look at the TDC (tcal) or tof parameters?" \n
 \ref oloff_3 "3. How is the coincidence matching done?" \n
-\ref oloff_4 "4. Are EPICS data logged anywhere?"
+\ref oloff_4 "4. Are EPICS data logged anywhere?" \n
+\ref oloff_5 "5. What is the channel number for EPICS device \e x?\endb"
 \n\n
 
 
 \section panic "Panic" Instructions / Help
 
-\anchor panic_1 <b> 1. Program `xyz` has crashed/hung and it's affecting the data taking.</b>
+\anchor panic_1 __1. Program `xyz` has crashed/hung and it's affecting the data taking.__
 
   MIDAS is supposed to have a built in "watchdog" system for removing any crashed programs from the experiment
   so that they cannot influence the data taking. However, if a program has registered start or stop
@@ -84,7 +84,7 @@
   If this doesn't work, try again with <code>kill -9 xxxxxx</code>. Once you have killed the program, the data
   taking should work again; however, you may want to do a stop run/start run cycle to reset things.
 
-\anchor panic_2 <b> 2. MIDAS got hung up when I tried to start or stop a run.</b>
+\anchor panic_2 __2. MIDAS got hung up when I tried to start or stop a run.__
 
   Open a shell, ssh into smaug (`ssh dragon@smaug` or just `ssh smaug` if working on daenerys) and then run
   the command `odbedit`. Once in this program, issue the command `stop now -v` (or `start now -v`). The this
@@ -93,14 +93,14 @@
   re-starting the program you killed, and then try starting a new run to see if the problem is fixed. If there
   are still problems, more drastic measures may be necessary (see below).
 
-\anchor panic_3 <b> 3. Program `xyz` won't stay open.</b>
+\anchor panic_3 __3. Program `xyz` won't stay open.__
 
   If a program refuses to start from the MIDAS programs page, click on the link on the left side of the page
   and look at the "Start command" section to see what the command is to start the program. Then try running
   this in a shell, removing any "-D" flags. This may not get the program to start, but at least the extra
   terminal output can point you in the right direction towards figuring out the problem.
 
-\anchor panic_4 <b> 4. I tried to submit an elog entry and it got hung up.</b>
+\anchor panic_4 __4. I tried to submit an elog entry and it got hung up.__
 
   We have noticed that occasionally certain attachments can cause an elog entry to become hung. If this
   happens to you, first try to copy the entry text to the clipboard or another program so that you don't
@@ -111,7 +111,7 @@
   can just reference the location of the attachment on `daenerys` and interested readers can go find it
   manually.
 
-\anchor panic_5 <b> 5. The MIDAS status page is spewing errors and I have no idea what they mean.</b>
+\anchor panic_5 __5. The MIDAS status page is spewing errors and I have no idea what they mean.__
 
   As long as the errors are not coming from one of the frontends (fe_head, fe_tail) then it is likely
   something non-cricual (probably a bug in one of the analysis codes). In this case, it is not worth stopping
@@ -121,7 +121,7 @@
   If you are getting the occational error from one of the frontends about "V792 trigger problem", then this
   is a known, albeit not fully understood issue. You can continue to safely take data if this is the case.
 
-\anchor panic_6 <b> 6. The MIDAS status page won't load.</b>
+\anchor panic_6 __6. The MIDAS status page won't load.__
 
   There seems to be an issue with the mhttpd program that causes the MIDAS page to get hung up. This doesn't
   seem to affect the rest of the DAQ, but it does make operation difficult. If this happens, try the
@@ -151,7 +151,7 @@
 
   This should have fixed the problem, so try refreshing the MIDAS status page to see if it's working again.
 
-\anchor panic_7 <b> 7. How do I recover from a corrupted ODB?</b>
+\anchor panic_7 __7. How do I recover from a corrupted ODB?__
 
 \parblock
   1. Stop the front-ends, mlogger, mhttpd, etc. (this can be accomplished by running `kill_daq.sh`).
@@ -200,7 +200,7 @@
 
 \endparblock
 
-\anchor panic_8 <b> 8. Something isn't working and I have no idea what's going on!</b>
+\anchor panic_8 __8. Something isn't working and I have no idea what's going on!__
 
   For DAQ problems where the source is unknown, the standard procedure is to do the following:
 
@@ -228,7 +228,7 @@
   any details that you think might be relevant in case this might be useful in later figuring out what went
   wrong and potentially fixing the problem.
 
-\anchor panic_9 <b> 9. There is a problem with the DAQ that is not listed here. </b>
+\anchor panic_9 __9. There is a problem with the DAQ that is not listed here. __
 
   For MIDAS / DAQ problems not addressed above (or remedied by any of the above actions), please consult the
   <a href="https://midas.triumf.ca/elog/Midas/">MIDAS elog</a>,
@@ -238,7 +238,7 @@
 
 \section install_faq Installation Problems
 
-\anchor install_1 <b>1. Compilation of \c libDragon.so and/or \c mid2root fails on Ubuntu.</b>
+\anchor install_1 __1. Compilation of \c libDragon.so and/or \c mid2root fails on Ubuntu.__
 
   I have found Ubuntu to be very picky about compiling the DRAGON analyzer package, and have tried to avoid
   difficulties by setting appropriate compile time environment variables in the \c configure script and
@@ -254,24 +254,24 @@
   make
   \endcode
 
-\anchor install_2 <b>2. Compilation of \c libDragon.so and/or \c mid2root fails on Mac OS X High Sierra (OS X 10.13.x).</b>
+\anchor install_2 __2. Compilation of \c libDragon.so and/or \c mid2root fails on Mac OS X High Sierra (OS X 10.13.x).__
 
   If compilation fails on High Sierra, it is likely that you have installed (or your environment points to ) ROOT 5.xx/xx,
   which is evidently incompatible with OS X High Sierra and the ROOT developers apparently have no plans to continue support
   for ROOT v5 on Mac.
 
-\anchor install_3 <b>3. Do I need to install MIDAS in order to use the DRAGON analyzer package?</b>
+\anchor install_3 __3. Do I need to install MIDAS in order to use the DRAGON analyzer package?__
 
   MIDAS is \b not required to install the DRAGON analyzer package. If you are a user and wish to install the
   DRAGON analyzer package for the purposes of offline data analysis, installation of MIDAS is not recommended.
 
-\anchor install_4 <b>4. I had to compile ROOT with \c cmake; do I also have to compile the DRAGON analyzer package with \c cmake?</b>
+\anchor install_4 __4. I had to compile ROOT with \c cmake; do I also have to compile the DRAGON analyzer package with \c cmake?__
 
   No, the DRAGON analyzer package is currently compiled using a \c bash configure script and gnu make. The
   package is not currently set up for compilation with \c cmake (but it might be worthwhile to investigate the
   possibility of setting up compilation with \c cmake).
 
-\anchor install_5 <b>5. My problem is not addressed here.</b>
+\anchor install_5 __5. My problem is not addressed here.__
 
   If your problem is not addressed above, <a href="mailto:dconnolly@triumf.ca">contact me</a> for futher assistance.
   Please also include any relevant troubleshooting information, such as the compiler output, platform, which compiler was
@@ -279,7 +279,7 @@
 
 \section hardware_fe Frontend and Hardware
 
-\anchor fe_1 <b> 1. How to I add or remove a detector signal from the trigger?</b>
+\anchor fe_1 __1. How to I add or remove a detector signal from the trigger?__
 
   For both the head and tail, the trigger is an `OR` of IO32 ECL inputs 0-7. Each of these inputs is masked
   by an IO32 register that is controlled through ODB variables. So, to add or remove a detector signal from
@@ -295,21 +295,21 @@
   You can look here: http://trshare.triumf.ca/~dconnolly/dragon/frontend/html/hardware.html#ecl_in for a
   listing of which detectors are plugged into which ECL channels.
 
-\anchor fe_2 <b> 2. What are all those signals going into and out of the IO32?</b>
+\anchor fe_2 __2. What are all those signals going into and out of the IO32?__
 
   See the following page:	http://trshare.triumf.ca/~dconnolly/dragon/frontend/html/hardware.html for an
   overview of the signals originating from and going into the IO32.
 
-\anchor fe_3 <b> 3. What about the scalers?</b>
+\anchor fe_3 __3. What about the scalers?__
 
   Scaler inputs are discussed at <a href="http://trshare.triumf.ca/~dconnolly/dragon/frontend/html/hardware.html#scalers">http://trshare.triumf.ca/~dconnolly/dragon/frontend/html/hardware.html#scalers</a>
 
-\anchor fe_4 <b> 4. What about the EPICS scalers?</b>
+\anchor fe_4 __4. What about the EPICS scalers?__
 
   See the <a href=http://trshare.triumf.ca/~dconnolly/dragon/frontend/html/hardware.html#epicsscalers>
   EPICS scaler page</a> for a listing of EPICS scaler inputs.
 
-\anchor fe_5 <b> 5. What about other signals? Is there a drawing of what goes where?</b>
+\anchor fe_5 __5. What about other signals? Is there a drawing of what goes where?__
 
   Currently, there isn't a full drawing of all connections, but it is on the to-do list. In the meantime,
   you can refer to the <a href=http://trshare.triumf.ca/~dconnolly/dragon/frontend/html/hardware.html>
@@ -321,18 +321,18 @@
   There is also a <a href=http://trshare.triumf.ca/~dconnolly/dragon/frontend/html/hardware.html#adc_in>
   section of the hardware page</a> giving the channel mapping for ADCs and TDCs.
 
-\anchor fe_6 <b> 6. How to I operate the new frontend?</b>
+\anchor fe_6 __6. How to I operate the new frontend?__
 
   See the operation guide at
   <a href="http://trshare.triumf.ca/~dconnolly/dragon/frontend/html/operation.html">http://trshare.triumf.ca/~dconnolly/dragon/frontend/html/operation.html"
 
-\anchor fe_7 <b> 7. What parts of the frontend are configurable? How do I control it?</b>
+\anchor fe_7 __7. What parts of the frontend are configurable? How do I control it?__
 
   Most of the frontend options (gate widths, delays, etc.) are controlled by ODB variables.
   See the operation guide http://trshare.triumf.ca/~dconnolly/dragon/frontend/html/operation.html
   for more information.
 
-\anchor fe_8 <b> 8. How do I adjust BGO CFD thresholds?</b>
+\anchor fe_8 __8. How do I adjust BGO CFD thresholds?__
 
   From the <a href=smaug.triumf.ca:8081>MIDAS status page</a>, first click the `Adjust BGO Thresholds` button.
   Then change the `Threshold Gamma Energy` variable to the desired threshold energy in keV. Now go back to the
@@ -344,7 +344,7 @@
   of 0.00415). For alternative gain matching, the relationship between threshold value and keV will need to be
   figured out empirically.
 
-\anchor fe_9 <b> 9. How do I change the TDC maximum hit option?</b>
+\anchor fe_9 __9. How do I change the TDC maximum hit option?__
 
   The TDC maximum hit option is set through the `/Equipment/TailVME/Settings/V1190/MaxHits` variable (replace
   `TailVME` with `HeadVME` for the BGO side). If this variable is set to a power of two (the result, not the
@@ -356,7 +356,7 @@
   For this reason, it is suggested to leave the MaxHits variable set to `0xffff` to avoid corwding out a
   needed signal with unneeded ones.
 
-\anchor fe_10 <b> 10. How can I set ADC thresholds, or suppress readout of no-data events?</b>
+\anchor fe_10 __10. How can I set ADC thresholds, or suppress readout of no-data events?__
 
   The CAEN V785/V792 ADCs have the option to suppress the readout of data that falls below some set value.
   Typically, this might be desired to suppress the read out of QDC pedestals or ADC "zero value" peaks to
@@ -376,27 +376,27 @@
   threshold values should be set to a multiple of 16, if not they will be rounded down to the closest multiple
   of 16.
 
-\anchor fe_11 <b> 10. My question is not addressed here.</b>
+\anchor fe_11 __11. My question is not addressed here.__
 
   For questions on DRAGON's frontend not addressed above, please consult the DRAGON Frontend Documentation or
   a DRAGON expert.
 
 \section online Online Analysis
 
-\anchor ol_1 <b> 1. How do I change a variable (ADC pedestal, slope, channel mapping, etc.)?</b>
+\anchor ol_1 __1. How do I change a variable (ADC pedestal, slope, channel mapping, etc.)?__
 
   Update the corresponding value in the MIDAS ODB, and start a new run (or re-start the analysis program).
   The online analysis routines automatically sync all variables with the ODB at the beginning of each run,
   or at program start (this is true both for ROOTBEER and anaDragon/ROODY).
 
-\anchor ol_2 <b> 2. Where can I find the ODB variable corresponding to `xxx`?</b>
+\anchor ol_2 __2. Where can I find the ODB variable corresponding to `xxx`?__
 
   All analysis-related ODB variables are contained under the `/dragon` tree. From here, they are subdivided
   by detector element, i.e. variables related to the BGO array are under `/bgo/`, etc. From there, follow the
   remaining subtrees until you find what you want. Hopefully this is intuitive enough to figure out on your own;
   if it is not, let me (G.C.) know, and I will update this section.
 
-\anchor ol_3 <b> 3. How do I add a new histogram to the analyzer?</b>
+\anchor ol_3 __3. How do I add a new histogram to the analyzer?__
 
   If you are using ROOTBEER, use the histogram creation GUI. If you think your histogram is something that
   should normally be available for viewing, use the "Save" button on the histogram GUI to save it to a config
@@ -405,11 +405,11 @@
 
   If you are using rootana + ROODY, see the <a href=index.html#rootana> for users</a> section of this manual.
 
-\anchor ol_4 <b> 4. Where did the scaler histograms go?</b>
+\anchor ol_4 __4. Where did the scaler histograms go?__
 
   Scaler histograms are now included in ROOTBEER.
 
-\anchor ol_5 <b> 5. How do I use ROOTBEER?</b>
+\anchor ol_5 __5. How do I use ROOTBEER?__
 
   To start the program, ssh into smaug and run `rbdragon`. Click the orange `Load` button on the
   `rootbeer histograms` window to select a histogram definitions file (default is `dragon_hists.C`).
@@ -434,7 +434,7 @@
   http://trshare.triumf.ca/~gchristian/rootbeer/doc/html/index.html (though some of this may currently be out
   of date).
 
-\anchor ol_6 <b> 6. Can I change whether or not online histograms are zeroed at run start?</b>
+\anchor ol_6 __6. Can I change whether or not online histograms are zeroed at run start?__
 
   Yes. The easiest way is to modify the ODB variable
   <a href=http://smaug.triumf.ca:8081/dragon/rootbeer>"/dragon/rootbeer/AutoZero"</a>.
@@ -445,11 +445,11 @@
 
 \section offline Offline Analysis
 
-\anchor off_1 <b> 1. How do I obtain the software package to do offline analysis using ROOT?</b>
+\anchor off_1 __1. How do I obtain the software package to do offline analysis using ROOT?__
 
   See the installation instructions <a href="index.html#installation">here.</a>
 
-\anchor off_2 <b> 2. I am using `ROOT6` and recieve the following warning when working with dragon root files created with ROOT5:</b>
+\anchor off_2 __2. I am using `ROOT6` and recieve the following warning when working with dragon root files created with ROOT5:__
   \code
   Warning in <TStreamerInfo::BuildOld>: Cannot convert dragon::Head::trf from type:
   dragon::TdcChannel<MAX_RF_HITS> to type: dragon::TdcChannel<5>, skip element
@@ -461,7 +461,7 @@
   ROOT::AddClassAlternate("dragon::TdcChannel<5>","dragon::TdcChannel<MAX_RF_HITS>")
   \endcode
 
-\anchor off_3 <b> 3. How do I convert MIDAS files into ROOT files?</b>
+\anchor off_3 __3. How do I convert MIDAS files into ROOT files?__
 
   Run the `mid2root` utility that is distributed as part of this software package (it should be located in the
   `/bin` directory). For information on running the programs, first do `mid2root --help`.
@@ -471,7 +471,7 @@
   `/Logger/Data dir` setting at the time of the run. Note that variables used in these conversions are reflect
   the state of the ODB when the run was started.
 
-\anchor off_4 <b> 4. How can I re-analyze a MIDAS file using different variables?</b>
+\anchor off_4 __4. How can I re-analyze a MIDAS file using different variables?__
 
   The `mid2root` program allows users to specify an XML file containing the variables to be used for analysis
   and unpacking into ROOT trees. This is done by using the `-v` flag to specify the desired XML file. The
@@ -479,7 +479,7 @@
   is quite hard to generate by hand, it is suggested to first copy one of the `run***.xml` files from the
   logger data directory and then edit this to update variables as desired.
 
-\anchor off_5 <b> 5. What if I just want to calibrate the DSSSD (or BGO, etc.)? Do I have to re-analyze every MIDAS file, or is there a better way?</b>
+\anchor off_5 __5. What if I just want to calibrate the DSSSD (or BGO, etc.)? Do I have to re-analyze every MIDAS file, or is there a better way?__
 
   Re-analyzing a whole set of MIDAS files just to calibrate one or two detectors is indeed inefficient.
   However, it is possible to do the calibration by looping through the events in the _ROOT_ file, applying the
@@ -491,7 +491,7 @@
   saving the results in separate files, run-by-run. See the dragon::DsssdCalibrate class documentation and the
   file DsssdCalibration.C in the examples directory.
 
-\anchor off_6 <b> 6. Now that I've converted MIDAS files into ROOT format, how can I see the data?</b>
+\anchor off_6 __6. Now that I've converted MIDAS files into ROOT format, how can I see the data?__
 
   There are a few options here. One is to create a <a href=http://root.cern.ch/root/html/TChain.html>
   TChain</a> linking the events in all of your ROOT files together, and then start viewing data using
@@ -509,7 +509,7 @@
   you can code your analysis routines in C++. See the documentation on RootAnalysis.hxx Selector.hxx, or
   the files in the examples directory for further information.
 
-\anchor off_7 <b> 7. What if I want to get the value of some parameter for a specific event or events, for example to use elsewhere in a macro?</b>
+\anchor off_7 __7. What if I want to get the value of some parameter for a specific event or events, for example to use elsewhere in a macro?__
 \parblock
   There are a few ways to accomplish this:
 
@@ -578,7 +578,7 @@
   \n
 \endparblock
 
-\anchor off_8 <b> 8. I'm really new to C++/ROOT and have no idea how to even get started looking at data. Any advice?</b>
+\anchor off_8 __8. I'm really new to C++/ROOT and have no idea how to even get started looking at data. Any advice?__
 
 \parblock
   ROOT does indeed have a steep learning curve, and most of the documentation on their website assumes a
@@ -598,13 +598,13 @@
 
 \endparblock
 
-\anchor off_9 <b> 9. I can never remember all of the parameter names in the ROOT trees. Is there a way to find this out easily?</b>
+\anchor off_9 __9. I can never remember all of the parameter names in the ROOT trees. Is there a way to find this out easily?__
 
   Use the TTree::StartViewer() command, e.g. `t3->StartViewer()` to see a complete graphical listing of all
   avaiable parameters in a given tree. Alternatively, you can use TTree::Print, e.g. `t3->Print()` to see a
   textual listing of available parameters.
 
-\anchor off_10 <b> 10. How do you make plots of energy vs. channel in offline analysis from Trees. For example: DSSSD energy vs channel?</b>
+\anchor off_10 __10. How do you make plots of energy vs. channel in offline analysis from Trees. For example: DSSSD energy vs channel?__
 
   Take advantage of `TTree::Draw()` and its features for parsing arrays. To draw DSSSD energy vs. channel just
   do the following:
@@ -617,35 +617,30 @@
 
 \section offline_online Generic (Online/Offline) Analysis
 
-\anchor oloff_1 <b> 1. What do all the parameter names mean? How can I find the parameter name corresponding to xyz signal?</b>
+\anchor oloff_1 __1. What do all the parameter names mean? How can I find the parameter name corresponding to xyz signal?__
 
-  Short answer: see the \link params Parameter Names \endlink page for a description of the most commonly used
-  TTree parameters
+  Short answer: see the \link params Parameter Names \endlink page for a description of the most commonly used TTree parameters
 
-  Long answer:
-  Each detector element in DRAGON is represented by a C++ class in the analyzer. Each detector class contains
-  data members which correspond to experimental parameters recorded by the corresponding detector. By
-  arranging the various detector classes in a hierarchy, we create a tree-like structure describing experiment
-  parameters. For example, the DSSSD parameters are arranged as follows:
+  Long answer: Each detector element in DRAGON is represented by a C++ class in the analyzer. Each detector class contains data members which correspond to experimental parameters recorded by the corresponding detector. By arranging the various detector classes in a hierarchy, we create a tree-like structure describing experiment parameters. For example, the DSSSD parameters are arranged as follows:
   \code
   class Dsssd {
   public:
-  /// Calibrated energy signals
-      double ecal[MAX_CHANNELS]; //#
-      /// Highest energy signal in the front strips (0 - 15)
-      double efront;      //#
-      /// Highest energy signal in the back strips (16 - 31)
-      double eback;       //#
-      /// Which strip was hit in the front strips
-      uint32_t hit_front; //#
-      /// Which strip was hit in the back strips
-      uint32_t hit_back;  //#
-      /// Calibrated time signal from the front strips
-      double tfront;      //#
-      /// Calibrated time signal from the back strips
-      double tback;       //#
+    /// Calibrated energy signals
+    double ecal[MAX_CHANNELS]; //#
+    /// Highest energy signal in the front strips (0 - 15)
+    double efront;      //#
+    /// Highest energy signal in the back strips (16 - 31)
+    double eback;       //#
+    /// Which strip was hit in the front strips
+    uint32_t hit_front; //#
+    /// Which strip was hit in the back strips
+    uint32_t hit_back;  //#
+    /// Calibrated time signal from the front strips
+    double tfront;      //#
+    /// Calibrated time signal from the back strips
+    double tback;       //#
 
-      // etc //
+    // etc //
   };
 
   class Tail {
@@ -655,52 +650,46 @@
   };
   \endcode
 
-  This sets the DSSSD as a sub-element of Tail, with each of the DSSSD data members being sub-elements of
-  DSSSD. Thus the full hierarchy for, say, the energy of channel 16 is `tail.dsssd.ecal[16]`.	When using
-  ROOT, the class hierarchy is parsed into a TTree branch structure, meaning that the parameter name for
-  DSSSD energy, channel 16 is exactly as noted.
+  This sets the DSSSD as a sub-element of Tail, with each of the DSSSD data members being sub-elements of DSSSD. Thus the full hierarchy for, say, the energy of channel 16 is `tail.dsssd.ecal[16]`.	When using ROOT, the class hierarchy is parsed into a TTree branch structure, meaning that the parameter name for DSSSD energy, channel 16 is exactly as noted.
 
-\anchor oloff_2 <b>2. What am I looking at when I look at the TDC (tcal) or tof parameters?</b>
+\anchor oloff_2 __2. What am I looking at when I look at the TDC (tcal) or tof parameters?__
 
-  This can get a little confusing because of the way the TDCs operate. Briefly, in order to cover the range of
-  times we need, we have to send the TDC a "stop-like" signal that comes _after_ any measurement pulse. This
-  "stop" is generated by the IO32 with a programmable delay relative to the trigger. Making the delay
-  introduces a jitter to the stop signal, so any measurement value coming from the TDC will also contain the
-  same jitter.
+  This can get a little confusing because of the way the TDCs operate. Briefly, in order to cover the range of times we need, we have to send the TDC a "stop-like" signal that comes _after_ any measurement pulse. This "stop" is generated by the IO32 with a programmable delay relative to the trigger. Making the delay introduces a jitter to the stop signal, so any measurement value coming from the TDC will also contain the same jitter.
 
-  The jitter mentioned above is common to every measurement channel, so it can be removed by simply
-  subtracting channels from each other in software. However, this is _not_ done in the default anaylzer for
-  the `tcal` parameters - what you are looking at when you view, say, `bgo.tcal[0]` contains jitter. The
-  `tcal` parameters have, however, been calibrated into nanoseconds by multiplying by a slope of 0.1 (the
-  nominal resolution of the TDC is 100 ps / channel the way we operate it). If you want to view calibrated
-  times without jitter, the easiest thing to do is to subtract off the trigger time (`tcal0`) yourself, i.e.
+  The jitter mentioned above is common to every measurement channel, so it can be removed by simply subtracting channels from each other in software. However, this is _not_ done in the default anaylzer for the `tcal` parameters - what you are looking at when you view, say, `bgo.tcal[0]` contains jitter. The `tcal` parameters have, however, been calibrated into nanoseconds by multiplying by a slope of 0.1 (the nominal resolution of the TDC is 100 ps / channel the way we operate it). If you want to view calibrated times without jitter, the easiest thing to do is to subtract off the trigger time (`tcal0`) yourself, i.e.
   \code
   t1->Draw("bgo.tcal[0] - tcal0")
   \endcode
 
-  The time-of-flight parameters (e.g. `coinc.xtofh`, `hi.tof.mcp_dsssd`, etc.) _do_ have jitter subtracted
-  since they are calculated by subtracting two `tcal` values from each other.
+  The time-of-flight parameters (e.g. `coinc.xtofh`, `hi.tof.mcp_dsssd`, etc.) _do_ have jitter subtracted since they are calculated by subtracting two `tcal` values from each other.
 
-\anchor oloff_3 <b>3. How is the coincidence matching done?</b>
+\anchor oloff_3 __3. How is the coincidence matching done?__
 
-  See <a href=index.html#coincmatch> this section</a> for an overview of the algorithm used for coincidence
-  matching. The same algorithm is used whether in online or offline mode. Also, see the documentation on
-  tstamp::Queue for some more details about the implementation of the matching algorithm.
+  See <a href=index.html#coincmatch> this section</a> for an overview of the algorithm used for coincidence matching. The same algorithm is used whether in online or offline mode. Also, see the documentation on tstamp::Queue for some more details about the implementation of the matching algorithm.
 
-\anchor oloff_4 <b>4. Are EPICS data logged anywhere?</b>
+\anchor oloff_4 __4. Are EPICS data logged anywhere?__
 
-  Yes, every time the EPICS frontend polls a channel for data, it sends the results to the `SYSTEM` buffer.
-  From there, they go into both the online analysis pipeline and into the saved `run***.mid` file if data
-  recording is turned on. The analyzer upacks EPICS events into a ROOT tree (`t20`) with two parameters (in
-  addition to a MIDAS event header): channel number [`ch`] and value [`val`]. So to see, for intance, the
-  recorded values of EPICS channel 0 versus time, plot the following:
+  Yes, every time the EPICS frontend polls a channel for data, it sends the results to the `SYSTEM` buffer. From there, they go into both the online analysis pipeline and into the saved `run***.mid` file if data recording is turned on. The analyzer upacks EPICS events into a ROOT tree (`t20`) with two parameters (in addition to a MIDAS event header): channel number [`ch`] and value [`val`]. So to see, for intance, the recorded values of EPICS channel 0 versus time, plot the following:
   \code
   t20->Draw("val:header.fTimeStamp", "ch == 0");
   \endcode
 
+\anchor oloff_5 __5. What is the channel number for EPICS device *x*?__
+
+  You can find the full list of the EPICS channels and their EPICS channel names at https://smaug.triumf.ca:8443/Equipment/Epics/Settings (requires a TRIUMF IP address) or \ref epics_chans "here". Some commonnly accessed channels are:
+
+  Channel | Epics Device Name      | Description                                                               |
+  --------|------------------------|---------------------------------------------------------------------------
+  [0]     | `DRA:CMGC:RDVAC`       | Gas target pressure [Torr]
+  [1]     | `DRA:TCM1:GT:RDTEMP`   | Gas target temperature [&deg;C]
+  [2]     | `CCS2ISAC:BL2ACURRENT` | BL2A Proton current [&mu;A]
+  [23]    | `DRA:MD1:RDNMR`        | MD1 NMR probe read back [Gauss]
+  [80]    | `DRA:XSLITM:SCALECUR1` | Left horizontal mass slit current read back [&times;(gain setting) A]
+  
+  \attention The above channels are the current EPICS channel values (c. Jan. 2016 - present). If you are workign with data from another time period, consult the `.xml` files in your data set to find the desired EPICS channel by searching for the Epics ODB tree.
 
 */
 
 // Local Variables:
-// mode: 
+// mode: gfm
 // End:
