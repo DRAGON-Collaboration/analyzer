@@ -7,7 +7,7 @@
 
 ## __Introduction__
 
-This software package is developed for the analysis of data collected in [DRAGON](http://dragon.triumf.ca) experiments at [TRIUMF](). The software is intended for experiments run with the "new" (c. 2013) DRAGON data-acquisition system (VME hardware + timestamp coincidence matching).
+This software package is developed for the analysis of data collected in [DRAGON](http://dragon.triumf.ca) experiments at [TRIUMF](http://www.triumf.ca). The software is intended for experiments run with the "new" (c. 2013) DRAGON data-acquisition system (VME hardware + timestamp coincidence matching).
 
 At it's core, the package is simply a collection of routines to extract ("unpack") the MIDAS data generated during an experiment into a format that is more suitable for human consumption, as well as to perform some of the more basic and commonly needed analysis tasks. From here, users can further process the data using their own codes, or they can interface with a visualization library to view the data in histograms, either online or offline. The core of the package is written in "plain" C++, that is without any dependence on libraries other than the standard library.
 
