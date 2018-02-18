@@ -10,6 +10,7 @@
 /// interactive ROOT session is started. Place this script wherever you want,
 /// but make sure you alter the path in .rootrc accordingly
 
+#ifndef DOXYGEN_SKIP
 {
   cout << "-------------------------------------------------\n";
   cout << "|\t Welcome to ROOT version " << gROOT->GetVersion() << " \t|\n";
@@ -149,3 +150,5 @@
   TColor *tr_blue2     = new TColor(2025,0.121,0.285,0.488);
 
 }
+
+#endif // DOXYGEN_SKIP
