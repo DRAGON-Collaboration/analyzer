@@ -1,7 +1,9 @@
-///
+////////////////////////////////////////////////////////////////////////////////
 /// \file Calibration.cxx
+/// \author G. Christian and D. Connolly
 /// \brief Implements Calibration.hxx
-///
+////////////////////////////////////////////////////////////////////////////////
+
 #include <cstdio>
 #include <cstring>
 #include <sstream>
@@ -237,6 +239,9 @@ void dutils::DsssdCalibrator::GainMatch()
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Run the full calibration
+/// \param ch DSSSD channel
+/// \param grid boolean specifying whether detector is Tengblad or standard
+///        design
 
 void dutils::DsssdCalibrator::FitPeaks(Int_t ch, Bool_t grid)
 {
@@ -269,7 +274,8 @@ void dutils::DsssdCalibrator::FitPeaks(Int_t ch, Bool_t grid)
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Print a summary of the calibration results
-/// \param outfile String specifying a file path for output, default (0) prints to stdout.
+/// \param outfile String specifying a file path for output, default (0) prints
+///        to stdout.
 
 void dutils::DsssdCalibrator::PrintResults(const char* outfile)
 {
@@ -303,7 +309,8 @@ void dutils::DsssdCalibrator::PrintResults(const char* outfile)
 ////////////////////////////////////////////////////////////////////////////////
 /// Print the calibration results (file or stdout) in a format that can be input
 /// into odbedit to update the calibration -- deprecated
-/// \param outfile String specifying a file path for output, default (0) prints to stdout.
+/// \param outfile String specifying a file path for output, default (0) prints
+///        to stdout.
 
 void dutils::DsssdCalibrator::PrintOdb(const char* outfile)
 {
@@ -328,6 +335,8 @@ void dutils::DsssdCalibrator::PrintOdb(const char* outfile)
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Write calibration parameters to json file
+/// \param outfile String specifying a file path for output;
+///        default `$DH/../calibration/dsssdcal.json`
 
 void dutils::DsssdCalibrator::WriteJson(const char* outfile)
 {
@@ -366,6 +375,8 @@ void dutils::DsssdCalibrator::WriteJson(const char* outfile)
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Write calibration parameters to MIDAS Odb
+/// \param json flag to save ODB as a `.json` file
+/// \param json flag to save ODB as a `.xml` file
 
 void dutils::DsssdCalibrator::WriteOdb(Bool_t json, Bool_t xml)
 {
@@ -375,6 +386,8 @@ void dutils::DsssdCalibrator::WriteOdb(Bool_t json, Bool_t xml)
         gSystem->Exec(Form("odbedit -c \"set /dragon/dsssd/variables/adc/offset[%d] %.6g\"\n", i, -GetParams(i).offset / GetParams(i).slope) );
         std::cout << "ATTENTION: gains and offsets written to odb!\n";
     }
+    // Check if $DH is set
+    if(!(gSystem->Getenv("DH")) gSystem->Setenv("DH","PWD")
     // Save current odb state to xml file
     if(xml){
         gSystem->Exec("odbedit -d /dragon/dsssd/variables/adc -c 'save -x dsssdcal.xml'"); // save calibration as xml file in pwd
@@ -392,6 +405,8 @@ void dutils::DsssdCalibrator::WriteOdb(Bool_t json, Bool_t xml)
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Write calibration parameters to xml file
+/// \param outfile String specifying a file path for output;
+///        default `$DH/../calibration/dsssdcal.xml`
 
 void dutils::DsssdCalibrator::WriteXml(const char* outfile)
 {

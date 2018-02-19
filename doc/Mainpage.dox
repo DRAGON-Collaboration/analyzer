@@ -8,13 +8,13 @@
 
 \section intro Introduction
 
-This software package is developed for the analysis of data collected in <a href="dragon.triumf.ca">DRAGON</a> experiments at <a href="http://www.triumf.ca">TRIUMF</a>. The software is intended for experiments run with the "new" (c. 2013) DRAGON data acquisition system (VME hardware + timestamp coincidence matching).
+This software package is developed for the analysis of data collected in [DRAGON](http://dragon.triumf.ca) experiments at [TRIUMF](http://www.triumf.ca). The software is intended for experiments run with the "new" (c. 2013) DRAGON data acquisition system (VME hardware + timestamp coincidence matching).
 
-At its core, the package is simply a collection of routines to extract ("unpack") the <a href="https://midas.triumf.ca">MIDAS</a> data generated during an experiment into a format that is more suitable for human consumption, as well as to perform some of the more basic and commonly needed analysis tasks. From here, users can further process the data using their own codes, or they can interface with a visualization library to view the data in histograms, either online or offline. The core of the package is written in "plain" C++, that is without any dependence on libraries other than the standard library.
+At its core, the package is simply a collection of routines to extract ("unpack") the [MIDAS](https://midas.triumf.ca) data generated during an experiment into a format that is more suitable for human consumption, as well as to perform some of the more basic and commonly needed analysis tasks. From here, users can further process the data using their own codes, or they can interface with a visualization library to view the data in histograms, either online or offline. The core of the package is written in "plain" C++, that is without any dependence on libraries other than the standard library.
 
-In addition to the "core", this package also includes code to interface with the <a href="https://bitbucket.org/tmidas/rootana">rootana</a> data analysis package distributed as part of <a href="https://midas.triumf.ca">MIDAS</a> and the <a href="http://trshare.triumf.ca/~gchristian/rootbeer/doc/html/index.html">rootbeer</a> program for data visualization. Each of these packages is designed for "user friendly" viewing of data in histograms, either from saved files or real-time online data. Both require that a relatively recent version of <a href="http://root.cern.ch">ROOT</a> be installed on your system, and, additionally, <a href="http://midas.psi.ch"> MIDAS</a> must be installed in order to look at online data (offline data viewing should be possible without a MIDAS installation, however).
+In addition to the "core", this package also includes code to interface with the [rootana](https://bitbucket.org/tmidas/rootana) data analysis package distributed as part of [MIDAS](https://midas.triumf.ca) and the [rootbeer](http://trshare.triumf.ca/~gchristian/rootbeer/doc/html/index.html) program for data visualization. Each of these packages is designed for "user friendly" viewing of data in histograms, either from saved files or real-time online data. Both require that a relatively recent version of [ROOT](https://root.cern.ch) be installed on your system, and, additionally, [MIDAS must be installed](https://midas.triumf.ca/MidasWiki/index.php/Installation) in order to look at online data (offline data viewing should be possible without a MIDAS installation, however).
 
-There is also an optional extension to create python wrappers for the DRAGON classes, allowing data to be analyzed in python independent of ROOT/PyRoot. This package is somewhat in the experimental stage at the moment and requires installation of <a href="http://www.boost.org/doc/libs/1_66_0/libs/python/doc/html/index.html"><code>Boost.Python</code></a> to compile the libraries.
+There is also an optional extension to create python wrappers for the DRAGON classes, allowing data to be analyzed in python independent of ROOT/PyRoot. This package is somewhat in the experimental stage at the moment and requires installation of [`Boost.Python`](http://www.boost.org/doc/libs/1_66_0/libs/python/doc/html/index.html) to compile the libraries.
 
 If you have a specific question about package, you may want to check out the  \ref faq "FAQ" to see if it is addresed there.
 
@@ -57,7 +57,7 @@ The "trigger" signal is routed back into the IO32, where it sets off the interna
 
 \subsubsection midas MIDAS
 
-This section gives a brief overview of the MIDAS data format and, more importantly, how it is decoded for DRAGON data analysis. This is in no way exhaustive, and for more information, the reader should consult the <a href="http://midas.triumf.ca">MIDAS documentation page</a>. Readers who are already familiar with the MIDAS data format may wish to skip to the \ref midasbanks "MIDAS Banks" section where the specifics of DRAGON data are discussed.
+This section gives a brief overview of the MIDAS data format and, more importantly, how it is decoded for DRAGON data analysis. This is in no way exhaustive, and for more information, the reader should consult the [MIDAS documentation page](https://midas.triumf.ca/MidasWiki/index.php/Midas_documentation). Readers who are already familiar with the MIDAS data format may wish to skip to the \ref midasbanks "MIDAS Banks" section where the specifics of DRAGON data are discussed.
 
 MIDAS files are first organized into "events". For DRAGON, each event corresponds to a single trigger of the VME system(s). The analysis code handles everything on an event-by-event basis: each event block is fully analyzed before moving onto the next one. This means that the analyzer code needs some way of obtaining the individual blocks of data that correspond to a single event. This is mostly handled using "library" functions provided as part of the MIDAS package - in other words, we let the MIDAS developers handle the details of grabbing each event's data and simply incorporate the functions they have written into our own codes.
 
@@ -65,12 +65,13 @@ Events are obtained in different ways depending on whether we are analyzing "onl
 
 Once we have obtained an event and stored it in a local analysis buffer, the next step is to identify the individual packets containing data from the various VME modules. Actually, there is one important step coming before this: the individual events are placed into a local buffer (a "buffer of buffers") and, after a certain amount of time, pre-analyzed to check for coincidence matches. For more on this, see the section on \ref coincmatch "coincidence matching". As mentioned above, once we have a single, defined event, we need to break it down into packets or "banks" in order to analyze the data from individual VME modules. Each bank contains a header with some unique identifying information about the bank, and from there the actual bank data follow. In the header, each bank is identified by a unique 4-character string. All we have to do, then, is use library routines which search for banks keyed by their ID strings. If the corresponding bank is present within the current event, the routine will return a pointer to the memory address of the beginning of the bank, along with some other relevant information, such as the total amount of data in the event and the type of data being stored.
 
-The actual data are simply a series of bits organized into constant-sized chunks. Each "chunk" is a unique datum (a number), corresponding to one of the <a href="http://en.wikipedia.org/wiki/C_data_types">C/C++ data types</a>. Depending on how the data were written, each number could be the most basic source of information, summarizing everything there is to know about a given parameter, or it could be further sub-divided into smaller pieces of information given by the sequence of bits that make up the number within the computer. If the data are "bitpacked," then typically the code will make use of bit shifting and bit masking operators to extrack the information from the desired bits (more on this in the example below).
+The actual data are simply a series of bits organized into constant-sized chunks. Each "chunk" is a unique datum (a number), corresponding to one of the [C/C++ data types](http://en.wikipedia.org/wiki/C_data_types). Depending on how the data were written, each number could be the most basic source of information, summarizing everything there is to know about a given parameter, or it could be further sub-divided into smaller pieces of information given by the sequence of bits that make up the number within the computer. If the data are "bitpacked," then typically the code will make use of bit shifting and bit masking operators to extrack the information from the desired bits (more on this in the example below).
 
 The only way to know how to properly handle the data is to know ahead of time how the data were written and how their relevant information is written into the various chunks of data making up a MIDAS bank. A typical analysis code will loop over all of the data in the bank, and then decide how to handle it based either on foreknowledge of the exact bank structure or on information contained in specific bits within each word.
 
 As an example, take a slightly modified version of the code to unpack V792 ADC data:
-\code
+
+~~~{.cpp}
 bool vme::V792::unpack(const midas::Event& event, const char* bankName, bool reportMissing)
 {
   bool ret = true; // return value
@@ -107,7 +108,7 @@ bool vme::V792::unpack(const midas::Event& event, const char* bankName, bool rep
   }
   return ret;
 }
-\endcode
+~~~
 
 If you are unfamiliar with C/C++ bit shifting and masking, the line `(*pbuffer >> 24)  & 0x7` might be confusing to you. The basic idea is that you are taking the value of the 32 bits stored at the address pointed to by `pbuffer` (`*pbuffer` extracts the value) and first shifting it by 24 bits, then masking it with the value of `0x7`, that is, extracting only the first three bits, which now correspond to bits 24, 25, 26 since `*pbuffer` has already been shifted by 24 bits to the right. Here is a figure to help visualize the process:
 
@@ -353,7 +354,7 @@ The TSC banks are arranged as follows (all 32-bit unsigned integers).
 
 An important topic related to the TSC bank is the method used to identify singles and coincidence events. As analysis of real-time, online data is quite important for DRAGON experiments, we need a method that is able to handle potential coincident head and tail events arriving at the backend at relatively different times. Since, as mentioned, MIDAS buffers events in the frontend before transferring to the backend via the network, events from each side are received in blocks. Potantially, coincident events could be quite far separated in terms of "event number" arriving at the backend.
 
-The method used to match coincidence and singles events is to buffer every incoming event in a queue, sorted by their trigger time values. In practice, this is done using a <a href="http://www.cplusplus.com/reference/set/multiset/">C++ standard library multiset</a>, as this container was shown to be the most efficient way in which to order events by their trigger time value. Whenever a new event is placed in the queue, the code checks its current "length" in time, that is, it checks the time difference between the beginning of the queue (the earliest event) and the end of the queue (the latest event). If this time difference is greater than a certain value (user programmable), then the code searches for timestamp matches between the earliest event and all other events in the queue. Note that a "match" does not necessairily mean that the trigger times are exactly the same, as this would imply that the heavy ion and @htmlonly &gamma;-ray @endhtmlonly were detected at exactly the same time, which is impossible for a real coincidence since the heavy ion must travel for a finite amount of time (~3 @htmlonly &mu;s @endhtmlonly). Thus, we define a "match" as two triggers whose time difference is within a programmable time window. Typically, this window is made significantly larger than the time difference of a true coincidence (~10 @htmlonly &mu;s @endhtmlonly), and further refinements can be made later by applying gates to the data.
+The method used to match coincidence and singles events is to buffer every incoming event in a queue, sorted by their trigger time values. In practice, this is done using a [C++ standard library multiset](http://www.cplusplus.com/reference/set/multiset/), as this container was shown to be the most efficient way in which to order events by their trigger time value. Whenever a new event is placed in the queue, the code checks its current "length" in time, that is, it checks the time difference between the beginning of the queue (the earliest event) and the end of the queue (the latest event). If this time difference is greater than a certain value (user programmable), then the code searches for timestamp matches between the earliest event and all other events in the queue. Note that a "match" does not necessairily mean that the trigger times are exactly the same, as this would imply that the heavy ion and @htmlonly &gamma;-ray @endhtmlonly were detected at exactly the same time, which is impossible for a real coincidence since the heavy ion must travel for a finite amount of time (~3 &mu;s). Thus, we define a "match" as two triggers whose time difference is within a programmable time window. Typically, this window is made significantly larger than the time difference of a true coincidence (~10 &mu;s), and further refinements can be made later by applying gates to the data.
 
 \image html tsmatch.png
 
@@ -367,20 +368,19 @@ This section gives an overwiew of how to obtain and install the latest version o
 
 \subsection dependencies Dependencies
 
-For the "core" functionality, all that you will need is a working C++ compiler; there is no dependence on any third-party libraries. However, you will likely want to make use of the analysis package in ROOT, in which case you will need a fairly recent installation of ROOT on your system. For instructions on installing ROOT, go <a href="http://root.cern.ch/drupal/content/downloading-root">here</a>. It is suggested that you install a relatively recent version of ROOT (say, &ge; 5.30) to ensure combatibilty between the ROOT release and the package code. You will also need to be sure that the `$ROOTSYS` environment variable is set and that `$ROOTSYS/bin` is in your search path. This is typically accomplished by sourcing the `thisroot.sh` or `thisroot.csh` script in `$ROOTSYS/bin` from your startup script (e.g. - `~/.bashrc`).
+For the "core" functionality, all that you will need is a working C++ compiler; there is no dependence on any third-party libraries. However, you will likely want to make use of the analysis package in ROOT, in which case you will need a fairly recent installation of ROOT on your system. For instructions on installing ROOT, go [here](http://root.cern.ch/drupal/content/downloading-root). It is suggested that you install a relatively recent version of ROOT (say, &ge; 5.30) to ensure combatibilty between the ROOT release and the package code. You will also need to be sure that the `$ROOTSYS` environment variable is set and that `$ROOTSYS/bin` is in your search path. This is typically accomplished by sourcing the `thisroot.sh` or `thisroot.csh` script in `$ROOTSYS/bin` from your startup script (e.g. - `~/.bashrc`).
 
 \attention
-__Ubuntu users:__ compiling the DRAGON analyzer package evidently requires `clang` (`sudo apt-get install clang
-clang++`).
+__Ubuntu users:__ compiling the DRAGON analyzer package evidently requires `clang` (`sudo apt-get install clang clang++`).
 
 \note
-The DRAGON analyzer package is now compatible with ROOT6, but ROOT6 functionality should be considered beta until it has been tested more rigorously. Please report bugs to <a href="mailto:dconnolly@triumf.ca">dconnolly@triumf.ca</a> or <a href="https://github.com/DRAGON-Collaboration/analyzer/issues">file an issue here</a>.
+The DRAGON analyzer package is now compatible with ROOT6, but ROOT6 functionality should be considered beta until it has been tested more rigorously. Please report bugs to [dconnolly@triumf.ca](mailto:dconnolly@triumf.ca) or [file an issue here](https://github.com/DRAGON-Collaboration/analyzer/issues).
 
-The optional rootbeer or rootana extensions each require ROOT to be installed (and, of course, the rootana and/or rootbeer packages themselves). To look at _online_ data, you will need MIDAS installed, and, if using the rootana system, <a href="https://daq-plone.triumf.ca/SR/ROODY">roody</a> is required for online histogram viewing.
+The optional rootbeer or rootana extensions each require ROOT to be installed (and, of course, the rootana and/or rootbeer packages themselves). To look at _online_ data, you will need MIDAS installed, and, if using the rootana system, [roody](https://daq-plone.triumf.ca/SR/ROODY) is required for online histogram viewing.
 
 \subsection download Download and Compile
 
-One may obtain the analysis package from the <a href="https://github.com/DRAGON-Collaboration/analyzer">git repository</a> as follows:
+One may obtain the analysis package from the [git repository](https://github.com/DRAGON-Collaboration/analyzer) as follows:
 
 \verbatim
 mkdir -p ~/packages/dragon
@@ -389,7 +389,7 @@ git clone https://github.com/DRAGON-Collaboration/analyzer
 cd analyzer
 \endverbatim
 
-If you do not have git installed or prefer to download a tarball, then visit <a href="https://github.com/DRAGON-Collaboration/analyzer">https://github.com/DRAGON-Collaboration/analyzer</a>, click on the <a href="https://github.com/DRAGON-Collaboration/analyzer/releases">releases link</a> and select the latest release (or an earlier one if you have reason to do so). Click on either the "zip" or the "tar.gz" link to download a zip file or a tarball containing the code.
+If you do not have git installed or prefer to download a tarball, then visit https://github.com/DRAGON-Collaboration/analyzer, click on the [releases link](https://github.com/DRAGON-Collaboration/analyzer/releases) and select the latest release (or an earlier one if you have reason to do so). Click on either the "zip" or the "tar.gz" link to download a zip file or a tarball containing the code.
 
 Once the package is obtained, it is necessary to run a configure script in order to set the appropriate environment variables before compiling. To see a list of options, type:
 
@@ -403,7 +403,7 @@ In most cases, one may simply run
 ./configure
 \endverbatim
 
-At this point, compilation _should_ be as simple as typing `make`. If not, <a href="mailto:dconnolly@triumf.ca">please let me know</a>, and we can try to fix the problem permanently so others do not run into it.
+At this point, compilation _should_ be as simple as typing `make`. If not, [please let me know](mailto:dconnolly@triumf.ca), and we can try to fix the problem permanently so others do not run into it.
 
 Compilation creates a shared library `lib/libDragon.so` (and `lib/libDragon.so.dSYM` if installed on a Mac) as well as an executable `bin/mid2root`. The executable converts MIDAS files to ROOT trees. The library can be loaded into an interactive ROOT session by issuing the following commands:
 
@@ -412,12 +412,12 @@ root[] .include ~/packages/dragon/analyzer/src
 root[] gSystem->Load("~/packages/dragon/analyzer/lib/libDragon.so");
 \endverbatim
 
-It is strongly suggested that you add the appropriate lines to your root logon script if you have one. If you do not, the <a href="https://root.cern.ch/root/htmldoc/guides/users-guide/ROOTUsersGuide.html#environment-setup">proper way to set up your root environment</a> is to create a file entitled `rootlogon.C` in a sensible place (such as `~/packages/root/macros`) and include the following lines in it:
+It is strongly suggested that you add the appropriate lines to your root logon script if you have one. If you do not, the [proper way to set up your root environment](https://root.cern.ch/root/htmldoc/guides/users-guide/ROOTUsersGuide.html#environment-setup) is to create a file entitled `rootlogon.C` in a sensible place (such as `~/packages/root/macros`) and include the following lines in it:
 
-\code
+~~~{.cpp}
 gInterpreter->AddIncludePath(gSystem->ExpandPathName("${HOME}/packages/dragon/analyzer/src"));
 gSystem->Load("${HOME}/packages/dragon/analyzer/lib/libDragon.so");
-\endcode
+~~~
 
 Then create the file `${HOME}/.rootrc` and include the following line in it:
 
@@ -425,7 +425,7 @@ Then create the file `${HOME}/.rootrc` and include the following line in it:
 Rint.Logon: /path/to/your/rootlogon.C
 \endcode
 
-Examples of <a href="rootlogon.C"><code>rootlogon.C</code></a> and <a href=".rootrc"><code>.rootrc</code></a> are given in the `script` directory. This will give you access to all of the dragon classes and functions in the software package from within a ROOT session or macro.
+Examples of [`rootlogon.C`](rootlogon.C) and [`.rootrc`](.rootrc) are given in the `script` directory. This will give you access to all of the dragon classes and functions in the software package from within a ROOT session or macro.
 
 If you are using git and want to stay on top of new releases, just do:
 
@@ -442,9 +442,9 @@ No one has kept up with maintaining the python extension in quite a while and it
 
 If you wish to compile or use the optional (and somewhat experimental) python extension, you will first need to install the `Boost.Python` library. For information on this, see: http://www.boost.org/doc/libs/1_66_0/libs/python/doc/html/index.html
 
-The python libraries rely on code generated by <a href="http://pyplusplus.readthedocs.io/en/latest/index.html"><code>Py++</code></a>, which parses the source files and generates code to be compiled into the python libraries. It should not be necessary  to generate the source code yourself using Py++, as long as the repository is kept up-to-date; however,if you make changes to the dragon analyzer sources, re-generation of the Py++ sources will be necessary in order to safely use the python libraries.
+The python libraries rely on code generated by [`Py++`](http://pyplusplus.readthedocs.io/en/latest/index.html), which parses the source files and generates code to be compiled into the python libraries. It should not be necessary  to generate the source code yourself using Py++, as long as the repository is kept up-to-date; however,if you make changes to the dragon analyzer sources, re-generation of the Py++ sources will be necessary in order to safely use the python libraries.
 
-To compile the python extension, simply `cd` into the py++ directory and type `make`, _after_ having compiled the core dragon library. To be able to use the extensions from any directory, add the following to your bash startup script:
+To compile the python extension, simply `cd` into the py++ directory and type `make`, _after_ having compiled the core dragon library. To be able to use the extensions from any directory, add the following to your bash startup script (e.g. - `~/.bashrc`):
 
 \code
 export PYTHONPATH=${PYTHONPATH}:"$HOME/packages/dragon/analyzer/py++/"
@@ -465,7 +465,7 @@ You can use the python 'help' function (`help dragon`, etc) to see the classes a
 
 \subsection rootana Rootana Online Analyzer
 
-This package includes a library to interface the DRAGON analysis codes with MIDAS's <a href="https://bitbucket.org/tmidas/rootana">rootana</a> system, which allows visualization of online and offline data in histograms. If you are familiar with the "old" DRAGON analyzer, this is essentially the same thing, but with a few added features. To use this analyzer, simply compile with the "USE_ROOTANA" option set to "YES" in the Makefile (of course, for this to work, you will need to have the corresponding MIDAS packages installed on your system). Then run the `anaDragon` executable, either from a shell or by starting it on the MIDAS status page.  To see a list of command line option flags, run with the \c -h flag. To view histograms, you will need to run the 'roody' executable, which should be available on your system if you have MIDAS installed.
+This package includes a library to interface the DRAGON analysis codes with MIDAS's [rootana](https://bitbucket.org/tmidas/rootana) system, which allows visualization of online and offline data in histograms. If you are familiar with the "old" DRAGON analyzer, this is essentially the same thing, but with a few added features. To use this analyzer, simply compile with the "USE_ROOTANA" option set to "YES" in the Makefile (of course, for this to work, you will need to have the corresponding MIDAS packages installed on your system). Then run the `anaDragon` executable, either from a shell or by starting it on the MIDAS status page.  To see a list of command line option flags, run with the \c -h flag. To view histograms, you will need to run the 'roody' executable, which should be available on your system if you have MIDAS installed.
 
 As mentioned, there are a couple feature additions since the previous version of the DRAGON analyzer. The main one is the ability to define histograms and cuts at run-time instead of compile time. The hope is that this will allow for easy and quick changes to be made to the available visualization, even for users who are completely inexperienced with C++.
 
@@ -486,15 +486,15 @@ Now that you know how to specify what file to read the histogram definitions fro
 -# DIR: Create a directory.\n
   The succeeding line should contain the full path of the directory as plain text.\n
   For example:
-  \code
+  ~~~{.cpp}
   DIR:
       histos/gamma
-  \endcode
+  ~~~
   This would create a new directory "histos", with "gamma" as a sub-directory. Note that if you later do
-  \code
+  ~~~{.cpp}
   DIR:
       histos/hion
-  \endcode
+  ~~~
   the "histos" directory would not be re-created; instead, "hion" would be added as a new sub-directory. When you specify a directory, any histogram definitions succeeding it will be members of that directory, until another directory line is encountered. If any histograms are defined before the first "DIR:" command, they will belong to the "top level" directory (e.g. in a TFile, their owning directory will be the TFile itself).
   \n\n
 -# TH1D: Create a 1d histogram.\n
@@ -502,23 +502,23 @@ Now that you know how to specify what file to read the histogram definitions fro
   1) the argument to a TH1D constructor \n
   2) the parameter to display in the histogram.\n
   Example:
-  \code
+  ~~~{.cpp}
   TH1D:
     ("bgo_e0", "Bgo energy, channel 0 [singles]", 256, 0, 4096)
       rootana::gHead.bgo.ecal[0]
-  \endcode
+  ~~~
   (note that the indentations are only for readability, not required). This creates a histogram with name "`bgo_e0`", title "Bgo energy, channel 0 [singles]", and ranging from 0 to 4096 with 256 bins. The parameter to be displayed in the histogram would be rootana::gHead.bgo.ecal[0].
   \n\n
 -# TH2D: Create a 2d histogram.\n
   Succeeding lines are in the same spirit as the 1d case, except a third line is added to specify the y-axis parameter.
   \n
   Example:
-  \code
+  ~~~{.cpp}
   TH2D:
       ("bgo_e1_e0", "Bgo energy 1 vs. 0 [coinc]", 256, 0, 4096, 256, 0, 4096)
       rootana::gCoinc.head.bgo.ecal[1]
       rootana::gCoinc.head.bgo.ecal[0]
-  \endcode
+  ~~~
   Creates a histogram of rootana::gCoinc.head.bgo.ecal[1] [x-axis] vs. rootana::gCoinc.head.bgo.ecal[0] [y-axis].
   \n\n
 -# TH3D Create a 3d histogram.\n
@@ -532,11 +532,11 @@ Now that you know how to specify what file to read the histogram definitions fro
   2) The scaler parameter you want to histogram.
   \n
   Example:
-  \code
+  ~~~{.cpp}
   SCALER:
       ("rate_ch0", "Rate of scaler channel 0", 5000, 0, 5000);
       rootana::gHeadScaler.rate[0]
-  \endcode
+  ~~~
   \n\n
 -# SUMMARY: Create a "summary" histogram, that is a histogram which displays information on multiple channels at once, like this:
   \n
@@ -549,31 +549,31 @@ Now that you know how to specify what file to read the histogram definitions fro
   2) The name of an array that you want to display in the histogram;\n
   3) The number of y-axis bins (should be equal to the length of the array).\n
   Example:
-  \code
+  ~~~{.cpp}
   SUMMARY:
       ("bgo_q", "Bgo energies [singles]", 256, 0, 4096)
       rootana::gHead.bgo.ecal
       30
-  \endcode
+  ~~~
   This would create a summary histogram of the 30 BGO detector energies contained in the rootana::gHead.bgo.ecal array (bgo.ecal[0] -> bgo.ecal[29]).
   \n\n
 -# CUT: Defines a cut.
   \n
   This defines a "cut" or "gate" condition that will be applied to the histogram defined directly before it. The cut condition is specified as a logical condition consisting of rootana::Cut derived classes. For more information on how to define a cut, see the code documentation of the Cut.hxx source file and links therein. As a simple example:
-  \code
+  ~~~{.cpp}
   TH1D:
       ("bgo_e0", "Bgo energy, ch 0 [singles]", 256, 0, 4096)
       rootana::gHead.bgo.ecal[0]
   CUT:
       Less(gHead.bgo.ecal[0], 2000) && Greater(gHead.bgo.ecal[0], 100)
-  \endcode
+  ~~~
   will create the "bgo_e0" histogram displaying bgo.ecal[0], with the condition that bgo.ecal[0] be greater-than 100 and less-than 2000.
   \n\n
   Note that you can also create/use 2d polygon cuts, either by specifying the parameters and (closed) polygon points:
-  \code
+  ~~~{.cpp}
   CUT:
       Cut2D(gHead.bgo.q[0], gHead.bgo.q[1], -2,-2, -2,2, 2,2, 2,-2, -2,-2)
-  \endcode
+  ~~~
   This would create the following cut:
   \n
   \image html cut.png
@@ -582,7 +582,7 @@ Now that you know how to specify what file to read the histogram definitions fro
   \n\n
 -# CMD: Evaluates a series of commands in CINT.\n
   The succeeding lines are a series of C++ statements to be evaluated literally in the CINT interpreter, closed by a line containing only "END". Any objects created within these statements will become available for use in future commands throughout the definition file. Note that each file should only contain one "CMD:" statement (if it contains any), and that it should be the first "active" code within the file. As an example, we could use "CMD:" to define a graphical cut:
-  \code
+  ~~~{.cpp}
   CMD:
     TCutG cutg("cutTest",7);
     cutg.SetVarX("");
@@ -597,19 +597,20 @@ Now that you know how to specify what file to read the histogram definitions fro
     cutg.SetPoint(5,59.3103,79.1525);
     cutg.SetPoint(6,37.8544,70.113);
   END
-  \endcode
+  ~~~
   This cut is then available in future statements; for example to create a Cut2D object to be applied to a histogram
-  \code
+  ~~~
   SUMMARY:
     ("bgo_ecal", "Bgo energies [singles]", 256, 0, 4096)
     rootana::gHead.bgo.ecal 
     30
   CUT:
     Cut2D(gHead.bgo.ecal[0], gHead.bgo.ecal[1], cutg)
-  \endcode
+  ~~~
   The above example would apply the graphical cut "cutg" defined in the "CMD:" statement to the "bgo_ecal" histogram.
 
 With combinations of the above commands, you should hopefully be able to define any histogram-related objects you will need in the online analyzer without ever having to touch the source code. A few more notes about histogram definition files:
+
 - There are five global instances of "top-level" classes which encapsulate all of the relevant data in the experiment. Each class corresponds to a different event type, and is mapped to a different ROOT tree in the output file. As you may have noticed in the examples, these will need to prefix any parameters to be displayed in histograms. They are:
   -# rootana::gHead - "Head" (gamma) singles event
   -# rootana::gTail - "Tail" (heavy-ion( singles event
@@ -620,28 +621,28 @@ With combinations of the above commands, you should hopefully be able to define 
 - White-space is ignored, though good indention improves readability immensely.
 \n
 - The \c # character denotes a comment, all characters on the same line coming after a \c # are ignored:
-\code
+~~~{.cpp}
 # IGNORE THIS HEADER STATEMENT #
 TH1D: #Ignore this descriptive comment also...
-\endcode
+~~~
 
 - The run-time parsing is done using CINT via the \c gROOT->ProcessLine() and `gROOT->ProcessLineFast()` commands. These have very little native error handling. Some support has been added in the DRAGON analyzer to "gracefully" handle common errors when detectable; for example, skipping the current definition and moving onto others, but alerting the user. If you find a case where you feel the error handling could be improved (in particular, where a mistake in the script file causes a crash or un-reported failure), do not hesitate to alert the developers.
 
 Once started, the online analyzer simply runs in the background to receive, match, and analyze events coming from the two separate front-ends. The analyzed data are then summarized in the histograms requested by the user as outlined in the proceeding paragraphs. As mentioned, roody can be used to visualize the histograms as data is coming in. To start roody, you will need to specify the host and port of the histogram server. Usually this means, the following:
-\code
+\verbatim
 roody -Plocalhost:9091
-\endcode
-if running locally from the back-end host, or
-\code
-roody -Pdaenerys.triumf.ca:9091
-\endcode
-if running remotely.
+\endverbatim
 
-Roody is a graphical program, and as such its use is fairly intuitive. When you start the program, you should see something like this:
+if running locally from the back-end host, or
+\verbatim
+roody -Pdaenerys.triumf.ca:9091
+\endverbatim
+
+if running remotely. Roody is a graphical program, and as such its use is fairly intuitive. When you start the program, you should see a graphical outline of the histograms and directory structure you created in your hist definitions file that looks something like this:
 
 \image html roody.png
 
-graphically outlining the histograms and directory structure you created in your hist definitions file. Simply double click on a histogram icon, and a ROOT canvas will be created showing the histogram. You can play around with the menu bars to explore other options, such as canvas refresh rate and canvas configuration.
+Simply double click on a histogram icon, and a ROOT canvas will be created showing the histogram. You can play around with the menu bars to explore other options, such as canvas refresh rate and canvas configuration.
 
 \section developers For Developers
 This section just gives a brief overview behind the package's design and some suggestions for future maintainers/developers. For detailed documentation, see the related Doxygen documentation linked from the top of this page.
@@ -655,23 +656,23 @@ In writing this code, I have tried to adhere to a few design principles. I will 
   \n
   By this I mean separating the "raw" tasks of reading data directly from VME modules from that of organizing the data into parameters which represent more abstract experimental quantities. As a simple example, separate the "raw" task of reading the conversion value of QDC channel 27 from the "abstract" task of realizing that this value corresponds to the energy deposited in BGO detector number 27. The hope is that by de-coupling the two different types of operations, we will gain greater flexibility and re-usability of the code.
   \n
-  To accomplish this, there are separate "vme" classes (under the <a href=namespacevme><b>vme namespace</b></a>) which handle the unpacking of raw vme data. Each vme class contains data fields to store its respective measurements. For example, see the documentation of vme::V792, which represents a CAEN V792 QDC module.
+  To accomplish this, there are separate "vme" classes (under the [__vme namespace__](namespacevme)) which handle the unpacking of raw vme data. Each vme class contains data fields to store its respective measurements. For example, see the documentation of vme::V792, which represents a CAEN V792 QDC module.
 \n\n
 - __Store abstract experiment parameters in classes which logically correspond to the separate pieces of a DRAGON experiment.__
   \n
   The basic idea is that we want to take the important data captured during a DRAGON event and break it down into a tree-like structure. In general, each "branch" of the tree corresponds to a different detector within the DRAGON system, and the various "leaves" correspond to quantities measured by that detector. For example, see the dragon::Coinc documentation and the "Attribute" links therein.
   \n
   Taking this approach allows a couple of practical advantages beyond code organization and maintenance. The main one is that we can use ROOT's dictionary facility to create `TTree`s whith branches defined by the structure of our classes. For example we can just do:
-  \code
+  ~~~{.cpp}
   dragon::Coinc* coinc = new dragon::Coinc();
   TTree tcoinc("tcoinc","Coincidence event");
   tcoinc.Branch("coinc","dragon::Coinc",&coinc);
-  \endcode
+  ~~~
   After just a few lines of code, we now have the ability to access any parameter in a DRAGON coincidence event through the 'tcoinc' tree:
-  \code
+  ~~~{.cpp}
   tcoinc.Draw("coinc.head.bgo.ecal[0]>>hst_e0(400,0,4000)"); // Draws BGO energy, channel 0
   tcoinc.Draw("coinc.tail.mcp.tac>>hst_tac(200,0,2000)"); // Draws MCP TOF
-  \endcode
+  ~~~
   In writing the DRAGON classes, I have not used any sort of inheritance, as there is really no compelling reason to do so (in particular, we have no need for dynamic polymorphism). I have, however, tried to maintain a uniform interface for each of the classes. For example, each detector class has the following three methods:
   \n
   -# `read_data()` - Takes raw data from vme module classes and maps it into the class's internal data structures.
@@ -680,7 +681,7 @@ In writing this code, I have tried to adhere to a few design principles. I will 
 
   \n 
   Developing with a common interface, aside from being "neater" allows for some practical advantages, such as using template "helper" functions to bundle routines used for a variety of different classes. For example:
-  \code
+  ~~~{.cpp}
   template <class T>
   void handle_event(T& detector, const vme::V785 adc[], const vme::V1190& tdc)
   {
@@ -695,9 +696,9 @@ In writing this code, I have tried to adhere to a few design principles. I will 
       handle_event(ic, adc, tdc); // ic is an instance of dragon::IonChamber
       // ... etc ... //
   }
-  \endcode
+  ~~~
   Another feature that I have adhered to is to allow class data members to be public. Although this goes against canonical object oriented good principles, I think the advantages outweight the disadvantages. This is particularly true if we are working in CINT to analyze data.<SUP><a href=#footnotes><b>1</b></a></SUP> For example, with public data, it's trivial to loop over a tree, calculate some new parameter and display it in a histogram. For example, say I want to plot the square of MCP time-of-flight in cases where it is nonzero:
-  \code
+  ~~~{.cpp}
   // Assume prior existance of a TTree 't' containing heavy-ion data
   dragon::Tail tail;
   void* tailAddr = &tail;
@@ -710,51 +711,51 @@ In writing this code, I have tried to adhere to a few design principles. I will 
       }
   }
   hst->Draw();
-  \endcode
+  ~~~
   However, despite the usefulness of public data for scripting use, it is still a good idea to design the _source_ code as if the data were private. This reduces the coupling between the various classes, and as a result making a small change to the structure of one class (or module) is guaranteed not to affect the others. To enforce this, I have defined a macro `PRIVATE` which can be set to be equal to either `private` or `public` in the Makefile and defined all of the class data members under this token.
-  \code
+  ~~~{.cpp}
   class SomeDetector {
   PRIVATE:
     double some_parameter;
     // etc. //
   };
-  \endcode
+  ~~~
   When developing the source code, one should make sure it will compile with PRIVATE=private  - to enforce good class design. Then when set up for "production" mode, switch over to PRIVATE=public to allow direct variable access in CINT (and in the python modules, if used).
   \n
 - __Add a layer of abstraction for commonly performed routines.__
   \n
   For example, to read raw QDC data into the dragon::Bgo class, we \e could do:
   \n
-  \code
+  ~~~{.cpp}
   void dragon::Bgo::read_data(const vme::V792& adc, const vme::V1190& tdc)
   {
       for (int i=0; i< MAX_CHANNELS; ++i) {
         ecal[i] = vme.get_data(variables.adc.channel[i]);
       }
   }
-  \endcode
+  ~~~
   but instead we prefer to do the following, using utils::channel_map() to do the actual mapping.
-  \code
+  ~~~{.cpp}
   void dragon::Bgo::read_data(const vme::V792& adc, const vme::V1190& tdc)
   {
     utils::channel_map(ecal, MAX_CHANNELS, variables.adc.channel, adc);
   }
-  \endcode
-  The main motivation for this is to concentrate the majority of the "heavy lifting" used in various calculations into one place. This helps to reduce the occurrence of bugs due to re-writing of similar code, and if bugs are found to facilitate easier fixes. Most of the "heavy lifting" is done in free functions contained in the <a href=namespaceutils.html>utils</a> namespace, or using <a href="http://www.cplusplus.com/reference/algorithm/">standard library algorithms</a>.	
+  ~~~
+  The main motivation for this is to concentrate the majority of the "heavy lifting" used in various calculations into one place. This helps to reduce the occurrence of bugs due to re-writing of similar code, and if bugs are found to facilitate easier fixes. Most of the "heavy lifting" is done in free functions contained in the [`utils`](namespaceutils.html) namespace, or using [standard library algorithms](http://www.cplusplus.com/reference/algorithm/).	
 
 \subsection conventions Coding Conventions
 
 Finally, there are a few stylistic issues to address. Much of this is just preference, but it would be nice to keep consistency in future code.
 
-- Make use of namespaces to logically group related classes together. For example, all classes representing vme modules are under the <a href=namespacevme>vme</a> namespace, all classes representing dragon detectors or collections of detectors are under the <a href=namespacedragon>dragon</a> namespace, all midas-related stuff under the <a href=namespacemidas>midas</a> namesapce and so on. Source files belonging to a common namespace are grouped into the same subdirectory within `src/`.
+- Make use of namespaces to logically group related classes together. For example, all classes representing vme modules are under the [`vme`](namespacevme.html) namespace, all classes representing dragon detectors or collections of detectors are under the [`dragon`](namespacedragon.html) namespace, all midas-related stuff under the [`midas`](namespacemidas.html) namesapce and so on. Source files belonging to a common namespace are grouped into the same subdirectory within `src/`.
 
 - Class names generally start with a capitol letter and use "CamelCase" when consisting of multiple words. Acronyms are not treated any differently, to avoid confusion; for example `class Dsssd` _not_ `class DSSSD`.
 
-- Class methods and free functions are all lowercase (including acronyms) and use underscores to denote spaces (`some_method` *not* `SomeMethod`).
+- Class methods and free functions are all "CamelCase" (including acronyms) (`SomeMethod` or `SomeFunction` or `SomeMthd`).
 
 - Brackets: for everything except function definitions, keep the opening bracket on the same line and the trailing bracket on a new line:
   \n
-  \code
+  ~~~{.cpp}
   namespace dragon {
 
   class Bgo {
@@ -771,43 +772,43 @@ Finally, there are a few stylistic issues to address. Much of this is just prefe
       }
   // ... //
   }
-  \endcode
+  ~~~
 
 - In any class that might be parsed into a tree structure using rootcint, class members are all lowercase, should be descriptive yet brief when parsing classes into a tree structure, and should *not* use any form of Hungarian notation (as it will conflict with the "nicely descriptive" requirement). This has a practical advantage when we let ROOT parse our classes into a TTree: the brach names make sense and are logical. I would much rather type:
   \n
-  \code
+  ~~~{.cpp}
   t->Draw("head.bgo.ecal[0]");
-  \endcode
+  ~~~
   than
   \n
-  \code
+  ~~~{.cpp}
   t->Draw("gHead.fBgo.fEnergy[0]"); // (following the ROOT / Taligent convention)
-  \endcode
+  ~~~
   For classes that are not intended to be made TTree branches, the ROOT/Taligent hungarian notation can be quite nice, however.
   \n
 - Whenever appropriate, prefer arrays to separate variables. For example, bgo energies are defined as
   \n
-  \code
+  ~~~{.cpp}
   double ecal[MAX_CHANNELS];
-  \endcode
+  ~~~
   instead of
-  \code
+  ~~~{.cpp}
   double ecal0;
   double ecal1;
   // ... //
   double ecal29;
-  \endcode
+  ~~~
   This has a number of practical advantages, such as allowing for loops and std::algorithms to handle the data, and in general it makes life much easier in later analyses as well. It also avoids any issues about whether to start counting at one or zero, since arrays always start from zero.
 
 \subsection doc Documentation
 
 Given the fast turnover rate of developers and the common requirement for "everyday" users (whose level of expertise in the source language ranges from beginner to expert) to understand and modify source code, maintaining quality code documentation is essential for a physics software package to stay maintainable.
 
-As you may have noticed, the present source code has been extensively documented using <a href="http://doxygen.org">Doxygen</a>. I do not claim that the present documentation is perfect by any means, but I hope it is at least a large step in the right direction. If you happen to extend or modify the code base, *please carefully document anything that you do.* If you are not familiar with Doxygen, it is quite intuitive and quick to learn - just follow the example of existing code and/or refer to the manual at the <a href="http://doxygen.org">Doxygen website</a>.
+As you may have noticed, the present source code has been extensively documented using [Doxygen](http://doxygen.org). I do not claim that the present documentation is perfect by any means, but I hope it is at least a large step in the right direction. If you happen to extend or modify the code base, *please carefully document anything that you do.* If you are not familiar with Doxygen, it is quite intuitive and quick to learn - just follow the example of existing code and/or refer to the [Doxygen manual](http://www.stack.nl/~dimitri/doxygen/manual/index.html).
 
 \section footnotes Footnotes
 
-<SUP>1</SUP>Actually, because the dictionary file generated by rootcint uses the  `#define private public` trick to gain access to your class's internals, if you \e don't make all of your class data public you actually end up generating code that is not within the C++ standard and, in theory at least, can lead to undefined behavior! See, for example, <a href="http://www.gotw.ca/gotw/076.htm"><b>this link</b></a> for more on this subject. So, if you want to be as standards compliant as possible, you will have to make all of your class members public.
+<SUP>1</SUP>Actually, because the dictionary file generated by rootcint uses the  `#define private public` trick to gain access to your class's internals, if you \e don't make all of your class data public you actually end up generating code that is not within the C++ standard and, in theory at least, can lead to undefined behavior! See, for example, [__this link__](http://www.gotw.ca/gotw/076.htm) for more on this subject. So, if you want to be as standards compliant as possible, you will have to make all of your class members public.
 
 */
 
