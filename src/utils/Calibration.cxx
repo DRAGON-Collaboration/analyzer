@@ -387,7 +387,7 @@ void dutils::DsssdCalibrator::WriteOdb(Bool_t json, Bool_t xml)
         std::cout << "ATTENTION: gains and offsets written to odb!\n";
     }
     // Check if $DH is set
-    if(!(gSystem->Getenv("DH")) gSystem->Setenv("DH","PWD")
+    if(!(gSystem->Getenv("DH"))) gSystem->Setenv("DH","PWD");
     // Save current odb state to xml file
     if(xml){
         gSystem->Exec("odbedit -d /dragon/dsssd/variables/adc -c 'save -x dsssdcal.xml'"); // save calibration as xml file in pwd
