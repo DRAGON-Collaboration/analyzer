@@ -689,7 +689,7 @@ TTree* dragon::RossumData::GetTree(Int_t runnum, const char* time) const
 }
 
 UDouble_t dragon::RossumData::AverageCurrent(Int_t run, Int_t cup, Int_t iteration,
-																						 Double_t skipBegin, Double_t skipEnd)
+											 Double_t skipBegin, Double_t skipEnd)
 {
 	///
 	/// \param run Run number from which to get cup readings; this will look at the
@@ -772,9 +772,31 @@ UDouble_t dragon::RossumData::AverageCurrent(Int_t run, Int_t cup, Int_t iterati
 
 void dragon::RossumData::ListTrees() const
 {
-	for (TreeMap_t::const_iterator it = fTrees.begin(); it != fTrees.end(); ++it) {
-		std::cout << GetTree_(it)->GetName() << "\t" << GetTree_(it)->GetTitle() << ", DATIME: " << GetTime_(it) << "\n";
-	}
+  for (TreeMap_t::const_iterator it = fTrees.begin(); it != fTrees.end(); ++it) {
+    std::cout << GetTree_(it)->GetName() << "\t" << GetTree_(it)->GetTitle() << ", DATIME: " << GetTime_(it) << "\n";
+  }
+}
+
+std::vector<Int_t>& dragon::RossumData::GetRunsVector() const
+{
+  static std::vector<Int_t> runs;
+  runs.clear();
+
+  for (TreeMap_t::const_iterator it = fTrees.begin(); it != fTrees.end(); ++it) {
+    Bool_t skip = kFALSE;
+    std::string tname = GetTree_(it)->GetName();
+    std::string run = tname.substr(4);
+    std::string::const_iterator it1 = run.begin();
+    while (it1 != run.end()) {
+      if (!(std::isdigit(*it1))) {
+        skip = kTRUE;
+        break;
+      } else ++it1;
+    }
+    if (skip) continue;
+    runs.push_back(it->first);
+  }
+  return runs;
 }
 
 TGraph* dragon::RossumData::PlotTransmission(Int_t* runs, Int_t nruns)
@@ -1033,12 +1055,12 @@ dragon::BeamNorm::RunData* dragon::BeamNorm::GetOrCreateRunData(Int_t runnum)
 
 std::vector<Int_t>& dragon::BeamNorm::GetRuns() const
 {
-	static std::vector<Int_t> runs;
-	runs.clear();
-	for(std::map<Int_t, RunData>::const_iterator it = fRunData.begin(); it != fRunData.end(); ++it) {
-		runs.push_back(it->first);
-	}
-	return runs;
+  static std::vector<Int_t> runs;
+  runs.clear();
+  for(std::map<Int_t, RunData>::const_iterator it = fRunData.begin(); it != fRunData.end(); ++it) {
+    runs.push_back(it->first);
+  }
+  return runs;
 }
 
 UInt_t dragon::BeamNorm::GetParams(const char* param, std::vector<Double_t> *runnum, std::vector<UDouble_t> *parval)
@@ -1084,7 +1106,7 @@ UInt_t dragon::BeamNorm::GetParams(const char* param, std::vector<Double_t> *run
 	return runnum->size();
 }
 
-TGraph* dragon::BeamNorm::Plot(const char* param, Marker_t marker, Color_t markerColor)
+TGraphAsymmErrors* dragon::BeamNorm::Plot(const char* param, Marker_t marker, Color_t markerColor)
 {
 	/// \param param String specifying the parameter to plot, should be a member of
 	///  dragon::BeamNorm::RunData
@@ -1237,6 +1259,7 @@ void null_rundata(dragon::BeamNorm::RunData* rundata) {
 		rundata->nbeam[i] = UDouble_t(0,0);
 	}
 }
+
 const UDouble_t& get_livetime(const std::string& treename, const dragon::BeamNorm::RunData* rundata) {
 	if(!rundata) { }
 	else if(treename == "t1") return rundata->live_time_head;
@@ -1314,10 +1337,11 @@ Long64_t dragon::BeamNorm::Draw(const char* varexp, const char* selection, Optio
 	return fRunDataTree.Draw(varexp, selection, option, nentries, firstentry);
 }
 
-void dragon::BeamNorm::BatchCalculate(TChain* chain, Int_t chargeBeam, Double_t pkLow0, Double_t pkHigh0,
-																			Double_t pkLow1, Double_t pkHigh1,
-																			const char* recoilGate,
-																			Double_t time, Double_t skipBegin, Double_t skipEnd)
+void dragon::BeamNorm::BatchCalculate(TChain* chain, Int_t chargeBeam,
+                                      Double_t pkLow0, Double_t pkHigh0,
+									  Double_t pkLow1, Double_t pkHigh1,
+									  const char* recoilGate,
+									  Double_t time, Double_t skipBegin, Double_t skipEnd)
 {
 	TObjArray* flist = chain->GetListOfFiles();
 	for(Int_t i=0; i< flist->GetEntries(); ++i) {

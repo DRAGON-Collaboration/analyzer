@@ -210,8 +210,10 @@ public:
 	void CloseFile();
 	/// Return the tree containing rossum data for a given run
 	TTree* GetTree(Int_t runnum, const char* time = 0) const;
-	/// List available trees
-	void ListTrees() const;
+    /// List available trees
+    void ListTrees() const;
+    /// List available trees
+    std::vector<Int_t>& GetRunsVector() const;
 	/// Open a rossumData file
 	Bool_t OpenFile(const char* name, Bool_t parse = kTRUE);
 	/// Parse the relevant information from a rossumData file
@@ -390,7 +392,7 @@ public:
 	/// Return a vector of run numbers used in the calculation
 	std::vector<Int_t>& GetRuns() const;
 	/// Plot some parameter as a function of run number
-	TGraph* Plot(const char* param, Marker_t marker = 21, Color_t markerColor = kBlack);
+    TGraphAsymmErrors* Plot(const char* param, Marker_t marker = 21, Color_t markerColor = kBlack);
 	/// Plot some parameter as a function of run number (alt. implementation)
 	TGraphErrors* PlotVal(const TString& valstr, int which = 0,
 												Marker_t marker = 21, Color_t markerColor = kBlack);
