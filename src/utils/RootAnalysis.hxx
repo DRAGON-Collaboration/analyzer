@@ -32,6 +32,7 @@
 
 class TGraph;
 class TGraphErrors;
+class TGraphAsymmErrors;
 
 namespace dragon {
 
@@ -222,7 +223,7 @@ public:
 	Bool_t IsFileOpen() { return fFile.get(); }
 	/// Get the average beam current from a set of cup readings
 	UDouble_t AverageCurrent(Int_t run, Int_t cup, Int_t iteration = 0,
-													 Double_t skipBegin = 10, Double_t skipEnd = 5);
+										Double_t skipBegin = 10, Double_t skipEnd = 5);
 	/// Plot FC4 / FC1 for a series of runs
 	TGraph* PlotTransmission(Int_t* runs, Int_t nruns);
 private:
@@ -458,9 +459,9 @@ public:
 	StoppingPowerCalculator() { }
 	/// Construct a stopping power calculator with parameters
 	StoppingPowerCalculator(Int_t beamCharge, Double_t beamMass, Int_t nmol,
-													Double_t targetLen = 12.3, Double_t targetLenErr = 0.4,
-													Double_t cmd1 = 4.823e-4, Double_t cmd1Err = 7.2345e-7,
-													Double_t temp = 300.);
+											  Double_t targetLen = 12.3, Double_t targetLenErr = 0.4,
+											  Double_t cmd1 = 4.815e-4, Double_t cmd1Err = 7.2345e-7,
+											  Double_t temp = 300.);
 	/// Get the target length
 	UDouble_t GetTargetLength() const { return fTargetLength; } // cm
 	/// Set the target length
@@ -510,7 +511,7 @@ public:
 	static UDouble_t CalculateDensity(UDouble_t pressure, UDouble_t length, Int_t nmol, Double_t temp = 300.);
 	/// Calculate beam energy from MD1 field
 	static UDouble_t CalculateEnergy(Double_t md1, Double_t md1Err, Int_t q, Double_t m,
-																	 Double_t cmag = 4.823e-4, Double_t cmagErr = 0.0015*4.823e-4);
+												   Double_t cmd1 = 4.815e-4, Double_t cmd1Err = 0.0015*4.815e-4);
 private:
 	/// Atomic mass of beam
 	Double_t fBeamMass;

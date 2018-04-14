@@ -850,7 +850,7 @@ void dragon::BeamNorm::ChangeRossumFile(const char* name)
 }
 
 Int_t dragon::BeamNorm::ReadSbCounts(TFile* datafile, Double_t pkLow0, Double_t pkHigh0,
-																		 Double_t pkLow1, Double_t pkHigh1,Double_t time)
+													  Double_t pkLow1, Double_t pkHigh1,Double_t time)
 {
 	///
 	/// Calculates the "R-value" to normalize SB readings to Faraday cup data.
@@ -1990,34 +1990,34 @@ UDouble_t dragon::StoppingPowerCalculator::CalculateDensity(UDouble_t pressure, 
 }
 
 UDouble_t dragon::StoppingPowerCalculator::CalculateEnergy(Double_t md1, Double_t md1Err, Int_t q, Double_t m,
-																													 Double_t cmag, Double_t cmagErr)
+																													 Double_t cmd1, Double_t cmd1Err)
 {
 	///
 	/// Equation used is from Dave H's NIM paper on BGO z-position (includes relativity):
-	/// `E/m = cmag * (qB/m)^2 - [1/(2*u*c^2)] * (E/m)^2`
+	/// `E/m = cmd1 * (qB/m)^2 - [1/(2*u*c^2)] * (E/m)^2`
 	///
 	/// \param md1 MD1 field in Gauss
 	/// \param md1Err Absolute error on MD1 field
 	/// \param q Beam charge state
 	/// \param m Beam mass in AMU
-	/// \param cmag "Magnetic constant" for MD1 in (keV/u)*G^2
-	/// \param cmagErr Absolute error on _cmag_
+	/// \param cmd1 "Magnetic constant" for MD1 in (keV/u)*G^2
+	/// \param cmd1Err Absolute error on _cmd1_
 	///
 	/// \returns Beam energy in keV/u
 
-	UDouble_t ucmag (cmag, cmagErr);
+	UDouble_t ucmd1 (cmd1, cmd1Err);
 
 	Double_t  a = 1/(2*dragon::Constants::AMU());
 	Double_t  b = 1.;
-	UDouble_t c = -1 * ucmag * UDouble_t::pow((Double_t)q * UDouble_t(md1, md1Err) / m, 2);
+	UDouble_t c = -1 * ucmd1 * UDouble_t::pow((Double_t)q * UDouble_t(md1, md1Err) / m, 2);
 
 	return (-b + UDouble_t::sqrt(b*b - 4*a*c)) / (2*a);
 }
 
 dragon::StoppingPowerCalculator::StoppingPowerCalculator(Int_t beamCharge, Double_t beamMass, Int_t nmol,
-																												 Double_t targetLen, Double_t targetLenErr,
-																												 Double_t cmd1, Double_t cmd1Err,
-																												 Double_t temp):
+														      Double_t targetLen, Double_t targetLenErr,
+							                                  Double_t cmd1, Double_t cmd1Err,
+															  Double_t temp):
 	fBeamMass(beamMass),
 	fBeamCharge(beamCharge),
 	fNmol(nmol),
