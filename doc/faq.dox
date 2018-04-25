@@ -539,7 +539,7 @@ root[0] gSystem->Load("LibRIO.so");
   [23]    | `DRA:MD1:RDNMR`        | MD1 NMR probe read back [Gauss]
   [80]    | `DRA:XSLITM:SCALECUR1` | Left horizontal mass slit current read back [A]
   
-  \attention The above channels are the current EPICS channel values (c. Jan. 2016 - present). If you are working with data from another time period, consult the `.xml` files in your data set to find the desired EPICS channel by searching for the "EPICS_NAMES" key array in the Epics ODB tree.
+  \attention The above channels are the current EPICS channel values (circa Jan. 2016 - present). If you are working with data from another time period, consult the `.xml` files in your data set to find the desired EPICS channel by searching for the "EPICS_NAMES" key array in the Epics ODB tree.
 
 */
 
