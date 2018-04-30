@@ -493,7 +493,7 @@ namespace dragon {
 	/// Remove a pressure, energy measurement
 	void RemoveMeasurement(Int_t index);
 	/// Plot energy vs. pressure or density
-	TGraphAsymmErrors* PlotMeasurements(XAxisType_t xaxis = kPRESSURE, YAxisType_t yaxis = kENERGY, Bool_t draw = kTRUE) const;
+	TGraphAsymmErrors* PlotMeasurements(XAxisType_t xaxis = kPRESSURE, YAxisType_t yaxis = kENERGY, Bool_t draw = kTRUE, Bool_t print = kTRUE) const;
 	/// Calculate the `epsilon` parameter - slope of eloss vs. (atoms/cm^2)
 	UDouble_t CalculateEpsilon(TGraphAsymmErrors** plot = 0, UDouble_t* ebeam = 0);
 	/// Calculate the beam energy (intercept of E vs. P)

@@ -31,7 +31,6 @@
 #include "TAtomicMass.h"
 #include "RootAnalysis.hxx"
 
-
 namespace dutils = dragon::utils;
 
 namespace {
@@ -182,11 +181,8 @@ void dragon::MakeChains(const char* prefix, const Int_t* runnumbers, Int_t nruns
     }
 
     chain[0]->SetName(Form("%s0",  prefix));
-    // chain[0]->SetName(Form("%s1",  prefix));
-    // chain[1]->SetName(Form("%s2",  prefix));
     chain[1]->SetName(Form("%s3",  prefix));
     chain[2]->SetName(Form("%s4",  prefix));
-    // chain[4]->SetName(Form("%s5",  prefix));
     chain[3]->SetName(Form("%s20", prefix));
     chain[4]->SetName(Form("%s6",  prefix));
     chain[5]->SetName(Form("%s7",  prefix));
@@ -2070,7 +2066,7 @@ void dragon::StoppingPowerCalculator::RemoveMeasurement(Int_t index)
   }
 }
 
-TGraphAsymmErrors* dragon::StoppingPowerCalculator::PlotMeasurements(XAxisType_t xaxis, YAxisType_t yaxis, Bool_t draw) const
+TGraphAsymmErrors* dragon::StoppingPowerCalculator::PlotMeasurements(XAxisType_t xaxis, YAxisType_t yaxis, Bool_t draw, Bool_t print) const
 {
   ///
   /// \param xaxis Specify the x axis. Valid options are dragon::StoppingPowerCalculator::kPRESSURE (== 0)
@@ -2093,10 +2089,22 @@ TGraphAsymmErrors* dragon::StoppingPowerCalculator::PlotMeasurements(XAxisType_t
     out = PlotUncertainties(fEnergies.size(), x, y);
   }
   if(out) {
-    out->SetMarkerStyle(21);
+    out->SetTitle("");
+    if(xaxis == kPRESSURE){
+      out->GetXaxis()->SetTitle("Pressure [Torr]");
+    } else {
+      out->GetXaxis()->SetTitle("Density [10^{15} atoms / cm^{2}]");
+    }
+    if(yaxis == kENERGY){
+      out->GetYaxis()->SetTitle("Energy [keV / u]");
+    } else {
+      out->GetYaxis()->SetTitle("NMR1 Field [Gauss]");
+    }
+    out->SetMarkerStyle(20);
     out->GetXaxis()->CenterTitle();
     out->GetYaxis()->CenterTitle();
     if(draw) out->Draw("AP");
+    if(print) out->Print();
   }
   return out;
 }
@@ -2107,7 +2115,7 @@ UDouble_t dragon::StoppingPowerCalculator::CalculateEbeam(TGraphAsymmErrors** pl
   /// \param [out] plot Address of a pointer to a TGraph that will contain
   ///  a plot of energy vs. pressure upon successful return. Passing a non-NULL
   ///  plot argument also causes the plot to be drawn with option "AP". The default
-  ///  argument (NULL) bypasses any plotting and simply calculates the epsilon parameter.
+  ///  argument (NULL) bypasses any plotting and simply calculates the beam energy.
   /// \returns The beam energy at zero pressure from a linear fit of E vs. P.
 
   UDouble_t out(0,0);
@@ -2133,13 +2141,13 @@ UDouble_t dragon::StoppingPowerCalculator::CalculateEbeam(TGraphAsymmErrors** pl
   if(plot) {
     *plot = (TGraphAsymmErrors*)g->Clone();
     (*plot)->SetMarkerStyle(20);
-    (*plot)->SetTitle(Form("Beam energy: %.2f +/- %f keV/u;Pressure [Torr];Energy [keV/u]", out.GetNominal(), out.GetErrLow()));
+    (*plot)->SetTitle(Form("Beam energy: %.2f^{+ %.3f}_{-%.3f} keV/u;Pressure [Torr];Energy [keV/u]", out.GetNominal(), out.GetErrHigh(), out.GetErrLow() ) );
     (*plot)->GetXaxis()->CenterTitle();
     (*plot)->GetYaxis()->CenterTitle();
     (*plot)->Draw("AP");
     if(fit.GetFunction()) {
       TF1* ffit2 = (TF1*)fit.GetFunction()->Clone();
-      ffit2->Draw("SAME");
+      ffit2->SetLineColor(4); ffit2->Draw("SAME");
     }
     else std::cerr << "No function!\n";
   }
