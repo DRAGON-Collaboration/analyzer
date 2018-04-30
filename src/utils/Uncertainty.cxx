@@ -4,7 +4,7 @@
 
 
 template <class T>
-T add_quadriture(const T& lhs, const T& rhs)
+T add_quadrature(const T& lhs, const T& rhs)
 {
 	return sqrt(lhs*lhs + rhs*rhs);
 }
@@ -37,11 +37,11 @@ UDouble_t UDouble_t::operator+ (const UDouble_t& rhs) const
 {
 	UDouble_t out (*this);
 
-	out.fErr[0]  = add_quadriture(fErr[0], rhs.fErr[0]);
-	out.fErr[1]  = add_quadriture(fErr[1], rhs.fErr[1]);
+	out.fErr[0]  = add_quadrature(fErr[0], rhs.fErr[0]);
+	out.fErr[1]  = add_quadrature(fErr[1], rhs.fErr[1]);
 
-	out.fSys[0]  = add_quadriture(fSys[0], rhs.fSys[0]);
-	out.fSys[1]  = add_quadriture(fSys[1], rhs.fSys[1]);
+	out.fSys[0]  = add_quadrature(fSys[0], rhs.fSys[0]);
+	out.fSys[1]  = add_quadrature(fSys[1], rhs.fSys[1]);
 
 	out.fNominal += rhs.fNominal;
 
@@ -52,11 +52,11 @@ UDouble_t UDouble_t::operator- (const UDouble_t& rhs) const
 {
 	UDouble_t out (*this);
 
-	out.fErr[0]  = add_quadriture(fErr[0], rhs.fErr[0]);
-	out.fErr[1] = add_quadriture(fErr[1], rhs.fErr[1]);
+	out.fErr[0]  = add_quadrature(fErr[0], rhs.fErr[0]);
+	out.fErr[1] = add_quadrature(fErr[1], rhs.fErr[1]);
 
-	out.fSys[0]  = add_quadriture(fSys[0], rhs.fSys[0]);
-	out.fSys[1] = add_quadriture(fSys[1], rhs.fSys[1]);
+	out.fSys[0]  = add_quadrature(fSys[0], rhs.fSys[0]);
+	out.fSys[1] = add_quadrature(fSys[1], rhs.fSys[1]);
 
 	out.fNominal -= rhs.fNominal;
 
@@ -67,11 +67,11 @@ UDouble_t UDouble_t::operator* (const UDouble_t& rhs) const
 {
 	UDouble_t out (*this);
 
-	double lowRel  = add_quadriture(GetRelErrLow(),  rhs.GetRelErrLow());
-	double highRel = add_quadriture(GetRelErrHigh(), rhs.GetRelErrHigh());
+	double lowRel  = add_quadrature(GetRelErrLow(),  rhs.GetRelErrLow());
+	double highRel = add_quadrature(GetRelErrHigh(), rhs.GetRelErrHigh());
 
-	double lowRelS  = add_quadriture(GetRelSysErrLow(),  rhs.GetRelSysErrLow());
-	double highRelS = add_quadriture(GetRelSysErrHigh(), rhs.GetRelSysErrHigh());
+	double lowRelS  = add_quadrature(GetRelSysErrLow(),  rhs.GetRelSysErrLow());
+	double highRelS = add_quadrature(GetRelSysErrHigh(), rhs.GetRelSysErrHigh());
 
 	out.SetNominal(fNominal * rhs.fNominal);
 
@@ -87,11 +87,11 @@ UDouble_t UDouble_t::operator/ (const UDouble_t& rhs) const
 {
 	UDouble_t out (*this);
 
-	double lowRel  = add_quadriture(GetRelErrLow(),  rhs.GetRelErrLow());
-	double highRel = add_quadriture(GetRelErrHigh(), rhs.GetRelErrHigh());
+	double lowRel  = add_quadrature(GetRelErrLow(),  rhs.GetRelErrLow());
+	double highRel = add_quadrature(GetRelErrHigh(), rhs.GetRelErrHigh());
 
-	double lowRelS  = add_quadriture(GetRelSysErrLow(),  rhs.GetRelSysErrLow());
-	double highRelS = add_quadriture(GetRelSysErrHigh(), rhs.GetRelSysErrHigh());
+	double lowRelS  = add_quadrature(GetRelSysErrLow(),  rhs.GetRelSysErrLow());
+	double highRelS = add_quadrature(GetRelSysErrHigh(), rhs.GetRelSysErrHigh());
 
 	out.SetNominal(fNominal / rhs.fNominal);
 
@@ -174,13 +174,13 @@ UDouble_t UDouble_t::pow(const UDouble_t& z, double x)
 {
 	UDouble_t out = z;
 
-	out.fNominal = ::pow(z.fNominal, x);
+	out.fNominal  = ::pow(z.fNominal, x);
 
-	out.fErr[0] = fabs(out.fNominal * fabs(x) * z.fErr[0]  / z.fNominal);
-	out.fErr[1] = fabs(out.fNominal * fabs(x) * z.fErr[1] / z.fNominal);
+	out.fErr[0]   = fabs(out.fNominal * fabs(x) * z.fErr[0]  / z.fNominal);
+	out.fErr[1]   = fabs(out.fNominal * fabs(x) * z.fErr[1] / z.fNominal);
 
-	out.fSys[0] = fabs(out.fNominal * fabs(x) * z.fSys[0]  / z.fNominal);
-	out.fSys[1] = fabs(out.fNominal * fabs(x) * z.fSys[1] / z.fNominal);
+	out.fSys[0]   = fabs(out.fNominal * fabs(x) * z.fSys[0]  / z.fNominal);
+	out.fSys[1]   = fabs(out.fNominal * fabs(x) * z.fSys[1] / z.fNominal);
 
 	return out;
 }
@@ -189,13 +189,13 @@ UDouble_t UDouble_t::pow(double x, const UDouble_t& z)
 {
 	UDouble_t out = z;
 
-	out.fNominal = ::pow(x, z.fNominal);
+	out.fNominal  = ::pow(x, z.fNominal);
 
-	out.fErr[0]  = fabs(out.fNominal * ::log(x) * z.fErr[0]);
-	out.fErr[1] = fabs(out.fNominal * ::log(x) * z.fErr[1]);
+	out.fErr[0]   = fabs(out.fNominal * ::log(x) * z.fErr[0]);
+	out.fErr[1]   = fabs(out.fNominal * ::log(x) * z.fErr[1]);
 
-	out.fSys[0]  = fabs(out.fNominal * ::log(x) * z.fSys[0]);
-	out.fSys[1] = fabs(out.fNominal * ::log(x) * z.fSys[1]);
+	out.fSys[0]   = fabs(out.fNominal * ::log(x) * z.fSys[0]);
+	out.fSys[1]   = fabs(out.fNominal * ::log(x) * z.fSys[1]);
 
 	return out;
 }
@@ -204,13 +204,13 @@ UDouble_t UDouble_t::log(const UDouble_t& z)
 {
 	UDouble_t out = z;
 
-	out.fErr[1]  = z.fErr[1]  / z.fNominal;
-	out.fErr[1] = z.fErr[1] / z.fNominal;
+	out.fErr[1]   = z.fErr[1]  / z.fNominal;
+	out.fErr[1]   = z.fErr[1] / z.fNominal;
 
-	out.fSys[1]  = z.fSys[1]  / z.fNominal;
-	out.fSys[1] = z.fSys[1] / z.fNominal;
+	out.fSys[1]   = z.fSys[1]  / z.fNominal;
+	out.fSys[1]   = z.fSys[1] / z.fNominal;
 
-	out.fNominal = ::log(z.fNominal);
+	out.fNominal  = ::log(z.fNominal);
 
 	return out;
 }
@@ -219,13 +219,13 @@ UDouble_t UDouble_t::exp(const UDouble_t& z)
 {
 	UDouble_t out = z;
 
-	out.fNominal = ::exp(z.fNominal);
+	out.fNominal  = ::exp(z.fNominal);
 
-	out.fErr[1]  = z.fErr[1]  / out.fNominal;
-	out.fErr[1] = z.fErr[1] / out.fNominal;
+	out.fErr[1]   = z.fErr[1]  / out.fNominal;
+	out.fErr[1]   = z.fErr[1] / out.fNominal;
 
-	out.fSys[1]  = z.fSys[1]  / out.fNominal;
-	out.fSys[1] = z.fSys[1] / out.fNominal;
+	out.fSys[1]   = z.fSys[1]  / out.fNominal;
+	out.fSys[1]   = z.fSys[1] / out.fNominal;
 
 	return out;
 }
@@ -271,8 +271,8 @@ TGraphAsymmErrors* PlotUncertainties(Int_t npoints, const Double_t* x, const UDo
 		nom[i]  = y[i].GetNominal();
 		xerrl[i] = 0;
 		xerrh[i] = 0;
-		yerrl[i] = add_quadriture(y[i].GetErrLow(),  y[i].GetSysErrLow());
-		yerrh[i] = add_quadriture(y[i].GetErrHigh(), y[i].GetSysErrHigh());
+		yerrl[i] = add_quadrature(y[i].GetErrLow(),  y[i].GetSysErrLow());
+		yerrh[i] = add_quadrature(y[i].GetErrHigh(), y[i].GetSysErrHigh());
 	}
 
 	TGraphAsymmErrors* out = new TGraphAsymmErrors(npoints, x, nom, xerrl, xerrh, yerrl, yerrh);
@@ -297,10 +297,10 @@ TGraphAsymmErrors* PlotUncertainties(Int_t npoints, const UDouble_t* x, const UD
 	for(Int_t i=0; i< npoints; ++i) {
 		xnom[i]  = x[i].GetNominal();
 		ynom[i]  = y[i].GetNominal();
-		xerrl[i] = add_quadriture(x[i].GetErrLow(),  x[i].GetSysErrLow());
-		xerrh[i] = add_quadriture(x[i].GetErrHigh(), x[i].GetSysErrHigh());
-		yerrl[i] = add_quadriture(y[i].GetErrLow(),  y[i].GetSysErrLow());
-		yerrh[i] = add_quadriture(y[i].GetErrHigh(), y[i].GetSysErrHigh());
+		xerrl[i] = add_quadrature(x[i].GetErrLow(),  x[i].GetSysErrLow());
+		xerrh[i] = add_quadrature(x[i].GetErrHigh(), x[i].GetSysErrHigh());
+		yerrl[i] = add_quadrature(y[i].GetErrLow(),  y[i].GetSysErrLow());
+		yerrh[i] = add_quadrature(y[i].GetErrHigh(), y[i].GetSysErrHigh());
 	}
 
 	TGraphAsymmErrors* out = new TGraphAsymmErrors(npoints, xnom, ynom, xerrl, xerrh, yerrl, yerrh);
