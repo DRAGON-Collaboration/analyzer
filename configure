@@ -65,6 +65,7 @@ CINT=$PWD/cint
 DRLIB=$PWD/lib
 TEST=$PWD/test
 
+# check platform and architecture
 if [ $UNAME == Linux ]; then
     DIST=`lsb_release -si | awk '{print $1}'`
     echo "Distribution...$DIST"
@@ -196,9 +197,25 @@ if [ $USE_ROOT == "YES" ]; then
     echo "### USE_ROOT ###" >> config.mk
     echo "DEFINITIONS     += -DUSE_ROOT" >> config.mk
     RC=root-config
+    # configure installation for ROOT
+    # check root build dependencies
     ROOTSYS=`$RC --prefix`
     ROOTVERSION=`$RC --version`
     ROOTMAJORVERSION=`$RC --version | awk -F. '{print $1}'`
+    echo "USE_ROOT...YES"
+    echo "ROOT Version...$ROOTVERSION"
+    echo -n "ROOT has required build dependencies..."
+    if [ `$RC --has-xml` != "yes" ]; then
+        echo "__ERROR__: DRAGON Analyzer requires ROOT to be built with xml"
+        rm -rf config.mk
+        exit 1
+    fi
+    if [ `$RC --has-minuit2` != "yes" ]; then
+        echo "__ERROR__: DRAGON Analyzer requires ROOT to be built with minuit2"
+        rm -rf config.mk
+        exit 1
+    fi
+    echo "YES"
     if [ $ROOTMAJORVERSION == 6 ];then
         ROOTCINT=rootcling
     else
@@ -226,8 +243,6 @@ if [ $USE_ROOT == "YES" ]; then
             echo "include $MKARCH" >> config.mk
         fi
     fi
-    echo "USE_ROOT...YES"
-    echo "ROOT Version...$ROOTVERSION"
 else
     echo "USE_ROOT...NO"
 fi
