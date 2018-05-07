@@ -211,8 +211,10 @@ namespace dragon {
 	void CloseFile();
 	/// Return the tree containing rossum data for a given run
 	TTree* GetTree(Int_t runnum, const char* time = 0) const;
-	/// List available trees
-	void ListTrees() const;
+    /// List available trees
+    void ListTrees() const;
+    /// List available trees
+    std::vector<Int_t>& GetRunsVector() const;
 	/// Open a rossumData file
 	Bool_t OpenFile(const char* name, Bool_t parse = kTRUE);
 	/// Parse the relevant information from a rossumData file
@@ -391,7 +393,7 @@ namespace dragon {
 	/// Return a vector of run numbers used in the calculation
 	std::vector<Int_t>& GetRuns() const;
 	/// Plot some parameter as a function of run number
-	TGraph* Plot(const char* param, Marker_t marker = 21, Color_t markerColor = kBlack);
+    TGraphAsymmErrors* Plot(const char* param, Marker_t marker = 21, Color_t markerColor = kBlack);
 	/// Plot some parameter as a function of run number (alt. implementation)
 	TGraphErrors* PlotVal(const TString& valstr, int which = 0,
                           Marker_t marker = 21, Color_t markerColor = kBlack);
@@ -456,10 +458,9 @@ namespace dragon {
 	/// Dummy constructor
 	StoppingPowerCalculator() { }
 	/// Construct a stopping power calculator with parameters
-    StoppingPowerCalculator(Int_t beamCharge, Double_t beamMass, Int_t nmol,Double_t temp = 300.,
+    StoppingPowerCalculator(Int_t beamCharge, Double_t beamMass, Int_t nmol, Double_t temp = 300.,
                             Double_t targetLen = 12.3, Double_t targetLenErr = 0.4,
-                            Double_t cmd1 = 4.815e-7,
-                            Double_t cmd1Err = 0.0015*4.815e-7);
+                            Double_t cmd1 = 4.815e-7, Double_t cmd1Err = 0.0015*4.815e-7);
 	/// Get the target length
 	UDouble_t GetTargetLength() const { return fTargetLength; } // cm
 	/// Set the target length

@@ -773,6 +773,28 @@ void dragon::RossumData::ListTrees() const
   }
 }
 
+std::vector<Int_t>& dragon::RossumData::GetRunsVector() const
+{
+  static std::vector<Int_t> runs;
+  runs.clear();
+
+  for (TreeMap_t::const_iterator it = fTrees.begin(); it != fTrees.end(); ++it) {
+    Bool_t skip = kFALSE;
+    std::string tname = GetTree_(it)->GetName();
+    std::string run = tname.substr(4);
+    std::string::const_iterator it1 = run.begin();
+    while (it1 != run.end()) {
+      if (!(std::isdigit(*it1))) {
+        skip = kTRUE;
+        break;
+      } else ++it1;
+    }
+    if (skip) continue;
+    runs.push_back(it->first);
+  }
+  return runs;
+}
+
 TGraph* dragon::RossumData::PlotTransmission(Int_t* runs, Int_t nruns)
 {
   std::vector<Double_t>  gruns;
@@ -841,11 +863,13 @@ Int_t dragon::BeamNorm::ReadSbCounts(TFile* datafile, Double_t pkLow0, Double_t 
   /// \returns The run number of the specified file.
 
   if(!HaveRossumFile()) {
+    std::cout << "\n";
     dutils::Error("BeamNorm::ReadSbCounts", __FILE__, __LINE__)
       << "no rossum file loaded.";
     return 0;
   }
   if(!datafile || datafile->IsZombie()) {
+    std::cout << "\n";
     dutils::Error("BeamNorm::ReadSbCounts", __FILE__, __LINE__)
       << "Invalid datafile: " << datafile;
     return 0;
@@ -854,15 +878,31 @@ Int_t dragon::BeamNorm::ReadSbCounts(TFile* datafile, Double_t pkLow0, Double_t 
   Bool_t haveRunnum = kFALSE;
   Int_t runnum = 0;
   midas::Database* db = static_cast<midas::Database*>(datafile->Get("odbstop"));
-  if(db) haveRunnum = db->ReadValue("/Runinfo/Run number", runnum);
-  if(!db || !haveRunnum) {
+
+  if (db) haveRunnum = db->ReadValue("/Runinfo/Run number", runnum);
+  else {
+    std::cout << "\n";
+    dutils::Warning("BeamNorm::ReadSbCounts", __FILE__, __LINE__)
+      << "MIDAS database at run stop time missing from file " << datafile->GetName() << "\n";
+    midas::Database* dbstart = static_cast<midas::Database*>(datafile->Get("odbstart"));
+    if (dbstart) haveRunnum = dbstart->ReadValue("/Runinfo/Run number", runnum);
+    else {
+      std::cout << "\n";
+      dutils::Error("BeamNorm::ReadSbCounts", __FILE__, __LINE__)
+        << "MIDAS database at run start time missing from file " << datafile->GetName() << "\n";
+      return 0;
+    }
+  }
+  if(!haveRunnum) {
+    std::cout << "\n";
     dutils::Error("BeamNorm::ReadSbCounts", __FILE__, __LINE__)
-      << "couldn't read run number from TFile at " << datafile;
+      << "couldn't read run number from file " << datafile->GetName();
     return 0;
   }
 
   TTree* t3 = static_cast<TTree*>(datafile->Get("t3"));
   if(t3 == 0 || t3->GetListOfBranches()->At(0) == 0) {
+    std::cout << "\n";
     dutils::Error("BeamNorm::ReadSbCounts", __FILE__, __LINE__)
       << "no heavy-ion data tree in file" << datafile->GetName();
     return 0;
@@ -1080,7 +1120,7 @@ UInt_t dragon::BeamNorm::GetParams(const char* param, std::vector<Double_t> *run
   return runnum->size();
 }
 
-TGraph* dragon::BeamNorm::Plot(const char* param, Marker_t marker, Color_t markerColor)
+TGraphAsymmErrors* dragon::BeamNorm::Plot(const char* param, Marker_t marker, Color_t markerColor)
 {
   /// \param param String specifying the parameter to plot, should be a member of
   ///  dragon::BeamNorm::RunData
@@ -1225,21 +1265,25 @@ TGraphErrors* dragon::BeamNorm::PlotNbeam(double sbnorm, int which, Marker_t mar
 }
 
 namespace {
-  void null_rundata(dragon::BeamNorm::RunData* rundata) {
+
+  void null_rundata(dragon::BeamNorm::RunData* rundata)
+  {
 	if(!rundata) return;
 	rundata->nrecoil  = UDouble_t(0,0);
 	for(int i=0; i< NSB; ++i) {
       rundata->yield[i] = UDouble_t(0,0);
       rundata->nbeam[i] = UDouble_t(0,0);
-	}
+    }
   }
+
   const UDouble_t& get_livetime(const std::string& treename, const dragon::BeamNorm::RunData* rundata) {
 	if(!rundata) { }
 	else if(treename == "t1") return rundata->live_time_head;
 	else if(treename == "t3") return rundata->live_time_tail;
 	else if(treename == "t5") return rundata->live_time_coinc;
 	throw rundata;
-  } }
+  }
+}
 
 
 void dragon::BeamNorm::CalculateRecoils(TFile* datafile, const char* treename, const char* gate)
@@ -1310,10 +1354,11 @@ Long64_t dragon::BeamNorm::Draw(const char* varexp, const char* selection, Optio
   return fRunDataTree.Draw(varexp, selection, option, nentries, firstentry);
 }
 
-void dragon::BeamNorm::BatchCalculate(TChain* chain, Int_t chargeBeam, Double_t pkLow0, Double_t pkHigh0,
-                                      Double_t pkLow1, Double_t pkHigh1,
-                                      const char* recoilGate,
-                                      Double_t time, Double_t skipBegin, Double_t skipEnd)
+void dragon::BeamNorm::BatchCalculate(TChain* chain, Int_t chargeBeam,
+                                      Double_t pkLow0, Double_t pkHigh0,
+									  Double_t pkLow1, Double_t pkHigh1,
+									  const char* recoilGate,
+									  Double_t time, Double_t skipBegin, Double_t skipEnd)
 {
   TObjArray* flist = chain->GetListOfFiles();
   for(Int_t i=0; i< flist->GetEntries(); ++i) {
@@ -1985,7 +2030,7 @@ UDouble_t dragon::StoppingPowerCalculator::CalculateEnergy(Double_t md1, Double_
   UDouble_t c = -1*ucmd1*UDouble_t::pow((q*UDouble_t(md1, md1Err) / m), 2);
 
   return 1.e3*(-b + UDouble_t::sqrt(b*b - 4*a*c)) / (2.*a); // relativistic beam energy in keV / u
-  // return 1.e3*ucmd1*UDouble_t::pow(q*UDouble_t(md1, md1Err) / m,2); // non relativistic
+  // return -1.e3*c // non relativistic
 }
 
 dragon::StoppingPowerCalculator::StoppingPowerCalculator(Int_t beamCharge, Double_t beamMass, Int_t nmol,
@@ -2523,7 +2568,8 @@ namespace {
       runs.push_back(*irun++);
 	}
 	return runs;
-  } }
+  }
+}
 
 TGraph* dragon::CrossSectionCalculator::Plot(Marker_t marker, Color_t color)
 {
