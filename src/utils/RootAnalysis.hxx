@@ -383,7 +383,7 @@ public:
 	void CalculateRecoils(TFile* datafile, const char* tree, const char* gate);
 	/// Integrate the surface barrier counts at the beginning and end of a run
 	Int_t ReadSbCounts(TFile* datafile, Double_t pkLow0, Double_t pkHigh0,
-										 Double_t pkLow1, Double_t pkHigh1,Double_t time = 120.);
+										    Double_t pkLow1, Double_t pkHigh1,Double_t time = 120.);
 	/// Read rossum FC4 current
 	void ReadFC4(Int_t runnum, Double_t skipBegin = 10, Double_t skipEnd = 5);
 	/// Calculate R and total beam particles
