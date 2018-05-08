@@ -355,21 +355,18 @@ namespace dragon {
 	};
 
   public:
-	//// Dummy constructor
 	BeamNorm();
-	/// Construct from rossum file
 	BeamNorm(const char* name, const char* rossumFile);
-	/// Switch to a new rossum file
 	void ChangeRossumFile(const char* name);
+    ////////////////////////////////////////////////////////////////////////////////
 	/// Get a pointer to the rossum file
 	RossumData* GetRossumFile() const { return fRossum.get(); }
-	/// Batch calculate over a chain of files
 	void BatchCalculate(TChain* chain, Int_t chargeBeam,
                         Double_t pkLow0, Double_t pkHigh0,
                         Double_t pkLow1, Double_t pkHigh1,
                         const char* recoilGate = 0,
                         Double_t time = 120, Double_t skipBegin = 10, Double_t skipEnd = 5);
-	/// Batch calculate over a chain of files
+	/// BatchCalculate overloaded with non-null recoil gate
 	void BatchCalculate(TChain* chain, Int_t chargeBeam,
                         Double_t pkLow0, Double_t pkHigh0,
                         Double_t pkLow1, Double_t pkHigh1,
@@ -379,32 +376,20 @@ namespace dragon {
       BatchCalculate(chain, chargeBeam, pkLow0, pkHigh0, pkLow1, pkHigh1,
                      recoilGate.GetTitle(), time, skipBegin, skipEnd);
     }
-	/// Calculate the number of recoils per run
 	void CalculateRecoils(TFile* datafile, const char* tree, const char* gate);
-	/// Integrate the surface barrier counts at the beginning and end of a run
 	Int_t ReadSbCounts(TFile* datafile, Double_t pkLow0, Double_t pkHigh0,
                        Double_t pkLow1, Double_t pkHigh1,Double_t time = 120.);
-	/// Read rossum FC4 current
 	void ReadFC4(Int_t runnum, Double_t skipBegin = 10, Double_t skipEnd = 5);
-	/// Calculate R and total beam particles
 	void CalculateNorm(Int_t run, Int_t chargeState);
-	/// Return stored values of run data
 	RunData* GetRunData(Int_t runnum);
-	/// Return a vector of run numbers used in the calculation
 	std::vector<Int_t>& GetRuns() const;
-	/// Plot some parameter as a function of run number
-    TGraphAsymmErrors* Plot(const char* param, Marker_t marker = 21, Color_t markerColor = kBlack);
-	/// Plot some parameter as a function of run number (alt. implementation)
+    TGraphAsymmErrors* Plot(const char* param, Marker_t marker = 20, Color_t markerColor = kBlack);
 	TGraphErrors* PlotVal(const TString& valstr, int which = 0,
-                          Marker_t marker = 21, Color_t markerColor = kBlack);
-	/// Plot number of beam particles with manual sbnorm specification
+                          Marker_t marker = 20, Color_t markerColor = kBlack, Option_t *option = "");
 	TGraphErrors* PlotNbeam(double sbnorm, int which = 0, Marker_t marker = 21, Color_t markerColor = kBlack);
-	/// Draw run data information
 	Long64_t Draw(const char* varexp, const char* selection, Option_t* option = "",
                   Long64_t nentries = 1000000000, Long64_t firstentry = 0);
-	/// TObject overloaded version of Draw()
 	void Draw(Option_t* option) { Draw(option, "", "", 1000000000, 0); }
-	///
 	UDouble_t GetEfficiency(const char* name) const
     {
       std::map<std::string, UDouble_t>::const_iterator i = fEfficiencies.find(name);
@@ -412,7 +397,6 @@ namespace dragon {
     }
 	void SetEfficiency(const char* name, UDouble_t value) { fEfficiencies[name] = value; }
 	void SetEfficiency(const char* name, Double_t value)  { fEfficiencies[name] = UDouble_t(value, 0); }
-	/// Correct for FC4->FC1 transmission changes relative to a single "good" run
 	void CorrectTransmission(Int_t reference);
 	UDouble_t CalculateEfficiency(Bool_t print = kTRUE);
 	UDouble_t CalculateYield(Int_t whichSb, Int_t type = kHiSingles, Bool_t print = kTRUE); // type: 1 = gamma sing., 3 = hi sing. 5 = coinc.

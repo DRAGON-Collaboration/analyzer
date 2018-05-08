@@ -816,9 +816,10 @@ TGraph* dragon::RossumData::PlotTransmission(Int_t* runs, Int_t nruns)
   return out;
 }
 
+/////////////// Class dragon::BeamNorm ///////////////
 
-
-// ============ Class dragon::BeamNorm ============ //
+////////////////////////////////////////////////////////////////////////////////
+/// Default constructor
 
 dragon::BeamNorm::BeamNorm():
   fRunDataTree("t_rundata", ""), fRossum(0)
@@ -826,6 +827,9 @@ dragon::BeamNorm::BeamNorm():
   fRunDataTree.SetMarkerStyle(21);
   fRunDataTree.Branch("rundata", "dragon::BeamNorm::RunData", &fRunDataBranchAddr);
 }
+
+////////////////////////////////////////////////////////////////////////////////
+/// Construct from rossum file
 
 dragon::BeamNorm::BeamNorm(const char* name, const char* rossumFile):
   fRunDataTree("t_rundata", ""), fRossum(0)
@@ -837,6 +841,9 @@ dragon::BeamNorm::BeamNorm(const char* name, const char* rossumFile):
   fRunDataTree.Branch("rundata", "dragon::BeamNorm::RunData", &fRunDataBranchAddr);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// Switch to a new rossum file
+
 void dragon::BeamNorm::ChangeRossumFile(const char* name)
 {
   SetTitle(name);
@@ -845,23 +852,25 @@ void dragon::BeamNorm::ChangeRossumFile(const char* name)
   fRossum.reset(new RossumData(rossumName.c_str(), name));
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// Integrate the surface barrier counts at the beginning and end of a run
+///
+/// Calculates the "R-value" to normalize SB readings to Faraday cup data.
+/// Stores the result in fRunData, they can be accessed by using GetRunData()
+///
+/// \param datafile Pointer to the run's ROOT file
+/// \param pkLow0 Low end of the SB0 good peak
+/// \param pkHigh0 High end of the SB0 good peak
+/// \param pkLow1 Low end of the SB1 good peak
+/// \param pkHigh1 High end of the SB1 good peak
+/// \param time Number of seconds at the beginning of the run to use for
+///  calculating the normalization
+///
+/// \returns The run number of the specified file.
+
 Int_t dragon::BeamNorm::ReadSbCounts(TFile* datafile, Double_t pkLow0, Double_t pkHigh0,
                                      Double_t pkLow1, Double_t pkHigh1,Double_t time)
 {
-  ///
-  /// Calculates the "R-value" to normalize SB readings to Faraday cup data.
-  /// Stores the result in fRunData, they can be accessed by using GetRunData()
-  ///
-  /// \param datafile Pointer to the run's ROOT file
-  /// \param pkLow0 Low end of the SB0 good peak
-  /// \param pkHigh0 High end of the SB0 good peak
-  /// \param pkLow1 Low end of the SB1 good peak
-  /// \param pkHigh1 High end of the SB1 good peak
-  /// \param time Number of seconds at the beginning of the run to use for
-  ///  calculating the normalization
-  ///
-  /// \returns The run number of the specified file.
-
   if(!HaveRossumFile()) {
     std::cout << "\n";
     dutils::Error("BeamNorm::ReadSbCounts", __FILE__, __LINE__)
@@ -1004,6 +1013,9 @@ Int_t dragon::BeamNorm::ReadSbCounts(TFile* datafile, Double_t pkLow0, Double_t 
   return runnum;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// Read rossum FC4 current
+
 void dragon::BeamNorm::ReadFC4(Int_t runnum, Double_t skipBegin, Double_t skipEnd)
 {
   if(!HaveRossumFile()) {
@@ -1019,6 +1031,9 @@ void dragon::BeamNorm::ReadFC4(Int_t runnum, Double_t skipBegin, Double_t skipEn
 
   rundata->fc1 = fRossum->AverageCurrent(runnum, 1, 0, skipBegin, skipEnd);
 }
+
+////////////////////////////////////////////////////////////////////////////////
+/// Calculate R and total beam particles
 
 void dragon::BeamNorm::CalculateNorm(Int_t run, Int_t chargeState)
 {
@@ -1044,6 +1059,9 @@ void dragon::BeamNorm::CalculateNorm(Int_t run, Int_t chargeState)
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// Return stored values of run data
+
 dragon::BeamNorm::RunData* dragon::BeamNorm::GetRunData(Int_t runnum)
 {
   std::map<Int_t, RunData>::iterator i = fRunData.find(runnum);
@@ -1066,6 +1084,9 @@ dragon::BeamNorm::RunData* dragon::BeamNorm::GetOrCreateRunData(Int_t runnum)
   }
   return rundata;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+/// Return a vector of run numbers used in the calculation
 
 std::vector<Int_t>& dragon::BeamNorm::GetRuns() const
 {
@@ -1120,17 +1141,19 @@ UInt_t dragon::BeamNorm::GetParams(const char* param, std::vector<Double_t> *run
   return runnum->size();
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// Plot some parameter as a function of run number
+/// \param param String specifying the parameter to plot, should be a member of
+///  dragon::BeamNorm::RunData
+/// \param marker Marker symbol
+/// \param markerColor Marker color
+/// \returns TGraph pointer containing _param_ vs. run number, responsibility is on the
+///  user to delete this. In case of error, returns 0.
+///
+///  Also draws the returned TGraph in its own window.
+
 TGraphAsymmErrors* dragon::BeamNorm::Plot(const char* param, Marker_t marker, Color_t markerColor)
 {
-  /// \param param String specifying the parameter to plot, should be a member of
-  ///  dragon::BeamNorm::RunData
-  /// \param marker Marker symbol
-  /// \param markerColor Marker color
-  /// \returns TGraph pointer containing _param_ vs. run number, responsibility is on the
-  ///  user to delete this. In case of error, returns 0.
-  ///
-  ///  Also draws the returned TGraph in its own window.
-
   TGraphAsymmErrors* gr = 0;
   std::vector<Double_t>  runnum;
   std::vector<UDouble_t> parval;
@@ -1145,18 +1168,20 @@ TGraphAsymmErrors* dragon::BeamNorm::Plot(const char* param, Marker_t marker, Co
   return gr;
 }
 
-TGraphErrors* dragon::BeamNorm::PlotVal(const TString& valstr, int which, Marker_t marker, Color_t markerColor)
-{
-  /// \param valstr String specifying the parameter to plot, should be a member of
-  ///  dragon::BeamNorm::RunData
-  /// \param which Specifies which array index to plot, ignored if valstr is not an array
-  /// \param marker Marker symbol
-  /// \param markerColor Marker color
-  /// \returns TGraphErrors pointer containing _param_ vs. run number, responsibility is on the
-  ///  user to delete this. In case of error, returns 0.
-  ///
-  ///  Also draws the returned TGraph in its own window.
+////////////////////////////////////////////////////////////////////////////////
+/// Plot some parameter as a function of run number (alt. implementation)
+/// \param valstr String specifying the parameter to plot, should be a member of
+///  dragon::BeamNorm::RunData
+/// \param which Specifies which array index to plot, ignored if valstr is not an array
+/// \param marker Marker symbol
+/// \param markerColor Marker color
+/// \returns TGraphErrors pointer containing _param_ vs. run number, responsibility is on the
+///  user to delete this. In case of error, returns 0.
+///
+///  Also draws the returned TGraph in its own window.
 
+TGraphErrors* dragon::BeamNorm::PlotVal(const TString& valstr, int which, Marker_t marker, Color_t markerColor, Option_t* option)
+{
   std::vector<double> rn, val, err;
   for(size_t i=0; i< GetRuns().size(); ++i) {
     const dragon::BeamNorm::RunData* rd = GetRunData(GetRuns()[i]);
@@ -1236,11 +1261,14 @@ TGraphErrors* dragon::BeamNorm::PlotVal(const TString& valstr, int which, Marker
     gr->SetMarkerStyle(marker);
     gr->SetMarkerColor(markerColor);
     gr->SetLineColor(markerColor);
-    gr->Draw("AP");
+    gr->Draw(option);
   }
 
   return gr;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+/// Plot number of beam particles with manual sbnorm specification
 
 TGraphErrors* dragon::BeamNorm::PlotNbeam(double sbnorm, int which, Marker_t marker, Color_t markerColor)
 {
@@ -1285,6 +1313,9 @@ namespace {
   }
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+/// Calculate the number of recoils per run
 
 void dragon::BeamNorm::CalculateRecoils(TFile* datafile, const char* treename, const char* gate)
 {
@@ -1338,6 +1369,9 @@ void dragon::BeamNorm::CalculateRecoils(TFile* datafile, const char* treename, c
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// Draw run data information
+
 Long64_t dragon::BeamNorm::Draw(const char* varexp, const char* selection, Option_t* option,
                                 Long64_t nentries, Long64_t firstentry)
 {
@@ -1354,6 +1388,8 @@ Long64_t dragon::BeamNorm::Draw(const char* varexp, const char* selection, Optio
   return fRunDataTree.Draw(varexp, selection, option, nentries, firstentry);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// Batch calculate over a chain of files
 void dragon::BeamNorm::BatchCalculate(TChain* chain, Int_t chargeBeam,
                                       Double_t pkLow0, Double_t pkHigh0,
 									  Double_t pkLow1, Double_t pkHigh1,
@@ -1381,17 +1417,19 @@ void dragon::BeamNorm::BatchCalculate(TChain* chain, Int_t chargeBeam,
   std::cout << "\n";
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// Correct for FC4->FC1 transmission changes relative to a single "good" run
+///
+/// Corrects the `yield` and `nbeam` values for each run such that the transmission matches
+/// the reference run.
+///
+/// \param reference Run number of the reference run.
+/// \todo Change `nbeam` to `nbeam_fc4` and `nbeam_fc1` or something like that becuse now it's
+/// confusing to change both yield and nbeam and not explicit enough what's going on.
+///
 
 void dragon::BeamNorm::CorrectTransmission(Int_t reference)
 {
-  ///
-  /// Corrects the `yield` and `nbeam` values for each run such that the transmission matches
-  /// the reference run.
-  ///
-  /// \param reference Run number of the reference run.
-  /// \todo Change `nbeam` to `nbeam_fc4` and `nbeam_fc1` or something like that becuse now it's
-  /// confusing to change both yield and nbeam and not explicit enough what's going on.
-  ///
   RunData* refData = GetRunData(reference);
   if(!refData) {
     std::cerr << "Coundn't find run data for reference run " << reference << "\n";
