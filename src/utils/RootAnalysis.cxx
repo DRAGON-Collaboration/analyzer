@@ -2384,13 +2384,14 @@ UDouble_t dragon::ResonanceStrengthCalculator::CalculateWavelength(UDouble_t ere
   /// \param mtarget Mass of the target in AMU
   /// \returns DeBroglie wavelength in cm.
 
-  Double_t mu = 1000*dragon::Constants::AMU()*mbeam*mtarget / (mbeam + mtarget); // reduced mass in eV/c^2
+  Double_t mu = 1e6*dragon::Constants::AMU()*mbeam*mtarget / (mbeam + mtarget); // reduced mass in eV/c^2
   eres *= 1e3; // keV -> eV
   UDouble_t pc = UDouble_t::sqrt(eres*eres + 2.*eres*mu);
 
-  Double_t hc = TMath::HC() * 1e9 / TMath::Qe(); // eV*nm
+  // Double_t hc = TMath::HC() * 1e9 / TMath::Qe(); // eV*nm
+  Double_t hc = 2*TMath::Pi()*dragon::Constants::HbarC()*1e6; // eV*fm
   UDouble_t lambda = hc / pc; // nm
-  lambda /= 1e7; // cm
+  lambda /= 1e14; // cm
   return lambda;
 }
 
