@@ -258,43 +258,30 @@ namespace dragon {
    */
   class LabCM {
   public:
-	/// Ctor
-	LabCM(int Zbeam, int Abeam, int Ztarget, int Atarget);
-	/// Ctor, w/ CM energy specification
-	LabCM(int Zbeam, int Abeam, int Ztarget, int Atarget, double ecm);
-	/// Ctor, using amu masses
+	LabCM(int Zbeam, int Abeam, int Ztarget, int Atarget, double ecm = 0, int qbeam = 0, int qtarget = 0);
 	LabCM(double mbeam, double mtarget, double ecm = 0.);
 	/// Get CM energy
 	double GetEcm() const { return fTcm; } // keV
-	/// Get beam energy in keV
 	double GetEbeam() const;  // keV
-	/// Get beam energy in keV/u
 	double GetV2beam() const; // keV/u
-	/// Get target frame energy in keV
 	double GetEtarget() const;  // keV
-	/// Get target frame energy in keV/u
 	double GetV2target() const; // keV/u
 	/// Get beam mass in amu
-	double GetM1() const { return fM1 / dragon::Constants::AMU(); }
+	double GetM1() const { return fM1 / (1e3*dragon::Constants::AMU()); }
 	/// Get target mass in amu
-	double GetM2() const { return fM2 / dragon::Constants::AMU(); }
-	/// Set CM energy
+	double GetM2() const { return fM2 / (1e3*dragon::Constants::AMU()); }
 	void SetEcm(double ecm);
-	/// Set beam energy in keV
 	void SetEbeam(double ebeam);
-	/// Set beam energy in keV/u
 	void SetV2beam(double ebeam);
-	/// Set target energy in keV
 	void SetEtarget(double etarget);
-	/// Set target energy in keV/u
 	void SetV2target(double etarget);
 	/// Set beam mass in amu
-	void SetM1(double m1) { fM1 = m1*dragon::Constants::AMU(); }
+	void SetM1(double m1) { fM1 = 1e3*m1*dragon::Constants::AMU(); }
 	/// Set target mass in amu
-	void SetM2(double m2) { fM2 = m2*dragon::Constants::AMU(); }
+	void SetM2(double m2) { fM2 = 1e3*m2*dragon::Constants::AMU(); }
   private:
 	/// Ctor helper
-	void Init(int Zbeam, int Abeam, int Ztarget, int Atarget, double ecm);
+	void Init(int Zbeam, int Abeam, int Ztarget, int Atarget, double ecm, int qbeam, int qtarget);
   private:
 	/// Beam mass [keV/c^2]
 	double fM1;
@@ -659,7 +646,6 @@ namespace dragon {
   /// Class to calculate resonance strength (omega-gamma) from yield & stopping power measurements.
   class ResonanceStrengthCalculator {
   public:
-	/// Ctor
 	ResonanceStrengthCalculator(Double_t eres, Double_t mbeam, Double_t mtarget,
                                 dragon::BeamNorm* beamNorm, UDouble_t epsilon);
 
@@ -683,16 +669,12 @@ namespace dragon {
 	Double_t GetResonanceEnergy() const { return fResonanceEnergy; }    // keV
 	/// Set the resonance energy in keV
 	void SetResonanceEnergy(Double_t mass) { fResonanceEnergy = mass; } // keV
-	/// Calculate total resonance strength from all runs.
 	UDouble_t CalculateResonanceStrength(Int_t whichSb, Int_t type = kHiSingles, Bool_t print = kTRUE); // type: 1 = gamma sing., 3 = hi sing. 5 = coinc.
-
-	/// Plot resonance strength vs. run number
 	TGraph* PlotResonanceStrength(Int_t whichSb);
 
   public:
-	/// Calculate DeBroglie wavelength in the CM system
 	static UDouble_t CalculateWavelength(UDouble_t eres /*keV*/, Double_t mbeam /*amu*/, Double_t mtarget /*amu*/); // cm
-	/// Calculate resonance strength
+	static UDouble_t LambdaSquared(UDouble_t eres /*keV*/, Double_t mbeam /*amu*/, Double_t mtarget /*amu*/); // cm<sup>2</sup>
 	static UDouble_t CalculateResonanceStrength(UDouble_t yield, UDouble_t epsilon, UDouble_t wavelength,
                                                 Double_t mbeam, Double_t mtarget); // eV
 

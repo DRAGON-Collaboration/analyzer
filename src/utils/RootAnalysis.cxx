@@ -2317,27 +2317,31 @@ UDouble_t dragon::StoppingPowerCalculator::CalculateEpsilon(TGraphAsymmErrors** 
 
 
 
-// ================ Class dragon::ResonanceStrengthCalculator ================ //
+/////////////// Class dragon::ResonanceStrengthCalculator ///////////////
 
+////////////////////////////////////////////////////////////////////////////////
+/// Default Ctor
+/// \param eres Resonance energy in keV (center of mass)
+/// \param mbeam Beam mass in amu
+/// \param mtarget Target mass in amu
+/// \param beamNorm Pointer to a constructed dragon::BeamNorm object (takes no ownership)
+/// \param epsilon "Stopping power" in e*cm^2/atom (see dragon::StoppingPowerCalculator)
 
 dragon::ResonanceStrengthCalculator::ResonanceStrengthCalculator(Double_t eres, Double_t mbeam, Double_t mtarget,
                                                                  dragon::BeamNorm* beamNorm, UDouble_t epsilon):
   fBeamNorm(beamNorm), fEpsilon(epsilon), fBeamMass(mbeam), fTargetMass(mtarget), fResonanceEnergy(eres)
 {
-  ///
-  /// \param eres Resonance energy in keV (center of mass)
-  /// \param mbeam Beam mass in amu
-  /// \param mtarget Target mass in amu
-  /// \param beamNorm Pointer to a constructed dragon::BeamNorm object (takes no ownership)
-  /// \param epsilon "Stopping power" in e*cm^2/atom (see dragon::StoppingPowerCalculator)
+
 }
+
+////////////////////////////////////////////////////////////////////////////////
+/// Calculate total resonance strength from all runs.
+/// \param whichSb Specify the surface barrier detector to use
+///  for normalization
+/// \returns Resonance strenght in eV.
 
 UDouble_t dragon::ResonanceStrengthCalculator::CalculateResonanceStrength(Int_t whichSb, Int_t type, Bool_t print)
 {
-  /// \param whichSb Specify the surface barrier detector to use
-  ///  for normalization
-  /// \returns Resonance strenght in eV.
-
   if(!fBeamNorm) return UDouble_t(0,0);
   UDouble_t yield = fBeamNorm->CalculateYield(whichSb, type, print);
   UDouble_t wavelength = CalculateWavelength(fResonanceEnergy, fBeamMass, fTargetMass);
@@ -2345,6 +2349,9 @@ UDouble_t dragon::ResonanceStrengthCalculator::CalculateResonanceStrength(Int_t 
   if(print) std::cout << "Resonance Strength [eV]: " << wg << "\n";
   return wg;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+/// Plot resonance strength vs. run number
 
 TGraph* dragon::ResonanceStrengthCalculator::PlotResonanceStrength(Int_t whichSb)
 {
@@ -2377,13 +2384,15 @@ TGraph* dragon::ResonanceStrengthCalculator::PlotResonanceStrength(Int_t whichSb
 }
 
 
+////////////////////////////////////////////////////////////////////////////////
+/// Calculate the de Broglie Wavelength of the resonance in the CM frame
+/// \param eres Resonance energy in center-of-mass [keV].
+/// \param mbeam Mass of the beam in AMU
+/// \param mtarget Mass of the target in AMU
+/// \returns DeBroglie wavelength in cm.
+
 UDouble_t dragon::ResonanceStrengthCalculator::CalculateWavelength(UDouble_t eres, Double_t mbeam, Double_t mtarget)
 {
-  /// \param eres Resonance energy in center-of-mass [keV].
-  /// \param mbeam Mass of the beam in AMU
-  /// \param mtarget Mass of the target in AMU
-  /// \returns DeBroglie wavelength in cm.
-
   Double_t mu = 1e6*dragon::Constants::AMU()*mbeam*mtarget / (mbeam + mtarget); // reduced mass in eV/c^2
   eres *= 1e3; // keV -> eV
   UDouble_t pc = UDouble_t::sqrt(eres*eres + 2.*eres*mu);
@@ -2391,9 +2400,27 @@ UDouble_t dragon::ResonanceStrengthCalculator::CalculateWavelength(UDouble_t ere
   // Double_t hc = TMath::HC() * 1e9 / TMath::Qe(); // eV*nm
   Double_t hc = 2*TMath::Pi()*dragon::Constants::HbarC()*1e6; // eV*fm
   UDouble_t lambda = hc / pc; // nm
-  lambda /= 1e14; // cm
+  lambda /= 1e13; // cm
   return lambda;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+/// Calculate the square of the de Broglie Wavelength of the resonance in the CM
+/// frame
+/// \param eres Resonance energy in center-of-mass [keV].
+/// \param mbeam Mass of the beam in AMU
+/// \param mtarget Mass of the target in AMU
+/// \returns DeBroglie wavelength in cm<sup>2</sup>.
+
+UDouble_t dragon::ResonanceStrengthCalculator::LambdaSquared(UDouble_t eres, Double_t mbeam, Double_t mtarget)
+{
+  UDouble_t lambda  = CalculateWavelength(eres, mbeam, mtarget);
+  UDouble_t lambda2 = UDouble_t::pow(lambda,2);
+  return lambda2;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// Calculate the resonance strength
 
 UDouble_t dragon::ResonanceStrengthCalculator::CalculateResonanceStrength(UDouble_t yield, UDouble_t epsilon,
                                                                           UDouble_t wavelength,
@@ -2404,100 +2431,110 @@ UDouble_t dragon::ResonanceStrengthCalculator::CalculateResonanceStrength(UDoubl
   return wg;
 }
 
+/////////////// Class dragon::LabCM ///////////////
 
-// ================ class dragon::LabCM ================ //
+////////////////////////////////////////////////////////////////////////////////
+/// Ctor, w/ CM energy specification
+/// Sets beam and target masses from AME12 compilation.
+/// Energies are initially unset, use SetE*() functions to specify an
+/// energy.
+/// \param Zbeam Beam charge
+/// \param Abeam Beam mass number
+/// \param Ztarget Target charge
+/// \param Atarget Target mass number
+/// \param ecm Center-of-mass kinetic energy in keV
+/// \attention Uses "nuclear" (fully ionized) masses.
 
-dragon::LabCM::LabCM(int Zbeam, int Abeam, int Ztarget, int Atarget)
+dragon::LabCM::LabCM(int Zbeam, int Abeam, int Ztarget, int Atarget, double ecm, int qbeam, int qtarget)
 {
-  /// Sets beam and target masses from AME12 compilation.
-  /// Energies are initially unset, use SetE*() functions to specify an
-  /// energy.
-  /// \param Zbeam Beam charge
-  /// \param Abeam Beam mass number
-  /// \param Ztarget Target charge
-  /// \param Atarget Target mass number
-  /// \attention Uses "nuclear" (fully ionized) masses.
-
-  Init(Zbeam, Abeam, Ztarget, Atarget, 0.);
+  Init(Zbeam, Abeam, Ztarget, Atarget, ecm, qbeam, qtarget);
 }
 
-
-dragon::LabCM::LabCM(int Zbeam, int Abeam, int Ztarget, int Atarget, double ecm)
-{
-  /// Sets beam and target masses from AME12 compilation.
-  /// Energies are initially unset, use SetE*() functions to specify an
-  /// energy.
-  /// \param Zbeam Beam charge
-  /// \param Abeam Beam mass number
-  /// \param Ztarget Target charge
-  /// \param Atarget Target mass number
-  /// \param ecm Center-of-mass kinetic energy in keV
-  /// \attention Uses "nuclear" (fully ionized) masses.
-
-  Init(Zbeam, Abeam, Ztarget, Atarget, ecm);
-}
+////////////////////////////////////////////////////////////////////////////////
+/// Ctor, using amu masses
+/// ctor initialized with CM energy
+/// Uses specified masses directly
+/// \param mbeam Beam mass in AMU
+/// \param mtarget Taret mass in AMU
+/// \param ecm Center of mass energy in keV
 
 dragon::LabCM::LabCM(double mbeam, double mtarget, double ecm)
 {
-  /// Uses specified masses directly
-  /// \param mbeam Beam mass in AMU
-  /// \param mtarget Taret mass in AMU
-  /// \param ecm Center of mass energy in keV
   SetM1(mbeam);
   SetM2(mtarget);
   fTcm = ecm;
 }
 
-void dragon::LabCM::Init(int Zbeam, int Abeam, int Ztarget, int Atarget, double ecm)
+////////////////////////////////////////////////////////////////////////////////
+/// Initialize variables
+
+void dragon::LabCM::Init(int Zbeam, int Abeam, int Ztarget, int Atarget, double ecm, int qbeam, int qtarget)
 {
   TAtomicMassTable mt; // AME12
-  fM1 = mt.NuclearMass(Zbeam, Abeam);
-  fM2 = mt.NuclearMass(Ztarget, Atarget);
+  fM1 = mt.IonMass(Zbeam, Abeam, qbeam);
+  fM2 = mt.IonMass(Ztarget, Atarget, qtarget);
   fTcm = ecm;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+/// Set CM energy
+/// \param ecm Center-of-mass kinetic energy in keV
 
 void dragon::LabCM::SetEcm(double ecm)
 {
-  /// \param ecm Center-of-mass kinetic energy in keV
   fTcm = ecm;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// Set lab frame beam energy in keV
+/// \param ebeam Beam energy in keV
+
 void dragon::LabCM::SetEbeam(double ebeam)
 {
-  /// \param ebeam Beam energy in keV
-
   double E1tot = ebeam + fM1; // total energy
   double Ecmtot = sqrt(fM1*fM1 + fM2*fM2 + 2*fM2*E1tot);
   fTcm = Ecmtot - fM1 - fM2;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// Set squred velocity of the beam in keV/u
+/// \param ebeam Beam energy in keV/u
+
 void dragon::LabCM::SetV2beam(double ebeam)
 {
-  /// \param ebeam Beam energy in keV/u
-
   SetEbeam(ebeam*fM1/dragon::Constants::AMU()); // keV/u -> keV
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// Set target frame energy in keV
+/// \param etarget Target energy in keV
+
 void dragon::LabCM::SetEtarget(double etarget)
 {
-  /// \param etarget Target energy in keV
-
   double E2tot = etarget + fM2; // total energy
   double Ecmtot = sqrt(fM1*fM1 + fM2*fM2 + 2*fM1*E2tot);
   fTcm = Ecmtot - fM1 - fM2;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// Set target frame energy in keV/u
+/// \param etarget Target energy in keV/u
+
 void dragon::LabCM::SetV2target(double etarget)
 {
-  /// \param etarget Target energy in keV/u
-
   SetEbeam(etarget*fM2/dragon::Constants::AMU()); // keV/u -> keV
 }
+
+////////////////////////////////////////////////////////////////////////////////
+/// Get squared velocity of the beam in keV / u
 
 double dragon::LabCM::GetV2beam() const
 {
   return GetEbeam() / (fM1/dragon::Constants::AMU());
 }
+
+////////////////////////////////////////////////////////////////////////////////
+/// Get lab frame beam energy in keV
 
 double dragon::LabCM::GetEbeam() const
 {
@@ -2507,10 +2544,16 @@ double dragon::LabCM::GetEbeam() const
   return T1;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// Get target frame squred velocity in keV/u
+
 double dragon::LabCM::GetV2target() const
 {
   return GetEtarget() / (fM2/dragon::Constants::AMU());
 }
+
+////////////////////////////////////////////////////////////////////////////////
+/// Get target frame energy in keV
 
 double dragon::LabCM::GetEtarget() const
 {
@@ -2524,7 +2567,8 @@ double dragon::LabCM::GetEtarget() const
 
 // ============ class dragon::CrossSectionCalculator ============ //
 
-dragon::CrossSectionCalculator::CrossSectionCalculator(dragon::BeamNorm* beamNorm, Int_t nmol, Double_t temp, Double_t targetLen):
+dragon::CrossSectionCalculator::CrossSectionCalculator(dragon::BeamNorm* beamNorm, Int_t nmol,
+                                                         Double_t temp, Double_t targetLen):
   fBeamNorm(beamNorm),
   fNmol(nmol),
   fTemp(temp),
