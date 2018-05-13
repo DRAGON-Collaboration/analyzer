@@ -11,21 +11,27 @@
 
 The table below lists each DRAGON's EPICS device according to its channel number in the Epics ODB tree.
 
-  \attention The device channels listed below are the current EPICS channel values (c. Jan. 2016 - present). If you are workign with data from another time period, consult the `.xml` files in your data set to find the desired EPICS channel by searching for the "EPICS_NAMES" key array in Epics ODB tree:
+  \attention The device channels listed below are the current EPICS channel values (circa Jan. 2016 - present). If you are working with data from another time period, consult the `.xml` files in your data set to find the desired EPICS channel by searching for the "EPICS_NAMES" key array in Epics ODB tree:
 
 ~~~
 <dir name="Epics">
   <dir name="Common">
   Keys in "Common"
-  ...
+  .
+  .
+  .
   </dir>
   <dir name="Variables">
   Keys in "Variables"
-  ...
+  .
+  .
+  .
   </dir>
   <dir name="Statistics">
   Keys in "Statistics"
-  ...
+  .
+  .
+  .
   </dir>
   <dir name="Settings">
     <key name="Command" type="STRING" size="80">status</key>
@@ -41,10 +47,14 @@ The table below lists each DRAGON's EPICS device according to its channel number
       <value index="8">DRA:XSLITM:SCALECUR1</value>
       <value index="9">DRA:XSLITM:SCALECUR2</value>
       <value index="10">DRA:YSLITM:SCALECUR1</value> 
-      ...
+      .
+      .
+      .
     </keyarray>  
     More keys in "Settings"
-    ...
+    .
+    .
+    .
   </dir>
 </dir>
 ~~~

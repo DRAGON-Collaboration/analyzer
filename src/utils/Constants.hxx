@@ -11,27 +11,27 @@
 
 namespace dragon {
 
-/// Class containing useful physical constants as static members
+  /// Class containing useful physical constants as static members
 
-/*! Example use:
- *  \code
- *  std::cout << "The electron charge in coulombs is: " << dragon::Constants::ElectronCharge() << "\n";
- *  \endcode
- *
- *  \attention Future developers: if more constnats are needed, please extend this file rather than hard-coding in your source files.
- *
- *  \note All values taken from 2014 CODATA values:
- *  <a href="http://physics.nist.gov/cuu/Constants/index.html">http://physics.nist.gov/cuu/Constants/index.html</a>
- *  These values should be updated in 2019 when the CODATA values are adjusted to adhere to the
- *  <a href="http://www.bipm.org/en/news/full-stories/2015-01/si-roadmap.html">revision of the International System of Units (SI)</a>.
- *
- *	\todo
- *  consider adding functionality (similar to TAtomicMassTable::ParseFile ) to read and parse a
- *  <a href="http://physics.nist.gov/cuu/Constants/Table/allascii.txt">text file</a> containing physical constant data.
- */
+  /*! Example use:
+   *  \code
+   *  std::cout << "The electron charge in coulombs is: " << dragon::Constants::ElectronCharge() << "\n";
+   *  \endcode
+   *
+   *  \attention Future developers: if more constnats are needed, please extend this file rather than hard-coding in your source files.
+   *
+   *  \note All values taken from 2014 CODATA values:
+   *  <a href="http://physics.nist.gov/cuu/Constants/index.html">http://physics.nist.gov/cuu/Constants/index.html</a>
+   *  These values should be updated in 2019 when the CODATA values are adjusted to adhere to the
+   *  <a href="http://www.bipm.org/en/news/full-stories/2015-01/si-roadmap.html">revision of the International System of Units (SI)</a>.
+   *
+   *	\todo
+   *  consider adding functionality (similar to TAtomicMassTable::ParseFile ) to read and parse a
+   *  <a href="http://physics.nist.gov/cuu/Constants/Table/allascii.txt">text file</a> containing physical constant data.
+   */
 
-class Constants {
-public:
+  class Constants {
+  public:
 
 	////////////////////////////////////////////////////////////////////////////////
 	/// Avogadro's number 6.022140857(74)e23 mol<sup>-1</sup>
@@ -67,19 +67,27 @@ public:
 
 	////////////////////////////////////////////////////////////////////////////////
 	/// Bohr radius in m 0.52917721067(12)
-	static double RohrR() { return 0.52917721067e-10; }
+	static double BohrR() { return 0.52917721067e-10; }
 
 	////////////////////////////////////////////////////////////////////////////////
 	/// Bohr radius uncertainty
-	static double RohrRUnc() { return 0.00000000012e-10; }
+	static double BohrRUnc() { return 0.00000000012e-10; }
 
 	////////////////////////////////////////////////////////////////////////////////
 	/// Boltzmann constant 8.6173303(50)e-5 eV K<sup>-1</sup>
 	static double Boltzmann() { return 8.6173303e-5; }
 
-	////////////////////////////////////////////////////////////////////////////////
-	/// Boltzmann constant uncertainty
-	static double BoltzUnc() { return 0.0000050e-5; }
+    ////////////////////////////////////////////////////////////////////////////////
+    /// Boltzmann constant uncertainty
+    static double BoltzUnc() { return 0.0000050e-5; }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    /// DRAGON MD1 constant 48.15 MeV / T<sup>2</sup>
+    static double CMD1() { return 48.15; }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    /// Absolute uncertainty of DRAGON MD1 constant in MeV / T<sup>2</sup>
+    static double CMD1Unc() { return 0.072225; }
 
 	////////////////////////////////////////////////////////////////////////////////
 	/// Electron charge 1.6021766208(98)e-19 A*s \note Implemented in ROOT's TMath::Qe(), but its value is outdated.
@@ -133,7 +141,7 @@ public:
 	/// standard atm in Torr
 	static double P_std() { return 760; }
 
-};
+  };
 
 } //namespace dragon
 

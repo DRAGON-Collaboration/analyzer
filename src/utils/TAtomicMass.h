@@ -128,9 +128,9 @@ public:
 
 
 	/// Returns the AMU -> keV/c^2 conversion
-	static double AMU() { return 931494.061; } // AMU->keV/c^2
+	static double AMU() { return 931494.0954; } // AMU->keV/c^2
 	/// Returns the electron mass in keV/c^2
-	static double ElectronMass() { return 510.998910; } // keV/c^2
+	static double ElectronMass() { return 510.9989461; } // keV/c^2
 
 private:
 	/// Parses the file defined by <code>file</code> (default <code>AMEPP_DEFAULT_FILE=\"${DRAGONSYS}/src/utils/mass.mas12\"</code>).
