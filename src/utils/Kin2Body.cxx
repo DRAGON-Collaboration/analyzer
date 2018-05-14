@@ -1,7 +1,7 @@
-///
-/// \file RootAnalysis.cxx
-/// \author G. Christian
-/// \brief Implements RootAnalysis.hxx
+////////////////////////////////////////////////////////////////////////////////
+/// \file Kin2Body.cxx
+/// \author D. Connolly
+/// \brief Implements Kin2Body.hxx
 ///
 #include <vector>
 #include <string>
@@ -34,14 +34,21 @@
 namespace dutils = dragon::utils;
 
 ////////////////////////////////////////////////////////////////////////////////
-//////////////////////// Class dragon::Kin2Body ///////////////////////////////////
-/// Helper class for lab -> CM conversions (fully relativistic)
+//////////////////////// Class dragon::Kin2Body ////////////////////////////////
+/// Class for relativistic 2 body reaction kinematics
 /*!
- * Calulations are fully relativistic:
- * For a moving beam (1) and stationary target (2):
- *       Ecm^2 = m1^2 + m2^2 + 2*m2*E1
- * or in terms of kinetic energy:
- *       (Ecm + m1 + m2)^2 = m1^2 + m2^2 + 2*m2*(m1 + T1)
+ * Calculates kinematic relationships for 2 body reactions.
+ * Consider the reaction
+ * \f{equation}{
+ *   m_2(m_1,m_3)m_4
+ * \f}
+ * where, by convention, the projectile with mass \f$m_1\f$ and kinetic energy
+ * \f$T_b\f$ and is incident on a (stationary) target of mass \f$m_2\f$. The
+ * kinematics of this reaction can be described by its (invariant) squared
+ * 4-momentum
+ * \f{equation}{
+ *   S = \left(\sum_i E_i\right)^2 - \left(\sum_i \vec{p}_{i}\right)^2
+ * \f}
  */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -53,13 +60,69 @@ namespace dutils = dragon::utils;
 /// \param Abeam Beam mass number
 /// \param Ztarget Target charge
 /// \param Atarget Target mass number
+/// \param energy beam energy in units corresponding to specified frame string
+/// \param frame string specifying frame / units of beam energy
+/// \param qb charge state of beam (default = 0)
+
+dragon::Kin2Body::Kin2Body(const char* projectile, const char* target, const char* ejectile,
+                           const char* recoil, Double_t energy, const char* frame, Int_t qb)
+{
+  InitCM(projectile, target, ejectile, recoil, energy, frame, qb);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// Ctor, w/ CM energy specification
+/// Sets beam and target masses from AME12 compilation.
+/// Energies are initially unset, use SetE*() functions to specify an
+/// energy.
+/// \param Zb beam proton number
+/// \param Ab beam mass number
+/// \param Zt target proton number
+/// \param At target mass number
+/// \param Ze ejectile proton number
+/// \param Ae ejectile mass number
+/// \param Zr recoil proton number
+/// \param Ar recoil mass number
 /// \param ecm Center-of-mass kinetic energy in keV
-/// \attention Uses "nuclear" (fully ionized) masses.
+/// \param qb beam charge state
 
 dragon::Kin2Body::Kin2Body(Int_t Zb, Int_t Ab, Int_t Zt, Int_t At, Int_t Ze, Int_t Ae,
-                           Int_t Zr, Int_t Ar, Double_t ecm, Int_t qb, Int_t qt)
+                           Int_t Zr, Int_t Ar, Double_t ecm, Int_t qb)
 {
-  Init(Zb, Ab, Zt, At, Ze, Ae, Zr, Ar, ecm, qb, qt);
+  Init(Zb, Ab, Zt, At, Ze, Ae, Zr, Ar, ecm, qb);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// Initialize variables
+
+void dragon::Kin2Body::Init(const char* projectile, const char* target, const char* ejectile,
+                              const char* recoil, Double_t energy, Int_t qb)
+{
+  TAtomicMassTable mt; // AME16
+  TAtomicMassTable::Nucleus_t proj = mt.GetNucleus(projectile);
+  TAtomicMassTable::Nucleus_t tgt  = mt.GetNucleus(target);
+  TAtomicMassTable::Nucleus_t ej   = mt.GetNucleus(ejectile);
+  TAtomicMassTable::Nucleus_t rec  = mt.GetNucleus(recoil);
+  fA1      = proj->fA;
+  fM1      = mt.IonMass(proj->fZ, proj->fZ, qb);
+  fM1amu   = mt.IonMassAMU(proj->fZ, proj->fZ, qb);
+  fM2      = mt.IonMass(tgt->fZ, tgt->fA, 0);
+  fM3      = mt.NuclearMass(ej->fZ, ej->fA);
+  fM4      = mt.NuclearMass(rec->fZ, rec->fA);
+  fQ       = mt.Qvalue(projectile, target, ejectile, recoil, kFALSE);
+  Set4Mom(energy, frame);
+  fPcm     = sqrt( (pow(fS - fM1*fM1 - fM2*fM2, 2) - 4*pow(fM1*fM2, 2) ) / (4*fS) );
+  fPprime  = sqrt( (pow(fS - fM3*fM3 - fM4*fM4, 2) - 4*pow(fM3*fM4, 2) ) / (4*fS) );
+  fChi     = log( (fPcm + sqrt(fM1*fM1+fPcm*fPcm) ) / fM1 );
+  fEcm     = sqrt(fS) - fM1 - fM2;
+  fEx      = fEcm + fQ;
+  fTb      = ( fS - pow(fM1*fM1+fM2*fM2,2) ) / (2*fM1);
+  fTtarget = ( fS - pow(fM1*fM1+fM2*fM2,2) ) / (2*fM2);
+  fTbA     = fTb / proj->fA;
+  fV2      = fTb / fM1amu;
+  if (qb != 0){
+    fBrho  = 3.3356*sqrt(pow(fTb+fM1,2) - fM1*fM1) / (1.e3*qb);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -67,99 +130,56 @@ dragon::Kin2Body::Kin2Body(Int_t Zb, Int_t Ab, Int_t Zt, Int_t At, Int_t Ze, Int
 
 void dragon::Kin2Body::Init(Int_t Zb, Int_t Ab, Int_t Zt, Int_t At, Int_t Ze,
                             Int_t Ae, Int_t Zr, Int_t Ar, Double_t ecm,
-                            Int_t qb, Int_t qt)
+                            Int_t qb)
 {
   TAtomicMassTable mt; // AME16
   fM1     = mt.IonMass(Zb, Ab, qb);
-  fM2     = mt.IonMass(Zt, At, qt);
+  fM2     = mt.IonMass(Zt, At, 0);
   fM3     = mt.NuclearMass(Ze, Ae);
   fM4     = mt.NuclearMass(Zr, Ar);
   fQ      = mt.Qvalue(Zt, At, Zb, Ab, Ze, Ae, kFALSE);
-  fEcm    = ecm;
-  fEx     = SetEx();
-  fS      = Set4Mom();
-  fChi    = SetRapidity();
-  fPcm    = SetPcm();
-  fPprime = SetPcmPrime();
+  SetEcm();
+  SetEx();
+  Set4Mom();
+  SetRapidity();
+  SetPcm();
+  SetPcmPrime();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// Set CM energy
-/// \param ecm Center-of-mass kinetic energy in keV
+/// Set 4-momentum of system
+/// \param energy Energy of beam
+/// \param frame string specifying frame / units of beam energy
 
-void dragon::Kin2Body::SetEcm(Double_t ecm)
+void Set4Mom(Double_t energy, const char* frame)
 {
-  fEcm = ecm;
+  if (frame = "CM"){
+    fS = pow(fM1*fM1 + fM2*fM2 + energy, 2);
+  } else if (frame = "Lab"){
+    fS = pow(fM1*fM1 + fM2*fM2,2) + 2*fM2*energy;
+  } else if (frame = "Target"){
+    fS = pow(fM1*fM1 + fM2*fM2,2) + 2*fM1*energy;
+  } else if (frame = "LabA"){
+    fS = pow(fM1*fM1 + fM2*fM2,2) + 2*fM2*fA1*energy;
+  } else if (frame = "V2"){
+    fS = pow(fM1*fM1 + fM2*fM2,2) + 2*fM2*fM1amu*energy;
+  } else if (frame = "Excitation"){
+    fS = pow(fM1*fM1 + fM2*fM2 + energy-fQ, 2);
+  } else if (frame = "Brho"){
+    fS = pow(fM1*fM1 + fM2*fM2 + energy, 2);
+  } else {
+    cout << "__Error!__: Invalid frame string!\n";
+  }
 }
 
-////////////////////////////////////////////////////////////////////////////////
-/// Set CM momentum of projectile and target
-
-void dragon::Kin2Body::SetPcm()
-{
-  fPcm = sqrt( (pow(fS - fM1*fM1 - fM2*fM2, 2) - 4*pow(fM2*fM2, 2) ) / (4*fS) );
-}
 
 ////////////////////////////////////////////////////////////////////////////////
-/// Set CM momentum of ejectile and recoil
-
-void dragon::Kin2Body::SetPcmPrime()
-{
-  fPprime = sqrt( (pow(fS - fM1*fM1 - fM2*fM2, 2) - 4*pow(fM2*fM2, 2) ) / (4*fS) );
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// Set lab frame beam energy in keV
-/// \param ebeam Beam energy in keV
-
-void dragon::Kin2Body::SetTbeam(Double_t Tb)
-{
-  Double_t E1tot = Tb + fM1; // total energy
-  Double_t Ecmtot = sqrt(fM1*fM1 + fM2*fM2 + 2*fM2*E1tot);
-  fEcm = Ecmtot - fM1 - fM2;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// Set squred velocity of the beam in keV/u
-/// \param ebeam Beam energy in keV/u
-
-void dragon::Kin2Body::SetV2beam(Double_t vb)
-{
-  SetTbeam(vb*fM1/dragon::Constants::AMU()); // keV/u -> keV
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// Set target frame energy in keV
-/// \param etarget Target energy in keV
-
-void dragon::Kin2Body::SetEtarget(Double_t Tt)
-{
-  Double_t E2tot = Tt + fM2; // total energy
-  Double_t Ecmtot = sqrt(fM1*fM1 + fM2*fM2 + 2*fM1*E2tot);
-  fEcm = Ecmtot - fM1 - fM2;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// Set target frame energy in keV/u
-/// \param etarget Target energy in keV/u
-
-void dragon::Kin2Body::SetV2target(Double_t vt)
-{
-  SetTbeam(vt*fM2/dragon::Constants::AMU()); // keV/u -> keV
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// Get Maximum half angle of particle
-/// \param which particle index (1 = projectile, 2 = target, 3 = ejectile,
-///              4 = recoil)
+/// Get maximum cone half angle for ejectile or recoil
+/// \param which index of particle
 
 Double_t dragon::Kin2Body::GetMaxAngle(Int_t which)
 {
-  if (which == 1){
-    return asin(fPprime / (fM1*sinh(fChi)));
-  }else if (which == 2){
-    return asin(fPprime / (fM2*sinh(fChi)));
-  }else if (which == 3){
+  if (which == 3){
     return asin(fPprime / (fM3*sinh(fChi)));
   }else if (which == 4){
     return asin(fPprime / (fM4*sinh(fChi)));
@@ -167,42 +187,4 @@ Double_t dragon::Kin2Body::GetMaxAngle(Int_t which)
     cout << "__Error!__: Invalid particle index (must be between 1 and 4).\n";
     return 0;
   }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// Get squared velocity of the beam in keV / u
-
-Double_t dragon::Kin2Body::GetV2beam() const
-{
-  return GetTbeam() / (fM1/dragon::Constants::AMU());
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// Get lab frame kinetic energy of the beam in keV
-
-Double_t dragon::Kin2Body::GetTbeam() const
-{
-  Double_t Ecm = fEcm + fM1 + fM2; // total energy
-  Double_t E1 = (Ecm*Ecm - fM1*fM1 - fM2*fM2) / (2*fM2); // total energy
-  Double_t T1 = E1 - fM1; // kinetic energy
-  return T1;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// Get target frame squred velocity in keV/u
-
-Double_t dragon::Kin2Body::GetV2target() const
-{
-  return GetEtarget() / (fM2/dragon::Constants::AMU());
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// Get target frame energy in keV
-
-Double_t dragon::Kin2Body::GetEtarget() const
-{
-  Double_t Ecm = fEcm + fM1 + fM2; // total energy
-  Double_t E2 = (Ecm*Ecm - fM1*fM1 - fM2*fM2) / (2*fM1); // total energy
-  Double_t T2 = E2 - fM2; // kinetic energy
-  return T2;
 }
