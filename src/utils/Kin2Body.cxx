@@ -41,49 +41,101 @@ namespace dutils = dragon::utils;
  */
 
 ////////////////////////////////////////////////////////////////////////////////
-/// Ctor, w/ CM energy specification
+/// Default ctor for radiative capture
 /// Sets beam and target masses from AME12 compilation.
 /// Energies are initially unset, use SetE*() functions to specify an
 /// energy.
-/// \param Zbeam Beam charge
-/// \param Abeam Beam mass number
-/// \param Ztarget Target charge
-/// \param Atarget Target mass number
+/// \param projectile string specifying projectile nucleus (e.g. - "7Be", "22Ne", etc.)
+/// \param target string specifying projectile nucleus (e.g. - "p", "1H", "4He", "alpha", etc.)
+/// \param projectile string specifying ejectile nucleus (e.g. - "p", "d", etc.)
+/// \param energy beam energy in units corresponding to specified frame string
+/// \param frame string specifying frame / units of beam energy
+/// \param qb charge state of beam (default = 0)
+
+dragon::Kin2Body::Kin2Body(const char* projectile, const char* target,
+                           double energy, const char* frame, Int_t qb)
+{
+  Init(projectile, target, energy, frame, qb);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// Overloaded Ctor for particle ejectiles
+/// Sets beam and target masses from AME12 compilation.
+/// Energies are initially unset, use SetE*() functions to specify an
+/// energy.
+/// \param projectile string specifying projectile nucleus (e.g. - "7Be", "22Ne", etc.)
+/// \param target string specifying projectile nucleus (e.g. - "p", "1H", "4He", "alpha", etc.)
+/// \param projectile string specifying ejectile nucleus (e.g. - "p", "d", etc.)
 /// \param energy beam energy in units corresponding to specified frame string
 /// \param frame string specifying frame / units of beam energy
 /// \param qb charge state of beam (default = 0)
 
 dragon::Kin2Body::Kin2Body(const char* projectile, const char* target, const char* ejectile,
-                           const char* recoil, double energy, const char* frame, Int_t qb)
+                           double energy, const char* frame, Int_t qb)
 {
-  Init(projectile, target, ejectile, recoil, energy, frame, qb);
+  Init(projectile, target, ejectile, energy, frame, qb);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// Initialize variables
-/// Ctor helper for initializing kinematic quantities
+/// Ctor helper for initializing kinematics variables (radiative capture)
+
+void dragon::Kin2Body::Init(const char* projectile, const char* target,
+                            double energy, const char* frame, Int_t qb)
+{
+  TAtomicMassTable mt; // AME16
+  const TAtomicMassTable::Nucleus_t *proj = mt.GetNucleus(projectile);
+  const TAtomicMassTable::Nucleus_t *tgt  = mt.GetNucleus(target);
+  const TAtomicMassTable::Nucleus_t *rec  = mt.GetNucleus(proj->fZ+tgt->fZ, proj->fA+tgt->fA);
+  fA1      = proj->fA;
+  fM1      = mt.IonMass(proj->fZ, proj->fA, qb) / 1.e3;
+  fM1amu   = mt.IonMassAMU(proj->fZ, proj->fA, qb);
+  fM2      = mt.IonMass(tgt->fZ, tgt->fA, 0) / 1.e3;
+  fM3      = 0;
+  fM4      = mt.IonMass(rec->fZ, rec->fA, 0) / 1.e3;
+  fqb      = qb;
+  fQrxn    = mt.QValue(projectile, target, "g", false) / 1.e3;
+  Set4Mom(energy, frame);
+  fPcm     = sqrt( (pow(fS - fM1*fM1 - fM2*fM2, 2) - 4*pow(fM1*fM2, 2) ) / (4*fS) );
+  fPprime  = sqrt( (pow(fS - fM4*fM4, 2) ) / (4*fS) );
+  fChi     = log( (fPcm + sqrt(fM2*fM2 + fPcm*fPcm) ) / fM2 );
+  fEcm     = sqrt(fS) - fM1 - fM2;
+  fEx      = fEcm + fQrxn;
+  fTb      = ( fS - pow(fM1 + fM2,2) ) / (2*fM2);
+  fPb      = sqrt(pow(fTb,2) + 2*fTb*fM1);
+  fTtgt    = ( fS - pow(fM1 + fM2,2) ) / (2*fM1);
+  fTbA     = fTb / proj->fA;
+  fV2b     = fTb / fM1amu;
+  if (fqb != 0){
+    fBrho  = ( 3.3356 / (1.e3*fqb) )*sqrt( ( (fS - pow(fM1+fM2,2)) / (2*fM2) )*( (fS - pow(fM1+fM2,2)) / (2*fM2) + 2*fM1) );
+  } else {
+    fBrho  = 0;
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// Ctor helper for initializing kinematics variables (particle ejectiles)
 
 void dragon::Kin2Body::Init(const char* projectile, const char* target, const char* ejectile,
-                            const char* recoil, double energy, const char* frame, Int_t qb)
+                            double energy, const char* frame, Int_t qb)
 {
   TAtomicMassTable mt; // AME16
   const TAtomicMassTable::Nucleus_t *proj = mt.GetNucleus(projectile);
   const TAtomicMassTable::Nucleus_t *tgt  = mt.GetNucleus(target);
   const TAtomicMassTable::Nucleus_t *ej   = mt.GetNucleus(ejectile);
-  const TAtomicMassTable::Nucleus_t *rec  = mt.GetNucleus(recoil);
+  const TAtomicMassTable::Nucleus_t *rec  = mt.GetNucleus(proj->fZ+tgt->fZ-ej->fZ, proj->fA+tgt->fA-ej->fA);
   fA1      = proj->fA;
   fM1      = mt.IonMass(proj->fZ, proj->fA, qb) / 1.e3;
   fM1amu   = mt.IonMassAMU(proj->fZ, proj->fA, qb);
   fM2      = mt.IonMass(tgt->fZ, tgt->fA, 0) / 1.e3;
-  fM3      = mt.NuclearMass(ej->fZ, ej->fA) / 1.e3;
+  fM3      = mt.IonMass(ej->fZ, ej->fA, 0) / 1.e3;
   fM4      = mt.NuclearMass(rec->fZ, rec->fA) / 1.e3;
   fqb      = qb;
-  fQrxn    = mt.QValue(projectile, target, ejectile, false);
+  fQrxn    = mt.QValue(projectile, target, ejectile, false) / 1.e3;
   Set4Mom(energy, frame);
   fPcm     = sqrt( (pow(fS - fM1*fM1 - fM2*fM2, 2) - 4*pow(fM1*fM2, 2) ) / (4*fS) );
   fPprime  = sqrt( (pow(fS - fM3*fM3 - fM4*fM4, 2) - 4*pow(fM3*fM4, 2) ) / (4*fS) );
   fPb      = sqrt(pow(fTb,2) + 2*fTb*fM1);
-  fChi     = log( (fPcm + sqrt(fM1*fM1+fPcm*fPcm) ) / fM1 );
+  fChi     = log( (fPcm + sqrt(fM2*fM2 + fPcm*fPcm) ) / fM2 );
   fEcm     = sqrt(fS) - fM1 - fM2;
   fEx      = fEcm + fQrxn;
   fTb      = ( fS - pow(fM1 + fM2,2) ) / (2*fM2);

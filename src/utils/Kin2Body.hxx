@@ -35,7 +35,11 @@ namespace dragon {
 
   class Kin2Body {
   public:
-    Kin2Body(const char* projectile, const char* target, const char* ejectile, const char* recoil,
+    /// Default ctor for radiative capture
+    Kin2Body(const char* projectile, const char* target,
+             double enregy = 0, const char* frame = "CM", int qb = 0);
+    /// Overload ctor for particle ejectiles
+    Kin2Body(const char* projectile, const char* target, const char* ejectile,
              double enregy = 0, const char* frame = "CM", int qb = 0);
 	/// Get CM energy
 	double GetBrho()    const { return fBrho; } // MeV
@@ -53,7 +57,9 @@ namespace dragon {
 	double GetM2() const { return fM2 / (1e3*dragon::Constants::AMU()); }
     double GetMaxAngle(int which);
   // private:
-	void Init(const char* projectile, const char* target, const char* ejectile, const char* recoil,
+	void Init(const char* projectile, const char* target,
+              double energy, const char* frame, int qb);
+	void Init(const char* projectile, const char* target, const char* ejectile,
               double energy, const char* frame, int qb);
     void Set4Mom(double energy, const char* frame);
   // private:
