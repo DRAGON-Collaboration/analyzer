@@ -51,6 +51,7 @@
 #pragma link C++ defined_in ../src/utils/Uncertainty.hxx;
 #pragma link C++ defined_in ../src/utils/TAtomicMass.h;
 #pragma link C++ defined_in ../src/utils/LinearFitter.hxx;
+#pragma link C++ defined_in ../src/utils/Kin2Body.hxx;
 
 #pragma link C++ class dragon::utils+;
 #pragma link C++ class dragon+;
@@ -133,6 +134,7 @@ class TTree;
 #pragma link C++ class dragon::Scaler+;
 #pragma link C++ class dragon::Epics+;
 #pragma link C++ class dragon::Unpacker+;
+#pragma link C++ class dragon::Kin2Body+;
 #pragma link C++ class dragon::LinearFitter+;
 #pragma link C++ class dragon::MetricPrefix+;
 #pragma link C++ class dragon::TTreeFilter+;
