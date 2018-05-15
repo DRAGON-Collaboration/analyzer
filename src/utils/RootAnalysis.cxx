@@ -46,7 +46,7 @@ namespace {
 	Int_t code = t->SetBranchAddress(name, &valref, &branch);
 	if(code < 0) {
       dutils::Error(funcname, __FILE__, __LINE__)
-        << "Couldn't set Branch \"" << name << "\" in TTree \"" << t->GetName() << "\"";
+        << "Could not set Branch \"" << name << "\" in TTree \"" << t->GetName() << "\"";
       return 0;
 	}
 	return branch;
@@ -133,7 +133,7 @@ void dragon::MakeChains(const char* prefix, const Int_t* runnumbers, Int_t nruns
         TFile file(fname);
         if(file.IsZombie()) {
           dutils::Warning("MakeChains", __FILE__, __LINE__)
-            << "Skipping run " << runnumbers[i] << ", couldn't find file " << fname;
+            << "Skipping run " << runnumbers[i] << ", could not find file " << fname;
         }
       }
 
@@ -171,7 +171,7 @@ void dragon::MakeChains(const char* prefix, const Int_t* runnumbers, Int_t nruns
         TFile file(fname);
         if(file.IsZombie()) {
           dutils::Warning("MakeChains", __FILE__, __LINE__)
-            << "Skipping run " << runnumbers[i] << ", couldn't find file " << fname;
+            << "Skipping run " << runnumbers[i] << ", could not find file " << fname;
         }
       }
 
@@ -595,7 +595,7 @@ Bool_t dragon::RossumData::ParseFile()
           size_t curpos = line0.find("Current");
           if(curpos > line0.size()) {
             dutils::Error("RossumData::ParseFile", __FILE__, __LINE__)
-              << "couldn't parse cup name from line: " << line0;
+              << "could not parse cup name from line: " << line0;
             retval = kFALSE;
             continue;
           }
@@ -603,7 +603,7 @@ Bool_t dragon::RossumData::ParseFile()
           std::map<std::string, Int_t>::iterator itWhich = fWhichCup.find(which);
           if(itWhich == fWhichCup.end()) {
             dutils::Error("RossumData::ParseFile", __FILE__, __LINE__)
-              << "couldn't parse cup name from line: " << line0;
+              << "could not parse cup name from line: " << line0;
             retval = kFALSE;
             continue;
           }
@@ -905,7 +905,7 @@ Int_t dragon::BeamNorm::ReadSbCounts(TFile* datafile, Double_t pkLow0, Double_t 
   if(!haveRunnum) {
     std::cout << "\n";
     dutils::Error("BeamNorm::ReadSbCounts", __FILE__, __LINE__)
-      << "couldn't read run number from file " << datafile->GetName();
+      << "could not read run number from file " << datafile->GetName();
     return 0;
   }
 
@@ -1071,7 +1071,7 @@ dragon::BeamNorm::RunData* dragon::BeamNorm::GetRunData(Int_t runnum)
 dragon::BeamNorm::RunData* dragon::BeamNorm::GetOrCreateRunData(Int_t runnum)
 {
   RunData* rundata = GetRunData(runnum);
-  if(!rundata) { // Doesn't exist yet, create
+  if(!rundata) { // Does not exist yet, create
     RunData ddd;
     ddd.runnum = runnum;
     fRunData.insert(std::make_pair(runnum, ddd));
@@ -1347,7 +1347,7 @@ void dragon::BeamNorm::CalculateRecoils(TFile* datafile, const char* treename, c
   if(db) haveRunnum = db->ReadValue("/Runinfo/Run number", runnum);
   if(!db || !haveRunnum) {
     dutils::Error("BeamNorm::CalculateRecoils", __FILE__, __LINE__)
-      << "couldn't read run number from TFile at " << datafile;
+      << "could not read run number from TFile at " << datafile;
     return;
   }
 
@@ -1432,7 +1432,7 @@ void dragon::BeamNorm::CorrectTransmission(Int_t reference)
 {
   RunData* refData = GetRunData(reference);
   if(!refData) {
-    std::cerr << "Coundn't find run data for reference run " << reference << "\n";
+    std::cerr << "Cound not find run data for reference run " << reference << "\n";
     return;
   }
   UDouble_t transRef = refData->fc1 / UDouble_t::Mean(3, refData->fc4);

@@ -82,6 +82,7 @@ OBJECTS += $(OBJ)/utils/Selectors.o
 OBJECTS += $(OBJ)/utils/Calibration.o
 OBJECTS += $(OBJ)/utils/LinearFitter.o
 OBJECTS += $(OBJ)/utils/TAtomicMass.o
+OBJECTS += $(OBJ)/utils/Kin2Body.o
 endif
 ## END OBJECTS ##
 

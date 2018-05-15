@@ -62,6 +62,7 @@ class TTree;
 #pragma link C++ defined_in ../src/utils/Uncertainty.hxx;
 #pragma link C++ defined_in ../src/utils/TAtomicMass.h;
 #pragma link C++ defined_in ../src/utils/LinearFitter.hxx;
+#pragma link C++ defined_in ../src/utils/Kin2Body.hxx;
 
 #pragma link C++ class dragon::utils::AutoPtr<midas::Xml>+;
 #pragma link C++ class dragon::utils::AutoPtr<dragon::RossumData>+;

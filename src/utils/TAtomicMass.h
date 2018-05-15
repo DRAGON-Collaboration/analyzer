@@ -106,20 +106,20 @@ public:
 	/// Returns the ion (partially ionized) mass value for a given nucleus, in keV/c^2
 	double IonMass(int Z, int A, int chargeState) const { return NuclearMass(Z, A) + ElectronMass()*(Z-chargeState); } // keV/c^2
 	/// Returns the ion (partially ionized) mass error for a given nucleus, in keV/c^2
-	double IonMassError(int Z, int A, int charge) const { return NuclearMassError(Z, A); } // keV/c^2
+	double IonMassError(int Z, int A) const { return NuclearMassError(Z, A); } // keV/c^2
 	/// Returns the ion (partially ionized) mass value for a given nucleus, in keV/c^2
 	double IonMass(const char* symbol, int chargeState) const; // keV/c^2
 	/// Returns the ion (partially ionized) mass error for a given nucleus, in keV/c^2
-	double IonMassError(const char* symbol, int charge) const { return NuclearMassError(symbol); } // keV/c^2
+	double IonMassError(const char* symbol) const { return NuclearMassError(symbol); } // keV/c^2
 
 	/// Returns the ion (partially ionized) mass value for a given nucleus, in AMU
 	double IonMassAMU(int Z, int A, int chargeState) const { return IonMass(Z, A, chargeState) / AMU(); } // AMU
 	/// Returns the ion (partially ionized) mass error for a given nucleus, in AMU
-	double IonMassErrorAMU(int Z, int A, int chargeState) const { return NuclearMassErrorAMU(Z, A); } // AMU
+	double IonMassErrorAMU(int Z, int A) const { return NuclearMassErrorAMU(Z, A); } // AMU
 	/// Returns the ion (partially ionized) mass value for a given nucleus, in AMU
 	double IonMassAMU(const char* symbol, int chargeState) const { return IonMass(symbol, chargeState) / AMU(); } // AMU
 	/// Returns the ion (partially ionized) mass error for a given nucleus, in AMU
-	double IonMassErrorAMU(const char* symbol, int chargeState) const { return NuclearMassErrorAMU(symbol); } // AMU
+	double IonMassErrorAMU(const char* symbol) const { return NuclearMassErrorAMU(symbol); } // AMU
 
 	/// Calculate Q-value for a nuclear reaction
 	double QValue(int Zt, int At, int Zb, int Ab, int Ze, int Ae, bool print = true) const;
