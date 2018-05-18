@@ -22,87 +22,97 @@
 #include <TFile.h>
 #include <TTree.h>
 #include <TString.h>
+#include <TGraph.h>
+#include <TMultiGraph.h>
 
 #include "Uncertainty.hxx"
 #include "Constants.hxx"
 #include "AutoPtr.hxx"
 #include "Dragon.hxx"
+#include "TAtomicMass.h"
 
-// class TGraph;
-// class TGraphErrors;
+class TGraph;
+class TMultiGraph;
+class TAtomicMass;
 
 namespace dragon {
 
   class Kin2Body {
   public:
+      // private:
+	/// Beam magnetic rigidity in T*m
+	Double_t fBrho;
+    /// CM rapidity
+    Double_t fChi;
+	/// Center of mass kinetic energy [MeV]
+	Double_t fEcm;
+	/// Excitation energy [MeV]
+	Double_t fEx;
+	/// Beam mass [AMU]
+	Double_t fM1amu;
+	/// Beam mass [MeV/c^2]
+	Double_t fM1;
+	/// Target mass [MeV/c^2]
+	Double_t fM2;
+	/// Ejectile mass [MeV/c^2]
+	Double_t fM3;
+	/// Recoil mass [MeV/c^2]
+	Double_t fM4;
+    /// momentum of projectile
+    Double_t fPb;
+    /// CM momentum of projectile and target
+    Double_t fPcm;
+    /// CM momentum of ejectile and recoil
+    Double_t fPprime;
+	/// Reaction Q value [MeV]
+	Double_t fQrxn;
+	/// Beam charge state
+	Int_t fqb;
+    /// Invariant 4-momentum
+    Double_t fS;
+    /// Total kinetic energy of the beam in the laboratory frame MeV
+    Double_t fTb;
+    /// Total kinetic energy of the beam in the laboratory frame A MeV
+    Double_t fTbA;
+    /// Total kinetic energy of the the target frame
+    Double_t fTtgt;
+    /// Total kinetic energy of the the beam in MeV / u
+    Double_t fV2b;
+    /// Projectile Nuclide
+    const TAtomicMassTable::Nucleus_t* fProj;
+    /// Target Nuclide
+    const TAtomicMassTable::Nucleus_t* fTgt;
+    /// Ejectile Nuclide
+    const TAtomicMassTable::Nucleus_t* fEj;
+    /// Recoil Nuclide
+    const TAtomicMassTable::Nucleus_t* fRec;
+    /// Reaction string
+    const char* fRxnString;
+
+  public:
     /// Default ctor for radiative capture
     Kin2Body(const char* projectile, const char* target,
-             double enregy = 0, const char* frame = "CM", int qb = 0);
+             Double_t enregy = 0, const char* frame = "CM", Int_t qb = 0);
     /// Overload ctor for particle ejectiles
     Kin2Body(const char* projectile, const char* target, const char* ejectile,
-             double enregy = 0, const char* frame = "CM", int qb = 0);
+             Double_t enregy = 0, const char* frame = "CM", Int_t qb = 0);
+    Double_t CalcTLabTheta(Double_t theta, const char* which, Bool_t negative = kFALSE);
 	/// Get CM energy
-	double GetBrho()    const { return fBrho; } // MeV
-	double GetEcm()     const { return fEcm;  } // MeV
-	double GetEx()      const { return fEx;   } // MeV
-	double GetLabTb()   const { return fTb;   } // MeV
-	double GetLabTbA()  const { return fTbA;  } // A MeV
-	double GetTtarget() const { return fTtgt; } // MeV
-	double GetV2b()     const { return fV2b;  } // MeV / u
-	double GetLabTej(double theta);   // MeV
-	double GetLabTrec(double theta);  // MeV
-	/// Get beam mass in amu
-	double GetM1() const { return fM1 / (1e3*dragon::Constants::AMU()); }
-	/// Get target mass in amu
-	double GetM2() const { return fM2 / (1e3*dragon::Constants::AMU()); }
-    double GetMaxAngle(int which);
-  // private:
+	Double_t GetBrho()    const { return fBrho; } // MeV
+	Double_t GetEcm()     const { return fEcm;  } // MeV
+	Double_t GetEx()      const { return fEx;   } // MeV
+	Double_t GetLabTb()   const { return fTb;   } // MeV
+	Double_t GetLabTbA()  const { return fTbA;  } // A MeV
+	Double_t GetTtarget() const { return fTtgt; } // MeV
+	Double_t GetV2b()     const { return fV2b;  } // MeV / u
+    Double_t GetMaxAngle(const char* which);
+    TMultiGraph* PlotTLabvsThetaLab(Option_t *option_e = "", Option_t *option_r = "");
+  private:
 	void Init(const char* projectile, const char* target,
-              double energy, const char* frame, int qb);
+              Double_t energy, const char* frame, Int_t qb);
 	void Init(const char* projectile, const char* target, const char* ejectile,
-              double energy, const char* frame, int qb);
-    void Set4Mom(double energy, const char* frame);
-  // private:
-	/// Beam nucloen number
-	int fA1;
-	/// Beam magnetic rigidity in T*m
-	double fBrho;
-    /// CM rapidity
-    double fChi;
-	/// Center of mass kinetic energy [MeV]
-	double fEcm;
-	/// Excitation energy [MeV]
-	double fEx;
-	/// Beam mass [AMU]
-	double fM1amu;
-	/// Beam mass [MeV/c^2]
-	double fM1;
-	/// Target mass [MeV/c^2]
-	double fM2;
-	/// Ejectile mass [MeV/c^2]
-	double fM3;
-	/// Recoil mass [MeV/c^2]
-	double fM4;
-    /// momentum of projectile
-    double fPb;
-    /// CM momentum of projectile and target
-    double fPcm;
-    /// CM momentum of ejectile and recoil
-    double fPprime;
-	/// Reaction Q value [MeV]
-	double fQrxn;
-	/// Beam charge state
-	int fqb;
-    /// Invariant 4-momentum
-    double fS;
-    /// Total kinetic energy of the beam in the laboratory frame MeV
-    double fTb;
-    /// Total kinetic energy of the beam in the laboratory frame A MeV
-    double fTbA;
-    /// Total kinetic energy of the the target frame
-    double fTtgt;
-    /// Total kinetic energy of the the beam in MeV / u
-    double fV2b;
+              Double_t energy, const char* frame, Int_t qb);
+    void Set4Mom(Double_t energy, const char* frame);
   };
 
 } // namespace dragon

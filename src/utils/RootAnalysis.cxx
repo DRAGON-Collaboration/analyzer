@@ -1180,7 +1180,8 @@ TGraphAsymmErrors* dragon::BeamNorm::Plot(const char* param, Marker_t marker, Co
 ///
 ///  Also draws the returned TGraph in its own window.
 
-TGraphErrors* dragon::BeamNorm::PlotVal(const TString& valstr, int which, Marker_t marker, Color_t markerColor, Option_t* option)
+TGraphErrors* dragon::BeamNorm::PlotVal(const TString& valstr, int which, Marker_t marker,
+                                        Color_t markerColor, Option_t* option)
 {
   std::vector<double> rn, val, err;
   for(size_t i=0; i< GetRuns().size(); ++i) {
