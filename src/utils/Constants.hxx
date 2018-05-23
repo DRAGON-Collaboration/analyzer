@@ -122,6 +122,23 @@ namespace dragon {
 	static double HbarCUnc() { return 0.0000012; }
 
 	////////////////////////////////////////////////////////////////////////////////
+	/// Distance between DRAGON's gas target and focal plane m
+	static double Ldra() { return 21.0; }
+
+	////////////////////////////////////////////////////////////////////////////////
+	/// Uncertainty in distance between DRAGON's gas target and focal plane m
+    /// \attention <b>this is just a guess</b>.
+	static double LdraUnc() { return 0.3; }
+
+	////////////////////////////////////////////////////////////////////////////////
+	/// Distance between DRAGON's MCP foils cm
+	static double Lmcp() { return 0.59; }
+
+	////////////////////////////////////////////////////////////////////////////////
+	/// Uncertainty in distance between DRAGON's MCP foils m
+	static double LmcpUnc() { return 0.005; }
+
+	////////////////////////////////////////////////////////////////////////////////
 	/// vacuum permeability N*A<sup>-2</sup>
 	static double Mu0() { return 4*TMath::Pi()*1e-7; }
 

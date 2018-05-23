@@ -40,14 +40,38 @@ namespace dragon {
   class Kin2Body {
   public:
       // private:
+	/// Beam velocity in units of c
+	Double_t fBeta_b;
+	/// Recoil velocity in units of c (0&deg; &gamma;)
+	Double_t fBeta0rec;
+	/// Recoil velocity in units of c (90&deg; &gamma;)
+	Double_t fBeta90rec;
+	/// Recoil velocity in units of c (180&deg; &gamma;)
+	Double_t fBeta180rec;
 	/// Beam magnetic rigidity in T*m
 	Double_t fBrho;
     /// CM rapidity
     Double_t fChi;
+	/// Total energy of beam nuclide [MeV]
+	Double_t fEb;
 	/// Center of mass kinetic energy [MeV]
 	Double_t fEcm;
+	/// Total energy of recoil nuclide (0&deg; &gamma;) [MeV]
+	Double_t fE0rec;
+	/// Total energy of recoil nuclide (90&deg; &gamma;) [MeV]
+	Double_t fE90rec;
+	/// Total energy of recoil nuclide (180&deg; &gamma;) [MeV]
+	Double_t fE180rec;
 	/// Excitation energy [MeV]
 	Double_t fEx;
+	/// Lorentz factor of beam [MeV]
+	Double_t fGamma_b;
+	/// Lorentz factor of recoil (0&deg; &gamma;) [MeV]
+	Double_t fGamma0rec;
+	/// Lorentz factor of recoil (90&deg; &gamma;) [MeV]
+	Double_t fGamma90rec;
+	/// Lorentz factor of recoil (180&deg; &gamma;) [MeV]
+	Double_t fGamma180rec;
 	/// Beam mass [AMU]
 	Double_t fM1amu;
 	/// Beam mass [MeV/c^2]
@@ -58,6 +82,14 @@ namespace dragon {
 	Double_t fM3;
 	/// Recoil mass [MeV/c^2]
 	Double_t fM4;
+	/// Beam MCP TOF [ns]
+	Double_t fMcpTofb;
+	/// Recoil MCP TOF (0&deg; &gamma;) [MeV] [ns]
+	Double_t fMcpTofrec0;
+	/// Recoil MCP TOF (90&deg; &gamma;) [MeV] [ns]
+	Double_t fMcpTofrec90;
+	/// Recoil MCP TOF (180&deg; &gamma;) [MeV] [ns]
+	Double_t fMcpTofrec180;
     /// momentum of projectile
     Double_t fPb;
     /// CM momentum of projectile and target
@@ -70,6 +102,14 @@ namespace dragon {
 	Int_t fqb;
     /// Invariant 4-momentum
     Double_t fS;
+	/// Beam separator TOF [ns]
+	Double_t fSepTofb;
+	/// Recoil separator TOF (0&deg; &gamma;) [&mu;s]
+	Double_t fSepTofrec0;
+	/// Recoil separator TOF (90&deg; &gamma;) [&mu;s]
+	Double_t fSepTofrec90;
+	/// Recoil separator TOF (180&deg; &gamma;) [&mu;s]
+	Double_t fSepTofrec180;
     /// Total kinetic energy of the beam in the laboratory frame MeV
     Double_t fTb;
     /// Total kinetic energy of the beam in the laboratory frame A MeV

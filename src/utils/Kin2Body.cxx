@@ -89,8 +89,13 @@ void dragon::Kin2Body::Init(const char* projectile, const char* target,
   fProj    = mt.GetNucleus(projectile);
   fTgt     = mt.GetNucleus(target);
   fRec     = mt.GetNucleus(fProj->fZ+fTgt->fZ, fProj->fA+fTgt->fA);
-  fM1      = mt.IonMass(fProj->fZ, fProj->fA, qb) / 1.e3;
-  fM1amu   = mt.IonMassAMU(fProj->fZ, fProj->fA, qb);
+  fRxnString  = Form("{}^{%i}%s(^{%i}%s,#gamma)^{%i}%s",fTgt->fA,fTgt->fSymbol,fProj->fA,fProj->fSymbol, fRec->fA, fRec->fSymbol);
+  fProjString = Form("{}^{%i}%s",fProj->fA,fProj->fSymbol);
+  fTgtString  = Form("{}^{%i}%s",fTgt->fA,fTgt->fSymbol);
+  fEjString   = "#gamma";
+  fRecString  = Form("{}^{%i}%s",fRec->fA,fRec->fSymbol);
+  fM1      = mt.IonMass(fProj->fZ, fProj->fA, 0) / 1.e3;
+  fM1amu   = mt.IonMassAMU(fProj->fZ, fProj->fA, 0);
   fM2      = mt.IonMass(fTgt->fZ, fTgt->fA, 0) / 1.e3;
   fM3      = 0;
   fM4      = mt.IonMass(fRec->fZ, fRec->fA, 0) / 1.e3;
@@ -112,6 +117,26 @@ void dragon::Kin2Body::Init(const char* projectile, const char* target,
   } else {
     fBrho  = 0;
   }
+  fEb           = fTb + fM1;
+  fGamma_b      = fEb / fM1;
+  fBeta_b       = sqrt(1 - 1/pow(fGamma_b,2));
+  fMcpTofb      = dragon::Constants::Lmcp() / (fBeta_b*TMath::C())*1.0e9;
+  fSepTofb      = dragon::Constants::Ldra() / (fBeta_b*TMath::C())*1.0e6;
+  fE90rec       = sqrt(fPb*fPb + fM4*fM4);
+  fGamma90rec   = fE90rec / fM4;
+  fBeta90rec    = sqrt(1 - 1/pow(fGamma90rec,2));
+  fMcpTofrec90  = dragon::Constants::Lmcp() / (fBeta90rec*TMath::C())*1.0e9;
+  fSepTofrec90  = dragon::Constants::Ldra() / (fBeta90rec*TMath::C())*1.0e6;
+  fE0rec        = sqrt( pow(fPb*(1 - fEx / sqrt(fEb*fEb - fM1*fM1)),2) + fM4*fM4 );
+  fGamma0rec    = fE0rec / fM4;
+  fBeta0rec     = sqrt(1 - 1/pow(fGamma0rec,2));
+  fMcpTofrec0   = dragon::Constants::Lmcp() / (fBeta0rec*TMath::C())*1.0e9;
+  fSepTofrec0   = dragon::Constants::Ldra() / (fBeta0rec*TMath::C())*1.0e6;
+  fE180rec      = sqrt( pow(fPb*(1 + fEx / sqrt(fEb*fEb - fM1*fM1)),2) + fM4*fM4 );
+  fGamma180rec  = fE180rec / fM4;
+  fBeta180rec   = sqrt(1 - 1/pow(fGamma180rec,2));
+  fMcpTofrec180 = dragon::Constants::Lmcp() / (fBeta180rec*TMath::C())*1.0e9;
+  fSepTofrec180 = dragon::Constants::Ldra() / (fBeta180rec*TMath::C())*1.0e6;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -161,6 +186,58 @@ void dragon::Kin2Body::Init(const char* projectile, const char* target, const ch
     fBrho  = ( 3.3356 / (1.e3*fqb) )*sqrt( ( (fS - pow(fM1+fM2,2)) / (2*fM2) )*( (fS - pow(fM1+fM2,2)) / (2*fM2) + 2*fM1) );
   } else {
     fBrho  = 0;
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// Calculate the energy of the ejectile as a function of angle
+/// \param theta angle of ejectile / recoil in degrees
+/// \param which ejectile or recoil
+
+Double_t dragon::Kin2Body::CalcTLabTheta(Double_t theta, const char* which, Bool_t negative)
+{
+  Double_t mass;
+  if (strncmp(which, "recoil", 6) == 0){
+    mass = fM4;
+  } else {
+    mass = fM3;
+  }
+
+  if (theta == 90.0){
+    if (mass*sinh(fChi) / fPprime > 1){
+      return 0.0;
+    } else {
+      Double_t p = fPprime*sqrt(1 - pow(mass*sinh(fChi) / fPprime,2) / (1 + pow(sinh(fChi),2)) );
+      Double_t T = sqrt(p*p + mass*mass) - mass;
+      if (T < 0.001) {
+        return 0;
+      } else {
+        return T;
+      }
+    }
+  }
+
+  if (theta >= GetMaxAngle(which)) {
+    theta = GetMaxAngle(which);
+    theta /= 180.;
+    theta *= TMath::Pi();
+    Double_t pe = cos(theta)*sinh(fChi)*sqrt(mass*mass + fPprime*fPprime);
+    pe /= ( 1+pow(sin(theta)*sinh(fChi),2) );
+    return sqrt(pe*pe + mass*mass) - mass;
+  } else if (!negative){
+    theta /= 180.;
+    theta *= TMath::Pi();
+    Double_t pe = cos(theta)*sinh(fChi)*sqrt(mass*mass + fPprime*fPprime);
+    pe += cosh(fChi)*sqrt( fPprime*fPprime - pow(mass*sin(theta)*sinh(fChi),2) );
+    pe /= ( 1+pow(sin(theta)*sinh(fChi),2) );
+    return sqrt(pe*pe + mass*mass) - mass;
+  } else {
+    theta /= 180.;
+    theta *= TMath::Pi();
+    Double_t pe = cos(theta)*sinh(fChi)*sqrt(mass*mass + fPprime*fPprime);
+    pe -= cosh(fChi)*sqrt( fPprime*fPprime - pow(mass*sin(theta)*sinh(fChi),2) );
+    pe /= ( 1+pow(sin(theta)*sinh(fChi),2) );
+    return sqrt(pe*pe + mass*mass) - mass;
   }
 }
 
@@ -231,58 +308,6 @@ Double_t dragon::Kin2Body::GetMaxAngle(const char* which)
   } else {
     dutils::Error("Kin2Body::GetMaxAngle", __FILE__, __LINE__) << "particle string " << which << " invalid; must one of \"ejectile\", \"recoil\", or \"residue.\"\n";
     return 0;
-  }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// Calculate the energy of the ejectile as a function of angle
-/// \param theta angle of ejectile / recoil in degrees
-/// \param which ejectile or recoil
-
-Double_t dragon::Kin2Body::CalcTLabTheta(Double_t theta, const char* which, Bool_t negative)
-{
-  Double_t mass;
-  if (strncmp(which, "recoil", 6) == 0){
-    mass = fM4;
-  } else {
-    mass = fM3;
-  }
-
-  if (theta == 90.0){
-    if (mass*sinh(fChi) / fPprime > 1){
-      return 0.0;
-    } else {
-      Double_t p = fPprime*sqrt(1 - pow(mass*sinh(fChi) / fPprime,2) / (1 + pow(sinh(fChi),2)) );
-      Double_t T = sqrt(p*p + mass*mass) - mass;
-      if (T < 0.001) {
-        return 0;
-      } else {
-        return T;
-      }
-    }
-  }
-
-  if (theta >= GetMaxAngle(which)) {
-    theta = GetMaxAngle(which);
-    theta /= 180.;
-    theta *= TMath::Pi();
-    Double_t pe = cos(theta)*sinh(fChi)*sqrt(mass*mass + fPprime*fPprime);
-    pe /= ( 1+pow(sin(theta)*sinh(fChi),2) );
-    return sqrt(pe*pe + mass*mass) - mass;
-  } else if (!negative){
-    theta /= 180.;
-    theta *= TMath::Pi();
-    Double_t pe = cos(theta)*sinh(fChi)*sqrt(mass*mass + fPprime*fPprime);
-    pe += cosh(fChi)*sqrt( fPprime*fPprime - pow(mass*sin(theta)*sinh(fChi),2) );
-    pe /= ( 1+pow(sin(theta)*sinh(fChi),2) );
-    return sqrt(pe*pe + mass*mass) - mass;
-  } else {
-    theta /= 180.;
-    theta *= TMath::Pi();
-    Double_t pe = cos(theta)*sinh(fChi)*sqrt(mass*mass + fPprime*fPprime);
-    pe -= cosh(fChi)*sqrt( fPprime*fPprime - pow(mass*sin(theta)*sinh(fChi),2) );
-    pe /= ( 1+pow(sin(theta)*sinh(fChi),2) );
-    return sqrt(pe*pe + mass*mass) - mass;
   }
 }
 
