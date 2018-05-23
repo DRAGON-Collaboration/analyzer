@@ -140,6 +140,10 @@ void dragon::Kin2Body::Init(const char* projectile, const char* target, const ch
     fM4      = mt.IonMass(fRec->fZ, fRec->fA, 0) / 1.e3;
   }
   fRxnString = Form("{}^{%i}%s(^{%i}%s,{}^{%i}%s)^{%i}%s",fTgt->fA,fTgt->fSymbol,fProj->fA,fProj->fSymbol,fEj->fA,fEj->fSymbol, fRec->fA, fRec->fSymbol);
+  fProjString = Form("{}^{%i}%s",fProj->fA,fProj->fSymbol);
+  fTgtString = Form("{}^{%i}%s",fTgt->fA,fTgt->fSymbol);
+  fEjString = Form("{}^{%i}%s",fEj->fA,fEj->fSymbol);
+  fRecString = Form("{}^{%i}%s",fRec->fA,fRec->fSymbol);
   fqb      = qb;
   fQrxn    = mt.QValue(projectile, target, ejectile, false) / 1.e3;
   Set4Mom(energy, frame);
@@ -172,18 +176,18 @@ void dragon::Kin2Body::Set4Mom(Double_t energy, const char* frame)
   } else if (strncmp(frame, "Lab", 3) == 0){
     fS  = pow(fM1 + fM2,2) + 2*fM2*energy;
   } else if (strncmp(frame, "Target", 6) == 0){
-    fS  = pow(fM1*fM1 + fM2*fM2,2) + 2*fM1*energy;
-  } else if (strncmp(frame, "LabA", 4) == 0){
-    fS  = pow(fM1*fM1 + fM2*fM2,2) + 2*fM2*fProj->fA*energy;
+    fS  = pow(fM1 + fM2,2) + 2*fM1*energy;
+  } else if (strncmp(frame, "ALab", 4) == 0){
+    fS  = pow(fM1 + fM2,2) + 2*fM2*fProj->fA*energy;
   } else if (strncmp(frame, "V2", 2) == 0){
-    fS  = pow(fM1*fM1 + fM2*fM2,2) + 2*fM2*fM1amu*energy;
+    fS  = pow(fM1 + fM2,2) + 2*fM2*fM1amu*energy;
   } else if (strncmp(frame, "Excitation", 10) == 0){
-    fS  = pow(fM1*fM1 + fM2*fM2 + energy-fQrxn, 2);
+    fS  = pow(fM1 + fM2 + energy-fQrxn, 2);
   } else if (strncmp(frame, "Brho",4) == 0){
     fTb = (-2*fM1 + sqrt(4*(fM1*fM1 + pow(fqb*energy / 3.3356,2) ) ) ) / 2;
     fS  = pow(fM1 + fM2,2) + 2*fM2*fTb;
   } else {
-    dutils::Error("Kin2Body::Set4Mom", __FILE__, __LINE__) << "frame string" << frame << "invalid; must match one of \"CM\", \"Lab\", \"Target\", \"LabA\", \"V2\", \"Excitation\", \"Brho\".\n";
+    dutils::Error("Kin2Body::Set4Mom", __FILE__, __LINE__) << "frame string \"" << frame << "\" invalid; must match one of \"CM\", \"Lab\", \"Target\", \"LabA\", \"V2\", \"Excitation\", \"Brho\".\n";
   }
 }
 
@@ -258,15 +262,23 @@ Double_t dragon::Kin2Body::CalcTLabTheta(Double_t theta, const char* which, Bool
     }
   }
 
-  theta /= 180.;
-  theta *= TMath::Pi();
-
-  if (!negative){
+  if (theta >= GetMaxAngle(which)) {
+    theta = GetMaxAngle(which);
+    theta /= 180.;
+    theta *= TMath::Pi();
+    Double_t pe = cos(theta)*sinh(fChi)*sqrt(mass*mass + fPprime*fPprime);
+    pe /= ( 1+pow(sin(theta)*sinh(fChi),2) );
+    return sqrt(pe*pe + mass*mass) - mass;
+  } else if (!negative){
+    theta /= 180.;
+    theta *= TMath::Pi();
     Double_t pe = cos(theta)*sinh(fChi)*sqrt(mass*mass + fPprime*fPprime);
     pe += cosh(fChi)*sqrt( fPprime*fPprime - pow(mass*sin(theta)*sinh(fChi),2) );
     pe /= ( 1+pow(sin(theta)*sinh(fChi),2) );
     return sqrt(pe*pe + mass*mass) - mass;
   } else {
+    theta /= 180.;
+    theta *= TMath::Pi();
     Double_t pe = cos(theta)*sinh(fChi)*sqrt(mass*mass + fPprime*fPprime);
     pe -= cosh(fChi)*sqrt( fPprime*fPprime - pow(mass*sin(theta)*sinh(fChi),2) );
     pe /= ( 1+pow(sin(theta)*sinh(fChi),2) );
@@ -279,7 +291,7 @@ TMultiGraph* dragon::Kin2Body::PlotTLabvsThetaLab(Option_t *option_e, Option_t *
   Double_t maxtheta;
   Double_t max_e   = GetMaxAngle("ejectile");
   Double_t max_rec = GetMaxAngle("recoil");
-  Int_t npoints = 100;
+  Int_t npoints = 90;
 
   if (max_e > 90 || max_rec > 90){
     maxtheta = 180;
@@ -287,7 +299,7 @@ TMultiGraph* dragon::Kin2Body::PlotTLabvsThetaLab(Option_t *option_e, Option_t *
     maxtheta = 90;
   }
 
-  std::vector<double> theta_e, theta_en, theta_r, Te, Te_n, Trec;
+  std::vector<double> theta_e, theta_en, theta_r, theta_rn, Te, Te_n, Trec, Trec_n;
 
   Double_t x = 0;
   Double_t dx = max_rec / npoints;
@@ -296,6 +308,15 @@ TMultiGraph* dragon::Kin2Body::PlotTLabvsThetaLab(Option_t *option_e, Option_t *
     theta_r.push_back(x);
     Trec.push_back(CalcTLabTheta(x, "recoil"));
     x += dx;
+  }
+
+  if(max_rec < 90) {
+    x = 0;
+    for (Int_t i = 0; i <= npoints; i++){
+      theta_rn.push_back(x);
+      Trec_n.push_back(CalcTLabTheta(x, "recoil", kTRUE));
+      x += dx;
+    }
   }
 
   x = 0;
@@ -337,11 +358,19 @@ TMultiGraph* dragon::Kin2Body::PlotTLabvsThetaLab(Option_t *option_e, Option_t *
       mg->Add(gen, option_e);
     }
 
+    if (theta_en.size()){
+      TGraph* grec_n  = new TGraph(theta_rn.size(), &theta_rn[0], &Trec_n[0]);
+      grec_n->SetLineColor(2);
+      grec_n->SetMarkerColor(2);
+      grec_n->SetMarkerStyle(26);
+      mg->Add(grec_n, option_r);
+    }
+
     TLegend* leg = new TLegend(0.6,0.4,0.88,0.6);
     leg->SetBorderSize(0);
-    leg->SetFillColor(0);
-    leg->AddEntry(ge, Form("{}^{%i}%s",fEj->fA,fEj->fSymbol), "L");
-    leg->AddEntry(grec, Form("{}^{%i}%s",fRec->fA,fRec->fSymbol), "L");
+    leg->SetFillStyle(0);
+    leg->AddEntry(ge, fEjString, "L");
+    leg->AddEntry(grec, fRecString, "L");
 
     TCanvas *c0 = new TCanvas();
     mg->SetTitle(Form("%s #it{T}_{b} = %0.3f; #it{#theta}_{lab}; Lab Frame Kinetic Energy [MeV]", fRxnString, fTb));

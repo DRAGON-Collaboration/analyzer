@@ -88,6 +88,14 @@ namespace dragon {
     const TAtomicMassTable::Nucleus_t* fRec;
     /// Reaction string
     const char* fRxnString;
+    /// Projectile string
+    const char* fProjString;
+    /// Projectile string
+    const char* fTgtString;
+    /// Projectile string
+    const char* fEjString;
+    /// Projectile string
+    const char* fRecString;
 
   public:
     /// Default ctor for radiative capture
@@ -98,13 +106,6 @@ namespace dragon {
              Double_t enregy = 0, const char* frame = "CM", Int_t qb = 0);
     Double_t CalcTLabTheta(Double_t theta, const char* which, Bool_t negative = kFALSE);
 	/// Get CM energy
-	Double_t GetBrho()    const { return fBrho; } // MeV
-	Double_t GetEcm()     const { return fEcm;  } // MeV
-	Double_t GetEx()      const { return fEx;   } // MeV
-	Double_t GetLabTb()   const { return fTb;   } // MeV
-	Double_t GetLabTbA()  const { return fTbA;  } // A MeV
-	Double_t GetTtarget() const { return fTtgt; } // MeV
-	Double_t GetV2b()     const { return fV2b;  } // MeV / u
     Double_t GetMaxAngle(const char* which);
     TMultiGraph* PlotTLabvsThetaLab(Option_t *option_e = "", Option_t *option_r = "");
   private:
