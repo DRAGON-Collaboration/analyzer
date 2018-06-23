@@ -218,6 +218,8 @@ if [ $USE_ROOT == "YES" ]; then
     echo "YES"
     if [ $ROOTMAJORVERSION == 6 ];then
         ROOTCINT=rootcling
+        USE_ROOTBEER=NO
+        echo "ROOTBEER is not yet compatible with ROOT6, switching off."
     else
         ROOTCINT=rootcint
     fi
