@@ -262,7 +262,7 @@ elif [ $UNAME == "Linux" ]; then
     echo "DYLIB        = -shared" >> config.mk
     echo "CXXFLAGS    += -DOS_LINUX" >> config.mk
     if [ $DIST == "Ubuntu" ]; then
-        if [ $CXX11_ABI == "YES"]; then
+        if [ $CXX11_ABI == "YES" ]; then
             echo "DEFINITIONS += -D_GLIBCXX_USE_CXX11_ABI=1" >> config.mk
         else
             echo "DEFINITIONS += -D_GLIBCXX_USE_CXX11_ABI=0" >> config.mk
