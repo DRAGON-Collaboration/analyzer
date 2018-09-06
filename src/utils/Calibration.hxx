@@ -42,7 +42,7 @@ public:
 	Param_t GetParams(Int_t channel) const;
 	Param_t GetOldParams(Int_t channel) const;
 	void FitPeaks(Int_t ch, Bool_t grid = kTRUE);
-	Int_t Run(Double_t pklow = 500, Double_t pkhigh = 3840, Double_t sigma = 4, Double_t threshold = 0.15, Bool_t grid = kTRUE);
+    Int_t Run(Int_t nbins = 835, Double_t pklow = 500, Double_t pkhigh = 3840, Double_t sigma = 4, Double_t threshold = 0.15, Bool_t grid = kTRUE);
 	void PrintResults(const char* outfile = 0);
 	void PrintOdb(const char* outfile = 0);
 	void WriteJson(const char* outfile = "$DH/../calibration/dsssdcal.json");
