@@ -116,9 +116,9 @@ public:
 
 			status = db_find_key (hdb, hdir, path, &hkey);
 			if (status == DB_NO_KEY) {
-				dragon::utils::Error("midas::Odb::ReadArray") <<
-					"Couldn't get array key for path \"" << path << "\". status = " << status
-																							 << DRAGON_ERR_FILE_LINE;
+				dragon::utils::Error("midas::Odb::ReadArray") << "Couldn't get array key for path \""
+                                                              << path << "\". status = " << status
+                                                              << DRAGON_ERR_FILE_LINE;
 				return 0;
 			}
 
@@ -225,34 +225,34 @@ template<> inline bool Odb::ReadValue<std::string>(const char* path, std::string
 template<> inline int Odb::ReadArray<std::string>(const char* path, std::string* array, int length)
 {
 #ifdef MIDASSYS
-	int status;
-	char buf[256];
+  int status;
+  char buf[256];
 
-	int size = sizeof(buf);
-	HNDLE hdir = 0, hkey;
-	HNDLE hdb = GetHandle();
-	if (hdb == 0) return false;
+  int size = sizeof(buf);
+  HNDLE hdir = 0, hkey;
+  HNDLE hdb = GetHandle();
+  if (hdb == 0) return false;
 
-	status = db_find_key (hdb, hdir, path, &hkey);
-	if (status == DB_NO_KEY) {
-		dragon::utils::Error("midas::Odb::ReadArray<std::string>", __FILE__, __LINE__)
-			<< "Couldn't get array key for path \"" << path << "\". status = " << status;
-		return 0;
-	}
+  status = db_find_key (hdb, hdir, path, &hkey);
+  if (status == DB_NO_KEY) {
+    dragon::utils::Error("midas::Odb::ReadArray<std::string>", __FILE__, __LINE__)
+      << "Couldn't get array key for path \"" << path << "\". status = " << status;
+    return 0;
+  }
 
-	if (status == SUCCESS) {
-		for(int i=0; i< length; ++i) {
-			status = db_get_data_index(hdb, hkey, buf, &size, i, tid_string);
-			if (status != SUCCESS) break;
-			array[i] = buf;
-		}
+  if (status == SUCCESS) {
+    for(int i=0; i< length; ++i) {
+      status = db_get_data_index(hdb, hkey, buf, &size, i, tid_string);
+      if (status != SUCCESS) break;
+      array[i] = buf;
+    }
 
-		if (status == SUCCESS) return true;
-	}
+    if (status == SUCCESS) return true;
+  }
 
-	dragon::utils::Error("midas::Odb::ReadArray<std::string>", __FILE__, __LINE__)
-		<< "Cannot read \"" << path << "\" from odb, status = " << status;
-	return false;
+  dragon::utils::Error("midas::Odb::ReadArray<std::string>", __FILE__, __LINE__)
+    << "Cannot read \"" << path << "\" from odb, status = " << status;
+  return false;
 #else
 	dragon::utils::Error("midas::Odb::ReadArray<std::string>", __FILE__, __LINE__)
 		<< "MIDASSYS not defined.";

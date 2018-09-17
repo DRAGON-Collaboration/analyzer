@@ -236,7 +236,7 @@ public:
 #pragma link C++ function midas::Database::ReadValue (const char*, UShort_t&);
 #pragma link C++ function midas::Database::ReadValue (const char*, UInt_t&);
 #pragma link C++ function midas::Database::ReadValue (const char*, ULong64_t&);
-#pragma link C++ function midas::Database::ReadValue (const char*, Float_t);
+#pragma link C++ function midas::Database::ReadValue (const char*, Float_t&);
 #pragma link C++ function midas::Database::ReadValue (const char*, Double_t&);
 #pragma link C++ function midas::Database::ReadValue (const char*, std::string&);
 
