@@ -28,11 +28,14 @@ namespace { const Int_t NDSSSD = dragon::Dsssd::MAX_CHANNELS; }
 
 namespace dutils = dragon::utils;
 
+///////////////////// Class dragon::utils::DsssdCalibrator /////////////////////
+
 ////////////////////////////////////////////////////////////////////////////////
-/// Construct from tree w/ heavy ion singles data & database containing
+/// Construct from tree with heavy ion singles data & database containing
 /// variables
 /// \param t Pointer to a TTree containing heavy-ion singles data
-/// \param db Pointer to a database containing the variables with which the DSSSD ecal data in _t_ were calculated.
+/// \param db Pointer to a database containing the variables with which the
+///        DSSSD ecal data in _t_ were calculated.
 dutils::DsssdCalibrator::DsssdCalibrator(TTree* t, midas::Database* db):
   fTree(t), fDb(db)
 {
@@ -76,7 +79,6 @@ void dutils::DsssdCalibrator::DrawSummaryCal(Option_t* opt)
   if(!fTree) return;
   if(gDirectory->Get("fHdcal"))
     gDirectory->Get("fHdcal")->Delete();
-
   fHdcal = new TH2D("fHdcal", "", NDSSSD, 0, NDSSSD, 4096, 0, 4095);
   dragon::Tail* tail = new dragon::Tail();
   fTree->SetBranchAddress("tail", &tail);
@@ -98,7 +100,6 @@ void dutils::DsssdCalibrator::DrawFrontCal(Option_t* opt)
   if(!fTree) return;
   if(!(gDirectory->Get("fHdcal")))
     DrawSummaryCal("goff");
-
   fFrontcal = (TH1D *)fHdcal->ProjectionY("frontcal",0,15,opt);
   fFrontcal->Draw(opt);
 }
@@ -144,7 +145,9 @@ Double_t dutils::DsssdCalibrator::GetPeak(Int_t channel, Int_t peak) const
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Helper routine to find triple alpha peaks in a spectrum
-std::vector<Double_t> dutils::DsssdCalibrator::FindPeaks(TH1* hst, Double_t sigma, Double_t threshold) const
+std::vector<Double_t> dutils::DsssdCalibrator::FindPeaks(TH1* hst,
+                                                         Double_t sigma,
+                                                         Double_t threshold) const
 {
   std::vector<Double_t> peaks;
   TSpectrum spectrum;
@@ -160,12 +163,16 @@ std::vector<Double_t> dutils::DsssdCalibrator::FindPeaks(TH1* hst, Double_t sigm
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Helper routine to fit alpha energy vs. ADC channel
-/// \param pklow     Low edge (in uncalibrated channel number) of the region where the peak finding algorithm should search for triple alpha peaks
-/// \param pkhigh    High edge (in uncalibrated channel number) of the region where the peak finding algorithm should search for triple alpha peaks
+/// \param pklow     Low edge (in uncalibrated channel number) of the region
+///        where the peak finding algorithm should search for triple alpha peaks
+/// \param pkhigh    High edge (in uncalibrated channel number) of the region
+///        where the peak finding algorithm should search for triple alpha peaks
 /// \param Sigma     Minimum width of peaks to be found by the searching algorithm
 /// \param threshold Minimum peak height for the peak searching algorithm
-/// \note See TSpectrum::Search in ROOT's class documentation for more info on the _sigma_ and _threshold_ parameters
-Int_t dutils::DsssdCalibrator::Run(Int_t nbins, Double_t pklow, Double_t pkhigh, Double_t sigma, Double_t threshold, Bool_t grid)
+/// \note See `TSpectrum::Search` in ROOT's class documentation for more info on
+///       the _sigma_ and _threshold_ parameters
+Int_t dutils::DsssdCalibrator::Run(Int_t nbins, Double_t pklow, Double_t pkhigh,
+                                   Double_t sigma, Double_t threshold, Bool_t grid)
 {
   if(!fTree) return 0;
   TH1F hpeaks("hpeaks", "", nbins, pklow, pkhigh);
@@ -178,7 +185,8 @@ Int_t dutils::DsssdCalibrator::Run(Int_t nbins, Double_t pklow, Double_t pkhigh,
     fTree->Project("hpeaks", buf, "", "goff");
     std::vector<Double_t> peaks = FindPeaks(&hpeaks, sigma, threshold);
     if(peaks.size() != 3) {
-      std::cerr << "Number of peaks found for channel " << i << ": " << peaks.size() << " != 3, skipping!\n";
+      std::cerr << "Number of peaks found for channel " << i << ": " << peaks.size()
+                << " != 3, skipping!\n";
       fParams[i].slope  = -1.99999;
       fParams[i].offset = 0.0;
       continue;
@@ -190,9 +198,7 @@ Int_t dutils::DsssdCalibrator::Run(Int_t nbins, Double_t pklow, Double_t pkhigh,
 
     FitPeaks(i, grid);
   }
-
   GainMatch();
-
   return retval;
 }
 
@@ -209,7 +215,6 @@ void dutils::DsssdCalibrator::GainMatch()
       // cout << fMaxSlope << endl;
     }
   }
-
   for(Int_t i = 0; i < NDSSSD; i++){
     if ( i == fMinChan){
       fParams[i].slope = 1.0;
@@ -239,7 +244,6 @@ void dutils::DsssdCalibrator::FitPeaks(Int_t ch, Bool_t grid)
   const Double_t dEdx_Si[3]       = {139.006,133.701,129.296}; // stopping powers (MeV/mm) of alphas in Si corresponding to above energies according to SRIM 2008
   // const Double_t aEloss[3] = {138.080,133.060,128.546}; /* Stopping Powers in MeV/mm. */
   Double_t aEnergy[3]; /* Actual energy deposited */
-
   if (grid) {
     for (int i = 0; i < 3; i++)
       aEnergy[i] = alphaEnergies[i] - dEdx_Si[i]*dLayer_grid;
@@ -248,7 +252,6 @@ void dutils::DsssdCalibrator::FitPeaks(Int_t ch, Bool_t grid)
     for (int i = 0; i < 3; i++)
       aEnergy[i] = alphaEnergies[i] - dEdx_Al[i]*dLayer;
   }
-
   TGraph gr(3);
   for(Int_t i = 0; i < gr.GetN(); ++i) {
     gr.SetPoint(i, GetPeak(ch, i), aEnergy[i]);
@@ -274,7 +277,6 @@ void dutils::DsssdCalibrator::PrintResults(const char* outfile)
       f = stdout;
     }
   }
-
   fprintf(f, "\n%-64s", "================================================================\n");
   fprintf(f, "Calibration constant: \t c(1) = %-6f MeV / bin", fMaxSlope);
   fprintf(f, "\n%-64s", "================================================================\n");
@@ -286,10 +288,8 @@ void dutils::DsssdCalibrator::PrintResults(const char* outfile)
     // fprintf(f, "%7i \t %-6g \t %-6g \t %-6g\n", i, GetParams(i).offset, GetParams(i).slope, GetParams(i).inl);
     // fprintf(f, "%2d\t%.6g\t%.6g\n", i, GetParams(i).slope, GetParams(i).offset);
   }
-
   if(f != stdout) fclose(f);
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Print the calibration results (file or stdout) in a format that can be input
@@ -308,12 +308,10 @@ void dutils::DsssdCalibrator::PrintOdb(const char* outfile)
       f = stdout;
     }
   }
-
   for(Int_t i = 0; i < NDSSSD; ++i) {
     fprintf(f, "odbedit -c \"set /dragon/dsssd/variables/adc/slope[%d] %.6g\"\n", i, GetParams(i).slope);
     fprintf(f, "odbedit -c \"set /dragon/dsssd/variables/adc/offset[%d] %.6g\"\n", i, GetParams(i).offset);
   }
-
   if(f != stdout) fclose(f);
 }
 
@@ -324,25 +322,21 @@ void dutils::DsssdCalibrator::PrintOdb(const char* outfile)
 void dutils::DsssdCalibrator::WriteJson(const char* outfile)
 {
   std::ofstream ofs(gSystem->ExpandPathName(outfile));
-
   ofs << "{\n";
   ofs << "  \"/MIDAS version\" : \"2.1\",\n";
   ofs << "  \"/MIDAS git revision\" : \"Fri Oct 13 11:11:03 2017 -0700 - 3dd7f52\",\n";
   ofs << "  \"/filename\" : \"" << outfile << "\",\n";
   ofs << "  \"/ODB path\" : \"/dragon/dsssd/variables/adc\",\n\n";
-
   ofs << "  \"channel/key\" : { \"type\" : 7, \"num_values\" : 32, \"access_mode\" : 7, \"last_written\" : 1507880655 },\n";
   ofs << "  \"channel\" : [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31 ],\n";
   ofs << "  \"module/key\" : { \"type\" : 7, \"num_values\" : 32, \"access_mode\" : 7, \"last_written\" : 1507880655 },\n";
   ofs << "  \"module\" : [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ],\n";
-
   ofs << "  \"slope/key\" : { \"type\" : 10, \"num_values\" : 32, \"access_mode\" : 7, \"last_written\" : 1508890161 },\n";
   ofs << "  \"slope\" : [ ";
   for(Int_t i = 0; i < NDSSSD; i++){
     ofs << GetParams(i).slope << ", ";
   }
   ofs << "],\n";
-
   ofs << "  \"offset/key\" : { \"type\" : 10, \"num_values\" : 32, \"access_mode\" : 7, \"last_written\" : 1508890161 },\n";
   ofs << "  \"offset\" : [ ";
   for(Int_t i = 0; i < NDSSSD; i++){
@@ -350,7 +344,6 @@ void dutils::DsssdCalibrator::WriteJson(const char* outfile)
   }
   ofs << "]\n";
   ofs << "}\n";
-
   ofs.close();
   std::cout << "ATTENTION: Current odb state saved as " << outfile << "\n";
 }
@@ -359,6 +352,7 @@ void dutils::DsssdCalibrator::WriteJson(const char* outfile)
 /// Write calibration parameters to MIDAS Odb
 /// \param json flag to save ODB as a `.json` file
 /// \param json flag to save ODB as a `.xml` file
+/// \todo rewrite this function to use midas db functions to write ODB values
 void dutils::DsssdCalibrator::WriteOdb(Bool_t json, Bool_t xml)
 {
   // Write calibration constant to odb
@@ -393,11 +387,9 @@ void dutils::DsssdCalibrator::WriteOdb(Bool_t json, Bool_t xml)
 void dutils::DsssdCalibrator::WriteXml(const char* outfile)
 {
   std::ofstream ofs(gSystem->ExpandPathName(outfile));
-
   ofs << "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n";
   ofs << "<odb root=\"/\" filename=\"" <<
     outfile << "\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"/Users/dragon/packages/midas/odb.xsd\">\n";
-
   ofs << "  <dir name=\"dragon\">\n";
   ofs << "    <dir name=\"dsssd\">\n";
   ofs << "      <dir name=\"variables\">\n";
@@ -407,19 +399,16 @@ void dutils::DsssdCalibrator::WriteXml(const char* outfile)
     ofs << "            <value index=\"" << i << "\">" << i << "</value>\n";
   }
   ofs << "          </keyarray>\n";
-
   ofs << "          <keyarray name=\"module\" type=\"INT\" num_values=\"32\">\n";
   for(int i = 0; i< NDSSSD; ++i) {
     ofs << "            <value index=\"" << i << "\">1</value>\n";
   }
   ofs << "          </keyarray>\n";
-
   ofs << "          <keyarray name=\"slope\" type=\"DOUBLE\" num_values=\"32\">\n";
   for(int i = 0; i< NDSSSD; ++i) {
     ofs << "            <value index=\"" << i << "\">" << GetParams(i).slope << "</value>\n";
   }
   ofs << "          </keyarray>\n";
-
   ofs << "          <keyarray name=\"offset\" type=\"DOUBLE\" num_values=\"32\">\n";
   for(int i = 0; i< NDSSSD; ++i) {
     ofs << "            <value index=\"" << i << "\">" << GetParams(i).offset << "</value>\n";
@@ -440,8 +429,11 @@ void dutils::DsssdCalibrator::WriteXml(const char* outfile)
   ofs << "    </dir>\n";
   ofs << "  </dir>\n";
   ofs << "</odb>\n";
-
   ofs.close();
-
   std::cout << "ATTENTION: Current odb state saved as " << outfile << "\n";
 }
+
+////////////////////// Class dragon::utils::BGOCalibrator //////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+/// \todo write BGOCalibrator Class
