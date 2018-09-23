@@ -38,7 +38,7 @@ namespace dutils = dragon::utils;
 /// variables
 /// \param t Pointer to a `TTree` containing heavy-ion singles data
 /// \param db Pointer to a database containing the variables with which the
-///        DSSSD ecal data in _t_ were calculated.
+///        `dsssd.ecal[]` data in _t_ were calculated.
 dutils::DsssdCalibrator::DsssdCalibrator(TTree* t, midas::Database* db):
   fTree(t), fDb(db)
 {
@@ -355,7 +355,6 @@ void dutils::DsssdCalibrator::WriteJson(const char* outfile)
 /// Write calibration parameters to MIDAS ODB
 /// \param json flag to save ODB as a `.json` file
 /// \param json flag to save ODB as a `.xml` file
-/// \todo rewrite this function to use midas db functions to write ODB values
 void dutils::DsssdCalibrator::WriteOdb(Bool_t json, Bool_t xml)
 {
   INT status;
@@ -473,6 +472,25 @@ void dutils::DsssdCalibrator::WriteXml(const char* outfile)
 }
 
 ////////////////////// Class dragon::utils::BGOCalibrator //////////////////////
-
 ////////////////////////////////////////////////////////////////////////////////
-/// \todo write BGOCalibrator Class
+/// Construct from tree with heavy ion singles data & database containing
+/// variables
+/// \param t Pointer to a `TTree` containing heavy-ion singles data
+/// \param db Pointer to a database containing the variables with which the
+///        `bgo.esort[0]` data in _t_ were calculated.
+/// \todo write BGOCalibrator class to use &gamma; singles data to calibrate the
+///       BGO array using the room background lines from <sup>40</sup>K
+///       (<em>E<sub>&gamma;</sub> = 1.461</em> MeV) and <sup>208</sup>Tl
+///       (<em>E<sub>&gamma;</sub> = 2.614</em>).
+// dutils::BgoCalibrator::BgoCalibrator(TTree* t, midas::Database* db):
+//   fTree(t), fDb(db)
+// {
+//   if(!fDb) return;
+//   Double_t slopes[NBGO], offsets[NBGO];
+//   db->ReadArray("/dragon/bog/variables/adc/slope",  slopes, NBGO);
+//   db->ReadArray("/dragon/bgo/variables/adc/offset", offsets, NBGO);
+//   for(Int_t i=0; i< NBGO; ++i) {
+//     fOldParams[i].slope = slopes[i];
+//     fOldParams[i].offset = offsets[i];
+//   }
+// }

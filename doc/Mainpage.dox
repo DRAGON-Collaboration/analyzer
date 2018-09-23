@@ -76,30 +76,30 @@ bool vme::V792::unpack(const midas::Event& event, const char* bankName, bool rep
 {
   bool ret = true; // return value
 
-  // Search for a MIDAS bank with the correct name (the value of the variable 'bankName')
+  //// Search for a MIDAS bank with the correct name (the value of the variable 'bankName')
   int bank_len;
   uint32_t* pbank32 = event.GetBankPointer<uint32_t>(bankName, &bank_len, reportMissing, true);
 
-  // pbank32 is now set to the address of the bank with name 'bankName'. We know ahead of time that
-  // the bank contains a set of longwords (uint32_t), and bank_len is now set to the number of longwords
-  // stored in the bank.
+  //// pbank32 is now set to the address of the bank with name 'bankName'. We know ahead of time that
+  //// the bank contains a set of longwords (uint32_t), and bank_len is now set to the number of longwords
+  //// stored in the bank.
 
-  // Loop over all data words in the bank
+  //// Loop over all data words in the bank
   for (int i=0; i< bank_len; ++i) {
-    // Read bits 24, 25, 26 to figure out the type of data in this particular longword
+    //// Read bits 24, 25, 26 to figure out the type of data in this particular longword
     uint32_t type = (*pbuffer >> 24) & 0x7;
-    // Now decide what to do based on the value of 'type'
+    //// Now decide what to do based on the value of 'type'
     switch (type) {
         
         case 0x0: // Data bits
-        // Figure out the measurement value, copy into vme::V792 class data.
+        //// Figure out the measurement value, copy into vme::V792 class data.
         break;
         
         case 0x2: // Header bits
-        // Read relevant header information and proceed.
+        //// Read relevant header information and proceed.
         break;
 
-        // ... etc for other data types ... //
+        //// ... etc for other data types ... //
 
         default:
         break;
@@ -694,12 +694,12 @@ In writing this code, I have tried to adhere to a few design principles. I will 
   {
       handle_event(mcp, adc, tdc); // mcp is an instance of dragon::Mcp
       handle_event(ic, adc, tdc); // ic is an instance of dragon::IonChamber
-      // ... etc ... //
+      //// ... etc ... //
   }
   ~~~
   Another feature that I have adhered to is to allow class data members to be public. Although this goes against canonical object oriented good principles, I think the advantages outweight the disadvantages. This is particularly true if we are working in CINT to analyze data.<SUP><a href=#footnotes><b>1</b></a></SUP> For example, with public data, it's trivial to loop over a tree, calculate some new parameter and display it in a histogram. For example, say I want to plot the square of MCP time-of-flight in cases where it is nonzero:
   ~~~{.cpp}
-  // Assume prior existance of a TTree 't' containing heavy-ion data
+  //// Assume prior existance of a TTree 't' containing heavy-ion data
   dragon::Tail tail;
   void* tailAddr = &tail;
   t->SetBranchAddress("tail", &tailAddr);
@@ -717,7 +717,7 @@ In writing this code, I have tried to adhere to a few design principles. I will 
   class SomeDetector {
   PRIVATE:
     double some_parameter;
-    // etc. //
+    //// etc. //
   };
   ~~~
   When developing the source code, one should make sure it will compile with PRIVATE=private  - to enforce good class design. Then when set up for "production" mode, switch over to PRIVATE=public to allow direct variable access in CINT (and in the python modules, if used).
@@ -761,16 +761,16 @@ Finally, there are a few stylistic issues to address. Much of this is just prefe
   class Bgo {
   public:
       void calculate();
-      // ... //
+      //// ... //
   };
   } // namespace dragon
 
   void dragon::Bgo::calculate()
   {
       for (int i=0; i < MAX_CHANNELS; ++i ) {
-      // ... //
+      //// ... //
       }
-  // ... //
+  //// ... //
   }
   ~~~
 
@@ -795,7 +795,7 @@ Finally, there are a few stylistic issues to address. Much of this is just prefe
   ~~~{.cpp}
   double ecal0;
   double ecal1;
-  // ... //
+  //// ... //
   double ecal29;
   ~~~
   This has a number of practical advantages, such as allowing for loops and std::algorithms to handle the data, and in general it makes life much easier in later analyses as well. It also avoids any issues about whether to start counting at one or zero, since arrays always start from zero.

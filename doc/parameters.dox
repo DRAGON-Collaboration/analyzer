@@ -129,7 +129,7 @@ epics.header.fDataSize | Size in bytes of the MIDAS event
 epics.ch | Channel number of the EPICS recording
 epics.val | Measurement value of the EPICS recording
 
-_NOTE_: Use `epics.ch` as a gate condition to see EPICS data from a single channel, i.e. `t20->Draw("val:header.fTimeStamp", "ch == 0");`
+\note Use `epics.ch` as a gate condition to see EPICS data from a single channel, i.e. `t20->Draw("val:header.fTimeStamp", "ch == 0");`
 
 
 */

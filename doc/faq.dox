@@ -173,7 +173,7 @@ odbedit> load /path/to/$DH/runxxxx.xml
   \n
   2. Start up any other clients that aren't automatically started by the `start_daq.sh` command (anaDragon, rootbeer, dragonscaler, feepics) and then try to resume data taking. If everything is looking okay, then you have probably fixed things.
   \n
-  3. If Steps 1 and 2 haven't solved the problem, log into smaug and issue the command `kill_daq.sh`; then go downstairs and reboot the VME crates. There are two crates, located near each of the electronics racks. They are the relatively small, white-colored VME crates with horizontally-oriented modules. Toreboot a crate, flip off the power switch, wait ~20 seconds and then switch it back on again. Verify that the crate powers up correctly and that the status lights on the front of all of the modules are green.
+  3. If Steps 1 and 2 haven't solved the problem, log into smaug and issue the command `kill_daq.sh`; then go downstairs and reboot the VME crates. There are two crates, located near each of the electronics racks. They are the relatively small, white-colored VME crates with horizontally-oriented modules. To reboot a crate, flip off the power switch, wait ~20 seconds and then switch it back on again. Verify that the crate powers up correctly and that the status lights on the front of all of the modules are green.
      \n
   4. After rebooting the crates, go back to smaug and type `start_daq.sh`, then start over again at step 2.
 
@@ -378,7 +378,7 @@ root[0] gSystem->Load("LibRIO.so");
   t3->GetEntry(0); // 'ptail' now holds all the data from event 0
   double mcpTac = ptail->mcp.tac;
 
-  // use mcpTac however you need to //
+  //// use mcpTac however you need to //
 
   t3->ResetBranchAddresses(); // free 'ptail' from it's association with "t3"
   delete ptail; // release the memory allocated to ptail
@@ -414,12 +414,12 @@ root[0] gSystem->Load("LibRIO.so");
   ~~~{.cpp}
   Long64_t nevts = t3->Draw("mcp.tac", "", "goff"); // (returns, say, 5000000)
 
-  // - BAD - //
+//// - BAD - //
   for (Long64_t event = 0; event < nevts; ++event) {
     std::cout << "Event " << event << ": mcp.tac = " << t3->GetV1()[event] << "\n"; // BAD!!! for event > 999999, the result is undefined
   }
 
-  // - GOOD - //
+//// - GOOD - //
   t3->SetEstimate(nevts);
   for (Long64_t event = 0; event < nevts; ++event) {
     std::cout << "Event " << event << ": mcp.tac = " << t3->GetV1()[event] << "\n"; // Okay, GetV1() now valied up to index [nevts-1]
@@ -466,31 +466,31 @@ A useful resource for learning C++ is [cplusplus.com](http://www.cplusplus.com/)
 
   Long answer: Each detector element in DRAGON is represented by a C++ class in the analyzer. Each detector class contains data members which correspond to experimental parameters recorded by the corresponding detector. By arranging the various detector classes in a hierarchy, we create a tree-like structure describing experiment parameters. For example, the DSSSD parameters are arranged as follows:
   
-  ~~~{.cpp}
+ ~~~{.cpp}
   class Dsssd {
   public:
-    /// Calibrated energy signals
+///// Calibrated energy signals
     double ecal[MAX_CHANNELS]; //#
-    /// Highest energy signal in the front strips (0 - 15)
+    ///// Highest energy signal in the front strips (0 - 15)
     double efront;      //#
-    /// Highest energy signal in the back strips (16 - 31)
+    ///// Highest energy signal in the back strips (16 - 31)
     double eback;       //#
-    /// Which strip was hit in the front strips
+    ///// Which strip was hit in the front strips
     uint32_t hit_front; //#
-    /// Which strip was hit in the back strips
+    ///// Which strip was hit in the back strips
     uint32_t hit_back;  //#
-    /// Calibrated time signal from the front strips
+    ///// Calibrated time signal from the front strips
     double tfront;      //#
-    /// Calibrated time signal from the back strips
+        ///// Calibrated time signal from the back strips
     double tback;       //#
 
-    // etc //
+    //// etc //
   };
 
   class Tail {
   public:
       Dsssd dsssd;
-        // etc //
+      //// etc //
   };
   ~~~
 
