@@ -84,7 +84,7 @@ USER              PID  %CPU %MEM      VSZ    RSS   TT  STAT STARTED      TIME CO
 
 \anchor panic_3 __3. Program `xyz` won't stay open.__
 
-  If a program refuses to start from the MIDAS programs page, click on the link on the left side of the page and look at the "Start command" section to see what the command is to start the program. Then try running this in a shell, removing any "-D" flags. This may not get the program to start, but at least the extra terminal output can point you in the right direction towards figuring out the problem.
+  If a program refuses to start from the MIDAS programs page, click on the link on the left side of the page and look at the "Start command" section to see what the command is to start the program. Then try running this in a shell, replacing any `-D` flags (the "become a daemon" flag) with `-d` (the debug flag) or `-v` (the verbose output flag), depending on the program. This may not get the program to start, but at least the extra terminal output can point you in the right direction towards figuring out the problem.
 
 \anchor panic_4 __4. I tried to submit an elog entry and it got hung up.__
 
@@ -102,22 +102,18 @@ USER              PID  %CPU %MEM      VSZ    RSS   TT  STAT STARTED      TIME CO
 
 \parblock
   1. Open a terminal and ssh as dragon@smaug.triumf.ca (no password necessary from `daenerys`).
-
   2. \anchor stat_2 Kill the mhttpd server by typing the following:
 \verbatim
 $ pgrep mhttpd | xargs kill
 \endverbatim
-
   3. Type the following to see if the process was killed:
 \verbatim
 $ ps ux | grep mhttpd
 \endverbatim
-
   4. If not, try \ref stat_2 "step 2" again but with `kill -9`:
 \verbatim
 $ pgrep mhttpd | xargs kill -9
 \endverbatim
-
   5. Check again for mhttpd. Assuming the `kill -9` worked, run the following command:
 \verbatim
 $ mhttpd --https 8443 --http 8081 -D
@@ -131,7 +127,6 @@ $ mhttpd --https 8443 --http 8081 -D
 
 \parblock
   1. Stop the front-ends, mlogger, mhttpd, etc. (this can be accomplished by running `kill_daq.sh`).
-
   2. Remove the shared memory associated to ODB buffer.
     - Find the shared memory segment
 \verbatim
@@ -142,18 +137,15 @@ $ ipcs -m
 $ ipcrm shm <shmid>
 \endverbatim
       where `shmid` is the id of the shared memory process you wish to delete
-
   3. \anchor corrupt_3 Move the old ODB files. These will be in the location given by Exptab, e.g. ~/online
 \verbatim
 $ cd online
 $ mv .ODB.SHM .ODB.SHM.BAD
 \endverbatim
-
   4. Restart ODB with larger size using odbedit e.g.
 \verbatim
 $ odbedit -s 100000000
 \endverbatim
-
   5. Reload the last saved ODB dump you have (see save and reload the ODB). These dumps are stored in the current data logging directory (`$DH`) and have the form `runxxxx.xml`. So from odbedit you do something like
 \verbatim
 odbedit> cd /
@@ -375,6 +367,7 @@ root[0] gSystem->Load("LibRIO.so");
   If your analysis requirements include handling a large number of events (typically > 1 million or so will noticeably slow down the `Draw()` command), or performing non-trivial transformations on the data, there are some classes defined in [`RootAnalysis.hxx`](_root_analysis_8hxx.html) and [`Selectors.hxx`](_selectors_8hxx.html) that can help you out. One is a class to filter a chain of files into a smaller number of events based on some cut condition and save the result in a ROOT file. Often, one pass through the data with a rough cut can reduce the dataset to a managable size for further analysis. The other classes available are a set of TSelector classes specific to DRAGON data. By deriving from these, you can code your analysis routines in `C++`. See the documentation on [`RootAnalysis.hxx`](_root_analysis_8hxx.html), [`Selector.hxx`](_selectors_8hxx.html), or the files in the examples directory for further information.
 
 \anchor off_7 __7. What if I want to get the value of some parameter for a specific event or events, for example to use elsewhere in a macro?__
+
 \parblock
   There are a few ways to accomplish this:
 
@@ -432,19 +425,19 @@ root[0] gSystem->Load("LibRIO.so");
     std::cout << "Event " << event << ": mcp.tac = " << t3->GetV1()[event] << "\n"; // Okay, GetV1() now valied up to index [nevts-1]
   }
   ~~~
+
 \endparblock
+
 
 \anchor off_8 __8. I'm really new to C++/ROOT and have no idea how to even get started looking at data. Any advice?__
 
-\parblock
-  ROOT does indeed have a steep learning curve, and most of the documentation on their website assumes a
-  certain level of familiarity with C++.
+ROOT does indeed have a steep learning curve, and most of the documentation on their website assumes a certain level of familiarity with C++.
 
 <!--  For the true beginners, Greg Christian wrote a ROOT guide a few years ago for a different group that can hopefully be useful. Some of it is specific to that group, but the basics are the same. It is available online here: <a href="http://www.cord.edu/dept/physics/mona/manuals/root_guide.pdf"</a> -->
 
-  Useful resources include the [ROOT guide](http://root.cern.ch/drupal/content/users-guide) (though this often is not the best for beginners), the [ROOT Primer](https://root.cern.ch/guides/primer), and the [ROOT Tutorials](https://root.cern.ch/doc/master/group__Tutorials.html) (the code for which are also included with your installation of ROOT at `$ROOTSYS/tutorials`). Often, a good reference is the [ROOT reference documentation](https://root.cern.ch/doc/v610/index.html) (e.g. - [the `TTree` class documentation](http://root.cern.ch/root/html/TTree.html)).
+Useful resources include the [ROOT guide](http://root.cern.ch/drupal/content/users-guide) (though this often is not the best for beginners), the [ROOT Primer](https://root.cern.ch/guides/primer), and the [ROOT Tutorials](https://root.cern.ch/doc/master/group__Tutorials.html) (the code for which are also included with your installation of ROOT at `$ROOTSYS/tutorials`). Often, a good reference is the [ROOT reference documentation](https://root.cern.ch/doc/v610/index.html) (e.g. - [the `TTree` class documentation](http://root.cern.ch/root/html/TTree.html)).
 
-  A useful resource for learning C++ is [cplusplus.com](http://www.cplusplus.com/), and the [tutorials](http://www.cplusplus.com/doc/tutorial/) therein.
+A useful resource for learning C++ is [cplusplus.com](http://www.cplusplus.com/), and the [tutorials](http://www.cplusplus.com/doc/tutorial/) therein.
 
 \endparblock
 

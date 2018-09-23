@@ -22,7 +22,10 @@
 #include <TH1F.h>
 #include <TH2F.h>
 #include "midas/Database.hxx"
+#include "midas/Odb.hxx"
 #include "Calibration.hxx"
+
+static HNDLE hDB;
 
 namespace { const Int_t NDSSSD = dragon::Dsssd::MAX_CHANNELS; }
 
@@ -33,7 +36,7 @@ namespace dutils = dragon::utils;
 ////////////////////////////////////////////////////////////////////////////////
 /// Construct from tree with heavy ion singles data & database containing
 /// variables
-/// \param t Pointer to a TTree containing heavy-ion singles data
+/// \param t Pointer to a `TTree` containing heavy-ion singles data
 /// \param db Pointer to a database containing the variables with which the
 ///        DSSSD ecal data in _t_ were calculated.
 dutils::DsssdCalibrator::DsssdCalibrator(TTree* t, midas::Database* db):
@@ -349,19 +352,55 @@ void dutils::DsssdCalibrator::WriteJson(const char* outfile)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// Write calibration parameters to MIDAS Odb
+/// Write calibration parameters to MIDAS ODB
 /// \param json flag to save ODB as a `.json` file
 /// \param json flag to save ODB as a `.xml` file
 /// \todo rewrite this function to use midas db functions to write ODB values
 void dutils::DsssdCalibrator::WriteOdb(Bool_t json, Bool_t xml)
 {
-  // Write calibration constant to odb
-  gSystem->Exec(Form("odbedit -c 'set \"/dragon/dsssd/variables/adc/calibration constant\" %.6g'\n", fMaxSlope));
-  // Write slopes and offsets to odb
-  for(Int_t i = 0; i < NDSSSD; ++i) {
-    gSystem->Exec(Form("odbedit -c \"set /dragon/dsssd/variables/adc/slope[%d] %.6g\"\n", i, GetParams(i).slope));
-    gSystem->Exec(Form("odbedit -c \"set /dragon/dsssd/variables/adc/offset[%d] %.6g\"\n", i, GetParams(i).offset));
+  INT status;
+
+  TString slopeKey = "/dragon/dsssd/variables/adc/slope";
+  TString offKey   = "/dragon/dsssd/variables/adc/offset";
+  TString calKey   = "/dragon/dsssd/variables/adc/calibration constant";
+
+  Double_t slopes[NDSSSD], offsets[NDSSSD];
+
+  for(INT i = 0; i < NDSSSD; i++){
+    slopes[i]  = GetParams(i).slope;
+    offsets[i] = GetParams(i).offset;
   }
+
+  // connect to midas experiment
+  status = cm_connect_experiment ("", "dragon", "Calibration.cxx", 0);
+  if (status != CM_SUCCESS) {
+    printf("Error connecting to experiment, status = %d.\n", status);
+  }
+
+  status = cm_get_experiment_database (&hDB, 0);
+  if(status != CM_SUCCESS) {
+    cm_msg(MERROR, "Calibration.cxx", "Couldn't get database handle, status = %d\n", status);
+    cm_disconnect_experiment();
+  }
+
+  // Write offsets to odb
+  status = db_set_value(hDB, 0, offKey.Data(), &offsets[0], sizeof(offsets),
+                        sizeof(offsets) / sizeof(double), TID_DOUBLE);
+  if(status != CM_SUCCESS){
+    cm_msg(MERROR, "Calibration.cxx", "Couldn't write %s, status = %d\n", offKey.Data(), status);
+    cm_disconnect_experiment();
+  }
+  // Write slopes to odb
+  status = db_set_value(hDB, 0, slopeKey.Data(), &slopes[0], sizeof(slopes),
+                        sizeof(slopes) / sizeof(double), TID_DOUBLE);
+  if(status != CM_SUCCESS){
+    cm_msg(MERROR, "Calibration.cxx", "Couldn't write %s, status = %d\n", slopeKey.Data(), status);
+    cm_disconnect_experiment();
+  }
+
+  /* disconnect from experiment */
+  cm_disconnect_experiment();
+
   std::cout << "ATTENTION: gains and offsets written to odb!\n";
   // Check if $DH is set
   if(!(gSystem->Getenv("DH"))) gSystem->Setenv("DH","PWD");
