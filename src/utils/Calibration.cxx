@@ -113,7 +113,7 @@ dutils::DsssdCalibrator::Param_t dutils::DsssdCalibrator::GetParams(Int_t channe
 {
   if((UInt_t)channel > NDSSSD - 1) {
     std::cerr << "Invalid channel " << channel << ", valid range is [0, 31].\n";
-    Param_t junk = {0, 0, 0, 0};
+    Param_t junk = {0, 0, 0};
     return junk;
   }
   return fParams[channel];
@@ -125,7 +125,7 @@ dutils::DsssdCalibrator::Param_t dutils::DsssdCalibrator::GetOldParams(Int_t cha
 {
   if((UInt_t)channel > NDSSSD - 1) {
     std::cerr << "Invalid channel " << channel << ", valid range is [0, 31].\n";
-    Param_t junk = {0, 0, 0, 0};
+    Param_t junk = {0, 0, 0};
     return junk;
   }
   return fOldParams[channel];
@@ -228,7 +228,7 @@ void dutils::DsssdCalibrator::GainMatch()
     else{
       fParams[i].slope /= fMaxSlope;
     }
-    fParams[i].offset /= fMaxSlope; //(fParams[i].intercept / fParams[i].slope);
+    fParams[i].offset /= fMaxSlope;
   }
 }
 
