@@ -44,7 +44,7 @@ namespace dragon {
       void PrintResults(const char* outfile = 0);
       void PrintOdb(const char* outfile = 0);
       void WriteJson(const char* outfile = "$DH/../calibration/dsssdcal.json");
-#ifdef USE_MIDAS // Enable WriteOdb method which contains calls to MIDAS methods
+#ifdef MIDASSYS // Enable WriteOdb method which contains calls to MIDAS methods
       void WriteOdb(Bool_t json = kTRUE, Bool_t xml = kTRUE);
 #endif
       void WriteXml(const char* outfile = "$DH/../calibration/dsssdcal.xml");
