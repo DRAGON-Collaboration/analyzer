@@ -9,7 +9,6 @@
 /// Example ROOT startup script to automatically load libDragon.so when an
 /// interactive ROOT session is started. Place this script wherever you want,
 /// but make sure you alter the path in .rootrc accordingly
-
 #ifndef DOXYGEN_SKIP
 {
   cout << "-------------------------------------------------\n";
@@ -152,3 +151,9 @@
 }
 
 #endif // DOXYGEN_SKIP
+
+// emacs
+// Local Variables:
+// tab-width: 8
+// c-basic-offset: 3
+// End:

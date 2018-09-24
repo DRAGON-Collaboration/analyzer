@@ -548,7 +548,7 @@ namespace dragon {
 	/// Reuturn pointer to the currently set run file
 	TFile* GetFile() const { return fFile; }
 	/// \brief Change the run file
-	/// \atention Does not clear previous calculations
+	/// \attention Does not clear previous calculations
 	void SetFile(TFile* file) { fFile = file; }
 
 	/// Reset all stored data (livetimes, etc.) to zero

@@ -1,5 +1,11 @@
 \documentclass{article}
+\usepackage{ifthen}
 \usepackage{epsfig}
+\usepackage{newunicodechar}
+  \newunicodechar{⁻}{${}^{-}$}% Superscript minus
+  \newunicodechar{²}{${}^{2}$}% Superscript two
+  \newunicodechar{³}{${}^{3}$}% Superscript three
+
 \pagestyle{empty}
 \begin{document}
 \begin{equation} m_2(m_1,m_3)m_4 \end{equation}

@@ -340,9 +340,9 @@ root[0] gSystem->Load("LibRIO.so");
   \endcode
 
   As far as I can tell, this is functionally inconsequential, but if the warning bothers you, entering the following before loading the root file should solve the issue:
-  ~~~{.cpp}
-  ROOT::AddClassAlternate("dragon::TdcChannel<5>","dragon::TdcChannel<MAX_RF_HITS>")
-  ~~~
+~~~{.cpp}
+ROOT::AddClassAlternate("dragon::TdcChannel<5>","dragon::TdcChannel<MAX_RF_HITS>")
+~~~
 
 \anchor off_3 __3. How do I convert MIDAS files into ROOT files?__
 
@@ -372,59 +372,59 @@ root[0] gSystem->Load("LibRIO.so");
   There are a few ways to accomplish this:
 
   1. Use `TTree::GetEntry()`
-  ~~~{.cpp}
-  dragon::Tail* ptail = new dragon::Tail(); // create an instance of the tail class to store event-by-event data
-  t3->SetBranchAddress("tail", &ptail);     // 't3' now associates the "tail" branch with 'ptail'
-  t3->GetEntry(0); // 'ptail' now holds all the data from event 0
-  double mcpTac = ptail->mcp.tac;
+~~~{.cpp}
+dragon::Tail* ptail = new dragon::Tail(); // create an instance of the tail class to store event-by-event data
+t3->SetBranchAddress("tail", &ptail);     // 't3' now associates the "tail" branch with 'ptail'
+t3->GetEntry(0); // 'ptail' now holds all the data from event 0
+double mcpTac = ptail->mcp.tac;
 
-  //// use mcpTac however you need to //
+//// use mcpTac however you need to //
 
-  t3->ResetBranchAddresses(); // free 'ptail' from it's association with "t3"
-  delete ptail; // release the memory allocated to ptail
-  ~~~
+t3->ResetBranchAddresses(); // free 'ptail' from it's association with "t3"
+delete ptail; // release the memory allocated to ptail
+~~~
   Typically this method is best if you need to loop over many entries and use a large number of parameters in your loop code. Otherwise, the syntax is quite cumbersome, and it is rather poor performance-wise since you have to read _all_ of the data from every event, rather than just the branches you want.
   \n\n
   2. Use `TLeaf::GetValue()`
-  ~~~{.cpp}
-  t3->GetEntry(0); // load the 0th entry in the tree
-  double mcpTac = t3->GetLeaf("mcp.tac")->GetValue(); // read the value at "mcp.tac"
-  ~~~
+~~~{.cpp}
+t3->GetEntry(0); // load the 0th entry in the tree
+double mcpTac = t3->GetLeaf("mcp.tac")->GetValue(); // read the value at "mcp.tac"
+~~~
   Note that for arrays you have to specify the array index as the GetValue() argument, _not_ in the GetLeaf() string argument:
-  ~~~{.cpp}
-  t3->GetEntry(0);
-  double dsssd15 = t3->GetLeaf("dsssd.ecal")->GetValue(15);
-  ~~~
+~~~{.cpp}
+t3->GetEntry(0);
+double dsssd15 = t3->GetLeaf("dsssd.ecal")->GetValue(15);
+~~~
   This method is nice if you just want to get the values of a few parameters for a few events.
   \n\n
   3. Use `TTree::Draw()` -
-  ~~~{.cpp}
-  t3->Draw("mcp.tac", "", "goff"); // no graphics output, but the drawn data are saved event-by-event in arrays
-  double mcpTac = t3->GetV1()[0];  // mcpTac is now set to the 'mcp.tac' value from event 0
-  ~~~
+~~~{.cpp}
+t3->Draw("mcp.tac", "", "goff"); // no graphics output, but the drawn data are saved event-by-event in arrays
+double mcpTac = t3->GetV1()[0];  // mcpTac is now set to the 'mcp.tac' value from event 0
+~~~
   You can also Draw and extract two or more (up to four) parameters at once.
-  ~~~{.cpp}
-  t3->Draw("dsssd.ecal[15]:mcp.tac", "", "goff");
-  double dsssd15 = t3->GetV1()[0];  // dsssd15 is now set to the 'dsssd.ecal[15]' value from event 0
-  double mcpTac  = t3->GetV2()[0];  // mcpTac is now set to the 'mcp.tac' value from event 0
-  ~~~
+~~~{.cpp}
+t3->Draw("dsssd.ecal[15]:mcp.tac", "", "goff");
+double dsssd15 = t3->GetV1()[0];  // dsssd15 is now set to the 'dsssd.ecal[15]' value from event 0
+double mcpTac  = t3->GetV2()[0];  // mcpTac is now set to the 'mcp.tac' value from event 0
+~~~
   This method has the advantage that you can specify a gate in the Draw() command, thus allowing you to loop over only the events satisfying the cut condition. It is also very efficient and thus good for looping over all or part of a tree and extracting a few parameters event-by-event.
   \warning
   This method does have one potential pitfall: The arrays returned by `GetV1()`, etc. have a default maximum size of 10<sup>6</sup> events. If your Tree has more entries than this, then using the brackets [] to get entries after the 10<sup>6</sup>th entry will be undefined. To rectify this, use `TTree::SetEstimate()` -
-  ~~~{.cpp}
-  Long64_t nevts = t3->Draw("mcp.tac", "", "goff"); // (returns, say, 5000000)
+~~~{.cpp}
+Long64_t nevts = t3->Draw("mcp.tac", "", "goff"); // (returns, say, 5000000)
 
 //// - BAD - //
-  for (Long64_t event = 0; event < nevts; ++event) {
-    std::cout << "Event " << event << ": mcp.tac = " << t3->GetV1()[event] << "\n"; // BAD!!! for event > 999999, the result is undefined
-  }
+for (Long64_t event = 0; event < nevts; ++event) {
+  std::cout << "Event " << event << ": mcp.tac = " << t3->GetV1()[event] << "\n"; // BAD!!! for event > 999999, the result is undefined
+}
 
 //// - GOOD - //
-  t3->SetEstimate(nevts);
-  for (Long64_t event = 0; event < nevts; ++event) {
-    std::cout << "Event " << event << ": mcp.tac = " << t3->GetV1()[event] << "\n"; // Okay, GetV1() now valied up to index [nevts-1]
-  }
-  ~~~
+t3->SetEstimate(nevts);
+for (Long64_t event = 0; event < nevts; ++event) {
+  std::cout << "Event " << event << ": mcp.tac = " << t3->GetV1()[event] << "\n"; // Okay, GetV1() now valied up to index [nevts-1]
+}
+~~~
 
 \endparblock
 
@@ -439,8 +439,6 @@ Useful resources include the [ROOT guide](http://root.cern.ch/drupal/content/use
 
 A useful resource for learning C++ is [cplusplus.com](http://www.cplusplus.com/), and the [tutorials](http://www.cplusplus.com/doc/tutorial/) therein.
 
-\endparblock
-
 \anchor off_9 __9. I can never remember all of the parameter names in the ROOT trees. Is there a way to find this out easily?__
 
   Use the `TTree::StartViewer()` command, e.g. `t3->StartViewer()` to see a complete graphical listing of all
@@ -452,9 +450,9 @@ A useful resource for learning C++ is [cplusplus.com](http://www.cplusplus.com/)
   Take advantage of `TTree::Draw()` and its features for parsing arrays. To draw DSSSD energy vs. channel just
   do the following:
   
-  ~~~{.cpp}
-  t3->Draw("Iteration$:dsssd.ecal[]>>hst(400,0,4000,32,0,32)", "", "colz");
-  ~~~
+~~~{.cpp}
+t3->Draw("Iteration$:dsssd.ecal[]>>hst(400,0,4000,32,0,32)", "", "colz");
+~~~
 
   For more information on the options available using `TTree::Draw()`, see the [class method documentation](http://root.cern.ch/root/html/TTree.html#TTree:Draw@2).
 
@@ -466,33 +464,33 @@ A useful resource for learning C++ is [cplusplus.com](http://www.cplusplus.com/)
 
   Long answer: Each detector element in DRAGON is represented by a C++ class in the analyzer. Each detector class contains data members which correspond to experimental parameters recorded by the corresponding detector. By arranging the various detector classes in a hierarchy, we create a tree-like structure describing experiment parameters. For example, the DSSSD parameters are arranged as follows:
   
- ~~~{.cpp}
-  class Dsssd {
-  public:
+~~~{.cpp}
+class Dsssd {
+public:
 ///// Calibrated energy signals
-    double ecal[MAX_CHANNELS]; //#
-    ///// Highest energy signal in the front strips (0 - 15)
-    double efront;      //#
-    ///// Highest energy signal in the back strips (16 - 31)
-    double eback;       //#
-    ///// Which strip was hit in the front strips
-    uint32_t hit_front; //#
-    ///// Which strip was hit in the back strips
-    uint32_t hit_back;  //#
-    ///// Calibrated time signal from the front strips
-    double tfront;      //#
-        ///// Calibrated time signal from the back strips
-    double tback;       //#
+  double ecal[MAX_CHANNELS]; //#
+  ///// Highest energy signal in the front strips (0 - 15)
+  double efront;      //#
+  ///// Highest energy signal in the back strips (16 - 31)
+  double eback;       //#
+  ///// Which strip was hit in the front strips
+  uint32_t hit_front; //#
+  ///// Which strip was hit in the back strips
+  uint32_t hit_back;  //#
+  ///// Calibrated time signal from the front strips
+  double tfront;      //#
+      ///// Calibrated time signal from the back strips
+  double tback;       //#
 
+  //// etc //
+};
+
+class Tail {
+public:
+    Dsssd dsssd;
     //// etc //
-  };
-
-  class Tail {
-  public:
-      Dsssd dsssd;
-      //// etc //
-  };
-  ~~~
+};
+~~~
 
   This sets the DSSSD as a sub-element of Tail, with each of the DSSSD data members being sub-elements of DSSSD. Thus the full hierarchy for, say, the energy of channel 16 is `tail.dsssd.ecal[16]`. When using ROOT, the class hierarchy is parsed into a `TTree` branch structure, meaning that the parameter name for DSSSD energy, channel 16 is exactly as noted.
 
@@ -502,9 +500,9 @@ A useful resource for learning C++ is [cplusplus.com](http://www.cplusplus.com/)
 
   The jitter mentioned above is common to every measurement channel, so it can be removed by simply subtracting channels from each other in software. However, this is _not_ done in the default anaylzer for the `tcal` parameters - what you are looking at when you view, say, `bgo.tcal[0]` contains jitter. The `tcal` parameters have, however, been calibrated into nanoseconds by multiplying by a slope of 0.1 (the nominal resolution of the TDC is 100 ps / channel the way we operate it). If you want to view calibrated times without jitter, the easiest thing to do is to subtract off the trigger time (`tcal0`) yourself, i.e.
   
-  ~~~{.cpp}
-  t1->Draw("bgo.tcal[0] - tcal0")
-  ~~~
+~~~{.cpp}
+t1->Draw("bgo.tcal[0] - tcal0")
+~~~
   
   The time-of-flight parameters (e.g. `coinc.xtofh`, `hi.tof.mcp_dsssd`, etc.) _do_ have jitter subtracted since they are calculated by subtracting two `tcal` values from each other.
 
@@ -516,9 +514,9 @@ A useful resource for learning C++ is [cplusplus.com](http://www.cplusplus.com/)
 
   Yes, every time the EPICS frontend polls a channel for data, it sends the results to the `SYSTEM` buffer. From there, they go into both the online analysis pipeline and into the saved `run****.mid` file if data recording is turned on. The analyzer upacks EPICS events into a ROOT tree (`t20`) with two parameters (in addition to a MIDAS event header): channel number [`ch`] and value [`val`]. So to see, for intance, the recorded values of EPICS channel 0 versus time, plot the following:
   
-  ~~~{.cpp}
-  t20->Draw("val:header.fTimeStamp", "ch == 0");
-  ~~~
+~~~{.cpp}
+t20->Draw("val:header.fTimeStamp", "ch == 0");
+~~~
   
 \anchor oloff_5 __5. What is the channel number for EPICS device *x*?__
 

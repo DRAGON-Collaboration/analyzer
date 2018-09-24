@@ -1,9 +1,8 @@
 ################################################################################
-### \file rootlogon.C
-### \author D. Connolly
-### \brief Example .rootrc script
+### rootlogon.C
+### D. Connolly
+### Example .rootrc script
 ################################################################################
-
 
 ################################################################################
 ### Example .rootrc script giving the location of rootlogon.C startup script
