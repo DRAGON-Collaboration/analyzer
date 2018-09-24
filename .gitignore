@@ -39,5 +39,6 @@ bin/*
 Makefile.local
 config.mk
 docs/html/analyzer/latex
+docs/html/frontend/latex
 test/filltest
 .#*
