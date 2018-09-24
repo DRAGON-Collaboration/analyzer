@@ -419,7 +419,15 @@ gInterpreter->AddIncludePath(gSystem->ExpandPathName("${HOME}/packages/dragon/an
 gSystem->Load("${HOME}/packages/dragon/analyzer/lib/libDragon.so");
 ~~~
 
-Then create the file `${HOME}/.rootrc` and include the following line in it:
+\note Since `rootlogon.C` is simply a ROOT `C++` script containing commands to be interpreted by `cint`/`cling`, it is necessary to enclose all commands in braces i.e.:
+~~~{.cpp}
+{
+  gInterpreter->AddIncludePath(gSystem->ExpandPathName("${HOME}/packages/dragon/analyzer/src"));
+  gSystem->Load("${HOME}/packages/dragon/analyzer/lib/libDragon.so");
+}
+~~~
+
+Then create the file `${HOME}/.rootrc` (if it doesn't already exist) and include the following line in it:
 
 \code
 Rint.Logon: /path/to/your/rootlogon.C
@@ -486,15 +494,15 @@ Now that you know how to specify what file to read the histogram definitions fro
 -# DIR: Create a directory.\n
   The succeeding line should contain the full path of the directory as plain text.\n
   For example:
-  ~~~{.cpp}
-  DIR:
-      histos/gamma
-  ~~~
+~~~{.cpp}
+DIR:
+    histos/gamma
+~~~
   This would create a new directory "histos", with "gamma" as a sub-directory. Note that if you later do
-  ~~~{.cpp}
-  DIR:
-      histos/hion
-  ~~~
+~~~{.cpp}
+DIR:
+    histos/hion
+~~~
   the "histos" directory would not be re-created; instead, "hion" would be added as a new sub-directory. When you specify a directory, any histogram definitions succeeding it will be members of that directory, until another directory line is encountered. If any histograms are defined before the first "DIR:" command, they will belong to the "top level" directory (e.g. in a TFile, their owning directory will be the TFile itself).
   \n\n
 -# TH1D: Create a 1d histogram.\n
@@ -502,23 +510,23 @@ Now that you know how to specify what file to read the histogram definitions fro
   1) the argument to a TH1D constructor \n
   2) the parameter to display in the histogram.\n
   Example:
-  ~~~{.cpp}
-  TH1D:
-    ("bgo_e0", "Bgo energy, channel 0 [singles]", 256, 0, 4096)
-      rootana::gHead.bgo.ecal[0]
-  ~~~
+~~~{.cpp}
+TH1D:
+  ("bgo_e0", "Bgo energy, channel 0 [singles]", 256, 0, 4096)
+    rootana::gHead.bgo.ecal[0]
+~~~
   (note that the indentations are only for readability, not required). This creates a histogram with name "`bgo_e0`", title "Bgo energy, channel 0 [singles]", and ranging from 0 to 4096 with 256 bins. The parameter to be displayed in the histogram would be rootana::gHead.bgo.ecal[0].
   \n\n
 -# TH2D: Create a 2d histogram.\n
   Succeeding lines are in the same spirit as the 1d case, except a third line is added to specify the y-axis parameter.
   \n
   Example:
-  ~~~{.cpp}
-  TH2D:
-      ("bgo_e1_e0", "Bgo energy 1 vs. 0 [coinc]", 256, 0, 4096, 256, 0, 4096)
-      rootana::gCoinc.head.bgo.ecal[1]
-      rootana::gCoinc.head.bgo.ecal[0]
-  ~~~
+~~~{.cpp}
+TH2D:
+    ("bgo_e1_e0", "Bgo energy 1 vs. 0 [coinc]", 256, 0, 4096, 256, 0, 4096)
+    rootana::gCoinc.head.bgo.ecal[1]
+    rootana::gCoinc.head.bgo.ecal[0]
+~~~
   Creates a histogram of rootana::gCoinc.head.bgo.ecal[1] [x-axis] vs. rootana::gCoinc.head.bgo.ecal[0] [y-axis].
   \n\n
 -# TH3D Create a 3d histogram.\n
@@ -532,11 +540,11 @@ Now that you know how to specify what file to read the histogram definitions fro
   2) The scaler parameter you want to histogram.
   \n
   Example:
-  ~~~{.cpp}
-  SCALER:
-      ("rate_ch0", "Rate of scaler channel 0", 5000, 0, 5000);
-      rootana::gHeadScaler.rate[0]
-  ~~~
+~~~{.cpp}
+SCALER:
+    ("rate_ch0", "Rate of scaler channel 0", 5000, 0, 5000);
+    rootana::gHeadScaler.rate[0]
+~~~
   \n\n
 -# SUMMARY: Create a "summary" histogram, that is a histogram which displays information on multiple channels at once, like this:
   \n
@@ -549,31 +557,31 @@ Now that you know how to specify what file to read the histogram definitions fro
   2) The name of an array that you want to display in the histogram;\n
   3) The number of y-axis bins (should be equal to the length of the array).\n
   Example:
-  ~~~{.cpp}
-  SUMMARY:
-      ("bgo_q", "Bgo energies [singles]", 256, 0, 4096)
-      rootana::gHead.bgo.ecal
-      30
-  ~~~
+~~~{.cpp}
+SUMMARY:
+    ("bgo_q", "Bgo energies [singles]", 256, 0, 4096)
+    rootana::gHead.bgo.ecal
+    30
+~~~
   This would create a summary histogram of the 30 BGO detector energies contained in the rootana::gHead.bgo.ecal array (bgo.ecal[0] -> bgo.ecal[29]).
   \n\n
 -# CUT: Defines a cut.
   \n
   This defines a "cut" or "gate" condition that will be applied to the histogram defined directly before it. The cut condition is specified as a logical condition consisting of rootana::Cut derived classes. For more information on how to define a cut, see the code documentation of the Cut.hxx source file and links therein. As a simple example:
-  ~~~{.cpp}
-  TH1D:
-      ("bgo_e0", "Bgo energy, ch 0 [singles]", 256, 0, 4096)
-      rootana::gHead.bgo.ecal[0]
-  CUT:
-      Less(gHead.bgo.ecal[0], 2000) && Greater(gHead.bgo.ecal[0], 100)
-  ~~~
+~~~{.cpp}
+TH1D:
+    ("bgo_e0", "Bgo energy, ch 0 [singles]", 256, 0, 4096)
+    rootana::gHead.bgo.ecal[0]
+CUT:
+    Less(gHead.bgo.ecal[0], 2000) && Greater(gHead.bgo.ecal[0], 100)
+~~~
   will create the "bgo_e0" histogram displaying bgo.ecal[0], with the condition that bgo.ecal[0] be greater-than 100 and less-than 2000.
   \n\n
   Note that you can also create/use 2d polygon cuts, either by specifying the parameters and (closed) polygon points:
-  ~~~{.cpp}
-  CUT:
-      Cut2D(gHead.bgo.q[0], gHead.bgo.q[1], -2,-2, -2,2, 2,2, 2,-2, -2,-2)
-  ~~~
+~~~{.cpp}
+CUT:
+    Cut2D(gHead.bgo.q[0], gHead.bgo.q[1], -2,-2, -2,2, 2,2, 2,-2, -2,-2)
+~~~
   This would create the following cut:
   \n
   \image html cut.png
@@ -582,31 +590,31 @@ Now that you know how to specify what file to read the histogram definitions fro
   \n\n
 -# CMD: Evaluates a series of commands in CINT.\n
   The succeeding lines are a series of C++ statements to be evaluated literally in the CINT interpreter, closed by a line containing only "END". Any objects created within these statements will become available for use in future commands throughout the definition file. Note that each file should only contain one "CMD:" statement (if it contains any), and that it should be the first "active" code within the file. As an example, we could use "CMD:" to define a graphical cut:
-  ~~~{.cpp}
-  CMD:
-    TCutG cutg("cutTest",7);
-    cutg.SetVarX("");
-    cutg.SetVarY("");
-    cutg.SetTitle("Graph");
-    cutg.SetFillColor(1);
-    cutg.SetPoint(0,37.8544,70.113);
-    cutg.SetPoint(1,25.5939,41.5819);
-    cutg.SetPoint(2,54.9042,28.0226);
-    cutg.SetPoint(3,83.0651,35.3672);
-    cutg.SetPoint(4,81.5326,53.1638);
-    cutg.SetPoint(5,59.3103,79.1525);
-    cutg.SetPoint(6,37.8544,70.113);
-  END
-  ~~~
+~~~{.cpp}
+CMD:
+  TCutG cutg("cutTest",7);
+  cutg.SetVarX("");
+  cutg.SetVarY("");
+  cutg.SetTitle("Graph");
+  cutg.SetFillColor(1);
+  cutg.SetPoint(0,37.8544,70.113);
+  cutg.SetPoint(1,25.5939,41.5819);
+  cutg.SetPoint(2,54.9042,28.0226);
+  cutg.SetPoint(3,83.0651,35.3672);
+  cutg.SetPoint(4,81.5326,53.1638);
+  cutg.SetPoint(5,59.3103,79.1525);
+  cutg.SetPoint(6,37.8544,70.113);
+END
+~~~
   This cut is then available in future statements; for example to create a Cut2D object to be applied to a histogram
-  ~~~
-  SUMMARY:
-    ("bgo_ecal", "Bgo energies [singles]", 256, 0, 4096)
-    rootana::gHead.bgo.ecal 
-    30
-  CUT:
-    Cut2D(gHead.bgo.ecal[0], gHead.bgo.ecal[1], cutg)
-  ~~~
+~~~
+SUMMARY:
+  ("bgo_ecal", "Bgo energies [singles]", 256, 0, 4096)
+  rootana::gHead.bgo.ecal 
+  30
+CUT:
+  Cut2D(gHead.bgo.ecal[0], gHead.bgo.ecal[1], cutg)
+~~~
   The above example would apply the graphical cut "cutg" defined in the "CMD:" statement to the "bgo_ecal" histogram.
 
 With combinations of the above commands, you should hopefully be able to define any histogram-related objects you will need in the online analyzer without ever having to touch the source code. A few more notes about histogram definition files:
@@ -663,16 +671,16 @@ In writing this code, I have tried to adhere to a few design principles. I will 
   The basic idea is that we want to take the important data captured during a DRAGON event and break it down into a tree-like structure. In general, each "branch" of the tree corresponds to a different detector within the DRAGON system, and the various "leaves" correspond to quantities measured by that detector. For example, see the dragon::Coinc documentation and the "Attribute" links therein.
   \n
   Taking this approach allows a couple of practical advantages beyond code organization and maintenance. The main one is that we can use ROOT's dictionary facility to create `TTree`s whith branches defined by the structure of our classes. For example we can just do:
-  ~~~{.cpp}
-  dragon::Coinc* coinc = new dragon::Coinc();
-  TTree tcoinc("tcoinc","Coincidence event");
-  tcoinc.Branch("coinc","dragon::Coinc",&coinc);
-  ~~~
+~~~{.cpp}
+dragon::Coinc* coinc = new dragon::Coinc();
+TTree tcoinc("tcoinc","Coincidence event");
+tcoinc.Branch("coinc","dragon::Coinc",&coinc);
+~~~
   After just a few lines of code, we now have the ability to access any parameter in a DRAGON coincidence event through the 'tcoinc' tree:
-  ~~~{.cpp}
-  tcoinc.Draw("coinc.head.bgo.ecal[0]>>hst_e0(400,0,4000)"); // Draws BGO energy, channel 0
-  tcoinc.Draw("coinc.tail.mcp.tac>>hst_tac(200,0,2000)"); // Draws MCP TOF
-  ~~~
+~~~{.cpp}
+tcoinc.Draw("coinc.head.bgo.ecal[0]>>hst_e0(400,0,4000)"); // Draws BGO energy, channel 0
+tcoinc.Draw("coinc.tail.mcp.tac>>hst_tac(200,0,2000)"); // Draws MCP TOF
+~~~
   In writing the DRAGON classes, I have not used any sort of inheritance, as there is really no compelling reason to do so (in particular, we have no need for dynamic polymorphism). I have, however, tried to maintain a uniform interface for each of the classes. For example, each detector class has the following three methods:
   \n
   -# `read_data()` - Takes raw data from vme module classes and maps it into the class's internal data structures.
@@ -681,66 +689,66 @@ In writing this code, I have tried to adhere to a few design principles. I will 
 
   \n 
   Developing with a common interface, aside from being "neater" allows for some practical advantages, such as using template "helper" functions to bundle routines used for a variety of different classes. For example:
-  ~~~{.cpp}
-  template <class T>
-  void handle_event(T& detector, const vme::V785 adc[], const vme::V1190& tdc)
-  {
-      detector.reset();
-      detector.read_data(adc, tdc);
-      detector.calculate();
-  }
-      
-  void handle_all_events()
-  {
-      handle_event(mcp, adc, tdc); // mcp is an instance of dragon::Mcp
-      handle_event(ic, adc, tdc); // ic is an instance of dragon::IonChamber
-      //// ... etc ... //
-  }
-  ~~~
+~~~{.cpp}
+template <class T>
+void handle_event(T& detector, const vme::V785 adc[], const vme::V1190& tdc)
+{
+    detector.reset();
+    detector.read_data(adc, tdc);
+    detector.calculate();
+}
+    
+void handle_all_events()
+{
+    handle_event(mcp, adc, tdc); // mcp is an instance of dragon::Mcp
+    handle_event(ic, adc, tdc); // ic is an instance of dragon::IonChamber
+    //// ... etc ... //
+}
+~~~
   Another feature that I have adhered to is to allow class data members to be public. Although this goes against canonical object oriented good principles, I think the advantages outweight the disadvantages. This is particularly true if we are working in CINT to analyze data.<SUP><a href=#footnotes><b>1</b></a></SUP> For example, with public data, it's trivial to loop over a tree, calculate some new parameter and display it in a histogram. For example, say I want to plot the square of MCP time-of-flight in cases where it is nonzero:
-  ~~~{.cpp}
-  //// Assume prior existance of a TTree 't' containing heavy-ion data
-  dragon::Tail tail;
-  void* tailAddr = &tail;
-  t->SetBranchAddress("tail", &tailAddr);
-  TH1D hst("hst", "MCP Tof **2", 100, 0, 10000);
-  for(Long64_t event = 0; event < t->GetEntries(); ++event) {
-      t->GetEntry(event);
-      if (tail.mcp.tac > 0) {
-      hst.Fill(pow(tail.map.tac, 2));
-      }
-  }
-  hst->Draw();
-  ~~~
+~~~{.cpp}
+//// Assume prior existance of a TTree 't' containing heavy-ion data
+dragon::Tail tail;
+void* tailAddr = &tail;
+t->SetBranchAddress("tail", &tailAddr);
+TH1D hst("hst", "MCP Tof **2", 100, 0, 10000);
+for(Long64_t event = 0; event < t->GetEntries(); ++event) {
+    t->GetEntry(event);
+    if (tail.mcp.tac > 0) {
+    hst.Fill(pow(tail.map.tac, 2));
+    }
+}
+hst->Draw();
+~~~
   However, despite the usefulness of public data for scripting use, it is still a good idea to design the _source_ code as if the data were private. This reduces the coupling between the various classes, and as a result making a small change to the structure of one class (or module) is guaranteed not to affect the others. To enforce this, I have defined a macro `PRIVATE` which can be set to be equal to either `private` or `public` in the Makefile and defined all of the class data members under this token.
-  ~~~{.cpp}
-  class SomeDetector {
-  PRIVATE:
-    double some_parameter;
-    //// etc. //
-  };
-  ~~~
+~~~{.cpp}
+class SomeDetector {
+PRIVATE:
+  double some_parameter;
+  //// etc. //
+};
+~~~
   When developing the source code, one should make sure it will compile with PRIVATE=private  - to enforce good class design. Then when set up for "production" mode, switch over to PRIVATE=public to allow direct variable access in CINT (and in the python modules, if used).
   \n
 - __Add a layer of abstraction for commonly performed routines.__
   \n
   For example, to read raw QDC data into the dragon::Bgo class, we \e could do:
   \n
-  ~~~{.cpp}
-  void dragon::Bgo::read_data(const vme::V792& adc, const vme::V1190& tdc)
-  {
-      for (int i=0; i< MAX_CHANNELS; ++i) {
-        ecal[i] = vme.get_data(variables.adc.channel[i]);
-      }
-  }
-  ~~~
+~~~{.cpp}
+void dragon::Bgo::read_data(const vme::V792& adc, const vme::V1190& tdc)
+{
+    for (int i=0; i< MAX_CHANNELS; ++i) {
+      ecal[i] = vme.get_data(variables.adc.channel[i]);
+    }
+}
+~~~
   but instead we prefer to do the following, using utils::channel_map() to do the actual mapping.
-  ~~~{.cpp}
-  void dragon::Bgo::read_data(const vme::V792& adc, const vme::V1190& tdc)
-  {
-    utils::channel_map(ecal, MAX_CHANNELS, variables.adc.channel, adc);
-  }
-  ~~~
+~~~{.cpp}
+void dragon::Bgo::read_data(const vme::V792& adc, const vme::V1190& tdc)
+{
+  utils::channel_map(ecal, MAX_CHANNELS, variables.adc.channel, adc);
+}
+~~~
   The main motivation for this is to concentrate the majority of the "heavy lifting" used in various calculations into one place. This helps to reduce the occurrence of bugs due to re-writing of similar code, and if bugs are found to facilitate easier fixes. Most of the "heavy lifting" is done in free functions contained in the [`utils`](namespaceutils.html) namespace, or using [standard library algorithms](http://www.cplusplus.com/reference/algorithm/).	
 
 \subsection conventions Coding Conventions
@@ -755,49 +763,49 @@ Finally, there are a few stylistic issues to address. Much of this is just prefe
 
 - Brackets: for everything except function definitions, keep the opening bracket on the same line and the trailing bracket on a new line:
   \n
-  ~~~{.cpp}
-  namespace dragon {
+~~~{.cpp}
+namespace dragon {
 
-  class Bgo {
-  public:
-      void calculate();
-      //// ... //
-  };
-  } // namespace dragon
+class Bgo {
+public:
+    void calculate();
+    //// ... //
+};
+} // namespace dragon
 
-  void dragon::Bgo::calculate()
-  {
-      for (int i=0; i < MAX_CHANNELS; ++i ) {
-      //// ... //
-      }
-  //// ... //
-  }
-  ~~~
+void dragon::Bgo::calculate()
+{
+    for (int i=0; i < MAX_CHANNELS; ++i ) {
+    //// ... //
+    }
+//// ... //
+}
+~~~
 
-- In any class that might be parsed into a tree structure using rootcint, class members are all lowercase, should be descriptive yet brief when parsing classes into a tree structure, and should *not* use any form of Hungarian notation (as it will conflict with the "nicely descriptive" requirement). This has a practical advantage when we let ROOT parse our classes into a TTree: the brach names make sense and are logical. I would much rather type:
+- In any class that might be parsed into a tree structure using rootcint, class members are all lowercase, should be descriptive yet brief when parsing classes into a tree structure, and should *not* use any form of Hungarian notation (as it will conflict with the "nicely descriptive" requirement). This has a practical advantage when we let ROOT parse our classes into a `TTree`: the brach names make sense and are logical. I would much rather type:
   \n
-  ~~~{.cpp}
-  t->Draw("head.bgo.ecal[0]");
-  ~~~
+~~~{.cpp}
+t->Draw("head.bgo.ecal[0]");
+~~~
   than
   \n
-  ~~~{.cpp}
-  t->Draw("gHead.fBgo.fEnergy[0]"); // (following the ROOT / Taligent convention)
-  ~~~
-  For classes that are not intended to be made TTree branches, the ROOT/Taligent hungarian notation can be quite nice, however.
+~~~{.cpp}
+t->Draw("gHead.fBgo.fEnergy[0]"); // (following the ROOT / Taligent convention)
+~~~
+  For classes that are not intended to be made `TTree` branches, the ROOT/Taligent hungarian notation can be quite nice, however.
   \n
-- Whenever appropriate, prefer arrays to separate variables. For example, bgo energies are defined as
+- Whenever appropriate, prefer arrays to separate variables. For example, BGO energies are defined as
   \n
-  ~~~{.cpp}
-  double ecal[MAX_CHANNELS];
-  ~~~
+~~~{.cpp}
+double ecal[MAX_CHANNELS];
+~~~
   instead of
-  ~~~{.cpp}
-  double ecal0;
-  double ecal1;
-  //// ... //
-  double ecal29;
-  ~~~
+~~~{.cpp}
+double ecal0;
+double ecal1;
+//// ... //
+double ecal29;
+~~~
   This has a number of practical advantages, such as allowing for loops and std::algorithms to handle the data, and in general it makes life much easier in later analyses as well. It also avoids any issues about whether to start counting at one or zero, since arrays always start from zero.
 
 \subsection doc Documentation
