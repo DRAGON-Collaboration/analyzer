@@ -6,4 +6,4 @@
 - K. Olchanski
 
 
-[Mainpage.dox](doc/Mainpage.dox)
+[Mainpage.dox](Mainpage.dox)

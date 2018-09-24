@@ -1,5 +1,5 @@
 rbconfig
-doc/Doxyfile.bak
+docs/Doxyfile.bak
 anaDragon
 gmon.out
 *.root
@@ -22,7 +22,7 @@ midas.log
 *.mid
 *.so
 *.dylib
-doc/.DS_Store
+docs/.DS_Store
 .DS_Store
 lib/libDragon.so.dSYM/
 lib/*.dsym
@@ -38,7 +38,7 @@ examples/*.so
 bin/*
 Makefile.local
 config.mk
-doc/html
-doc/latex
+docs/html
+docs/latex
 test/filltest
 .#*

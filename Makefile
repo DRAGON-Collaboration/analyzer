@@ -199,7 +199,7 @@ clean: $(CLEAN_ALL)
 
 #### FOR DOXYGEN ####
 doc::
-	cd doc ; doxygen Doxyfile ; cd ..
+	cd docs ; doxygen Doxyfile ; cd ..
 
 #### FOR UNIT TESTING ####
 mxml.o:           $(OBJ)/midas/libMidasInterface/mxml.o
