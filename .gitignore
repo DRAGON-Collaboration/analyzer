@@ -38,7 +38,6 @@ examples/*.so
 bin/*
 Makefile.local
 config.mk
-docs/html
-docs/latex
+docs/html/analyzer/latex
 test/filltest
 .#*
