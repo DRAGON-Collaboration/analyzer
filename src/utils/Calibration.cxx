@@ -351,6 +351,7 @@ void dutils::DsssdCalibrator::WriteJson(const char* outfile)
   std::cout << "ATTENTION: Current odb state saved as " << outfile << "\n";
 }
 
+#ifdef USE_MIDAS // Enable WriteOdb method which contains calls to MIDAS methods
 ////////////////////////////////////////////////////////////////////////////////
 /// Write calibration parameters to MIDAS ODB
 /// \param json flag to save ODB as a `.json` file
@@ -417,6 +418,7 @@ void dutils::DsssdCalibrator::WriteOdb(Bool_t json, Bool_t xml)
     std::cout << "ATTENTION: Current odb state saved to dsssdcal.json in ${DH}/../calibration/ !\n";
   }
 }
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Write calibration parameters to xml file
