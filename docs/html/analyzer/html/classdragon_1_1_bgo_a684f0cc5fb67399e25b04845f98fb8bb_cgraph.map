@@ -1,0 +1,10 @@
+<map id="dragon::Bgo::calculate" name="dragon::Bgo::calculate">
+<area shape="rect" id="node2" href="$namespacedragon_1_1utils.html#af0d52bca4227ea215597eea63f54e038" title="Sums all values in an array, &lt;e&gt;ignoring &quot;null&quot; values&lt;/e&gt; " alt="" coords="207,5,394,31"/>
+<area shape="rect" id="node3" href="$namespacedragon_1_1utils.html#af0b20ed1b460c05d629d18a0a0cc5a81" title="Check if a single value is valid. " alt="" coords="446,176,592,201"/>
+<area shape="rect" id="node4" href="$namespacedragon_1_1utils.html#ae885ac9340e0d57ad37092c62a87b260" title="Channel mapping from a plain array, not a module. " alt="" coords="227,107,375,145"/>
+<area shape="rect" id="node5" href="$namespacedragon_1_1utils.html#a18b22e3f633111286113cdad1b452ea5" title="Sort function which returns sorted indices instead of modifying the array. " alt="" coords="219,357,382,383"/>
+<area shape="rect" id="node7" href="$namespacedragon_1_1utils.html#ad51b51b73ea3a1a3db4149273d0e901e" title="Perform linear calibration on an array. " alt="" coords="234,169,368,208"/>
+<area shape="rect" id="node8" href="$namespacedragon_1_1utils.html#af2443159d7c94bb13964c6cdadac1adb" title="Perform pedestal subtraction on a single value. " alt="" coords="225,232,377,271"/>
+<area shape="rect" id="node9" href="$namespacedragon_1_1utils.html#aaece18d12b0f83d5f34224b8dd78ea2e" title="Perform zero suppression on an array with a single suppression value. " alt="" coords="237,295,364,333"/>
+<area shape="rect" id="node6" href="$namespacedragon_1_1utils.html#a09a769a54c7dbcc41b881ca9d4c9c279" title="Fills an array with it&#39;s index values. " alt="" coords="442,357,595,383"/>
+</map>

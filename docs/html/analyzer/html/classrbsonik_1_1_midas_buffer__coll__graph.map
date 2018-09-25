@@ -1,0 +1,45 @@
+<map id="rbsonik::MidasBuffer" name="rbsonik::MidasBuffer">
+<area shape="rect" id="node2" href="$classrbdragon_1_1_midas_buffer.html" title="Dragon&#45;specific r::MidasBuffer class. " alt="" coords="1843,251,1996,276"/>
+<area shape="rect" id="node3" href="$classrb_1_1_midas_buffer.html" title="Abstract class interfacing rb::BufferSource with MIDAS. " alt="" coords="1611,225,1722,251"/>
+<area shape="rect" id="node4" href="$classdragon_1_1_unpacker.html" title=" Handles unpacking event data " alt="" coords="1603,275,1730,300"/>
+<area shape="rect" id="node5" href="$classdragon_1_1_run_parameters.html" title="dragon::RunParameters" alt="" coords="1340,5,1504,31"/>
+<area shape="rect" id="node6" href="$classdragon_1_1_epics.html" title="dragon::Epics" alt="" coords="1371,55,1473,80"/>
+<area shape="rect" id="node7" href="$classdragon_1_1_epics_1_1_variables.html" title="dragon::Epics::Variables" alt="" coords="1019,56,1183,81"/>
+<area shape="rect" id="node9" title="STL class. " alt="" coords="394,92,473,117"/>
+<area shape="rect" id="node44" href="$classdragon_1_1_scaler_1_1_variables.html" title="dragon::Scaler::Variables" alt="" coords="732,123,902,148"/>
+<area shape="rect" id="node10" href="$classdragon_1_1_head.html" title="dragon::Head" alt="" coords="1050,319,1152,344"/>
+<area shape="rect" id="node46" href="$classdragon_1_1_coinc.html" title="dragon::Coinc" alt="" coords="1370,336,1474,361"/>
+<area shape="rect" id="node11" href="$classdragon_1_1_tdc_channel.html" title="dragon::TdcChannel\l\&lt; MAX_RF_HITS \&gt;" alt="" coords="746,389,888,428"/>
+<area shape="rect" id="node28" href="$classdragon_1_1_tail.html" title="dragon::Tail" alt="" coords="1056,649,1146,675"/>
+<area shape="rect" id="node12" href="$classdragon_1_1_tdc_channel_1_1_variables.html" title="TcdChannel variables. " alt="" coords="347,432,520,471"/>
+<area shape="rect" id="node13" href="$namespacedragon_1_1utils.html#structdragon_1_1utils_1_1_tdc_variables_3_011_01_4" title="Template specialization of TdcVariables&lt;N&gt; for a single channel. " alt="" coords="5,460,214,485"/>
+<area shape="rect" id="node27" href="$classdragon_1_1_head_1_1_variables.html" title="dragon::Head::Variables" alt="" coords="544,329,708,355"/>
+<area shape="rect" id="node35" href="$classdragon_1_1_dsssd_1_1_variables.html" title="dragon::Dsssd::Variables" alt="" coords="349,667,518,692"/>
+<area shape="rect" id="node38" href="$classdragon_1_1_tail_1_1_variables.html" title="dragon::Tail::Variables" alt="" coords="550,527,702,552"/>
+<area shape="rect" id="node14" href="$classvme_1_1_v1190.html" title="vme::V1190" alt="" coords="772,464,863,489"/>
+<area shape="rect" id="node15" href="$classvme_1_1_v1190_1_1_fifo.html" title="Holds measurement information in a first&#45;in&#45;first&#45;out structure. " alt="" coords="373,549,494,575"/>
+<area shape="rect" id="node18" href="$classvme_1_1_v1190.html#structvme_1_1_v1190_1_1_channel" title="Encloses measurement data for a single v1190 TDC channel. " alt="" coords="359,227,508,252"/>
+<area shape="rect" id="node20" href="$classvme_1_1_v792.html" title="vme::V792" alt="" coords="775,227,860,252"/>
+<area shape="rect" id="node21" href="$classdragon_1_1_bgo.html" title="dragon::Bgo" alt="" coords="770,276,864,301"/>
+<area shape="rect" id="node22" href="$classdragon_1_1_bgo_1_1_variables.html" title="dragon::Bgo::Variables" alt="" coords="356,276,512,301"/>
+<area shape="rect" id="node23" href="$namespacedragon_1_1utils.html#namespacedragon_1_1utils" title="dragon::utils::TdcVariables\l\&lt; MAX_CHANNELS \&gt;" alt="" coords="21,252,199,291"/>
+<area shape="rect" id="node24" href="$namespacedragon_1_1utils.html#namespacedragon_1_1utils" title="dragon::utils::PositionVariables\l\&lt; MAX_CHANNELS \&gt;" alt="" coords="8,315,211,353"/>
+<area shape="rect" id="node25" href="$classvme_1_1_io32.html" title="vme::Io32" alt="" coords="777,589,857,615"/>
+<area shape="rect" id="node26" href="$classvme_1_1_io32.html#structvme_1_1_io32_1_1_tsc4" title="Encloses TSC4 data. " alt="" coords="376,599,491,624"/>
+<area shape="rect" id="node29" href="$classdragon_1_1_hi_tof.html" title="Generic time&#45;of&#45;flight class for heavy&#45;ion detectors. " alt="" coords="767,639,868,664"/>
+<area shape="rect" id="node30" href="$classdragon_1_1_surface_barrier.html" title="dragon::SurfaceBarrier" alt="" coords="739,737,895,763"/>
+<area shape="rect" id="node31" href="$classdragon_1_1_surface_barrier_1_1_variables.html" title="dragon::SurfaceBarrier\l::Variables" alt="" coords="356,717,512,756"/>
+<area shape="rect" id="node32" href="$classdragon_1_1_ge.html" title="dragon::Ge" alt="" coords="773,787,861,812"/>
+<area shape="rect" id="node33" href="$classdragon_1_1_ge_1_1_variables.html" title="dragon::Ge::Variables" alt="" coords="359,780,509,805"/>
+<area shape="rect" id="node34" href="$classdragon_1_1_dsssd.html" title="dragon::Dsssd" alt="" coords="764,688,871,713"/>
+<area shape="rect" id="node36" href="$classdragon_1_1_ion_chamber.html" title="dragon::IonChamber" alt="" coords="746,836,889,861"/>
+<area shape="rect" id="node37" href="$classdragon_1_1_ion_chamber_1_1_variables.html" title="dragon::IonChamber\l::Variables" alt="" coords="362,829,505,868"/>
+<area shape="rect" id="node39" href="$classdragon_1_1_mcp.html" title="dragon::Mcp" alt="" coords="770,935,865,960"/>
+<area shape="rect" id="node40" href="$classdragon_1_1_mcp_1_1_variables.html" title="dragon::Mcp::Variables" alt="" coords="355,941,512,967"/>
+<area shape="rect" id="node41" href="$classdragon_1_1_na_i.html" title="dragon::NaI" alt="" coords="772,885,863,911"/>
+<area shape="rect" id="node42" href="$classdragon_1_1_na_i_1_1_variables.html" title="dragon::NaI::Variables" alt="" coords="357,892,510,917"/>
+<area shape="rect" id="node43" href="$classdragon_1_1_scaler.html" title="dragon::Scaler" alt="" coords="1208,131,1316,156"/>
+<area shape="rect" id="node45" href="$clasststamp_1_1_diagnostics.html" title="Class to store diagnostic information about coincidence matching. " alt="" coords="1353,385,1491,411"/>
+<area shape="rect" id="node47" href="$classdragon_1_1_coinc_1_1_variables.html" title="dragon::Coinc::Variables" alt="" coords="1018,368,1184,393"/>
+<area shape="rect" id="node49" href="$clasststamp_1_1_queue.html" title="Class to manage coincidence/singles ID. " alt="" coords="1047,844,1155,869"/>
+</map>

@@ -1,0 +1,17 @@
+<map id="dragon::Head" name="dragon::Head">
+<area shape="rect" id="node2" href="$classdragon_1_1_tdc_channel.html" title="dragon::TdcChannel\l\&lt; MAX_RF_HITS \&gt;" alt="" coords="732,51,874,89"/>
+<area shape="rect" id="node3" href="$classdragon_1_1_tdc_channel_1_1_variables.html" title="TcdChannel variables. " alt="" coords="347,5,520,44"/>
+<area shape="rect" id="node4" href="$namespacedragon_1_1utils.html#structdragon_1_1utils_1_1_tdc_variables_3_011_01_4" title="Template specialization of TdcVariables&lt;N&gt; for a single channel. " alt="" coords="5,41,214,67"/>
+<area shape="rect" id="node20" href="$classdragon_1_1_head_1_1_variables.html" title="dragon::Head::Variables" alt="" coords="544,103,708,128"/>
+<area shape="rect" id="node5" href="$classvme_1_1_v1190.html" title="vme::V1190" alt="" coords="758,205,849,231"/>
+<area shape="rect" id="node6" href="$classvme_1_1_v1190_1_1_fifo.html" title="Holds measurement information in a first&#45;in&#45;first&#45;out structure. " alt="" coords="373,177,494,203"/>
+<area shape="rect" id="node9" href="$classvme_1_1_v1190.html#structvme_1_1_v1190_1_1_channel" title="Encloses measurement data for a single v1190 TDC channel. " alt="" coords="359,233,508,259"/>
+<area shape="rect" id="node11" href="$classvme_1_1_v792.html" title="vme::V792" alt="" coords="761,255,846,280"/>
+<area shape="rect" id="node12" href="$classdragon_1_1_bgo.html" title="dragon::Bgo" alt="" coords="756,323,850,348"/>
+<area shape="rect" id="node13" href="$classdragon_1_1_bgo_1_1_variables.html" title="dragon::Bgo::Variables" alt="" coords="356,343,512,368"/>
+<area shape="rect" id="node14" href="$namespacedragon_1_1utils.html#namespacedragon_1_1utils" title="dragon::utils::TdcVariables\l\&lt; MAX_CHANNELS \&gt;" alt="" coords="21,281,199,320"/>
+<area shape="rect" id="node15" href="$namespacedragon_1_1utils.html#namespacedragon_1_1utils" title="dragon::utils::PositionVariables\l\&lt; MAX_CHANNELS \&gt;" alt="" coords="8,344,211,383"/>
+<area shape="rect" id="node16" href="$namespacedragon_1_1utils.html#namespacedragon_1_1utils" title="dragon::utils::AdcVariables\l\&lt; MAX_CHANNELS \&gt;" alt="" coords="20,407,199,445"/>
+<area shape="rect" id="node17" href="$classvme_1_1_io32.html" title="vme::Io32" alt="" coords="763,372,843,397"/>
+<area shape="rect" id="node18" href="$classvme_1_1_io32.html#structvme_1_1_io32_1_1_tsc4" title="Encloses TSC4 data. " alt="" coords="376,427,491,452"/>
+</map>

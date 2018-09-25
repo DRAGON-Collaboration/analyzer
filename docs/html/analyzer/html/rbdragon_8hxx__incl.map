@@ -1,0 +1,19 @@
+<map id="/Volumes/Data/Users/elzoido238/packages/dragon/analyzer/src/rootbeer/rbdragon.hxx" name="/Volumes/Data/Users/elzoido238/packages/dragon/analyzer/src/rootbeer/rbdragon.hxx">
+<area shape="rect" id="node4" href="$_event_8hxx.html" title="Defines an inherited class of TMidasEvent that includes specific functionality for timestamp coincide..." alt="" coords="692,265,772,291"/>
+<area shape="rect" id="node30" href="$_unpack_8hxx.html" title="Defines generic unpacking functions for different types of DRAGON events. " alt="" coords="816,119,907,144"/>
+<area shape="rect" id="node31" href="$_t_stamp_8hxx.html" title="Defines classes for managing singles/coincidence identification based on trigger timestamps. " alt="" coords="648,192,741,217"/>
+<area shape="rect" id="node32" href="$_dragon_8hxx.html" title="Defines dragon detector classes. " alt="" coords="1743,119,1833,144"/>
+<area shape="rect" id="node49" href="$rbsymbols_8hxx.html" title="Header file for functions / classes that should be imported into CINT. " alt="" coords="2064,119,2171,144"/>
+<area shape="rect" id="node14" href="$_error_dragon_8hxx.html" title="Defines C++ style error printing classes. " alt="" coords="1461,345,1608,371"/>
+<area shape="rect" id="node15" href="$_int_types_8h.html" title="File to make stdint.h play nice with both CINT and the new OS/X 10.9. " alt="" coords="1986,425,2096,451"/>
+<area shape="rect" id="node23" href="$_auto_ptr_8hxx.html" title="Simple smart pointer class. " alt="" coords="1285,425,1374,451"/>
+<area shape="rect" id="node33" href="$_variable_structs_8hxx.html" title="Defines some structs wrapping common groupings of variables. " alt="" coords="1851,192,2013,217"/>
+<area shape="rect" id="node34" href="$_vme_8hxx.html" title="Defines structures and routines for vme modules used in the DRAGON experiment. " alt="" coords="1913,265,1986,291"/>
+<area shape="rect" id="node39" href="$_defaults_8hxx.html" title="Sets default channel mappings and other variables. " alt="" coords="2089,192,2183,217"/>
+<area shape="rect" id="node40" href="$_database_8hxx.html" title="Defines a generic (online or from XML file) database reader. " alt="" coords="1393,192,1535,217"/>
+<area shape="rect" id="node46" href="$_functions_8hxx.html" title="Defines some functions commonly used in processing data. " alt="" coords="2197,265,2328,291"/>
+<area shape="rect" id="node35" href="$_valid_8hxx.html" title="Provides functions for setting and checking if data fields are invalid. " alt="" coords="2138,345,2240,371"/>
+<area shape="rect" id="node41" href="$_odb_8hxx.html" title="Defines a &quot;static&quot; class with functions to read MIDAS ODB data. " alt="" coords="1679,265,1750,291"/>
+<area shape="rect" id="node42" href="$_xml_8hxx.html" title="Defines a class to parse MIDAS XML files from the ODB. " alt="" coords="1206,265,1274,291"/>
+<area shape="rect" id="node48" href="$_bits_8hxx.html" title="Defines some macros to help in bitmasking. " alt="" coords="2367,345,2435,371"/>
+</map>

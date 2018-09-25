@@ -1,0 +1,19 @@
+<map id="/Volumes/Data/Users/elzoido238/packages/dragon/analyzer/src/Dragon.cxx" name="/Volumes/Data/Users/elzoido238/packages/dragon/analyzer/src/Dragon.cxx">
+<area shape="rect" id="node5" href="$_database_8hxx.html" title="Defines a generic (online or from XML file) database reader. " alt="" coords="773,192,915,217"/>
+<area shape="rect" id="node10" href="$_error_dragon_8hxx.html" title="Defines C++ style error printing classes. " alt="" coords="258,345,404,371"/>
+<area shape="rect" id="node28" href="$_functions_8hxx.html" title="Defines some functions commonly used in processing data. " alt="" coords="2377,265,2508,291"/>
+<area shape="rect" id="node32" href="$_valid_8hxx.html" title="Provides functions for setting and checking if data fields are invalid. " alt="" coords="2607,345,2681,371"/>
+<area shape="rect" id="node35" href="$definitions_8h.html" title="Defines constants used by multiple MIDAS clients. " alt="" coords="2583,119,2703,144"/>
+<area shape="rect" id="node36" href="$_defaults_8hxx.html" title="Sets default channel mappings and other variables. " alt="" coords="2310,192,2405,217"/>
+<area shape="rect" id="node37" href="$_dragon_8hxx.html" title="Defines dragon detector classes. " alt="" coords="1519,119,1609,144"/>
+<area shape="rect" id="node7" href="$_auto_ptr_8hxx.html" title="Simple smart pointer class. " alt="" coords="988,425,1105,451"/>
+<area shape="rect" id="node17" href="$_odb_8hxx.html" title="Defines a &quot;static&quot; class with functions to read MIDAS ODB data. " alt="" coords="507,265,578,291"/>
+<area shape="rect" id="node18" href="$_xml_8hxx.html" title="Defines a class to parse MIDAS XML files from the ODB. " alt="" coords="810,265,879,291"/>
+<area shape="rect" id="node11" href="$_int_types_8h.html" title="File to make stdint.h play nice with both CINT and the new OS/X 10.9. " alt="" coords="2168,425,2278,451"/>
+<area shape="rect" id="node23" href="$mxml_8h_source.html" title="mxml.h" alt="" coords="860,345,924,371"/>
+<area shape="rect" id="node24" href="$strlcpy_8h_source.html" title="strlcpy.h" alt="" coords="580,345,650,371"/>
+<area shape="rect" id="node31" href="$_bits_8hxx.html" title="Defines some macros to help in bitmasking. " alt="" coords="2312,345,2380,371"/>
+<area shape="rect" id="node38" href="$_variable_structs_8hxx.html" title="Defines some structs wrapping common groupings of variables. " alt="" coords="1424,192,1587,217"/>
+<area shape="rect" id="node39" href="$_event_8hxx.html" title="Defines an inherited class of TMidasEvent that includes specific functionality for timestamp coincide..." alt="" coords="1565,265,1684,291"/>
+<area shape="rect" id="node45" href="$_vme_8hxx.html" title="Defines structures and routines for vme modules used in the DRAGON experiment. " alt="" coords="2136,265,2209,291"/>
+</map>

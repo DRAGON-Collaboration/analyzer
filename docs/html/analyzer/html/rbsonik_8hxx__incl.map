@@ -1,0 +1,21 @@
+<map id="/Volumes/Data/Users/elzoido238/packages/dragon/analyzer/src/rootbeer/rbsonik.hxx" name="/Volumes/Data/Users/elzoido238/packages/dragon/analyzer/src/rootbeer/rbsonik.hxx">
+<area shape="rect" id="node5" href="$_event_8hxx.html" title="Defines an inherited class of TMidasEvent that includes specific functionality for timestamp coincide..." alt="" coords="1669,339,1749,364"/>
+<area shape="rect" id="node30" href="$_unpack_8hxx.html" title="Defines generic unpacking functions for different types of DRAGON events. " alt="" coords="1581,192,1672,217"/>
+<area shape="rect" id="node31" href="$_t_stamp_8hxx.html" title="Defines classes for managing singles/coincidence identification based on trigger timestamps. " alt="" coords="1528,265,1621,291"/>
+<area shape="rect" id="node32" href="$_dragon_8hxx.html" title="Defines dragon detector classes. " alt="" coords="919,192,1009,217"/>
+<area shape="rect" id="node47" href="$_sonik_8hxx.html" title="Defines SONIK detector class. " alt="" coords="1091,119,1170,144"/>
+<area shape="rect" id="node48" href="$rbsymbols_8hxx.html" title="Header file for functions / classes that should be imported into CINT. " alt="" coords="2557,192,2664,217"/>
+<area shape="rect" id="node50" href="$rbdragon_8hxx.html" title="Defines classes to interface dragon with the ROOTBEER framework. " alt="" coords="1848,119,1947,144"/>
+<area shape="rect" id="node15" href="$_error_dragon_8hxx.html" title="Defines C++ style error printing classes. " alt="" coords="1136,419,1282,444"/>
+<area shape="rect" id="node16" href="$_int_types_8h.html" title="File to make stdint.h play nice with both CINT and the new OS/X 10.9. " alt="" coords="362,499,472,524"/>
+<area shape="rect" id="node23" href="$_auto_ptr_8hxx.html" title="Simple smart pointer class. " alt="" coords="1416,499,1506,524"/>
+<area shape="rect" id="node33" href="$_variable_structs_8hxx.html" title="Defines some structs wrapping common groupings of variables. " alt="" coords="807,265,969,291"/>
+<area shape="rect" id="node34" href="$_vme_8hxx.html" title="Defines structures and routines for vme modules used in the DRAGON experiment. " alt="" coords="473,339,546,364"/>
+<area shape="rect" id="node38" href="$_defaults_8hxx.html" title="Sets default channel mappings and other variables. " alt="" coords="992,265,1087,291"/>
+<area shape="rect" id="node39" href="$_database_8hxx.html" title="Defines a generic (online or from XML file) database reader. " alt="" coords="1162,265,1304,291"/>
+<area shape="rect" id="node44" href="$_functions_8hxx.html" title="Defines some functions commonly used in processing data. " alt="" coords="149,339,280,364"/>
+<area shape="rect" id="node35" href="$_valid_8hxx.html" title="Provides functions for setting and checking if data fields are invalid. " alt="" coords="218,419,320,444"/>
+<area shape="rect" id="node40" href="$_odb_8hxx.html" title="Defines a &quot;static&quot; class with functions to read MIDAS ODB data. " alt="" coords="748,339,819,364"/>
+<area shape="rect" id="node41" href="$_xml_8hxx.html" title="Defines a class to parse MIDAS XML files from the ODB. " alt="" coords="1163,339,1232,364"/>
+<area shape="rect" id="node46" href="$_bits_8hxx.html" title="Defines some macros to help in bitmasking. " alt="" coords="126,419,194,444"/>
+</map>

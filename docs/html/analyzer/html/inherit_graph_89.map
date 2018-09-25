@@ -1,0 +1,12 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node2" href="$classrbdragon_1_1_aux_scaler.html" title="Aux scaler event. " alt="" coords="136,5,279,31"/>
+<area shape="rect" id="node3" href="$classrbdragon_1_1_coinc_event.html" title="Coincidence event. " alt="" coords="132,55,283,80"/>
+<area shape="rect" id="node4" href="$classrbdragon_1_1_epics_event.html" title="Epics event. " alt="" coords="133,104,282,129"/>
+<area shape="rect" id="node5" href="$classrbdragon_1_1_gamma_event.html" title="Singles head (gamma&#45;ray) event. " alt="" coords="126,153,289,179"/>
+<area shape="rect" id="node6" href="$classrbdragon_1_1_head_scaler.html" title="Head scaler event. " alt="" coords="132,203,284,228"/>
+<area shape="rect" id="node7" href="$classrbdragon_1_1_heavy_ion_event.html" title="Singles tail (heavy&#45;ion) event. " alt="" coords="121,252,294,277"/>
+<area shape="rect" id="node8" href="$classrbdragon_1_1_run_parameters.html" title="Global run parameters. " alt="" coords="120,301,295,327"/>
+<area shape="rect" id="node9" href="$classrbdragon_1_1_tail_scaler.html" title="Tail scaler event. " alt="" coords="138,351,278,376"/>
+<area shape="rect" id="node10" href="$classrbdragon_1_1_t_stamp_diagnostics.html" title="Timestamp diagnostics event. " alt="" coords="109,400,306,425"/>
+<area shape="rect" id="node11" href="$classrbsonik_1_1_sonik_event.html" title="Sonik event. " alt="" coords="138,449,277,475"/>
+</map>

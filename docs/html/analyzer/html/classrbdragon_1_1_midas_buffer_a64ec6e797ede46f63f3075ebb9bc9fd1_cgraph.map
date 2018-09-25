@@ -1,0 +1,8 @@
+<map id="rbdragon::MidasBuffer::RunStartTransition" name="rbdragon::MidasBuffer::RunStartTransition">
+<area shape="rect" id="node2" href="$namespacerbdragon.html#a7ab930755b0e3d3b40508885c40e2b27" title="Check auto&#45;zeroing level. " alt="" coords="224,5,382,31"/>
+<area shape="rect" id="node3" href="$namespacerbdragon.html#af7e1140c5e71cb91be55188e3efb2c98" title="Check SetAutoZeroOdb() " alt="" coords="211,55,395,80"/>
+<area shape="rect" id="node4" href="$classmidas_1_1_odb.html#a8466b78a3e365c03a49e93245eefc5b5" title="Read a boolean from the odb. " alt="" coords="226,104,381,129"/>
+<area shape="rect" id="node6" href="$classmidas_1_1_database.html#ad895a0df5bdea70e6a0e48f454c5299f" title="Read a single value. " alt="" coords="206,153,400,179"/>
+<area shape="rect" id="node7" href="$namespacerbdragon.html#a96f03b3ecd480cda91c7c62361887a19" title="Turn on/off histogram auto&#45;zeroing at run start. " alt="" coords="225,203,382,228"/>
+<area shape="rect" id="node5" href="$classmidas_1_1_odb.html#a8c56f390894631294b30ef50bf6d9120" title="Read any value from the odb. " alt="" coords="448,104,600,129"/>
+</map>

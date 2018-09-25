@@ -1,0 +1,18 @@
+<map id="/Volumes/Data/Users/elzoido238/packages/dragon/analyzer/src/utils/RootAnalysis.hxx" name="/Volumes/Data/Users/elzoido238/packages/dragon/analyzer/src/utils/RootAnalysis.hxx">
+<area shape="rect" id="node16" href="$_uncertainty_8hxx.html" title="Defines a class for storing and propagating gaussian uncertainties. " alt="" coords="313,125,425,151"/>
+<area shape="rect" id="node20" href="$_constants_8hxx.html" title="Defines some useful physical constants. " alt="" coords="60,125,166,151"/>
+<area shape="rect" id="node21" href="$_auto_ptr_8hxx.html" title="Simple smart pointer class. " alt="" coords="2127,439,2217,464"/>
+<area shape="rect" id="node23" href="$_dragon_8hxx.html" title="Defines dragon detector classes. " alt="" coords="1463,125,1553,151"/>
+<area shape="rect" id="node39" href="$_vme_8hxx.html" title="Defines structures and routines for vme modules used in the DRAGON experiment. " alt="" coords="2081,279,2154,304"/>
+<area shape="rect" id="node24" href="$_int_types_8h.html" title="File to make stdint.h play nice with both CINT and the new OS/X 10.9. " alt="" coords="1162,439,1272,464"/>
+<area shape="rect" id="node28" href="$_variable_structs_8hxx.html" title="Defines some structs wrapping common groupings of variables. " alt="" coords="1308,205,1471,231"/>
+<area shape="rect" id="node29" href="$_event_8hxx.html" title="Defines an inherited class of TMidasEvent that includes specific functionality for timestamp coincide..." alt="" coords="1448,279,1568,304"/>
+<area shape="rect" id="node42" href="$_defaults_8hxx.html" title="Sets default channel mappings and other variables. " alt="" coords="1546,205,1641,231"/>
+<area shape="rect" id="node43" href="$_database_8hxx.html" title="Defines a generic (online or from XML file) database reader. " alt="" coords="850,205,992,231"/>
+<area shape="rect" id="node48" href="$_functions_8hxx.html" title="Defines some functions commonly used in processing data. " alt="" coords="2372,279,2503,304"/>
+<area shape="rect" id="node38" href="$_error_dragon_8hxx.html" title="Defines C++ style error printing classes. " alt="" coords="745,359,892,384"/>
+<area shape="rect" id="node40" href="$_valid_8hxx.html" title="Provides functions for setting and checking if data fields are invalid. " alt="" coords="2329,359,2431,384"/>
+<area shape="rect" id="node44" href="$_odb_8hxx.html" title="Defines a &quot;static&quot; class with functions to read MIDAS ODB data. " alt="" coords="678,279,749,304"/>
+<area shape="rect" id="node45" href="$_xml_8hxx.html" title="Defines a class to parse MIDAS XML files from the ODB. " alt="" coords="1042,279,1110,304"/>
+<area shape="rect" id="node50" href="$_bits_8hxx.html" title="Defines some macros to help in bitmasking. " alt="" coords="2558,359,2626,384"/>
+</map>

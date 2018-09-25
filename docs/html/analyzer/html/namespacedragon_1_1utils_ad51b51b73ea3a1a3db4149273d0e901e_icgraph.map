@@ -1,0 +1,15 @@
+<map id="dragon::utils::linear_calibrate" name="dragon::utils::linear_calibrate">
+<area shape="rect" id="node2" href="$class_sonik.html#aec75ec5602e2de4ef5aabbdee3149cdd" title="Performs energy and time calibrations. " alt="" coords="228,5,343,31"/>
+<area shape="rect" id="node4" href="$classdragon_1_1_bgo.html#a684f0cc5fb67399e25b04845f98fb8bb" title="Do higher&#45;level parameter calculations. " alt="" coords="208,55,362,80"/>
+<area shape="rect" id="node5" href="$classdragon_1_1_dsssd.html#a7da968f73ad0dc590448d062e71cf5c2" title="Performs energy and time calibrations. " alt="" coords="202,104,369,129"/>
+<area shape="rect" id="node7" href="$classdragon_1_1_ion_chamber.html#ae995845529c99ca2889af23a2284c297" title="Calculate higher&#45;level parameters. " alt="" coords="214,153,357,192"/>
+<area shape="rect" id="node8" href="$classdragon_1_1_mcp.html#a5f5f6a61270c7b6d1077e2051b63dcd5" title="Calibrate ADC/TDC signals, calculate x and y positions. " alt="" coords="208,216,363,241"/>
+<area shape="rect" id="node9" href="$classdragon_1_1_surface_barrier.html#ab99ada99e6719a6ca01cba31531ac9a2" title="Final energy calculation. " alt="" coords="207,265,364,304"/>
+<area shape="rect" id="node10" href="$classdragon_1_1_na_i.html#a85f5682082905c45a3fbb99e9f1f004f" title="Do energy calibrations. " alt="" coords="210,328,361,353"/>
+<area shape="rect" id="node11" href="$classdragon_1_1_ge.html#aa636de8fcefa4e7fa6e06ad36bb79cb9" title="Do energy calibrations, pedestal subtractions. " alt="" coords="211,377,359,403"/>
+<area shape="rect" id="node12" href="$classdragon_1_1_tdc_channel.html#a0f72996463466abf5d87bd0e76868911" title="Calibrates TDC channels. " alt="" coords="187,427,384,465"/>
+<area shape="rect" id="node13" href="$classdragon_1_1_head.html#abc26bb2bb4db8ab70974163b1aab0634" title="Calculate higher&#45;level data for each detector, or across detectors. " alt="" coords="204,489,367,515"/>
+<area shape="rect" id="node14" href="$classdragon_1_1_tail.html#a3bf9b4f7988dccf6d5efed0148dce84c" title="Calculate higher&#45;level data for each detector, or across detectors. " alt="" coords="210,539,361,564"/>
+<area shape="rect" id="node3" href="$namespacem2r.html#abcd4e51760a6716dd8d7104c0555fd79" title="The main function implementation. " alt="" coords="468,5,556,31"/>
+<area shape="rect" id="node6" href="$classdragon_1_1_dsssd_calibrate.html#ae0a05b2e96cd7f30aaab1dc666b9c3f6" title="Process() helper. " alt="" coords="432,97,592,136"/>
+</map>

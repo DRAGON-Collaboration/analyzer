@@ -1,0 +1,13 @@
+<map id="dragon::Kin2Body::Kin2Body" name="dragon::Kin2Body::Kin2Body">
+<area shape="rect" id="node2" href="$classdragon_1_1_kin2_body.html#a7fbacf33478422a136de7a16fd071d9a" title="Ctor helper for initializing radiative capture kinematics variables. " alt="" coords="245,132,398,157"/>
+<area shape="rect" id="node3" href="$class_t_atomic_mass_table.html#a11ba7dd43c919060385046ed6476983d" title="Returns struct containing nucleas information w/ Z, A. " alt="" coords="714,5,924,31"/>
+<area shape="rect" id="node4" href="$class_t_atomic_mass_table.html#a7443d75f38c48d8c0c4e8972582d7e97" title="Returns the ion (partially ionized) mass value for a given nucleus, in keV/c^2. " alt="" coords="724,107,914,132"/>
+<area shape="rect" id="node9" href="$class_t_atomic_mass_table.html#a96403ee10b64174d36133d23af36cca5" title="Returns the ion (partially ionized) mass value for a given nucleus, in AMU. " alt="" coords="446,157,666,183"/>
+<area shape="rect" id="node10" href="$class_t_atomic_mass_table.html#a135fa4e72e494ac98f2521b0986a662a" title="Calculate Q&#45;value for a nuclear reaction. " alt="" coords="464,56,648,81"/>
+<area shape="rect" id="node11" href="$classdragon_1_1_constants.html#ac685295701bf56a2a65794436666f5ff" title="Distance between DRAGON&#39;s MCP foils cm. " alt="" coords="471,207,641,232"/>
+<area shape="rect" id="node12" href="$classdragon_1_1_constants.html#adfa689ed8410f2c29ad5d59eb3ff84eb" title="Distance between DRAGON&#39;s gas target and focal plane m. " alt="" coords="474,256,638,281"/>
+<area shape="rect" id="node5" href="$class_t_atomic_mass_table.html#af6baae4d8345049525d858b7dcbadbe1" title="Returns the nuclear (fully ionized) mass value for a given nucleus, in keV/c^2. " alt="" coords="972,56,1190,81"/>
+<area shape="rect" id="node8" href="$class_t_atomic_mass_table.html#ac4fb543b9c14ea4221c59b9c76d84ebb" title="Returns the electron mass in keV/c^2. " alt="" coords="1238,107,1459,132"/>
+<area shape="rect" id="node6" href="$class_t_atomic_mass_table.html#ad6bae102cece154241f4a0de1c348836" title="Returns mass excess information for nucleus w/ Z, A. " alt="" coords="1252,44,1446,83"/>
+<area shape="rect" id="node7" href="$class_t_atomic_mass_table.html#a5cbe96f70d536c6e81099ff60260de18" title="Returns the AMU &#45;&gt; keV/c^2 conversion. " alt="" coords="1264,156,1434,181"/>
+</map>

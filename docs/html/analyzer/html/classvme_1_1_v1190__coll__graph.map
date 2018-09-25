@@ -1,0 +1,4 @@
+<map id="vme::V1190" name="vme::V1190">
+<area shape="rect" id="node2" href="$classvme_1_1_v1190_1_1_fifo.html" title="Holds measurement information in a first&#45;in&#45;first&#45;out structure. " alt="" coords="199,105,320,131"/>
+<area shape="rect" id="node5" href="$classvme_1_1_v1190.html#structvme_1_1_v1190_1_1_channel" title="Encloses measurement data for a single v1190 TDC channel. " alt="" coords="350,105,499,131"/>
+</map>

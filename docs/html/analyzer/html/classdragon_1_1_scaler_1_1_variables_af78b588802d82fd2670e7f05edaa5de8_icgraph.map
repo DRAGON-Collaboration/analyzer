@@ -1,0 +1,4 @@
+<map id="dragon::Scaler::Variables::set" name="dragon::Scaler::Variables::set">
+<area shape="rect" id="node2" href="$classdragon_1_1_coinc.html#ab92d3254cce1eb032bd12a3eaf736300" title="Reads all variable values from a constructed database. " alt="" coords="249,5,378,44"/>
+<area shape="rect" id="node3" href="$classdragon_1_1_epics.html#a3634131be73b94eccbb6dc44a7e4e509" title="Reads all variable values from an database (file or online) " alt="" coords="249,68,377,107"/>
+</map>

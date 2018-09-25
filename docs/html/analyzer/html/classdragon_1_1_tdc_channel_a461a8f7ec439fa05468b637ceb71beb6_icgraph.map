@@ -1,0 +1,5 @@
+<map id="dragon::TdcChannel::reset" name="dragon::TdcChannel::reset">
+<area shape="rect" id="node2" href="$class_sonik.html#ac9a871bc07b7575711e5c62d2efe63d2" title="Reset all data to VME::none. " alt="" coords="195,31,287,56"/>
+<area shape="rect" id="node3" href="$namespacem2r.html#abcd4e51760a6716dd8d7104c0555fd79" title="The main function implementation. " alt="" coords="339,5,427,31"/>
+<area shape="rect" id="node4" href="$class_sonik.html#a848c289a4f85778b68346c72efbb591d" title="Constructor, initialize data. " alt="" coords="335,55,431,80"/>
+</map>

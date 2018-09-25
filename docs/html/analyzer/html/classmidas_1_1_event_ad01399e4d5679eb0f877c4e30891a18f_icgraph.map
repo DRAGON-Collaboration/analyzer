@@ -1,0 +1,6 @@
+<map id="midas::Event::TimeDiff" name="midas::Event::TimeDiff">
+<area shape="rect" id="node2" href="$structmidas_1_1_coinc_event.html#aaef3775ba24a3cde1b15b254bb081647" title="Sets event pointers. " alt="" coords="213,5,353,44"/>
+<area shape="rect" id="node3" href="$classmidas_1_1_event.html#ab8753f497a268c423af93e4babdad107" title="Checks if two events are coincident. " alt="" coords="208,120,358,145"/>
+<area shape="rect" id="node4" href="$classmidas_1_1_event.html#aa1a39aac9ebb5081b8a4e684e4a5f2d7" title="Less than operator. " alt="" coords="426,81,589,107"/>
+<area shape="rect" id="node5" href="$structmidas_1_1_event_1_1_compare_trigger.html#a5f836bc24ecaa75840732ffc425c0ad5" title="Parenthesis operator. " alt="" coords="406,141,609,180"/>
+</map>

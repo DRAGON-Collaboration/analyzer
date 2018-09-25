@@ -1,0 +1,5 @@
+<map id="dragon::utils::calculate_sum" name="dragon::utils::calculate_sum">
+<area shape="rect" id="node2" href="$classdragon_1_1_bgo.html#a684f0cc5fb67399e25b04845f98fb8bb" title="Do higher&#45;level parameter calculations. " alt="" coords="241,5,395,31"/>
+<area shape="rect" id="node3" href="$classdragon_1_1_ion_chamber.html#ae995845529c99ca2889af23a2284c297" title="Calculate higher&#45;level parameters. " alt="" coords="246,55,389,93"/>
+<area shape="rect" id="node4" href="$classdragon_1_1_mcp.html#a5f5f6a61270c7b6d1077e2051b63dcd5" title="Calibrate ADC/TDC signals, calculate x and y positions. " alt="" coords="240,117,395,143"/>
+</map>

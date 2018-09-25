@@ -1,0 +1,9 @@
+<map id="dragon::ASelector" name="dragon::ASelector">
+<area shape="rect" id="node3" href="$classdragon_1_1_coinc_selector.html" title="Selector class for coincidence events. " alt="" coords="311,5,465,31"/>
+<area shape="rect" id="node4" href="$classdragon_1_1_dsssd_calibrate.html" title="Class to recalibrate the DSSSD channels. " alt="" coords="308,55,468,80"/>
+<area shape="rect" id="node5" href="$classdragon_1_1_head_selector.html" title="Selector class for head singles events. " alt="" coords="313,104,464,129"/>
+<area shape="rect" id="node7" href="$classdragon_1_1_scaler_selector.html" title="Selector class for scaler events. " alt="" coords="310,153,467,179"/>
+<area shape="rect" id="node9" href="$classdragon_1_1_tail_selector.html" title="Selector class for tail singles events. " alt="" coords="319,203,458,228"/>
+<area shape="rect" id="node6" title="Example selector class for head singles events. " alt="" coords="519,104,673,129"/>
+<area shape="rect" id="node8" title="Example selector class for scaler events. " alt="" coords="516,153,676,179"/>
+</map>

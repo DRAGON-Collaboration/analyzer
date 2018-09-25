@@ -1,0 +1,5 @@
+<map id="dragon::Bgo::Variables" name="dragon::Bgo::Variables">
+<area shape="rect" id="node2" href="$namespacedragon_1_1utils.html#namespacedragon_1_1utils" title="dragon::utils::TdcVariables\l\&lt; MAX_CHANNELS \&gt;" alt="" coords="18,5,196,44"/>
+<area shape="rect" id="node3" href="$namespacedragon_1_1utils.html#namespacedragon_1_1utils" title="dragon::utils::PositionVariables\l\&lt; MAX_CHANNELS \&gt;" alt="" coords="5,68,209,107"/>
+<area shape="rect" id="node4" href="$namespacedragon_1_1utils.html#namespacedragon_1_1utils" title="dragon::utils::AdcVariables\l\&lt; MAX_CHANNELS \&gt;" alt="" coords="18,131,197,169"/>
+</map>

@@ -1,0 +1,17 @@
+<map id="/Volumes/Data/Users/elzoido238/packages/dragon/analyzer/src/rootbeer/rbdragon.cxx" name="/Volumes/Data/Users/elzoido238/packages/dragon/analyzer/src/rootbeer/rbdragon.cxx">
+<area shape="rect" id="node10" href="$_event_8hxx.html" title="Defines an inherited class of TMidasEvent that includes specific functionality for timestamp coincide..." alt="" coords="1461,339,1541,364"/>
+<area shape="rect" id="node19" href="$_error_dragon_8hxx.html" title="Defines C++ style error printing classes. " alt="" coords="331,419,477,444"/>
+<area shape="rect" id="node31" href="$definitions_8h.html" title="Defines constants used by multiple MIDAS clients. " alt="" coords="2355,119,2475,144"/>
+<area shape="rect" id="node32" href="$_functions_8hxx.html" title="Defines some functions commonly used in processing data. " alt="" coords="1123,265,1254,291"/>
+<area shape="rect" id="node37" href="$_database_8hxx.html" title="Defines a generic (online or from XML file) database reader. " alt="" coords="341,265,483,291"/>
+<area shape="rect" id="node42" href="$rbdragon_8hxx.html" title="Defines classes to interface dragon with the ROOTBEER framework. " alt="" coords="1562,119,1662,144"/>
+<area shape="rect" id="node20" href="$_int_types_8h.html" title="File to make stdint.h play nice with both CINT and the new OS/X 10.9. " alt="" coords="1090,499,1201,524"/>
+<area shape="rect" id="node27" href="$_auto_ptr_8hxx.html" title="Simple smart pointer class. " alt="" coords="99,499,189,524"/>
+<area shape="rect" id="node35" href="$_bits_8hxx.html" title="Defines some macros to help in bitmasking. " alt="" coords="1154,339,1222,364"/>
+<area shape="rect" id="node36" href="$_valid_8hxx.html" title="Provides functions for setting and checking if data fields are invalid. " alt="" coords="1246,339,1320,364"/>
+<area shape="rect" id="node38" href="$_odb_8hxx.html" title="Defines a &quot;static&quot; class with functions to read MIDAS ODB data. " alt="" coords="558,339,629,364"/>
+<area shape="rect" id="node39" href="$_xml_8hxx.html" title="Defines a class to parse MIDAS XML files from the ODB. " alt="" coords="850,339,918,364"/>
+<area shape="rect" id="node48" href="$_unpack_8hxx.html" title="Defines generic unpacking functions for different types of DRAGON events. " alt="" coords="1372,192,1463,217"/>
+<area shape="rect" id="node49" href="$_t_stamp_8hxx.html" title="Defines classes for managing singles/coincidence identification based on trigger timestamps. " alt="" coords="1603,265,1696,291"/>
+<area shape="rect" id="node50" href="$_dragon_8hxx.html" title="Defines dragon detector classes. " alt="" coords="1207,192,1297,217"/>
+</map>

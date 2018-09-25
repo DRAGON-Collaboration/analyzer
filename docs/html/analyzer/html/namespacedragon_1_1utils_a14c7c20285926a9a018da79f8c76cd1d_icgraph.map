@@ -1,0 +1,14 @@
+<map id="dragon::utils::channel_map" name="dragon::utils::channel_map">
+<area shape="rect" id="node2" href="$classdragon_1_1_head.html#abc26bb2bb4db8ab70974163b1aab0634" title="Calculate higher&#45;level data for each detector, or across detectors. " alt="" coords="241,5,403,31"/>
+<area shape="rect" id="node3" href="$classdragon_1_1_tail.html#a3bf9b4f7988dccf6d5efed0148dce84c" title="Calculate higher&#45;level data for each detector, or across detectors. " alt="" coords="247,55,397,80"/>
+<area shape="rect" id="node4" href="$class_sonik.html#a997e380da1cfc15b7c43f7e8bc38a59e" title="Read data from vme modules. " alt="" coords="261,104,383,129"/>
+<area shape="rect" id="node6" href="$classdragon_1_1_bgo.html#ad34cc52e906ac6e107bb00036d28fa9e" title="Read adc &amp; tdc data. " alt="" coords="241,153,403,179"/>
+<area shape="rect" id="node7" href="$classdragon_1_1_dsssd.html#a206ab7f70a4a64ea6ea3733dc33988f7" title="Read data from vme modules. " alt="" coords="235,203,410,228"/>
+<area shape="rect" id="node9" href="$classdragon_1_1_ion_chamber.html#a373bb43487b8601511cc15af93f8a863" title="Read midas event data. " alt="" coords="250,252,394,291"/>
+<area shape="rect" id="node10" href="$classdragon_1_1_mcp.html#a33393952a83fcb637e1cf82c1eef283b" title="Read midas event data. " alt="" coords="241,315,404,340"/>
+<area shape="rect" id="node11" href="$classdragon_1_1_surface_barrier.html#a9525e714376d1413e1a83f927c81c77e" title="Read midas event data. " alt="" coords="244,364,400,403"/>
+<area shape="rect" id="node12" href="$classdragon_1_1_na_i.html#a88e1f2e2bb9cbf613f0145bc3e922ba5" title="Read event data from vme modules. " alt="" coords="243,427,401,452"/>
+<area shape="rect" id="node13" href="$classdragon_1_1_ge.html#a3279ece585dea8c91c74f014e10df08b" title="Read event data from the ADC. " alt="" coords="244,476,400,501"/>
+<area shape="rect" id="node5" href="$namespacem2r.html#abcd4e51760a6716dd8d7104c0555fd79" title="The main function implementation. " alt="" coords="494,104,582,129"/>
+<area shape="rect" id="node8" href="$classdragon_1_1_dsssd_calibrate.html#ae0a05b2e96cd7f30aaab1dc666b9c3f6" title="Process() helper. " alt="" coords="458,196,618,235"/>
+</map>

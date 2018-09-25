@@ -1,0 +1,9 @@
+<map id="dragon::BeamNorm::ReadSbCounts" name="dragon::BeamNorm::ReadSbCounts">
+<area shape="rect" id="node2" href="$classdragon_1_1_live_time_calculator.html#a2384a2e2f07879c87512f5a87c22de3f" title="Perform live time calculation across an entire run. " alt="" coords="252,5,436,44"/>
+<area shape="rect" id="node3" href="$namespacedragon_1_1utils.html#a8b91a672852705f5859fd45f8f82ad1f" title="Calculate the mean of a range of values. " alt="" coords="247,68,441,93"/>
+<area shape="rect" id="node4" href="$namespacedragon_1_1utils.html#a6c3872330d28c4d04fb96c0fde68cb87" title="Calculate the standard deviation of a range of values. " alt="" coords="267,117,421,156"/>
+<area shape="rect" id="node5" href="$classdragon_1_1_live_time_calculator.html#aa06012632835e5148ef3a6a0d4d4e585" title="Perform live time calculation across a subset of the run. " alt="" coords="252,180,436,219"/>
+<area shape="rect" id="node6" href="$classdragon_1_1_live_time_calculator.html#a72de8b7fcb44d5c2d6ffe0a6a3cda807" title="Returns the live time fraction. " alt="" coords="252,243,436,281"/>
+<area shape="rect" id="node7" href="$classmidas_1_1_database.html#ad895a0df5bdea70e6a0e48f454c5299f" title="Read a single value. " alt="" coords="247,305,441,331"/>
+<area shape="rect" id="node8" href="$classdragon_1_1_live_time_calculator.html#a9cb1c1b1879a841ce683ecd2f0d6e69e" title="Change the run file. " alt="" coords="252,355,436,393"/>
+</map>

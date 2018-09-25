@@ -1,0 +1,6 @@
+<map id="dragon::IonChamber::calculate" name="dragon::IonChamber::calculate">
+<area shape="rect" id="node2" href="$namespacedragon_1_1utils.html#af0d52bca4227ea215597eea63f54e038" title="Sums all values in an array, &lt;e&gt;ignoring &quot;null&quot; values&lt;/e&gt; " alt="" coords="197,5,384,31"/>
+<area shape="rect" id="node4" href="$namespacedragon_1_1utils.html#a78b3e351364b5d17df026896067afee1" title="Check if any element in an array is valid. " alt="" coords="203,55,378,80"/>
+<area shape="rect" id="node5" href="$namespacedragon_1_1utils.html#ad51b51b73ea3a1a3db4149273d0e901e" title="Perform linear calibration on an array. " alt="" coords="223,104,357,143"/>
+<area shape="rect" id="node3" href="$namespacedragon_1_1utils.html#af0b20ed1b460c05d629d18a0a0cc5a81" title="Check if a single value is valid. " alt="" coords="432,59,577,84"/>
+</map>

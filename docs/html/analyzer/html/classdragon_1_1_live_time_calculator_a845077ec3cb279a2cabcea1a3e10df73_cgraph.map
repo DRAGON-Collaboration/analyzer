@@ -1,0 +1,4 @@
+<map id="dragon::LiveTimeCalculator::DoCalculate" name="dragon::LiveTimeCalculator::DoCalculate">
+<area shape="rect" id="node2" href="$classdragon_1_1_coinc_busytime.html#ae33d79d27edb0faf482eef8385dc8b46" title="Insert event into the colletion of triggered events. " alt="" coords="237,5,396,44"/>
+<area shape="rect" id="node3" href="$classdragon_1_1_coinc_busytime.html#ad96fd6d5c0dc25c48e526b077b0dfef2" title="Calculate the total time during which the head or tail is busy. " alt="" coords="237,68,396,107"/>
+</map>

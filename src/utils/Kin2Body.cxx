@@ -1,8 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// \file Kin2Body.cxx
+/// \file   Kin2Body.cxx
 /// \author D. Connolly
-/// \brief Implements Kin2Body.hxx
-///
+/// \brief  Implements Kin2Body.hxx
+////////////////////////////////////////////////////////////////////////////////
+
 // #include <stdio.h>
 #include <vector>
 #include <string>
@@ -25,36 +26,17 @@
 
 namespace dutils = dragon::utils;
 
-////////////////////////////////////////////////////////////////////////////////
 //////////////////////// Class dragon::Kin2Body ////////////////////////////////
-/// Class for relativistic 2 body reaction kinematics
-/*!
- * Calculates relativistic kinematic relationships for 2 body reactions.
- * Consider the reaction
- * \f{equation}{
- *   m_2(m_1,m_3)m_4
- * \f}
- * where, by convention, the projectile with mass \f$m_1\f$ and kinetic energy
- * \f$T_b\f$ and is incident on a (stationary) target of mass \f$m_2\f$. The
- * kinematics of this reaction can be described by its (invariant) squared
- * 4-momentum
- * \f{equation}{
- *   S = \left(\sum_i E_i\right)^2 - \left(\sum_i \vec{p}_{i}\right)^2
- * \f}
- */
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Default ctor for radiative capture
-/// Sets beam and target masses from AME12 compilation.
-/// Energies are initially unset, use SetE*() functions to specify an
-/// energy.
+/// Sets beam and target masses from AME16 compilation.
 /// \param projectile string specifying projectile nucleus (e.g. - "7Be", "22Ne", etc.)
 /// \param target string specifying projectile nucleus (e.g. - "p", "1H", "4He", "alpha", etc.)
 /// \param projectile string specifying ejectile nucleus (e.g. - "p", "d", etc.)
 /// \param energy beam energy in units corresponding to specified frame string
 /// \param frame string specifying frame / units of beam energy
 /// \param qb charge state of beam (default = 0)
-
 dragon::Kin2Body::Kin2Body(const char* projectile, const char* target,
                            Double_t energy, const char* frame, Int_t qb)
 {
@@ -63,16 +45,13 @@ dragon::Kin2Body::Kin2Body(const char* projectile, const char* target,
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Overloaded Ctor for particle ejectiles
-/// Sets beam and target masses from AME12 compilation.
-/// Energies are initially unset, use SetE*() functions to specify an
-/// energy.
+/// Sets beam and target masses from AME16 compilation.
 /// \param projectile string specifying projectile nucleus (e.g. - "7Be", "22Ne", etc.)
 /// \param target string specifying projectile nucleus (e.g. - "p", "1H", "4He", "alpha", etc.)
 /// \param projectile string specifying ejectile nucleus (e.g. - "p", "d", etc.)
 /// \param energy beam energy in units corresponding to specified frame string
 /// \param frame string specifying frame / units of beam energy
 /// \param qb charge state of beam (default = 0)
-
 dragon::Kin2Body::Kin2Body(const char* projectile, const char* target, const char* ejectile,
                            Double_t energy, const char* frame, Int_t qb)
 {
@@ -81,7 +60,6 @@ dragon::Kin2Body::Kin2Body(const char* projectile, const char* target, const cha
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Ctor helper for initializing radiative capture kinematics variables
-
 void dragon::Kin2Body::Init(const char* projectile, const char* target,
                             Double_t energy, const char* frame, Int_t qb)
 {
@@ -141,7 +119,6 @@ void dragon::Kin2Body::Init(const char* projectile, const char* target,
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Ctor helper for initializing kinematics variables (particle ejectiles)
-
 void dragon::Kin2Body::Init(const char* projectile, const char* target, const char* ejectile,
                             Double_t energy, const char* frame, Int_t qb)
 {
@@ -193,7 +170,6 @@ void dragon::Kin2Body::Init(const char* projectile, const char* target, const ch
 /// Calculate the energy of the ejectile as a function of angle
 /// \param theta angle of ejectile / recoil in degrees
 /// \param which ejectile or recoil
-
 Double_t dragon::Kin2Body::CalcTLabTheta(Double_t theta, const char* which, Bool_t negative)
 {
   Double_t mass;
@@ -245,7 +221,6 @@ Double_t dragon::Kin2Body::CalcTLabTheta(Double_t theta, const char* which, Bool
 /// Set 4-momentum of system
 /// \param energy Energy of beam
 /// \param frame string specifying frame / units of beam energy
-
 void dragon::Kin2Body::Set4Mom(Double_t energy, const char* frame)
 {
   if (strncmp(frame, "CM", 2) == 0){
@@ -268,11 +243,9 @@ void dragon::Kin2Body::Set4Mom(Double_t energy, const char* frame)
   }
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 /// Get maximum cone half angle for ejectile or recoil
 /// \param which index of particle
-
 Double_t dragon::Kin2Body::GetMaxAngle(const char* which)
 {
   if (strncmp(which, "ejectile", 8) == 0){
@@ -410,5 +383,4 @@ TMultiGraph* dragon::Kin2Body::PlotTLabvsThetaLab(Option_t *option_e, Option_t *
   } else {
     return 0;
   }
-
 }

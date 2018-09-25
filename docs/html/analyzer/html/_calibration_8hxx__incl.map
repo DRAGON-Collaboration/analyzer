@@ -1,0 +1,18 @@
+<map id="/Volumes/Data/Users/elzoido238/packages/dragon/analyzer/src/utils/Calibration.hxx" name="/Volumes/Data/Users/elzoido238/packages/dragon/analyzer/src/utils/Calibration.hxx">
+<area shape="rect" id="node4" href="$_dragon_8hxx.html" title="Defines dragon detector classes. " alt="" coords="1903,119,1992,144"/>
+<area shape="rect" id="node5" href="$_int_types_8h.html" title="File to make stdint.h play nice with both CINT and the new OS/X 10.9. " alt="" coords="2019,425,2129,451"/>
+<area shape="rect" id="node9" href="$_variable_structs_8hxx.html" title="Defines some structs wrapping common groupings of variables. " alt="" coords="2061,192,2223,217"/>
+<area shape="rect" id="node10" href="$_event_8hxx.html" title="Defines an inherited class of TMidasEvent that includes specific functionality for timestamp coincide..." alt="" coords="509,265,628,291"/>
+<area shape="rect" id="node28" href="$_vme_8hxx.html" title="Defines structures and routines for vme modules used in the DRAGON experiment. " alt="" coords="1959,265,2032,291"/>
+<area shape="rect" id="node33" href="$_defaults_8hxx.html" title="Sets default channel mappings and other variables. " alt="" coords="2247,192,2341,217"/>
+<area shape="rect" id="node34" href="$_database_8hxx.html" title="Defines a generic (online or from XML file) database reader. " alt="" coords="1030,192,1172,217"/>
+<area shape="rect" id="node43" href="$_functions_8hxx.html" title="Defines some functions commonly used in processing data. " alt="" coords="2313,265,2444,291"/>
+<area shape="rect" id="node19" href="$_error_dragon_8hxx.html" title="Defines C++ style error printing classes. " alt="" coords="941,345,1087,371"/>
+<area shape="rect" id="node24" href="$_auto_ptr_8hxx.html" title="Simple smart pointer class. " alt="" coords="807,425,896,451"/>
+<area shape="rect" id="node29" href="$_valid_8hxx.html" title="Provides functions for setting and checking if data fields are invalid. " alt="" coords="2212,345,2314,371"/>
+<area shape="rect" id="node35" href="$_odb_8hxx.html" title="Defines a &quot;static&quot; class with functions to read MIDAS ODB data. " alt="" coords="1221,265,1292,291"/>
+<area shape="rect" id="node36" href="$_xml_8hxx.html" title="Defines a class to parse MIDAS XML files from the ODB. " alt="" coords="1438,265,1507,291"/>
+<area shape="rect" id="node38" href="$mxml_8h_source.html" title="mxml.h" alt="" coords="1727,345,1792,371"/>
+<area shape="rect" id="node39" href="$strlcpy_8h_source.html" title="strlcpy.h" alt="" coords="1815,345,1885,371"/>
+<area shape="rect" id="node45" href="$_bits_8hxx.html" title="Defines some macros to help in bitmasking. " alt="" coords="2441,345,2509,371"/>
+</map>

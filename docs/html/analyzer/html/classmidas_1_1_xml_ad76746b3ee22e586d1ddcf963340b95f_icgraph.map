@@ -1,0 +1,5 @@
+<map id="midas::Xml::FindKeyArray" name="midas::Xml::FindKeyArray">
+<area shape="rect" id="node2" href="$classmidas_1_1_xml.html#aeaf78040c7c5374684504b249f7dbcb7" title="Get the values of an array of key elements. " alt="" coords="249,5,397,31"/>
+<area shape="rect" id="node3" href="$classmidas_1_1_xml.html#a07a2d8cb170865e2aae464a416772838" title="Read the length of an array. " alt="" coords="229,55,418,80"/>
+<area shape="rect" id="node4" href="$classmidas_1_1_xml.html#a4f08c9e51e683f5280b5b5688771184b" title="Print an array. " alt="" coords="246,104,400,129"/>
+</map>
