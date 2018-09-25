@@ -1,9 +1,10 @@
-# __DRAGON Analyzer__
+---
+title: DRAGON Analyzer
+---
 
-#### Authors
-- G. Christian
-- C. Stanford
-- K. Olchanski
+# __DRAGON Analyzer and DAQ Documentation__
+
+## __DRAGON Analyzer Documentation__
 
 [Mainpage](html/analyzer/html/index.html)
 
@@ -15,11 +16,7 @@
 
 [Todo List](html/analyzer/html/todo.html)
 
-# __DRAGON Frontend__
-
-#### Authors
-- K. Olchanski
-- G. Christian
+## __DRAGON Frontend Documentation__
 
 [Mainpage](html/frontend/html/index.html)
 
