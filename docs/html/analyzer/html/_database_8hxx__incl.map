@@ -1,9 +1,0 @@
-<map id="/Volumes/Data/Users/elzoido238/packages/dragon/analyzer/src/midas/Database.hxx" name="/Volumes/Data/Users/elzoido238/packages/dragon/analyzer/src/midas/Database.hxx">
-<area shape="rect" id="node3" href="$_auto_ptr_8hxx.html" title="Simple smart pointer class. " alt="" coords="99,265,216,291"/>
-<area shape="rect" id="node6" href="$_error_dragon_8hxx.html" title="Defines C++ style error printing classes. " alt="" coords="455,192,601,217"/>
-<area shape="rect" id="node16" href="$_odb_8hxx.html" title="Defines a &quot;static&quot; class with functions to read MIDAS ODB data. " alt="" coords="566,119,637,144"/>
-<area shape="rect" id="node17" href="$_xml_8hxx.html" title="Defines a class to parse MIDAS XML files from the ODB. " alt="" coords="880,119,949,144"/>
-<area shape="rect" id="node7" href="$_int_types_8h.html" title="File to make stdint.h play nice with both CINT and the new OS/X 10.9. " alt="" coords="954,265,1065,291"/>
-<area shape="rect" id="node22" href="$mxml_8h_source.html" title="mxml.h" alt="" coords="1324,192,1388,217"/>
-<area shape="rect" id="node23" href="$strlcpy_8h_source.html" title="strlcpy.h" alt="" coords="1412,192,1482,217"/>
-</map>

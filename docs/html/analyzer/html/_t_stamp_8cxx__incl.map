@@ -1,7 +1,0 @@
-<map id="/Volumes/Data/Users/elzoido238/packages/dragon/analyzer/src/TStamp.cxx" name="/Volumes/Data/Users/elzoido238/packages/dragon/analyzer/src/TStamp.cxx">
-<area shape="rect" id="node5" href="$_t_stamp_8hxx.html" title="Defines classes for managing singles/coincidence identification based on trigger timestamps. " alt="" coords="1093,119,1185,144"/>
-<area shape="rect" id="node17" href="$_error_dragon_8hxx.html" title="Defines C++ style error printing classes. " alt="" coords="569,272,715,297"/>
-<area shape="rect" id="node6" href="$_int_types_8h.html" title="File to make stdint.h play nice with both CINT and the new OS/X 10.9. " alt="" coords="5,352,116,377"/>
-<area shape="rect" id="node9" href="$_event_8hxx.html" title="Defines an inherited class of TMidasEvent that includes specific functionality for timestamp coincide..." alt="" coords="1080,192,1199,217"/>
-<area shape="rect" id="node24" href="$_auto_ptr_8hxx.html" title="Simple smart pointer class. " alt="" coords="948,352,1037,377"/>
-</map>

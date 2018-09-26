@@ -1,9 +1,0 @@
-<map id="/Volumes/Data/Users/elzoido238/packages/dragon/analyzer/src/Vme.cxx" name="/Volumes/Data/Users/elzoido238/packages/dragon/analyzer/src/Vme.cxx">
-<area shape="rect" id="node2" href="$_error_dragon_8hxx.html" title="Defines C++ style error printing classes. " alt="" coords="829,199,976,224"/>
-<area shape="rect" id="node16" href="$_valid_8hxx.html" title="Provides functions for setting and checking if data fields are invalid. " alt="" coords="187,199,289,224"/>
-<area shape="rect" id="node20" href="$_bits_8hxx.html" title="Defines some macros to help in bitmasking. " alt="" coords="1433,119,1529,144"/>
-<area shape="rect" id="node21" href="$_event_8hxx.html" title="Defines an inherited class of TMidasEvent that includes specific functionality for timestamp coincide..." alt="" coords="1291,119,1410,144"/>
-<area shape="rect" id="node30" href="$_vme_8hxx.html" title="Defines structures and routines for vme modules used in the DRAGON experiment. " alt="" coords="384,119,458,144"/>
-<area shape="rect" id="node3" href="$_int_types_8h.html" title="File to make stdint.h play nice with both CINT and the new OS/X 10.9. " alt="" coords="274,279,384,304"/>
-<area shape="rect" id="node11" href="$_auto_ptr_8hxx.html" title="Simple smart pointer class. " alt="" coords="806,279,895,304"/>
-</map>

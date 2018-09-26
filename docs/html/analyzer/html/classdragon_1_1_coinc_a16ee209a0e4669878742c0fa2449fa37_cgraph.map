@@ -1,5 +1,0 @@
-<map id="dragon::Coinc::calculate" name="dragon::Coinc::calculate">
-<area shape="rect" id="node2" href="$namespacedragon_1_1utils.html#adaf65ca0bc6248d8781f32294f8df9c2" title="Calculates time&#45;of&#45;flight if both parameters are valid. " alt="" coords="218,31,394,56"/>
-<area shape="rect" id="node3" href="$namespacedragon_1_1utils.html#af0b20ed1b460c05d629d18a0a0cc5a81" title="Check if a single value is valid. " alt="" coords="446,5,592,31"/>
-<area shape="rect" id="node4" href="$structdragon_1_1_no_data.html#a3f9dcd209aece0b0b8c1996d78090028" title="Get the throwaway value. " alt="" coords="442,55,597,80"/>
-</map>

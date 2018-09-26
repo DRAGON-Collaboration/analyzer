@@ -1,7 +1,0 @@
-<map id="Sonik::calculate" name="Sonik::calculate">
-<area shape="rect" id="node2" href="$classdragon_1_1_tdc_channel.html#a0f72996463466abf5d87bd0e76868911" title="Calibrates TDC channels. " alt="" coords="184,5,327,44"/>
-<area shape="rect" id="node3" href="$classdragon_1_1_tdc_channel.html#a41ea3c027128c09d8b512c0c61ec533f" title="Calculate TOF to another TDC hit. " alt="" coords="184,68,327,107"/>
-<area shape="rect" id="node4" href="$namespacedragon_1_1utils.html#a78b3e351364b5d17df026896067afee1" title="Check if any element in an array is valid. " alt="" coords="168,131,343,156"/>
-<area shape="rect" id="node5" href="$namespacedragon_1_1utils.html#ad51b51b73ea3a1a3db4149273d0e901e" title="Perform linear calibration on an array. " alt="" coords="188,180,322,219"/>
-<area shape="rect" id="node6" href="$namespacedragon_1_1utils.html#af0b20ed1b460c05d629d18a0a0cc5a81" title="Check if a single value is valid. " alt="" coords="391,187,537,212"/>
-</map>

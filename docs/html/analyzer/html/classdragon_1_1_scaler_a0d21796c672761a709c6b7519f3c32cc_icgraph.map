@@ -1,7 +1,0 @@
-<map id="dragon::Scaler::reset" name="dragon::Scaler::reset">
-<area shape="rect" id="node2" href="$classdragon_1_1_coinc.html#a4c10648ee3a2be510e2111f9c11e4d0a" title="Empty. " alt="" coords="209,5,355,31"/>
-<area shape="rect" id="node3" href="$classdragon_1_1_epics.html#a979800b8dc83011a93bda19b2f7a5736" title="Initialize data. " alt="" coords="210,55,353,80"/>
-<area shape="rect" id="node4" href="$classdragon_1_1_scaler.html#a51e9dbd735e0511314731efa09e2d5da" title="Initialize data. " alt="" coords="205,104,358,129"/>
-<area shape="rect" id="node5" href="$classdragon_1_1_coinc_1_1_variables.html#ab48d14adbd5e326230bc7d39c3723b4c" title="Set data to global defaults. " alt="" coords="198,153,365,192"/>
-<area shape="rect" id="node6" href="$classdragon_1_1_epics_1_1_variables.html#a97d9744ba46eba7e171415d87b895fd5" title="Constuctor. " alt="" coords="199,216,364,255"/>
-</map>

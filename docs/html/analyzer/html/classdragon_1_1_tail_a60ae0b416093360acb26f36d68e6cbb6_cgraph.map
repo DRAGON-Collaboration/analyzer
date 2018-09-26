@@ -1,4 +1,0 @@
-<map id="dragon::Tail::reset" name="dragon::Tail::reset">
-<area shape="rect" id="node2" href="$namespacedragon_1_1utils.html#ab7d324882fc57c1bdd6b7ea1a5d14506" title="Reset one datum to NO_DATA. " alt="" coords="181,5,345,31"/>
-<area shape="rect" id="node3" href="$structdragon_1_1_no_data.html#a3f9dcd209aece0b0b8c1996d78090028" title="Get the throwaway value. " alt="" coords="393,5,548,31"/>
-</map>

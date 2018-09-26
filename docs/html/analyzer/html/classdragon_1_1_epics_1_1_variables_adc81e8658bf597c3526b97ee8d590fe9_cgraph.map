@@ -1,7 +1,0 @@
-<map id="dragon::Epics::Variables::set" name="dragon::Epics::Variables::set">
-<area shape="rect" id="node2" href="$classmidas_1_1_database.html#afa650040ff173c8d2c283bee6958eeaf" title="Read an array. " alt="" coords="243,5,436,31"/>
-<area shape="rect" id="node5" href="$classmidas_1_1_database.html#af5b14bb1d6ce799091d345b8c72cc108" title="Read the length of an array. " alt="" coords="243,55,436,93"/>
-<area shape="rect" id="node3" href="$classmidas_1_1_odb.html#aa86d4c597e9bb967d1dc44bcc2c77de4" title="Get the values of an array of key elements. " alt="" coords="497,5,658,31"/>
-<area shape="rect" id="node4" href="$classmidas_1_1_odb.html#a685b7b71bb0904e1ea4cd8e763305f55" title="Get database handle. " alt="" coords="719,5,879,31"/>
-<area shape="rect" id="node6" href="$classmidas_1_1_odb.html#a473fd14eb49e05b9f355b1e2901a2efe" title="Get the size of an odb array. " alt="" coords="484,61,671,87"/>
-</map>

@@ -1,7 +1,0 @@
-<map id="dragon::utils::is_valid_any" name="dragon::utils::is_valid_any">
-<area shape="rect" id="node2" href="$class_sonik.html#aec75ec5602e2de4ef5aabbdee3149cdd" title="Performs energy and time calibrations. " alt="" coords="254,8,369,33"/>
-<area shape="rect" id="node4" href="$classdragon_1_1_dsssd.html#a7da968f73ad0dc590448d062e71cf5c2" title="Performs energy and time calibrations. " alt="" coords="228,59,395,84"/>
-<area shape="rect" id="node6" href="$classdragon_1_1_ion_chamber.html#ae995845529c99ca2889af23a2284c297" title="Calculate higher&#45;level parameters. " alt="" coords="240,108,384,147"/>
-<area shape="rect" id="node3" href="$namespacem2r.html#abcd4e51760a6716dd8d7104c0555fd79" title="The main function implementation. " alt="" coords="480,5,568,31"/>
-<area shape="rect" id="node5" href="$classdragon_1_1_dsssd_calibrate.html#ae0a05b2e96cd7f30aaab1dc666b9c3f6" title="Process() helper. " alt="" coords="443,55,604,93"/>
-</map>

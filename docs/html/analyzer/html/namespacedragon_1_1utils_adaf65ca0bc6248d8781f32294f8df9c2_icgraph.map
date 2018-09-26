@@ -1,4 +1,0 @@
-<map id="dragon::utils::calculate_tof" name="dragon::utils::calculate_tof">
-<area shape="rect" id="node2" href="$classdragon_1_1_hi_tof.html#a75bfd8c7b8281b741e2e860b6e74f6df" title="Performs calibration of xover tdc and TOF calculations. " alt="" coords="231,5,392,31"/>
-<area shape="rect" id="node3" href="$classdragon_1_1_coinc.html#a16ee209a0e4669878742c0fa2449fa37" title="Calculates both singles and coincidence parameters. " alt="" coords="230,55,394,80"/>
-</map>

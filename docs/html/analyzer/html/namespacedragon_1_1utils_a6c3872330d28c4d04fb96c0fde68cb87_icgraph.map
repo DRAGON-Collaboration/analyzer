@@ -1,5 +1,0 @@
-<map id="dragon::utils::calculate_stddev" name="dragon::utils::calculate_stddev">
-<area shape="rect" id="node2" href="$classdragon_1_1_rossum_data.html#a7b27a25368c04b343a619ccc84cc2768" title="Get the average beam current from a set of cup readings. " alt="" coords="230,5,378,44"/>
-<area shape="rect" id="node3" href="$namespacedragon_1_1utils.html#a11ddb0626dbdf78de0594138b56eb577" title="Calculate the standard deviation of a range of values. " alt="" coords="227,68,381,107"/>
-<area shape="rect" id="node4" href="$classdragon_1_1_beam_norm.html#a8bb46d5a85379f57b05ad7286d729199" title="dragon::BeamNorm::ReadSb\lCounts" alt="" coords="207,131,401,169"/>
-</map>

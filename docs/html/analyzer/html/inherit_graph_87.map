@@ -1,5 +1,0 @@
-<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classrb_1_1_midas_buffer.html" title="Abstract class interfacing rb::BufferSource with MIDAS. " alt="" coords="5,5,117,31"/>
-<area shape="rect" id="node2" href="$classrbdragon_1_1_midas_buffer.html" title="Dragon&#45;specific r::MidasBuffer class. " alt="" coords="165,5,318,31"/>
-<area shape="rect" id="node3" href="$classrbsonik_1_1_midas_buffer.html" title="rbsonik::MidasBuffer" alt="" coords="366,5,508,31"/>
-</map>

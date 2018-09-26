@@ -1,5 +1,0 @@
-<map id="midas::Event::CopyFifo" name="midas::Event::CopyFifo">
-<area shape="rect" id="node2" href="$classmidas_1_1_event.html#a79c0ca4cb1f54f5e355a231d33df1132" title="Helper function for copy constructor / assignment operator. " alt="" coords="212,31,395,56"/>
-<area shape="rect" id="node3" href="$classmidas_1_1_event.html#a1c4c0e7739691192263970df2ad31f16" title="Copy constructor. " alt="" coords="455,5,595,31"/>
-<area shape="rect" id="node4" href="$classmidas_1_1_event.html#a11770c965bfbb6d890d4bf84a492ed99" title="Assignment operator. " alt="" coords="443,55,607,80"/>
-</map>

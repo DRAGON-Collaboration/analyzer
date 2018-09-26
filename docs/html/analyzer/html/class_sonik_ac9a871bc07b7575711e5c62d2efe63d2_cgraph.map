@@ -1,6 +1,0 @@
-<map id="Sonik::reset" name="Sonik::reset">
-<area shape="rect" id="node2" href="$classdragon_1_1_tdc_channel.html#a461a8f7ec439fa05468b637ceb71beb6" title="Sets data to dragon::NO_DATA. " alt="" coords="156,5,298,44"/>
-<area shape="rect" id="node3" href="$namespacedragon_1_1utils.html#acf0f635ebdca60ca980135ce447e6894" title="Reset all elements of an array to NO_DATA. " alt="" coords="162,68,293,107"/>
-<area shape="rect" id="node4" href="$namespacedragon_1_1utils.html#ab7d324882fc57c1bdd6b7ea1a5d14506" title="Reset one datum to NO_DATA. " alt="" coords="145,131,309,156"/>
-<area shape="rect" id="node5" href="$structdragon_1_1_no_data.html#a3f9dcd209aece0b0b8c1996d78090028" title="Get the throwaway value. " alt="" coords="357,131,512,156"/>
-</map>

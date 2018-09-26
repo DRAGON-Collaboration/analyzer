@@ -1,6 +1,0 @@
-<map id="dragon::Bgo::Bgo" name="dragon::Bgo::Bgo">
-<area shape="rect" id="node2" href="$classdragon_1_1_bgo.html#aaa9b1261354243ba25f9729cee051bd8" title="Sets all data values to dragon::NO_DATA. " alt="" coords="178,40,309,65"/>
-<area shape="rect" id="node3" href="$namespacedragon_1_1utils.html#acf0f635ebdca60ca980135ce447e6894" title="Reset all elements of an array to NO_DATA. " alt="" coords="374,5,505,44"/>
-<area shape="rect" id="node4" href="$namespacedragon_1_1utils.html#ab7d324882fc57c1bdd6b7ea1a5d14506" title="Reset one datum to NO_DATA. " alt="" coords="357,68,522,93"/>
-<area shape="rect" id="node5" href="$structdragon_1_1_no_data.html#a3f9dcd209aece0b0b8c1996d78090028" title="Get the throwaway value. " alt="" coords="570,68,725,93"/>
-</map>

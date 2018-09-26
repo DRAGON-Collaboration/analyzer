@@ -1,7 +1,0 @@
-<map id="dragon::utils::set_bank_name" name="dragon::utils::set_bank_name">
-<area shape="rect" id="node2" href="$classdragon_1_1_head_1_1_variables.html#a9f5a64f2cc64e2d44cb452d756b233df" title="Sets data to defaults. " alt="" coords="175,5,340,44"/>
-<area shape="rect" id="node3" href="$classdragon_1_1_tail_1_1_variables.html#ac791c85d90c3add58f7970b986521d12" title="Sets data to defaults. " alt="" coords="181,68,334,107"/>
-<area shape="rect" id="node4" href="$classdragon_1_1_scaler_1_1_variables.html#af20d31add9bca6cf2e365e310d982472" title="Resets names to default values. " alt="" coords="172,131,343,169"/>
-<area shape="rect" id="node6" href="$classdragon_1_1_epics_1_1_variables.html#a2d4866464a79537fd29bbe7da08ee8fc" title="Resets names to default values. " alt="" coords="175,193,340,232"/>
-<area shape="rect" id="node5" href="$classdragon_1_1_scaler_1_1_variables.html#aa1ae1edd15692bce83c3c252cd888a3d" title="Constuctor. " alt="" coords="391,131,561,169"/>
-</map>
