@@ -1,4 +1,4 @@
-## __DRAGON Analyzer and DAQ Documentation__
+# __DRAGON Analyzer and DAQ Documentation__
 
 ### __DRAGON Analyzer Documentation__
 
