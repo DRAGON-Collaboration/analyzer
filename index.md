@@ -1,6 +1,6 @@
 # __DRAGON Analyzer__
 
-#### Authors
+__Authors__
 - G. Christian
 - C. Stanford
 - K. Olchanski
@@ -16,4 +16,4 @@ In addition to the "core", this package also includes code to interface with the
 
 There is also an optional extension to create python wrappers for the DRAGON classes, allowing data to be analyzed in python independent of ROOT/PyRoot. This package is somewhat in the experimental stage at the moment and requires installation of [`Boost.Python`](http://www.boost.org/doc/libs/1_66_0/libs/python/doc/html/index.html) to compile the libraries.
 
-If you have a specific question about this package, you may want to check out the [FAQ page](http://dragon-collaboration.github.io/analyzer/html/analyzer/html/faq.html) to see if it's addresed there, or visit the [Main Documentation page](http://dragon-collaboration.github.io/analyzer/html/analyzer/html/index.html)
+If you have a specific question about this package, you may want to check out the [FAQ page](/analyzer/docs/html/analyzer/html/faq.html) to see if it's addresed there, or visit the [Main Documentation page](/analyzer/docs/html/analyzer/html/index.html)

@@ -1,23 +1,16 @@
 # __DRAGON Analyzer and DAQ Documentation__
 
-### __DRAGON Analyzer Documentation__
+## __DRAGON Analyzer Documentation__
 
-[Mainpage](docs/html/analyzer/html/index.html)
+[Mainpage](/analyzer/docs/html/analyzer/html/index.html)
+[faq](/analyzer/docs/html/analyzer/html/faq.html)
+[EPICS Channels](/analyzer/docs/html/analyzer/html/epics_chans.html)
+[Parameter Names](/analyzer/docs/html/analyzer/html/params.html)
+[Todo List](/analyzer/docs/html/analyzer/html/todo.html)
 
-[faq](docs/html/analyzer/html/faq.html)
+## __DRAGON Frontend Documentation__
 
-[EPICS Channels](docs/html/analyzer/html/epics_chans.html)
-
-[Parameter Names](docs/html/analyzer/html/params.html)
-
-[Todo List](docs/html/analyzer/html/todo.html)
-
-### __DRAGON Frontend Documentation__
-
-[Mainpage](docs/html/frontend/html/index.html)
-
-[Trigger Logic](docs/html/frontend/html/trigger.html)
-
-[Hardware Overview](docs/html/frontend/html/hardware.html)
-
-[Operation Guide](docs/html/frontend/html/operation.html)
+[Mainpage](/analyzer/docs/html/frontend/html/index.html)
+[Trigger Logic](/analyzer/docs/html/frontend/html/trigger.html)
+[Hardware Overview](/analyzer/docs/html/frontend/html/hardware.html)
+[Operation Guide](/analyzer/docs/html/frontend/html/operation.html)
