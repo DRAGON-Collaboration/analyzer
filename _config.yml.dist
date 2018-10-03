@@ -1,5 +1,5 @@
-title: DRAGON Analyzer
-description: DRAGON analysis codes
+title: git-wiki
+description: git-wiki is a jekyll theme originally based on jekyll-theme-minimal
 show_downloads: true
 git_branch: master
 logo_url:
@@ -10,9 +10,9 @@ use_github_wiki: false
 use_prose_io: true
 google_cse_token: 
 custom_head: false
-custom_sidebar: true
+custom_sidebar: false
 custom_footer: false
-plugins:
+gems:
   - jekyll-sitemap
   - jekyll-mentions
   - jemoji
