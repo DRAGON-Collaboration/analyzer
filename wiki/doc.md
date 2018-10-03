@@ -2,11 +2,11 @@
 title: " "
 ---
 
-# __DRAGON Analyzer and DAQ Documentation__
+## __DRAGON Analyzer and DAQ Documentation__
 
-## __DRAGON Analyzer Documentation__
+### __DRAGON Analyzer Documentation__
 
-====================================
+---
 
 [Mainpage](/analyzer/docs/html/analyzer/html/index.html)
 
@@ -18,9 +18,9 @@ title: " "
 
 [Todo List](/analyzer/docs/html/analyzer/html/todo.html)
 
-## __DRAGON Frontend Documentation__
+### __DRAGON Frontend Documentation__
 
-====================================
+---
 
 [Mainpage](/analyzer/docs/html/frontend/html/index.html)
 
