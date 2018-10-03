@@ -25,7 +25,7 @@ sudo apt-get install clang clang++
 
 ---
 
-The optional rootbeer or rootana extensions each require ROOT to be installed (and, of course, the rootana and/or rootbeer packages themselves). To look at online data, you will need MIDAS installed, and, if using the rootana system, roody is required for online histogram viewing.
+The optional [rootbeer](https://github.com/gchristian/rootbeer) or [rootana](https://bitbucket.org/tmidas/rootana) extensions each require ROOT to be installed (and, of course, the rootana and/or rootbeer packages themselves). To look at online data, you will need MIDAS installed, and, if using the rootana system, roody is required for online histogram viewing.
 
 ## __Download and Compile__
 
@@ -64,7 +64,7 @@ Then create the file `${HOME}/.rootrc` and include the following line in it:
 Rint.Logon: /path/to/your/rootlogon.C
 ```
 
-This will give you access to all of the dragon classes and functions in the software package from within a ROOT session or macro. Examples of these scripts are provided: [.rootrc](script/.rootrc)   [rootlogon.C](script/rootlogon.C)
+This will give you access to all of the dragon classes and functions in the software package from within a ROOT session or macro. Examples of these scripts are provided: [.rootrc](/analyzer/script/.rootrc)   [rootlogon.C](/analyzer/script/rootlogon.C)
 
 If you are using git and want to stay on top of new releases, just do:
 ```
