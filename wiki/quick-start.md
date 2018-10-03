@@ -38,4 +38,4 @@ To convert a MIDAS file to a ROOT file (assuming `~/packages/dragon/analyzer/bin
 mid2root runxxxx.mid
 ```
 
-For installation troublshooting, please visit the [faq page](http://dragon-collaboration.github.io/analyzer/html/analyzer/html/faq.html)
+For installation troublshooting, please visit the [faq page](/analyzer/html/analyzer/html/faq.html)
