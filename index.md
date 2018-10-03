@@ -4,6 +4,8 @@ title:
 
 # __DRAGON Analyzer__
 
+---
+
 __Authors__
 - G. Christian
 - C. Stanford
@@ -11,6 +13,8 @@ __Authors__
 - D. Connolly
 
 ## __Introduction__
+
+---
 
 This software package is developed for the analysis of data collected in [DRAGON](http://dragon.triumf.ca) experiments at [TRIUMF](http://www.triumf.ca). The software is intended for experiments run with the "new" (c. 2013) DRAGON data-acquisition system (VME hardware + timestamp coincidence matching).
 
@@ -21,3 +25,5 @@ In addition to the "core", this package also includes code to interface with the
 There is also an optional extension to create python wrappers for the DRAGON classes, allowing data to be analyzed in python independent of ROOT/PyRoot. This package is somewhat in the experimental stage at the moment and requires installation of [`Boost.Python`](http://www.boost.org/doc/libs/1_66_0/libs/python/doc/html/index.html) to compile the libraries.
 
 If you have a specific question about this package, you may want to check out the [FAQ page](/analyzer/docs/html/analyzer/html/faq.html) to see if it's addresed there, or visit the [Main Documentation page](/analyzer/docs/html/analyzer/html/index.html)
+
+---

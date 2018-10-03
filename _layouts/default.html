@@ -12,19 +12,19 @@
       src="https://code.jquery.com/jquery-3.2.1.min.js"
       integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
       crossorigin="anonymous"></script>
-    
+
     <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
     <script src="{{ '/assets/js/wiki-features.js' | relative_url }}"></script>
 
     {% if site.custom_head %}
-        {% include head.html %}
+    {% include head.html %}
     {% endif %}
 
     <meta name="viewport" content="width=device-width">
     <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-  </head>
+        <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+         </head>
   <body>
     <div class="wrapper">
       <header>
@@ -34,87 +34,89 @@
         <p>{{ site.description | default: site.github.project_tagline }}</p>
 
         {% if site.github.is_user_page %}
-          <p class="view"><a href="{{ site.github.owner_url }}">View My GitHub Profile</a></p>
+        <p class="view"><a href="{{ site.github.owner_url }}">View My GitHub Profile</a></p>
         {% endif %}
 
         {% if site.show_downloads %}
-          <ul class="downloads">
-            <li><a href="{{ site.github.zip_url }}">Download <strong>ZIP File</strong></a></li>
-            <li><a href="{{ site.github.tar_url }}">Download <strong>TAR Ball</strong></a></li>
-            <li><a href="{{ site.github.repository_url }}">View On <strong>GitHub</strong></a></li>
-          </ul>
+        <ul class="downloads">
+          <li><a href="{{ site.github.zip_url }}">Download <strong>ZIP File</strong></a></li>
+          <li><a href="{{ site.github.tar_url }}">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="{{ site.github.repository_url }}">View On <strong>GitHub</strong></a></li>
+        </ul>
         {% endif %}
 
-      {% if site.custom_sidebar %}
-          {% include sidebar.html %}
-      {% endif %}
-        
+        {% if site.custom_sidebar %}
+        {% include sidebar.html %}
+        {% endif %}
+
       </header>
       <section>
-      <div id="tools-buttons" style="width: 100%; text-align: right">
-        {{page.relative_path}}
-        {% if site.use_github_wiki %}
+        <div id="tools-buttons" style="width: 100%; text-align: right">
+          {{page.relative_path}}
+          {% if site.use_github_wiki %}
           <span class="tools-element"><a target="_blank" href="{{ site.github.repository_url }}/{{page.folder}}{{url | remove: '.html' | append: ''}}/_edit">Edit</a></span>
           <span class="tools-element"><a target="_blank" href="{{ site.github.repository_url }}/{{page.folder}}{{url | remove: '.html' | append: ''}}/_history">History</a></span>
           <span class="tools-element"><a target="_blank" href="{{ site.github.repository_url }}/{{page.folder}}{{url | remove: '.html' | append: '.md'}}/">Source</a></span>
-        {% else %}
+          {% else %}
           <span class="tools-element"><a target="_blank" href="{{ site.github.repository_url }}/edit/{{site.git_branch}}{{page.folder}}{{url | remove: '.html' | append: '.md'}}">Edit</a></span>
           {% if site.use_prose_io %}
           <span class="tools-element"><a target="_blank" href="http://prose.io/#{{site.github.repository_nwo}}/edit/{{site.git_branch}}{{page.folder}}{{url | remove: '.html' | append: '.md'}}">Edit with Prose.io</a></span>
           {% endif %}
           <span class="tools-element"><a target="_blank" href="{{ site.github.repository_url }}/commits/{{site.git_branch}}{{page.folder}}{{url | remove: '.html' | append: '.md'}}">History</a></span>
           <span class="tools-element"><a target="_blank" href="{{ site.github.repository_url }}/blob/{{site.git_branch}}{{page.folder}}{{url | remove: '.html' | append: '.md'}}">Source</a></span>
-        {% endif %}
-        
-        {% if site.google_cse_token %}
+          {% endif %}
+
+          {% if site.google_cse_token %}
           <script>
-          (function() {
-            var cx = "{{site.google_cse_token}}";
-            var gcse = document.createElement('script');
-            gcse.type = 'text/javascript';
-            gcse.async = true;
-            gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
-            var s = document.getElementsByTagName('script')[0];
-            s.parentNode.insertBefore(gcse, s);
-          })();
+            (function() {
+                var cx = "{{site.google_cse_token}}";
+                var gcse = document.createElement('script');
+                gcse.type = 'text/javascript';
+                gcse.async = true;
+                gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(gcse, s);
+            })();
           </script>
           <gcse:search></gcse:search>
-        {% else %}
+          {% else %}
           <form method="GET" action="{{ site.github.repository_url }}/search">
             <input type="text" name="q[]" placeholder="Text to search">
             {% if site.use_github_wiki %}
-              <input type="hidden" name="type" value="Wikis">
+            <input type="hidden" name="type" value="Wikis">
             {% else %}
-              <!-- <input type="hidden" name="l" value="Markdown"> -->
-              <input type="hidden" name="q[]" value="path:/{{ site.wiki_folder }}">
+            <!-- <input type="hidden" name="l" value="Markdown"> -->
+            <input type="hidden" name="q[]" value="path:/{{ site.wiki_folder }}">
             {% endif %}
             <input type="submit" value="Search">
           </form>
+          {% endif %}
+        </div>
+
+        <div id="toc"></div>
+
+        <div id="content">
+          {{ content }}
+        </div>
+
+        {% if site.comments %}
+        {% include comments.html %}
         {% endif %}
-      </div>
-        
-      <div id="toc"></div>
- 
-      <div id="content">
-        {{ content }}
-      </div>
-        
-      {% if site.comments %}
-          {% include comments.html %}
-      {% endif %}
 
       </section>
       <footer>
         {% if site.custom_footer %}
-            {% include footer.html %}
+        {% include footer.html %}
         {% endif %}
 
         {% if site.github.is_project_page %}
         <p>This project is maintained by <a href="{{ site.github.owner_url }}">{{ site.github.owner_name }}</a></p>
         {% endif %}
+
+        <p><a href="https://www.triumf.ca">TRIUMF</a> </p>
         <p><small>Hosted on GitHub Pages &mdash; Powered by <a href="https://github.com/Drassil/git-wiki">Git-Wiki v{{ version }}</a> </p>
         {% if site.github.is_project_page %}
-          <p class="view"><a href="{{ site.github.repository_url }}">View the Project on GitHub <small>{{ github_name }}</small></a></p>
+        <p class="view"><a href="{{ site.github.repository_url }}">View the Project on GitHub <small>{{ github_name }}</small></a></p>
         {% endif %}
       </footer>
     </div>
@@ -123,21 +125,21 @@
 
     {% if site.google_analytics %}
     <script>
-        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+          (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                               m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+                              })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
-        ga('create', '{{ site.google_analytics }}', 'auto');
-        ga('send', 'pageview');
+      ga('create', '{{ site.google_analytics }}', 'auto');
+      ga('send', 'pageview');
     </script>
     {% endif %}
-    
+
     <script type="text/javascript">
-        $(document).ready(function() {
-            $('#toc').toc({ title: '<i>Contents</i>'});
-            $(document.body).redLinks();
-        });
-    </script>
+      $(document).ready(function() {
+          $('#toc').toc({ title: '<i>Contents</i>'});
+          $(document.body).redLinks();
+      });
+      </script>
   </body>
 </html>
