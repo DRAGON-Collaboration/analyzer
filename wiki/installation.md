@@ -1,6 +1,10 @@
-## __Installation__
+---
+title: ""
+---
 
-### __Dependencies__
+# __Installation__
+
+## __Dependencies__
 
 For the "core" functionality, all you will need is a working C++ compiler; there is no dependence on any third-party libraries. However, you will likely want to make use of the analysis package in ROOT, in which case you will need a fairly recent installation of ROOT on your system. For instructions on installing ROOT, go [here](https://root.cern.ch/building-root). It is suggested that you install a relatively recent version of ROOT (say, ≥ 5.30) to ensure combatibilty between the ROOT release and the package code. You will also need to be sure that the `$ROOTSYS` environment variable is set and that `$ROOTSYS/bin` is in your search path. This is typically accomplished by sourcing the `thisroot.sh` or `thisroot.csh` script in `$ROOTSYS/bin` from your startup script (e.g. - `~/.bashrc`). It is also required that ROOT be compiled with the `minuit2` and `xml` options set to `ON`.
 
@@ -18,11 +22,12 @@ sudo apt-get install clang clang++
 ++ Note: 
 ```
 > The DRAGON analyzer package is now compatible with ROOT6, but ROOT6 functionality should be considered beta until it has been tested more rigorously. Please report bugs to [dconnolly@triumf.ca](mailto:dconnolly@triumf.ca) or [file an issue here](https://github.com/DRAGON-Collaboration/analyzer/issues).
-***
+
+---
 
 The optional rootbeer or rootana extensions each require ROOT to be installed (and, of course, the rootana and/or rootbeer packages themselves). To look at online data, you will need MIDAS installed, and, if using the rootana system, roody is required for online histogram viewing.
 
-### __Download and Compile__
+## __Download and Compile__
 
 One may obtain the analysis package from the git repository as follows:
 ```

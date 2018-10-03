@@ -1,4 +1,8 @@
-## __Quick Start Guide__
+---
+title: ""
+---
+
+# __Quick Start Guide__
 
 ***
 ```diff
@@ -38,4 +42,4 @@ To convert a MIDAS file to a ROOT file (assuming `~/packages/dragon/analyzer/bin
 mid2root runxxxx.mid
 ```
 
-For installation troublshooting, please visit the [faq page](/analyzer/html/analyzer/html/faq.html)
+For installation troublshooting, please visit the [faq page](/analyzer/docs/html/analyzer/html/faq.html)
