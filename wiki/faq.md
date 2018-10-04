@@ -221,7 +221,7 @@ root[0] gSystem->Load("LibRIO.so");
 
 ## __How to I operate the new frontend?__
 
-  See the operation guide at /analyzer/docs/html/frontend/html/operation.html"
+  See the [operation guide](/analyzer/docs/html/frontend/html/operation.html).
 
 ## __What parts of the frontend are configurable? How do I control it?__
 
@@ -290,16 +290,16 @@ root[0] gSystem->Load("LibRIO.so");
 
 ## __How do I obtain the software package to do offline analysis using ROOT?__
 
-  See the installation instructions [here](index.html#installation).
+  See the [installation instructions](/analyzer/wiki/installation).
 
-## __I am using `ROOT6` and recieve the following warning when working with dragon root files created with ROOT5:__
+## __I am using ROOT6 and recieve the following warning when working with dragon root files created with ROOT5:__
 
-  ```
-  Warning in <TStreamerInfo::BuildOld>: Cannot convert dragon::Head::trf from type: dragon::TdcChannel<MAX_RF_HITS> to type: dragon::TdcChannel<5>, skip element
-  
-  ```
+```
+Warning in <TStreamerInfo::BuildOld>: Cannot convert dragon::Head::trf from type: dragon::TdcChannel<MAX_RF_HITS> to type: dragon::TdcChannel<5>, skip element
+```
 
   As far as I can tell, this is functionally inconsequential, but if the warning bothers you, entering the following before loading the root file should solve the issue:
+
 ```c++
 ROOT::AddClassAlternate("dragon::TdcChannel<5>","dragon::TdcChannel<MAX_RF_HITS>")
 ```
@@ -491,7 +491,7 @@ t20->Draw("val:header.fTimeStamp", "ch == 0");
   
 ## __What is the channel number for EPICS device *x*?__
 
-  You can find the full list of the EPICS channels and their EPICS channel names at https://smaug.triumf.ca:8443/Equipment/Epics/Settings (requires a TRIUMF IP address) or [here](/analyzer/wiki/epics_chans). Some commonnly accessed channels are:
+  You can find the full list of the EPICS channels and their EPICS channel names at [https://smaug.triumf.ca:8443/Equipment/Epics/Settings](https://smaug.triumf.ca:8443/Equipment/Epics/Settings) (requires a TRIUMF IP address) or [here](/analyzer/wiki/epics_chans). Some commonnly accessed channels are:
 
   Channel | Epics Device Name      | Description                                                               |
   --------|------------------------|---------------------------------------------------------------------------

@@ -1,0 +1,119 @@
+# __EPICS ODB Tree__
+
+The table below lists each DRAGON's EPICS device according to its channel number in the Epics ODB tree.
+
+---
+
+``` diff
+--Attention:
+```
+
+  The device channels listed below are the current EPICS channel values (circa Jan. 2016 - present). If you are working with data from another time period, consult the `.xml` files in your data set to find the desired EPICS channel by searching for the "EPICS_NAMES" key array in Epics ODB tree:
+
+---
+
+``` xml
+<dir name="Epics">
+  <dir name="Common">
+  Keys in "Common"
+  .
+  .
+  .
+  </dir>
+  <dir name="Variables">
+  Keys in "Variables"
+  .
+  .
+  .
+  </dir>
+  <dir name="Statistics">
+  Keys in "Statistics"
+  .
+  .
+  .
+  </dir>
+  <dir name="Settings">
+    <key name="Command" type="STRING" size="80">status</key>
+    <keyarray name="EPICS_Names" type="STRING" size="32" num_values="374">
+      <value index="0">DRA:CMGC:RDVAC</value>
+      <value index="1">DRA:CMTRIN:RDVAC</value>
+      <value index="2">DRA:FCCH:RDCUR</value>
+      <value index="3">DRA:XSLITC:RDCUR1</value>
+      <value index="4">DRA:XSLITC:RDCUR2</value>
+      <value index="5">DRA:YSLITC:RDCUR1</value>
+      <value index="6">DRA:YSLITC:RDCUR2</value>
+      <value index="7">DRA:FCM:RDCUR</value>
+      <value index="8">DRA:XSLITM:SCALECUR1</value>
+      <value index="9">DRA:XSLITM:SCALECUR2</value>
+      <value index="10">DRA:YSLITM:SCALECUR1</value> 
+      .
+      .
+      .
+    </keyarray>  
+    More keys in "Settings"
+    .
+    .
+    .
+  </dir>
+</dir>
+```
+
+
+Channel | Epics Device Name      | Description                                                     |
+--------|------------------------|----------------------------------------------------------------
+[0]     | `DRA:CMGC:RDVAC`       | Gas target pressure [Torr]
+[1]     | `DRA:TCM1:GT:RDTEMP`   | Gas target temperature [&deg;C]
+[2]     | `CCS2ISAC:BL2ACURRENT` | BL2A Proton current [&mu;A]
+[3]     | `DRA:TCM1:SP6:RDTEMP`  | `<description placholder>`
+[4]     | `DRA:TCM1:SP7:RDTEMP`  | `<description placeholder>`
+[5]     | `HEBT2:FC4:SCALECUR`   | FC4 current readback [A]
+[6]     | `HEBT2:FC4:GAIN`       | FC4 gain setting
+[7]     | `HEBT2:FC4:STATON`     | FC4 inserted
+[8]     | `HEBT2:FC4CI:SCALECUR` | FC4 current integrator readback [A]
+[9]     | `DRA:ATTN0:STATON`     | DRAGON attenuator inserted
+[10]    | `DRA:Q1:CUR`           | Q1 current set point [A]
+[11]    | `DRA:Q1:RDCUR`         | Q1 current set point [A]
+[12]    | `DRA:HALLQ1:STATGAIN0` | Q1 Hall probe gain setting
+[13]    | `DRA:HALLQ1:RDFIELD`   | Q1 Hall probe field read back [Gauss]
+[14]    | `DRA:Q2:CUR`           | Q2 current set point [A]
+[15]    | `DRA:Q2:RDCUR`         | Q2 current set point [A]
+[16]    | `DRA:HALLQ2:STATGAIN0` | Q2 Hall probe gain setting
+[17]    | `DRA:HALLQ2:RDFIELD`   | Q2 Hall probe field read back [Gauss]
+[18]    | `DRA:FC1:SCALECUR`     | FC1 current readback [A]
+[19]    | `DRA:FC1:GAIN`         | FC1 gain setting
+[20]    | `DRA:FC1:STATON`       | FC1 inserted
+[21]    | `DRA:FC1CI:SCALECUR`   | FC1 current integrator readback [A]
+[22]    | `DRA:MD1:RDCUR`        | MD1 Current read back [A]
+[23]    | `DRA:MD1:RDNMR`        | MD1 NMR probe read back [Gauss]
+[24]    | `DRA:MD1:CUR`          | MD1 Current set point [A]
+[25]    | `DRA:PROFCH:MOTOR.LLS` | Profile monitor in limit switch engaged 
+[26]    | `DRA:PROFCH:MOTOR.HLS` | Profile monitor out limit switch engaged
+[27]    | `DRA:MINIIC:MOTOR.RBV` | Mini IC position read back
+[28]    | `DRA:MINIIC:MOTOR.VAL` | Mini IC position set point
+[29]    | `DRA:MINIIC:MOTOR.LLS` | Mini IC in limit switch engaged 
+[30]    | `DRA:MINIIC:MOTOR.HLS` | Mini IC out limit switch engaged
+[31]    | `DRA:XSLITC:SCALECUR1` | Left horizontal charge slit current read back [A]
+[32]    | `DRA:XSLITC:SCALECUR2` | Right horizontal charge slit current read back [A]
+[33]    | `DRA:XSLITC:MOTION.F`  | `<description placeholder>`
+[34]    | `DRA:XSLITC:MOTION.G`  | `<description placeholder>`
+[35]    | `DRA:SLITC:X1`         | `<description placeholder>`
+[36]    | `DRA:SLITC:X2`         | `<description placeholder>`
+[37]    | `DRA:XSLITC:WIDSP`     | `<description placeholder>`
+[38]    | `DRA:XSLITC:POSSP`     | `<description placeholder>`
+[39]    | `DRA:XSLITC:GAIN`      | Vertical charge slits gain setting
+[40]    | `DRA:YSLITC:SCALECUR1` | Top vertical charge slit current read back [A]
+[41]    | `DRA:YSLITC:SCALECUR2` | Bottom vertical charge slit current read back [A]
+[42]    | `DRA:YSLITC:MOTION.F`  | `<description placeholder>`
+[43]    | `DRA:YSLITC:MOTION.G`  | `<description placeholder>`
+[44]    | `DRA:XSLITC:WIDSP`     | `<description placeholder>`
+[45]    | `DRA:XSLITC:POSSP`     | `<description placeholder>`
+[46]    | `DRA:XSLITC:GAIN`      | Vertical charge slits gain setting
+[47]    | `DRA:FCCH:SCALECUR`    | FCCH current readback [A]
+[48]    | `DRA:FCCH:GAIN`        | FCCH gain setting
+[49]    | `DRA:FCCH:STATON`      | FCCH inserted
+[50]    | `DRA:FCCHCI:SCALECUR`  | FCCH current integrator readback [A]
+
+
+<!-- Local Variables: -->
+<!-- mode: gfm -->
+<!-- End: -->
