@@ -101,11 +101,9 @@ odbedit> load /path/to/$DH/runxxxx.xml
 
 ---
 
-``` diff
-++Note:
-```
-
+<aside class="notice">
   It is sometimes necessary to also remove the other shared memory buffers in `~/online` (e.g. - `.SYSMSG.SHM`, `.MSG.SHM`, etc.).
+</aside>
 
 ---
   
