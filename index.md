@@ -295,21 +295,21 @@ This type of longword is only present if the TDC is in an error condition.
 ![v1190error](/analyzer/docs/images/v1190error.png)
 
 - Bits 0 - 14: Encode the error status. Each bit that is set to '1' signifies a unique error condition:
-  - [0]: Hit lost in group 0 from read-out FIFO overflow.
-  - [1]: Hit lost in group 0 from L1 buffer overflow
-  - [2]: Hit error have been detected in group 0.
-  - [3]: Hit lost in group 1 from read-out FIFO overflow.
-  - [4]: Hit lost in group 1 from L1 buffer overflow
-  - [5]: Hit error have been detected in group 1.
-  - [6]: Hit data lost in group 2 from read-out FIFO overflow.
-  - [7]: Hit lost in group 2 from L1 buffer overflow
-  - [8]: Hit error have been detected in group 2.
-  - [9]: Hit lost in group 3 from read-out FIFO overflow.
-  - [10]: Hit lost in group 3 from L1 buffer overflow
-  - [11]: Hit error have been detected in group 3.
-  - [12]: Hits rejected because of programmed event size limit
-  - [13]: Event lost (trigger FIFO overflow).
-  - [14]: Internal fatal chip error has been detected.
+  - 0: Hit lost in group 0 from read-out FIFO overflow.
+  - 1: Hit lost in group 0 from L1 buffer overflow
+  - 2: Hit error have been detected in group 0.
+  - 3: Hit lost in group 1 from read-out FIFO overflow.
+  - 4: Hit lost in group 1 from L1 buffer overflow
+  - 5: Hit error have been detected in group 1.
+  - 6: Hit data lost in group 2 from read-out FIFO overflow.
+  - 7: Hit lost in group 2 from L1 buffer overflow
+  - 8: Hit error have been detected in group 2.
+  - 9: Hit lost in group 3 from read-out FIFO overflow.
+  - 10: Hit lost in group 3 from L1 buffer overflow
+  - 11: Hit error have been detected in group 3.
+  - 12: Hits rejected because of programmed event size limit
+  - 13: Event lost (trigger FIFO overflow).
+  - 14: Internal fatal chip error has been detected.
 
 - Bits 15 - 23: Unused.
 - Bits 24 - 25: TDC code (unused for DRAGON).
@@ -365,7 +365,7 @@ The TSC banks are arranged as follows (all 32-bit unsigned integers).
 
 An important topic related to the TSC bank is the method used to identify singles and coincidence events. As analysis of real-time, online data is quite important for DRAGON experiments, we need a method that is able to handle potential coincident head and tail events arriving at the backend at relatively different times. Since, as mentioned, MIDAS buffers events in the frontend before transferring to the backend via the network, events from each side are received in blocks. Potantially, coincident events could be quite far separated in terms of "event number" arriving at the backend.
 
-The method used to match coincidence and singles events is to buffer every incoming event in a queue, sorted by their trigger time values. In practice, this is done using a [C++ standard library multiset](http://www.cplusplus.com/reference/set/multiset/), as this container was shown to be the most efficient way in which to order events by their trigger time value. Whenever a new event is placed in the queue, the code checks its current "length" in time, that is, it checks the time difference between the beginning of the queue (the earliest event) and the end of the queue (the latest event). If this time difference is greater than a certain value (user programmable), then the code searches for timestamp matches between the earliest event and all other events in the queue. Note that a "match" does not necessairily mean that the trigger times are exactly the same, as this would imply that the heavy ion and @htmlonly &gamma;-ray @endhtmlonly were detected at exactly the same time, which is impossible for a real coincidence since the heavy ion must travel for a finite amount of time (~3 &mu;s). Thus, we define a "match" as two triggers whose time difference is within a programmable time window. Typically, this window is made significantly larger than the time difference of a true coincidence (~10 &mu;s), and further refinements can be made later by applying gates to the data.
+The method used to match coincidence and singles events is to buffer every incoming event in a queue, sorted by their trigger time values. In practice, this is done using a [C++ standard library multiset](http://www.cplusplus.com/reference/set/multiset/), as this container was shown to be the most efficient way in which to order events by their trigger time value. Whenever a new event is placed in the queue, the code checks its current "length" in time, that is, it checks the time difference between the beginning of the queue (the earliest event) and the end of the queue (the latest event). If this time difference is greater than a certain value (user programmable), then the code searches for timestamp matches between the earliest event and all other events in the queue. Note that a "match" does not necessairily mean that the trigger times are exactly the same, as this would imply that the heavy ion and  &gamma;-ray were detected at exactly the same time, which is impossible for a real coincidence since the heavy ion must travel for a finite amount of time (~3 &mu;s). Thus, we define a "match" as two triggers whose time difference is within a programmable time window. Typically, this window is made significantly larger than the time difference of a true coincidence (~10 &mu;s), and further refinements can be made later by applying gates to the data.
 
 ![tsmatch](/analyzer/docs/images/tsmatch.png)
 
@@ -514,25 +514,28 @@ Note that the default histogram file (or the one specified with the `-histos` fl
 ```
 
 Now that you know how to specify what file to read the histogram definitions from, you should probably also know how to write said file. The basic way in which the files are parsed is by using a set of "key" codes that tell the parser to look in the lines below for the appropriate information for defining the corresponding ROOT object. The "keys" available are as follows:
--# DIR: Create a directory.
+1. DIR: Create a directory.
   The succeeding line should contain the full path of the directory as plain text.
   For example:
+
 ```c++
 DIR:
     histos/gamma
 ```
   This would create a new directory "histos", with "gamma" as a sub-directory. Note that if you later do
+
 ```c++
 DIR:
     histos/hion
 ```
   the "histos" directory would not be re-created; instead, "hion" would be added as a new sub-directory. When you specify a directory, any histogram definitions succeeding it will be members of that directory, until another directory line is encountered. If any histograms are defined before the first "DIR:" command, they will belong to the "top level" directory (e.g. in a `TFile`, their owning directory will be the `TFile` itself).
   
--# TH1D: Create a 1d histogram.
+2. TH1D: Create a 1d histogram.
   Should be succeeded by two lines:
   1) the argument to a `TH1D` constructor 
   2) the parameter to display in the histogram.
   Example:
+
 ```c++
 TH1D:
   ("bgo_e0", "Bgo energy, channel 0 [singles]", 256, 0, 4096)
@@ -540,10 +543,11 @@ TH1D:
 ```
   (note that the indentations are only for readability, not required). This creates a histogram with name "`bgo_e0`", title "Bgo energy, channel 0 [singles]", and ranging from 0 to 4096 with 256 bins. The parameter to be displayed in the histogram would be `rootana::gHead.bgo.ecal[0]`.
   
--# TH2D: Create a 2d histogram.
+3. TH2D: Create a 2d histogram.
   Succeeding lines are in the same spirit as the 1D case, except a third line is added to specify the y-axis parameter.
   
   Example:
+
 ```c++
 TH2D:
     ("bgo_e1_e0", "Bgo energy 1 vs. 0 [coinc]", 256, 0, 4096, 256, 0, 4096)
@@ -552,24 +556,25 @@ TH2D:
 ```
   Creates a histogram of `rootana::gCoinc.head.bgo.ecal[1]` [x-axis] vs. `rootana::gCoinc.head.bgo.ecal[0]` [y-axis].
   
--# TH3D Create a 3d histogram.
+4. TH3D Create a 3d histogram.
   Following the same pattern as 1d and 2d - add a third line to specify the
   z-axis parameter.
   
--# SCALER: Create a "scaler" histogram, that is a 1d histogram whose x-axis represents event number and y-axis represents number of counts (basically, abuse histogram to make it into a bar chart).
+5. SCALER: Create a "scaler" histogram, that is a 1d histogram whose x-axis represents event number and y-axis represents number of counts (basically, abuse histogram to make it into a bar chart).
   
   The lines following a "SCALER:" command are: 
   1) Constructor for a 1D histogram, which defines the x-axis (event) range and binning. Typically you want to start at zero and bin with 1 bin per channel. Note that the histogram will automatically extend itself if the number of events exceeds the x-axis range. 
   2) The scaler parameter you want to histogram.
   
   Example:
+
 ```c++
 SCALER:
     ("rate_ch0", "Rate of scaler channel 0", 5000, 0, 5000);
     rootana::gHeadScaler.rate[0]
 ```
   
--# SUMMARY: Create a "summary" histogram, that is a histogram which displays information on multiple channels at once, like this:
+6. SUMMARY: Create a "summary" histogram, that is a histogram which displays information on multiple channels at once, like this:
   
   ![summary](/analyzer/docs/images/summary.png)
   
@@ -580,6 +585,7 @@ SCALER:
   2) The name of an array that you want to display in the histogram;
   3) The number of y-axis bins (should be equal to the length of the array).
   Example:
+
 ```c++
 SUMMARY:
     ("bgo_q", "Bgo energies [singles]", 256, 0, 4096)
@@ -588,9 +594,10 @@ SUMMARY:
 ```
   This would create a summary histogram of the 30 BGO detector energies contained in the `rootana::gHead.bgo.ecal` array (`bgo.ecal[0]` &rarr; `bgo.ecal[29]`).
   
--# CUT: Defines a cut.
+7. CUT: Defines a cut.
   
   This defines a "cut" or "gate" condition that will be applied to the histogram defined directly before it. The cut condition is specified as a logical condition consisting of rootana::Cut derived classes. For more information on how to define a cut, see the code documentation of the Cut.hxx source file and links therein. As a simple example:
+
 ```c++
 TH1D:
     ("bgo_e0", "Bgo energy, ch 0 [singles]", 256, 0, 4096)
@@ -601,6 +608,7 @@ CUT:
   will create the "bgo_e0" histogram displaying `bgo.ecal[0]`, with the condition that `bgo.ecal[0]` be greater than 100 and less than 2000.
   
   Note that you can also create/use 2d polygon cuts, either by specifying the parameters and (closed) polygon points:
+
 ```c++
 CUT:
     Cut2D(gHead.bgo.q[0], gHead.bgo.q[1], -2,-2, -2,2, 2,2, 2,-2, -2,-2)
@@ -611,8 +619,9 @@ CUT:
   
   It is also possible to pre-define and then re-use graphical cuts using the "CMD:" option (see next).
   
--# CMD: Evaluates a series of commands in CINT.
+8. CMD: Evaluates a series of commands in CINT.
   The succeeding lines are a series of C++ statements to be evaluated literally in the CINT interpreter, closed by a line containing only "END". Any objects created within these statements will become available for use in future commands throughout the definition file. Note that each file should only contain one "CMD:" statement (if it contains any), and that it should be the first "active" code within the file. As an example, we could use "CMD:" to define a graphical cut:
+
 ```c++
 CMD:
   TCutG cutg("cutTest",7);
@@ -630,6 +639,7 @@ CMD:
 END
 ```
   This cut is then available in future statements; for example to create a Cut2D object to be applied to a histogram
+
 ```
 SUMMARY:
   ("bgo_ecal", "Bgo energies [singles]", 256, 0, 4096)
@@ -643,15 +653,16 @@ CUT:
 With combinations of the above commands, you should hopefully be able to define any histogram-related objects you will need in the online analyzer without ever having to touch the source code. A few more notes about histogram definition files:
 
 - There are five global instances of "top-level" classes which encapsulate all of the relevant data in the experiment. Each class corresponds to a different event type, and is mapped to a different ROOT tree in the output file. As you may have noticed in the examples, these will need to prefix any parameters to be displayed in histograms. They are:
-  -# `rootana::gHead` - "Head" (gamma) singles event
-  -# `rootana::gTail` - "Tail" (heavy-ion( singles event
-  -# `rootana::gCoinc` - Coincidence event
-  -# `rootana::gHeadScaler` - "Head" (gamma) scaler event
-  -# `rootana::gTailScaler` - "Tail" (heavy-ion) scaler event
+  1. `rootana::gHead` - "Head" (gamma) singles event
+  2. `rootana::gTail` - "Tail" (heavy-ion( singles event
+  3. `rootana::gCoinc` - Coincidence event
+  4. `rootana::gHeadScaler` - "Head" (gamma) scaler event
+  5. `rootana::gTailScaler` - "Tail" (heavy-ion) scaler event
 
 - White-space is ignored, though good indention improves readability immensely.
 
 - The `#` character denotes a comment, all characters on the same line coming after a `#` are ignored:
+
 ```
 # IGNORE THIS HEADER STATEMENT #
 TH1D: #Ignore this descriptive comment also...
@@ -660,11 +671,13 @@ TH1D: #Ignore this descriptive comment also...
 - The run-time parsing is done using CINT via the `gROOT->ProcessLine()` and `gROOT->ProcessLineFast()` commands. These have very little native error handling. Some support has been added in the DRAGON analyzer to "gracefully" handle common errors when detectable; for example, skipping the current definition and moving onto others, but alerting the user. If you find a case where you feel the error handling could be improved (in particular, where a mistake in the script file causes a crash or un-reported failure), do not hesitate to alert the developers.
 
 Once started, the online analyzer simply runs in the background to receive, match, and analyze events coming from the two separate front-ends. The analyzed data are then summarized in the histograms requested by the user as outlined in the proceeding paragraphs. As mentioned, roody can be used to visualize the histograms as data is coming in. To start roody, you will need to specify the host and port of the histogram server. Usually this means, the following:
+
 ```
 roody -Plocalhost:9091
 ```
 
 if running locally from the back-end host, or
+
 ```
 roody -Pdaenerys.triumf.ca:9091
 ```
@@ -694,12 +707,14 @@ In writing this code, I have tried to adhere to a few design principles. I will 
   The basic idea is that we want to take the important data captured during a DRAGON event and break it down into a tree-like structure. In general, each "branch" of the tree corresponds to a different detector within the DRAGON system, and the various "leaves" correspond to quantities measured by that detector. For example, see the dragon::Coinc documentation and the "Attribute" links therein.
   
   Taking this approach allows a couple of practical advantages beyond code organization and maintenance. The main one is that we can use ROOT's dictionary facility to create `TTree`s whith branches defined by the structure of our classes. For example we can just do:
+
 ```c++
 dragon::Coinc* coinc = new dragon::Coinc();
 TTree tcoinc("tcoinc","Coincidence event");
 tcoinc.Branch("coinc","dragon::Coinc",&coinc);
 ```
   After just a few lines of code, we now have the ability to access any parameter in a DRAGON coincidence event through the 'tcoinc' tree:
+
 ```c++
 tcoinc.Draw("coinc.head.bgo.ecal[0]>>hst_e0(400,0,4000)"); // Draws BGO energy, channel 0
 tcoinc.Draw("coinc.tail.mcp.tac>>hst_tac(200,0,2000)"); // Draws MCP TOF
@@ -712,6 +727,7 @@ tcoinc.Draw("coinc.tail.mcp.tac>>hst_tac(200,0,2000)"); // Draws MCP TOF
 
    
   Developing with a common interface, aside from being "neater" allows for some practical advantages, such as using template "helper" functions to bundle routines used for a variety of different classes. For example:
+
 ```c++
 template <class T>
 void handle_event(T& detector, const vme::V785 adc[], const vme::V1190& tdc)
@@ -729,6 +745,7 @@ void handle_all_events()
 }
 ```
   Another feature that I have adhered to is to allow class data members to be public. Although this goes against canonical object oriented good principles, I think the advantages outweight the disadvantages. This is particularly true if we are working in CINT to analyze data.<SUP><a href=#footnotes><b>1</b></a></SUP> For example, with public data, it's trivial to loop over a tree, calculate some new parameter and display it in a histogram. For example, say I want to plot the square of MCP time-of-flight in cases where it is nonzero:
+
 ```c++
 // Assume prior existance of a TTree 't' containing heavy-ion data
 dragon::Tail tail;
@@ -744,6 +761,7 @@ for(Long64_t event = 0; event < t->GetEntries(); ++event) {
 hst->Draw();
 ```
   However, despite the usefulness of public data for scripting use, it is still a good idea to design the _source_ code as if the data were private. This reduces the coupling between the various classes, and as a result making a small change to the structure of one class (or module) is guaranteed not to affect the others. To enforce this, I have defined a macro `PRIVATE` which can be set to be equal to either `private` or `public` in the Makefile and defined all of the class data members under this token.
+
 ```c++
 class SomeDetector {
 PRIVATE:
@@ -766,6 +784,7 @@ void dragon::Bgo::read_data(const vme::V792& adc, const vme::V1190& tdc)
 }
 ```
   but instead we prefer to do the following, using utils::channel_map() to do the actual mapping.
+
 ```c++
 void dragon::Bgo::read_data(const vme::V792& adc, const vme::V1190& tdc)
 {
@@ -823,6 +842,7 @@ t->Draw("gHead.fBgo.fEnergy[0]"); // (following the ROOT / Taligent convention)
 double ecal[MAX_CHANNELS];
 ```
   instead of
+
 ```c++
 double ecal0;
 double ecal1;
