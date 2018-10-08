@@ -69,7 +69,7 @@ entries:
     folderitems:
 
       - title: Mainpage
-        url: /docs/html/analyzer/html/index.html
+        url: /analyzer/docs/html/analyzer/html/index.html
         output: web, pdf
 
       - title: Epics Channels
@@ -85,19 +85,19 @@ entries:
         output: web, pdf
 
       - title: Namespaces
-        url: /docs/html/analyzer/html/namespaces.html
+        url: /analyzer/docs/html/analyzer/html/namespaces.html
         output: web, pdf
 
       - title: Classes
-        url: /docs/html/analyzer/html/annotated.html
+        url: /analyzer/docs/html/analyzer/html/annotated.html
         output: web, pdf
 
       - title: Files
-        url: /docs/html/analyzer/html/files.html
+        url: /analyzer/docs/html/analyzer/html/files.html
         output: web, pdf
 
       - title: Todo List
-        url: /docs/html/analyzer/html/todo.html
+        url: /analyzer/docs/html/analyzer/html/todo.html
         output: web, pdf
 
 
@@ -106,19 +106,19 @@ entries:
     folderitems:
 
       - title: Mainpage
-        url: /docs/html/frontend/html/index.html
+        url: /analyzer/docs/html/frontend/html/index.html
         output: web, pdf
 
       - title: Related Pages
-        url: /docs/html/frontend/html/pages.html
+        url: /analyzer/docs/html/frontend/html/pages.html
         output: web, pdf
 
       - title: Classes
-        url: /docs/html/frontend/html/annotated.html
+        url: /analyzer/docs/html/frontend/html/annotated.html
         output: web, pdf
 
       - title: Files
-        url: /docs/html/frontend/html/files.html
+        url: /analyzer/docs/html/frontend/html/files.html
         output: web, pdf
 
   - title: Troubleshooting / Help
