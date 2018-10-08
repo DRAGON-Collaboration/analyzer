@@ -1,0 +1,129 @@
+.summary {
+    color: #666666;
+    border-left: 5px solid #009fdf;
+    font-size:16px;
+}
+
+
+h3 {color: #666666; }
+h4 {color: #666666; }
+
+.nav-tabs > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus {
+    background-color: #009fdf;
+    color: white;
+}
+
+.nav > li.active > a {
+    background-color: #CCCCCC;
+}
+
+.nav > li > a:hover {
+    background-color: #CCCCCC;
+}
+
+div.navbar-collapse .dropdown-menu > li > a:hover {
+    background-color: #CCCCCC;
+}
+
+.nav li.thirdlevel > a {
+    background-color: #F1F2F2 !important;
+    color: #CCCCCC;
+    font-weight: bold;
+}
+
+a[data-toggle="tooltip"] {
+    color: #74bf43;
+    font-style: italic;
+    cursor: default;
+}
+
+.navbar-inverse {
+    background-color: #009fdf;
+    border-color: #009fdf;
+}
+.navbar-inverse .navbar-nav>li>a, .navbar-inverse .navbar-brand {
+    color: white;
+}
+
+.navbar-inverse .navbar-nav>li>a:hover, a.fa.fa-home.fa-lg.navbar-brand:hover {
+     color: #f1f2f2;
+}
+
+a.navbar-brand:hover {
+  color: #f1f2f2;
+}
+
+.navbar-inverse .navbar-nav > .open > a, .navbar-inverse .navbar-nav > .open > a:hover, .navbar-inverse .navbar-nav > .open > a:focus {
+    color: #232359;
+}
+
+.navbar-inverse .navbar-nav > .open > a, .navbar-inverse .navbar-nav > .open > a:hover, .navbar-inverse .navbar-nav > .open > a:focus {
+    background-color: #CCCCCC;
+    color: #f1f2f2;
+}
+
+.navbar-inverse .navbar-collapse, .navbar-inverse .navbar-form {
+    border-color: #232359 !important;
+}
+
+.btn-primary {
+    color: #f1f2f2;
+    background-color: #009fdf;
+    border-color: #232359;
+}
+
+.navbar-inverse .navbar-nav > .active > a, .navbar-inverse .navbar-nav > .active > a:hover, .navbar-inverse .navbar-nav > .active > a:focus {
+    background-color: #009fdf;
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active,
+.btn-primary.active,
+.open .dropdown-toggle.btn-primary {
+    background-color: #009fdf;
+    border-color: #232359;
+}
+
+.printTitle {
+    color: #232359 !important;
+}
+
+body.print h1 {color: #000000 !important; font-size:28px !important;}
+body.print h2 {color: #009fdf !important; font-size:20px !important;}
+body.print h3 {color: #666666 !important; font-size:14px !important;}
+body.print h4 {color: #CCCCCC !important; font-size:14px; font-style: italic !important;}
+
+.anchorjs-link:hover {
+    color: #009fdf;
+}
+
+div.sidebarTitle {
+    color: #009fdf;
+}
+
+li.sidebarTitle {
+    margin-top:20px;
+    font-weight:normal;
+    font-size:130%;
+    color: #009fdf;
+    margin-bottom:10px;
+    margin-left: 5px;
+}
+
+a.sidebarTitle {
+    margin-top:20px;
+    font-weight:normal;
+    font-size:130%;
+    color: #009fdf;
+    margin-bottom:10px;
+    margin-left: 5px;
+}
+
+.navbar-inverse .navbar-toggle:focus, .navbar-inverse .navbar-toggle:hover {
+    background-color: #009fdf;
+}
+
+.navbar-inverse .navbar-toggle {
+    border-color: #CCCCCC;
+}

@@ -1,0 +1,41 @@
+## Topnav single links
+## if you want to list an external url, use external_url instead of url. the theme will apply a different link base.
+topnav:
+- title: Topnav
+  items:
+    - title: Quick Start
+      url: quick-start.html
+    - title: Install
+      url: installation.html
+    - title: FAQ
+      url: faq.html
+    - title: Releases
+      external_url: https://github.com/DRAGON-Collaboration/analyzer/releases
+
+
+#Topnav dropdowns
+topnav_dropdowns:
+- title: Topnav dropdowns
+  folders:
+    # - title: Analyzer Documentation
+    #   folderitems:
+    #     - title: Mainpage
+    #       url: /docs/html/analyzer/html/index.html
+    #     - title: Related Pages
+    #       url: /docs/html/analyzer/html/pages.html
+    #     - title: Namespaces
+    #       url: /docs/html/analyzer/html/namespaces.html
+    #     - title: Classes
+    #       url: /docs/html/analyzer/html/annotated.html
+    #     - title: Files
+    #       url: /docs/html/analyzer/html/files.html
+    # - title: Frontend Documentation
+    #   folderitems:
+    #     - title: Mainpage
+    #       url: /docs/html/frontend/html/index.html
+    #     - title: Related Pages
+    #       url: /docs/html/frontend/html/pages.html
+    #     - title: Classes
+    #       url: /docs/html/frontend/html/annotated.html
+    #     - title: Files
+    #       url: /docs/html/frontend/html/files.html

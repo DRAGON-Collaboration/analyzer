@@ -1,0 +1,130 @@
+# This is your sidebar TOC. The sidebar code loops through sections here and provides the appropriate formatting.
+
+entries:
+- title: sidebar
+  product: DRAGON Analyzer
+  # version: 1.4.0
+  folders:
+
+  - title:
+    output: pdf
+    type: frontmatter
+    folderitems:
+    - title:
+      url: /titlepage.html
+      output: pdf
+      type: frontmatter
+    - title:
+      url: /tocpage.html
+      output: pdf
+      type: frontmatter
+
+  - title: DRAGON Analyzer
+    output: web, pdf
+    folderitems:
+
+    - title: Quick Start
+      url: quick-start.html
+      output: web, pdf
+
+    - title: Introduction
+      url: index.html
+      output: web, pdf
+      type: homepage
+
+    - title: Installation
+      url: installation.html
+      output: web, pdf
+
+    - title: Data Acquisition
+      url: daq.html
+      output: web, pdf
+
+    - title: For Users
+      url: users.html
+      output: web, pdf
+
+    - title: For Developers
+      url: develop.html
+      output: web, pdf
+
+  - title: DRAGON Frontend
+    output: web, pdf
+    folderitems:
+
+    - title: Operation Guide
+      url: operation.html
+      output: web, pdf
+
+    - title: Hardware Overview
+      url: hardware.html
+      output: web, pdf
+
+    - title: Trigger Logic
+      url: trigger.html
+      output: web, pdf
+
+  - title: Analyzer Documentation
+    output: web, pdf
+    folderitems:
+
+      - title: Mainpage
+        url: /docs/html/analyzer/html/index.html
+        output: web, pdf
+
+      - title: Epics Channels
+        url: epics.html
+        output: web, pdf
+
+      - title: Parameter Names
+        url: params.html
+        output: web, pdf
+
+      - title: FAQ
+        url: faq.html
+        output: web, pdf
+
+      - title: Namespaces
+        url: /docs/html/analyzer/html/namespaces.html
+        output: web, pdf
+
+      - title: Classes
+        url: /docs/html/analyzer/html/annotated.html
+        output: web, pdf
+
+      - title: Files
+        url: /docs/html/analyzer/html/files.html
+        output: web, pdf
+
+      - title: Todo List
+        url: /docs/html/analyzer/html/todo.html
+        output: web, pdf
+
+
+  - title: Frontend Documentation
+    output: web, pdf
+    folderitems:
+
+      - title: Mainpage
+        url: /docs/html/frontend/html/index.html
+        output: web, pdf
+
+      - title: Related Pages
+        url: /docs/html/frontend/html/pages.html
+        output: web, pdf
+
+      - title: Classes
+        url: /docs/html/frontend/html/annotated.html
+        output: web, pdf
+
+      - title: Files
+        url: /docs/html/frontend/html/files.html
+        output: web, pdf
+
+  - title: Troubleshooting / Help
+    output: web, pdf
+    folderitems:
+
+      - title: FAQ
+        url: faq.html
+        output: web, pdf
