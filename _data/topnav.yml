@@ -17,18 +17,18 @@ topnav:
 topnav_dropdowns:
 - title: Topnav dropdowns
   folders:
-    - title: Analyzer Documentation
-      folderitems:
-        - title: Mainpage
-          url: /docs/html/analyzer/html/index.html
-        - title: Related Pages
-          url: /docs/html/analyzer/html/pages.html
-        - title: Namespaces
-          url: /docs/html/analyzer/html/namespaces.html
-        - title: Classes
-          url: /docs/html/analyzer/html/annotated.html
-        - title: Files
-          url: /docs/html/analyzer/html/files.html
+    # - title: Analyzer Documentation
+    #   folderitems:
+    #     - title: Mainpage
+    #       url: /docs/html/analyzer/html/index.html
+    #     - title: Related Pages
+    #       url: /docs/html/analyzer/html/pages.html
+    #     - title: Namespaces
+    #       url: /docs/html/analyzer/html/namespaces.html
+    #     - title: Classes
+    #       url: /docs/html/analyzer/html/annotated.html
+    #     - title: Files
+    #       url: /docs/html/analyzer/html/files.html
     # - title: Frontend Documentation
     #   folderitems:
     #     - title: Mainpage
