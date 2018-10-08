@@ -1,0 +1,25 @@
+<footer>
+  <div class="row">
+    <div class="col-lg-12 footer">
+      {% if site.feedback_disable == null or site.feedback_disable == false %}
+	  {% include feedback.html %}
+      {% endif %}
+      <p>
+        <a href="https://github.com/DRAGON-Collaboration">
+          <img src="{{ "images/GitHub-Mark-32px.png" }}" height="20"/>
+        </a>
+      </p>
+      <p>
+        <a href="https://www.triumf.ca">
+          <img src="{{ "images/TRIUMF_Logo_Blue.png" }}" height="20"/>
+        </a>
+      </p>
+      <p>
+        {% if page.last_updated %}<span>Page last updated:</span> {{page.last_updated}}<br/>{% endif %} Site last generated: {{ site.time | date: "%b %-d, %Y"  }}
+      </p>
+      <p>
+        Hosted on GitHub Pages &mdash; Powered by <a href="https://github.com/tomjoht/documentation-theme-jekyll">Jekyll Documentation Theme</a>
+      </p>
+    </div>
+  </div>
+</footer>

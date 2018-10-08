@@ -42,5 +42,4 @@ docs/html/analyzer/latex
 docs/html/frontend/latex
 test/filltest
 .#*
-_site
-*.html
+_site/
