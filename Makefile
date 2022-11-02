@@ -38,7 +38,9 @@ endif
 
 CC        += $(filter-out -std=c++11, $(CXXFLAGS))
 CXXFLAGS  += $(INCLUDE)
-CINTFLAGS := $(filter-out ($(ROOTCFLAGS)), $(CXXFLAGS))
+CINTFLAGS1 := $(filter-out ($(ROOTCFLAGS)), $(CXXFLAGS))
+CINTFLAGS2 := $(filter-out -fPIC, $(CINTFLAGS1))
+CINTFLAGS  := $(filter-out -pthread, $(CINTFLAGS2))
 
 ifeq ($(NAME),Ubuntu5)
 CXX += $(filter-out -std=c++11, $(CXXFLAGS))

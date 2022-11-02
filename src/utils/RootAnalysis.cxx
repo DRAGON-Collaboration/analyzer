@@ -21,6 +21,7 @@
 #include <TFitResult.h>
 #include <TDataMember.h>
 #include <TTreeFormula.h>
+#include <TObjString.h>
 
 #include "midas/Database.hxx"
 #include "utils/Functions.hxx"
