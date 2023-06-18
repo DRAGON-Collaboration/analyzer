@@ -89,12 +89,18 @@ OBJECTS += $(OBJ)/utils/Kin2Body.o
 endif
 ## END OBJECTS ##
 
-all:  $(MAKE_ALL)
+all:  $(SHLIBFILE)
 
 libDragon: $(SHLIBFILE)
 
 $(SHLIBFILE): $(DRA_DICT_DEP) $(OBJECTS)
 	$(LD) $(DYLIB) $(MIDASLIBS) $(OBJECTS) $(DRA_DICT) -o $@ \
+
+install: lib/libDragon.so
+	cp lib/libDragon* /opt/lib/; \
+cp FreeFunctions.hxx /opt/include/dragon/; \
+cp src/*.hxx /opt/include/dragon/; \
+cp src/utils/*.hxx /opt/include/dragon/;
 
 mid2root: $(PWD)/bin/mid2root
 
