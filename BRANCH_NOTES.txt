@@ -1,0 +1,6 @@
+GAC, 2023/06/18
+
+This branch is for developing specialized code for analysis
+of the 23Mg(p,g) experiment S1799. This experiment uses RF
+timing w/ LaBr and CeBr scintillators to establish resonance
+energies.
