@@ -36,6 +36,7 @@ class TGraph;
 class TGraphErrors;
 class TGraphAsymmErrors;
 
+
 namespace dragon {
 
   enum MeasurementType_t {
@@ -45,7 +46,7 @@ namespace dragon {
   };
 
   /// Run the unpacker
-  int Mid2Root(int argc, char** argv);
+  int Mid2Root(const TString& args);
 
   /// Chain together all trees in multiple DRAGON files.
   void MakeChains(const char* prefix, const Int_t* runnumbers, Int_t nruns, const char* format = "$DH/rootfiles/run%d.root", Bool_t sonik = kFALSE);
@@ -727,14 +728,6 @@ namespace dragon {
 	/// Cross section unit prefix
 	std::string fPrefix;
   };
-
-
-class M2R {
-public:
-	M2R(){}
-	~M2R(){}
-	int Run(const TString& args);
-};
 
 } // namespace dragon
 

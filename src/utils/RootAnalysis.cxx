@@ -38,31 +38,6 @@ namespace m2r { extern int main_(int argc, char** argv); }
 using namespace std;
 
 
-int dragon::M2R::Run(const TString& args)
-{
-	std::unique_ptr<TObjArray> tok (
-		args.Tokenize(" ") );
-
-	int argc = tok->GetEntries() + 1;
-	char** argv = new char*[argc];
-	argv[0] = new char[9];
-	strcpy(argv[0],"mid2root");
-
-	for(int i=0; i< tok->GetEntries(); ++i) {
-		TString s = static_cast<TObjString*>(tok->At(i))->GetString();
-		argv[i+1] = new char[s.Length() + 1];
-		strcpy(argv[i+1], s.Data());
-	}
-
-	cout << "ARGV: ";
-	for(int i=0; i< argc; ++i) {
-		cout << argv[i] << " | ";
-	} cout << endl;
-	
-	return m2r::main_(tok->GetEntries() + 1, argv);
-}
-
-
 //////////////////////////////// Helper classes ////////////////////////////////
 namespace {
   // Alias for surface barrier max channels
@@ -119,9 +94,29 @@ namespace {
 
 //////////////////////// namespace dragon Free Functions ///////////////////////
 
-int Mid2Root(int argc, char** argv) {
-	return m2r::main_(argc,argv);
-};
+int dragon::Mid2Root(const TString& args)
+{
+	std::unique_ptr<TObjArray> tok (
+		args.Tokenize(" ") );
+
+	int argc = tok->GetEntries() + 1;
+	char** argv = new char*[argc];
+	argv[0] = new char[9];
+	strcpy(argv[0],"mid2root");
+
+	for(int i=0; i< tok->GetEntries(); ++i) {
+		TString s = static_cast<TObjString*>(tok->At(i))->GetString();
+		argv[i+1] = new char[s.Length() + 1];
+		strcpy(argv[i+1], s.Data());
+	}
+
+	// cout << "ARGV: ";
+	// for(int i=0; i< argc; ++i) {
+	// 	cout << argv[i] << " | ";
+	// } cout << endl;
+	
+	return m2r::main_(tok->GetEntries() + 1, argv);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Make chains of dragon event branches from an array of run numbers
