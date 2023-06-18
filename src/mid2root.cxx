@@ -683,10 +683,10 @@ void m2r::save_histos(TDirectory*, TDirectory*) { assert("Can't get here!"); }
 
 //
 // No rootbeer, just call m2r::main_()
-int main(int argc, char** argv)
-{
-  return m2r::main_(argc, argv);
-}
+// int main(int argc, char** argv)
+// {
+//   return m2r::main_(argc, argv);
+// }
 
 #else
 #ifndef DOXYGEN_SKIP

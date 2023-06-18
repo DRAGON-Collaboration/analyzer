@@ -18,8 +18,8 @@ MAKE_DRAGON_DICT += $(ROOTCINT) -f $@ -c $(CINTFLAGS) -p $(HEADERS) TTree.h $(CI
 endif
 DRA_DICT          = $(DRLIB)/DragonDictionary.cxx
 DRA_DICT_DEP      = $(DRLIB)/DragonDictionary.cxx
-ROOTLIBS         += -lXMLParser -lTreePlayer -lSpectrum -lMinuit
-ROOTGLIBS        += -lXMLParser -lTreePlayer -lSpectrum -lMinuit
+ROOTLIBS         += -lTreePlayer -lSpectrum -lMinuit
+ROOTGLIBS        += -lTreePlayer -lSpectrum -lMinuit
 endif
 
 # DEBUG       += -ggdb -O3 -DDEBUG
@@ -36,7 +36,7 @@ ifeq ($(USE_ROOTANA),YES)
 # conditional for rootcint var to compile libanaDragon, anaDragon
 endif
 
-CC        += $(filter-out -std=c++11, $(CXXFLAGS))
+CC        += $(filter-out -std=c++17, $(CXXFLAGS))
 CXXFLAGS  += $(INCLUDE)
 CINTFLAGS1 := $(filter-out ($(ROOTCFLAGS)), $(CXXFLAGS))
 CINTFLAGS2 := $(filter-out -fPIC, $(CINTFLAGS1))
@@ -97,8 +97,11 @@ $(SHLIBFILE): $(DRA_DICT_DEP) $(OBJECTS)
 
 mid2root: $(PWD)/bin/mid2root
 
+MID2ROOT_LIBS         += $(ROOTLIBS)
+
+
 $(PWD)/bin/mid2root: src/mid2root.cxx $(SHLIBFILE)
-	$(LD) $(MID2ROOT_INC) $(MID2ROOT_LIBS) $< -o $@ \
+	$(LD) $(MID2ROOT_INC) $(MID2ROOT_LIBS) $(ROOTLIBS) $< -o $@ \
 
 #rbdragon.o: $(OBJ)/rootbeer/rbdragon.o
 

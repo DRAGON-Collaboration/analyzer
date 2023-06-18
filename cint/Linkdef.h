@@ -108,6 +108,8 @@ class TTree;
 #pragma link C++ class dragon::utils::PositionVariables<1>+;
 
 // dragon ns free functions
+#pragma link C++ class dragon::M2R;
+#pragma link C++ function dragon::Mid2Root;
 #pragma link C++ function dragon::MakeChains;
 #pragma link C++ function dragon::OpenRun;
 
