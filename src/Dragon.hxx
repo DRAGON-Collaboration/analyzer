@@ -571,6 +571,8 @@ namespace dragon {
 		double tcalx;
 		/// RF time
 		double tcal_rf;
+		/// TOF from RF --> BGO hit 0
+		double rftof[MAX_RF_HITS];
 
 	public: // Subclasses
 		///

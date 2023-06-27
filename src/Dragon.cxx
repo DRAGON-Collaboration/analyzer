@@ -900,6 +900,7 @@ void dragon::Head::reset()
 	v1190.reset();
 	bgo.reset();
 	trf.reset();
+	dutils::reset_array(MAX_RF_HITS, rftof);
 	dutils::reset_data(tcalx, tcal0, tcal_rf);
 }
 
@@ -986,6 +987,12 @@ void dragon::Head::calculate()
 	/// - Read and calibrate t0 (trigger) channel
 	dutils::channel_map(tcal0, variables.tdc0.channel, v1190);
 	dutils::linear_calibrate(tcal0, variables.tdc0);
+
+
+	for(int i=0; i< MAX_RF_HITS; ++i){
+		rftof[i] = dutils::calculate_tof(
+			bgo.t0, trf.leading[i]);
+	}
 }
 
 
