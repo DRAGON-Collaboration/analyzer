@@ -561,7 +561,7 @@ namespace m2r {
       TMidasEvent temp;
       bool success = fin.Read(&temp);
       if (!success) break;
-			sz_read = temp.GetDataSize();
+			sz_read += temp.GetDataSize();
 
       //
       // Read ODB tree if MIDAS_EOR buffer
