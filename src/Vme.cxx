@@ -353,9 +353,16 @@ bool vme::V1190::unpack(const midas::Event& event, const char* bankName, bool re
 
 	// Loop over all data words in the bank
 	bool ret = true;
-	for (int i=0; i< bank_len; ++i) {
-		bool success = unpack_buffer(pbank32++, bankName);
-		if(!success) ret = false;
+
+	if(pbank32) {
+		for (int i=0; i< bank_len; ++i) {
+			bool success = unpack_buffer(pbank32++, bankName);
+			if(!success) ret = false;
+		}
+	}
+	else {
+		dutils::Warning("V1190::unpack") << "Empty pbank32, skipping\n";
+		ret = false;
 	}
 
 	return ret;
