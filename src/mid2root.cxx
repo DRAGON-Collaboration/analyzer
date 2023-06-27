@@ -28,6 +28,7 @@
 
 #ifndef DOXYGEN_SKIP
 namespace {
+	Long_t sz;
   bool arg_return = false;
   const char* const msg_use =
 	"usage: mid2root <input file> [-o <output file>] [-v <xml odb>] [-histos <*.xml> ] "
@@ -133,7 +134,7 @@ namespace m2r {
 
 
   /// Print in-place event counter
-  void static_counter(Int_t n, Int_t nupdate = 1000, bool force = false)
+  void static_counter(Int_t n, double prcnt, Int_t nupdate = 1000, bool force = false)
   {
 	if(n == 0) {
       m2r::cout << "Events converted: ";
@@ -143,12 +144,13 @@ namespace m2r {
 
 	static int nOut = 0;
 	std::stringstream out; out << n;
+	out << Form("  (%.1f %s)", prcnt, "%");
 	if(nOut) {
       for(int i=0; i< nOut; ++i)
         m2r::cout << "\b";
 	}
 	nOut = out.str().size();
-	m2r::cout << n;
+	m2r::cout << out.str(); //n;
 	m2r::flush(m2r::cout);
   }
 
@@ -304,6 +306,11 @@ namespace m2r {
 	int arg_result = m2r::process_args(argc, argv, &options);
 	if(arg_return) return arg_result;
 
+	// Input file size
+	{
+		Long_t it,flgs,modtm;
+		gSystem->GetPathInfo(options.fIn.c_str(),&it,&sz,&flgs,&modtm);
+	}
 	//
 	// Open input file
 	TMidasFile fin;
@@ -547,12 +554,14 @@ namespace m2r {
 	//
 	// Loop over events in the midas file
 	int nnn = 0;
+	uint32_t sz_read = 0;
 	while (1) {
       //
       // Read event from MIDAS file
       TMidasEvent temp;
       bool success = fin.Read(&temp);
       if (!success) break;
+			sz_read = temp.GetDataSize();
 
       //
       // Read ODB tree if MIDAS_EOR buffer
@@ -588,10 +597,10 @@ namespace m2r {
           }
         }
       }
-      m2r::static_counter (nnn++, 1000, false);
+      m2r::static_counter (nnn++, (100.*sz_read)/sz, 1000, false);
 	} // while (1) {
 
-	m2r::static_counter (nnn, 1000, true);
+	m2r::static_counter (nnn, (100.*sz_read)/sz, 1000, true);
 
 	if(!options.fSingles) { // Flush the queue
       size_t qsize;
