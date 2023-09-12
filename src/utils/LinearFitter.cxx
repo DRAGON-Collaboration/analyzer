@@ -45,20 +45,20 @@ struct gGraphSetter {
 
 
 dragon::LinearFitter::LinearFitter(int printLevel):
-	fMinuit(new TMinuit(2)),
+//	fMinuit(new TMinuit(2)),
 	fSlope(0,0),
 	fOffset(0,0),
 	fFunction(0)
 {
 	/// Initialize internal TMinuit object
-	fMinuit->SetFCN(fcn);
-	fMinuit->SetPrintLevel(printLevel);
+	// fMinuit->SetFCN(fcn);
+	// fMinuit->SetPrintLevel(printLevel);
 
 	Double_t arglist[4];
 	Int_t ierflg = 0;
 
 	arglist[0] = 1;
-	fMinuit->mnexcm("SET ERR", arglist ,1,ierflg);
+	//fMinuit->mnexcm("SET ERR", arglist ,1,ierflg);
 }
 
 double dragon::LinearFitter::Chi2err(double M, double B, double x, double y, double exl, double exh, double eyl, double eyh)
@@ -75,6 +75,8 @@ double dragon::LinearFitter::Chi2err(double M, double B, double x, double y, dou
 
 void dragon::LinearFitter::Fit(TGraph* graph)
 {
+	std::cout <<"LinearFitter disabled due to lack of ability to link to TMinuit"<<std::endl;
+#if 0
 	gGraphSetter ggset(graph);
 
 // Set starting values and step sizes for parameters
@@ -154,6 +156,7 @@ void dragon::LinearFitter::Fit(TGraph* graph)
 	fFunction.reset(new TF1("pol1", "[0] + [1]*x", -1e20, 1e20));
 	fFunction->SetParameter(0, fOffset.GetNominal());
 	fFunction->SetParameter(1, fSlope.GetNominal());
+#endif
 }
 
 void dragon::LinearFitter::Fit(const std::vector<double>& x, const std::vector<double>& y,

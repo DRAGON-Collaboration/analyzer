@@ -18,8 +18,8 @@ MAKE_DRAGON_DICT += $(ROOTCINT) -f $@ -c $(CINTFLAGS) -p $(HEADERS) TTree.h $(CI
 endif
 DRA_DICT          = $(DRLIB)/DragonDictionary.cxx
 DRA_DICT_DEP      = $(DRLIB)/DragonDictionary.cxx
-ROOTLIBS         += -lTreePlayer -lSpectrum -lMinuit
-ROOTGLIBS        += -lTreePlayer -lSpectrum -lMinuit
+ROOTLIBS         += -lTreePlayer -lSpectrum #-lMinuit
+ROOTGLIBS        += -lTreePlayer -lSpectrum #-lMinuit
 endif
 
 # DEBUG       += -ggdb -O3 -DDEBUG
@@ -89,15 +89,16 @@ OBJECTS += $(OBJ)/utils/Kin2Body.o
 endif
 ## END OBJECTS ##
 
-all:  $(SHLIBFILE)
+all:  mid2root #$(SHLIBFILE)
 
 libDragon: $(SHLIBFILE)
 
 $(SHLIBFILE): $(DRA_DICT_DEP) $(OBJECTS)
 	$(LD) $(DYLIB) $(MIDASLIBS) $(OBJECTS) $(DRA_DICT) -o $@ \
 
-install: lib/libDragon.so
+install: lib/libDragon.so bin/mid2root
 	cp lib/libDragon* /opt/lib/; \
+cp bin/mid2root /opt/bin/; \
 cp FreeFunctions.hxx /opt/include/dragon/; \
 cp src/*.hxx /opt/include/dragon/; \
 cp src/utils/*.hxx /opt/include/dragon/;
@@ -107,8 +108,9 @@ mid2root: $(PWD)/bin/mid2root
 MID2ROOT_LIBS         += $(ROOTLIBS)
 
 
-$(PWD)/bin/mid2root: src/mid2root.cxx $(SHLIBFILE)
-	$(LD) $(MID2ROOT_INC) $(MID2ROOT_LIBS) $(ROOTLIBS) $< -o $@ \
+$(PWD)/bin/mid2root: src/main.cxx $(SHLIBFILE)
+	g++ src/main.cxx -L/opt/lib -lDragon -I${PWD}/src -DUSE_ROOT `root-config --cflags --libs` -o $@ \
+#$(LD) $(MID2ROOT_INC) $(MID2ROOT_LIBS) $(ROOTLIBS) $< -o $@ \
 
 #rbdragon.o: $(OBJ)/rootbeer/rbdragon.o
 

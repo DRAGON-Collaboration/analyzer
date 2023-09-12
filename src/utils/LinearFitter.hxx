@@ -7,7 +7,7 @@
 #include <memory>
 #include <vector>
 #include <TF1.h>
-#include <TMinuit.h>
+//#include <TMinuit.h>
 
 #include "Uncertainty.hxx"
 
@@ -31,13 +31,13 @@ public:
 	UDouble_t GetSlope() const  { return fSlope; }
 	UDouble_t GetOffset() const { return fOffset; }
 	TF1* GetFunction() const { return fFunction.get(); }
-	TMinuit* GetMinuit() const { return fMinuit.get(); }
+	//TMinuit* GetMinuit() const { return fMinuit.get(); }
 
 	/// Calculates chi2 using the asymmetric error method, see TGraph::Fit ROOT documentation
 	static double Chi2err(double M, double B, double x, double y, double exl, double exh, double eyl, double eyh);
 
 private:
-	std::auto_ptr<TMinuit> fMinuit;
+	//std::auto_ptr<TMinuit> fMinuit;
 	UDouble_t fSlope;
 	UDouble_t fOffset;
 	std::auto_ptr<TF1> fFunction;

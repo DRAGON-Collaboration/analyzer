@@ -28,7 +28,7 @@
 #include "Dragon.hxx"
 #include "Constants.hxx"
 #include "ErrorDragon.hxx"
-#include "LinearFitter.hxx"
+//#include "LinearFitter.hxx"
 #include "TAtomicMass.h"
 #include "RootAnalysis.hxx"
 
@@ -2176,6 +2176,11 @@ TGraphAsymmErrors* dragon::StoppingPowerCalculator::PlotMeasurements(XAxisType_t
 /// \returns The beam energy at zero pressure from a linear fit of E vs. P.
 UDouble_t dragon::StoppingPowerCalculator::CalculateEbeam(TGraphAsymmErrors** plot)
 {
+	cout << "dragon::StoppingPowerCalculator::CalculateEbeam ---> Disabled" <<
+		" due to lack of ability to link to libMinuit (via dragon::LinearFitter)\n";
+	UDouble_t out(0,0);
+	return out;
+#if 0
   UDouble_t out(0,0);
   std::auto_ptr<TGraphAsymmErrors> g(new TGraphAsymmErrors(GetNmeasurements()));
   // calculate density, energy w/ random errors only
@@ -2208,6 +2213,7 @@ UDouble_t dragon::StoppingPowerCalculator::CalculateEbeam(TGraphAsymmErrors** pl
     else std::cerr << "No function!\n";
   }
   return out;
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2230,6 +2236,10 @@ UDouble_t dragon::StoppingPowerCalculator::CalculateEbeam(TGraphAsymmErrors** pl
 UDouble_t dragon::StoppingPowerCalculator::CalculateEpsilon(TGraphAsymmErrors** plot,
                                                             UDouble_t* ebeam)
 {
+	cout << "dragon::StoppingPowerCalculator::CalculateEpsilon ---> Disabled" <<
+		" due to lack of ability to link to libMinuit (via dragon::LinearFitter)\n";
+	return UDouble_t(0,0);
+#if 0
   UDouble_t out(0,0);
   std::auto_ptr<TGraph> g(new TGraphAsymmErrors(GetNmeasurements()));
   // calculate density, energy w/ random errors only
@@ -2281,6 +2291,7 @@ UDouble_t dragon::StoppingPowerCalculator::CalculateEpsilon(TGraphAsymmErrors** 
     else std::cerr << "No function!\n";
   }
   return out;
+#endif
 }
 
 /////////////// Class dragon::ResonanceStrengthCalculator ///////////////

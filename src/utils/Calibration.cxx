@@ -11,7 +11,7 @@
 #include <TPolyMarker.h>
 #include <TDirectory.h>
 #include <TFitResult.h>
-#include <TSpectrum.h>
+//#include <TSpectrum.h>
 #include <TSystem.h>
 #include <TString.h>
 #include <TGraph.h>
@@ -153,6 +153,8 @@ std::vector<Double_t> dutils::DsssdCalibrator::FindPeaks(TH1* hst,
                                                          Double_t threshold) const
 {
   std::vector<Double_t> peaks;
+	std::cout << "DSSSD calibrator disabled due to inability to link to TSpectrum\n";
+#if 0
   TSpectrum spectrum;
   spectrum.Search(hst, sigma, "goff", threshold);
   Int_t npeaks = spectrum.GetNPeaks();
@@ -161,6 +163,7 @@ std::vector<Double_t> dutils::DsssdCalibrator::FindPeaks(TH1* hst,
   for(Int_t i = 0; i < npeaks; ++i) {
     peaks.push_back(*(spectrum.GetPositionX() + indx[i]));
   }
+#endif
   return peaks;
 }
 
