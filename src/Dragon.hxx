@@ -526,6 +526,8 @@ namespace dragon {
 	///
 	class Head {
 	public: // Constants
+		/// Number of ADC (caen v792) modules
+		static const int NUM_ADC = 2;
 		/// Max number of RF hits to store
 		static const int MAX_RF_HITS = 5;
 
@@ -552,15 +554,17 @@ namespace dragon {
 		/// IO32 FPGA
 		vme::Io32 io32;   //#
 		/// CAEN V792 QDC
-		vme::V792 v792;   //#
+		vme::V792 v792[NUM_ADC];   //#
 		/// CAEN V1190 TDC
 		vme::V1190 v1190; //#
 #else // Supress writing of vme modules to TTree
 		vme::Io32 io32;   //!
-		vme::V792 v792;   //!
+		vme::V792 v792[NUM_ADC];   //!
 		vme::V1190 v1190; //!
 #endif // #ifdef DISPLAY_MODULES
 
+		/// Array of short integration gates
+		double short_gate[32];
 		/// Bgo array
 		dragon::Bgo bgo;
 		/// RF times
