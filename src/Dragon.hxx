@@ -552,7 +552,7 @@ namespace dragon {
 		/// IO32 FPGA
 		vme::Io32 io32;   //#
 		/// CAEN V792 QDC
-		vme::V792 v792;   //#
+		vme::V792 v792[2];   //#
 		/// CAEN V1190 TDC
 		vme::V1190 v1190; //#
 #else // Supress writing of vme modules to TTree
@@ -561,6 +561,7 @@ namespace dragon {
 		vme::V1190 v1190; //!
 #endif // #ifdef DISPLAY_MODULES
 
+		double short_gate[32]; //#
 		/// Bgo array
 		dragon::Bgo bgo;
 		/// RF times

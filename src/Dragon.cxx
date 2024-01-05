@@ -896,12 +896,15 @@ void dragon::Head::reset()
 	const midas::Event::Header temp = { 0, 0, 0, 0, 0 };
 	header = temp;
 	io32.reset();
-	v792.reset();
+	for(int i=0; i< 2; ++i){
+		v792[i].reset();
+	}
 	v1190.reset();
 	bgo.reset();
 	trf.reset();
 	dutils::reset_array(MAX_RF_HITS, rftof);
 	dutils::reset_data(tcalx, tcal0, tcal_rf);
+	dutils::reset_array(32, short_gate);
 }
 
 bool dragon::Head::set_variables(const char* dbfile)
@@ -953,7 +956,8 @@ void dragon::Head::unpack(const midas::Event& event)
 	 */
 	const bool report = true;
 	io32.unpack (event, variables.bk_io32, report);
-	v792.unpack (event, variables.bk_adc , report);
+	v792[0].unpack (event, variables.bk_adc , report);
+	v792[1].unpack (event, "ADC1",            report);
 	v1190.unpack(event, variables.bk_tdc,  report);
 	event.CopyHeader(header);
 }
@@ -969,8 +973,11 @@ void dragon::Head::calculate()
 	 *
 	 * In the specific implementation, the following are done:
 	 */
+	int chmp[32]; for(int i=0; i< 32; ++i){chmp[i] = i;}
+	dutils::channel_map(short_gate, 32, chmp, v792[1]);
+
 	/// - Read BGO data and calculate (see dragon::Head::Bgo).
-	bgo.read_data(v792, v1190);
+	bgo.read_data(v792[0], v1190);
 	bgo.calculate();
 
 	trf.read_data(v1190);
