@@ -125,6 +125,7 @@ namespace m2r {
 	std::string fIn;
 	std::string fOut;
 	std::string fOdb;
+	std::string fOdbShort;
 	std::string fHistos;
 	bool fOverwrite;
 	bool fSingles;
@@ -193,6 +194,7 @@ namespace m2r {
       "\t                  that directory. Otherwise, it is written to the present working directory.\n"
       "\n"
       "\t-v <xml odb>:     Specify an XML file containing the full '/dragon' ODB tree, which defines all\n"
+		"\t-vshort <xml>:      Specify an XML file containing short variables\n"
       "\t                  variables to be used in the program. Default is to take variable values from the\n"
       "\t                  ODB dump of the input MIDAS file (i.e. variables will reflect the state of the ODB\n"
       "\t                  when the run was taken).\n"
@@ -258,6 +260,10 @@ namespace m2r {
         if (++iarg == args.end()) return usage("variables file not specified");
         options->fOdb = *iarg;
       }
+			else if (*iarg == "-vshort") {
+        if (++iarg == args.end()) return usage("short variables file not specified");
+        options->fOdbShort = *iarg;
+			}				
       else if (*iarg == "-histos") { // Histograms file
 #ifndef USE_ROOTBEER
         return usage("histogram unpacking only available if compiled with USE_ROOTBEER=YES");
@@ -371,6 +377,21 @@ namespace m2r {
       if(gSystem->GetPathInfo(options.fOdb.c_str(), dummy) != 0) { // no file
         m2r::cerr
           << "Error: The specified variables file \'" << options.fOdb
+          << "\' does not exist.\n\n";
+        return 1;
+      }
+	}
+	
+	//
+	// Handle short gate odb variables file
+	if (options.fOdbShort.empty()) {
+		; // do nothing
+	}
+	else { // Check if it exists
+      FileStat_t dummy;
+      if(gSystem->GetPathInfo(options.fOdbShort.c_str(), dummy) != 0) { // no file
+        m2r::cerr
+          << "Error: The specified short variables file \'" << options.fOdbShort
           << "\' does not exist.\n\n";
         return 1;
       }
@@ -544,7 +565,7 @@ namespace m2r {
 
 	//
 	// Begin-of-run initialization
-	unpack.HandleBor(options.fOdb.c_str());
+	unpack.HandleBor(options.fOdb.c_str(), options.fOdbShort.c_str());
 
 	//
 	// ODB parameters

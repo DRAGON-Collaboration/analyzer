@@ -561,7 +561,12 @@ namespace dragon {
 		vme::V1190 v1190; //!
 #endif // #ifdef DISPLAY_MODULES
 
+		/// Short gate stuff
 		double short_gate[32]; //#
+		double eshort[30];
+		double psd[30];
+		
+		
 		/// Bgo array
 		dragon::Bgo bgo;
 		/// RF times
@@ -606,9 +611,23 @@ namespace dragon {
 			bool set(const midas::Database* db);
 		};
 
+		/// Short variables
+		class ShortVariables {
+	 public:
+			ShortVariables();
+			void reset();
+			bool set(const char* dbfile);
+			bool set(const midas::Database* db);
+			int chmap[30];
+			int pedestal[30];
+			double slope[30];
+			double offset[30];
+		};
+
 	public: // Subclass instances
 		/// Variables instance
 		Head::Variables variables; //!
+		Head::ShortVariables short_variables; //!
 	};
 
 	///

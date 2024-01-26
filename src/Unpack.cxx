@@ -58,7 +58,7 @@ size_t dragon::Unpacker::FlushQueueIterative()
 	return fQueue->FlushIterative(fDiag);
 }
 
-void dragon::Unpacker::HandleBor(const char* dbname)
+void dragon::Unpacker::HandleBor(const char* dbname, const char* shortdbname)
 {
 	/// - Reset head, tail scalers; run parameters; and timestamp diagnostics.
 	fHeadScaler->reset();
@@ -82,6 +82,13 @@ void dragon::Unpacker::HandleBor(const char* dbname)
 			if(db.CheckPath("/Equipment/AuxScaler/Settings/Route"))
 				fAuxScaler->set_variables (&db, "aux" );
 		}
+	}
+	if(shortdbname && std::string(shortdbname).empty() == false) {
+		midas::Database dbshort(shortdbname);
+		fHead->short_variables.set(&dbshort);
+	}
+	else {
+		fHead->short_variables.reset();
 	}
 }
 

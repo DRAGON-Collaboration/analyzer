@@ -67,7 +67,7 @@ public:
 	std::vector<int32_t> GetUnpackedCodes() const;
 	///
 	/// Perform actions at the beginning of a run
-	void HandleBor(const char* dbname);
+	void HandleBor(const char* dbname, const char* shortdbname);
 	///
 	/// Process function to handle singles events popped from the queue
 	void Process(const midas::Event& event);

@@ -905,6 +905,8 @@ void dragon::Head::reset()
 	dutils::reset_array(MAX_RF_HITS, rftof);
 	dutils::reset_data(tcalx, tcal0, tcal_rf);
 	dutils::reset_array(32, short_gate);
+	dutils::reset_array(30, eshort);
+	dutils::reset_array(30, psd);
 }
 
 bool dragon::Head::set_variables(const char* dbfile)
@@ -979,6 +981,26 @@ void dragon::Head::calculate()
 	/// - Read BGO data and calculate (see dragon::Head::Bgo).
 	bgo.read_data(v792[0], v1190);
 	bgo.calculate();
+
+	/// Short calculations
+	for(int i=0; i< 30; ++i){
+		int imap = short_variables.chmap[i];
+		if(imap != -1) {
+			eshort[i] = short_gate[imap];
+		}
+		else {
+			eshort[i] = -1;
+		}
+	}
+		
+	dutils::pedestal_subtract(eshort, 30, short_variables);
+	dutils::zero_suppress1(eshort, 30, 10.);
+	dutils::linear_calibrate(eshort, 30, short_variables);
+	for(int i=0; i< 30; ++i){
+		if(dutils::is_valid(eshort[i]) && dutils::is_valid(bgo.ecal[i])){
+			psd[i] = (bgo.ecal[i] - eshort[i])/bgo.ecal[i];
+		}
+	}
 
 	trf.read_data(v1190);
 	trf.calculate();
@@ -1063,6 +1085,45 @@ bool dragon::Head::Variables::set(const midas::Database* db)
 	if(success) success = db->ReadValue("/dragon/head/variables/tdc0/channel", tdc0.channel);
 	if(success) success = db->ReadValue("/dragon/head/variables/tdc0/slope",   tdc0.slope);
 	if(success) success = db->ReadValue("/dragon/head/variables/tdc0/offset",  tdc0.offset);
+
+	return success;
+}
+
+dragon::Head::ShortVariables::ShortVariables()
+{
+	/// ::
+	reset();
+}
+
+void dragon::Head::ShortVariables::reset()
+{
+	for(int i=0; i< 30; ++i){
+		chmap[i] = -1;
+		pedestal[i] = 0;
+		slope[i] = 0;
+		offset[i] = 0;
+	}
+}
+
+bool dragon::Head::ShortVariables::set(const char* dbfile)
+{
+	/*!
+	 * \param [in] dbfile Name of the database file from which to read variables ("online" for the ODB).
+	 */
+	return do_setv(this, dbfile);
+}
+
+bool dragon::Head::ShortVariables::set(const midas::Database* db)
+{
+	/*!
+	 * \param [in] db Pointer to a constructed database.
+	 */
+	bool success = check_db(db, "dragon::Head::ShortVariables");
+
+	if(success) success = db->ReadArray("/short/chmap", chmap, 30);
+	if(success) success = db->ReadArray("/short/pedestal", pedestal, 30);
+	if(success) success = db->ReadArray("/short/slope", slope, 30);
+	if(success) success = db->ReadArray("/short/offset", offset, 30);
 
 	return success;
 }
