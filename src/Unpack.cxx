@@ -86,9 +86,11 @@ void dragon::Unpacker::HandleBor(const char* dbname, const char* shortdbname)
 	if(shortdbname && std::string(shortdbname).empty() == false) {
 		midas::Database dbshort(shortdbname);
 		fHead->short_variables.set(&dbshort);
+		fCoinc->set_short_variables(&dbshort);
 	}
 	else {
 		fHead->short_variables.reset();
+		fCoinc->head.short_variables.reset();
 	}
 }
 

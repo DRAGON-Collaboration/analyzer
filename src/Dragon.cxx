@@ -928,6 +928,7 @@ bool dragon::Head::set_variables(const midas::Database* db)
 	if(success) success = bgo.variables.set(db);
 	if(success) success = trf.variables.set(db, "/dragon/head/variables/rf_tdc");
 	if(success) success = this->variables.set(db);
+	
 
 	if(success) {
 		dragon::utils::ChangeErrorIgnore dummy(9001);
@@ -992,7 +993,7 @@ void dragon::Head::calculate()
 			eshort[i] = -1;
 		}
 	}
-		
+
 	dutils::pedestal_subtract(eshort, 30, short_variables);
 	dutils::zero_suppress1(eshort, 30, 10.);
 	dutils::linear_calibrate(eshort, 30, short_variables);
@@ -1548,6 +1549,17 @@ bool dragon::Coinc::set_variables(const midas::Database* db)
 	if(success) success = head.set_variables(db);
 	if(success) success = tail.set_variables(db);
 	if(success) success = variables.set(db);
+
+	return success;
+}
+
+bool dragon::Coinc::set_short_variables(const midas::Database* db)
+{
+	/*!
+	 * \param [in] db Pointer to a constructed database from which to read the variables.
+	 */
+	bool success = check_db(db, "dragon::Coinc::set_short_varibles");
+	if(success) success = head.short_variables.set(db);
 
 	return success;
 }

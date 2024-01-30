@@ -775,6 +775,7 @@ namespace dragon {
 		bool set_variables(const char* dbfile);
 		///  Reads all variable values from a constructed database
 		bool set_variables(const midas::Database* db);
+		bool set_short_variables(const midas::Database* db);
 		/// Copy data from head and tail coincidence events
 		void compose_event(const Head& head_, const Tail& tail_);
 		/// Unpack raw data from a midas::CoincEvent
