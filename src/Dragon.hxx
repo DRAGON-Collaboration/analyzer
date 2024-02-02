@@ -565,7 +565,8 @@ namespace dragon {
 		double short_gate[32]; //#
 		double eshort[30];
 		double psd[30];
-		
+		double eshort0;
+		double psd0;		
 		
 		/// Bgo array
 		dragon::Bgo bgo;

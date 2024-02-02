@@ -907,6 +907,7 @@ void dragon::Head::reset()
 	dutils::reset_array(32, short_gate);
 	dutils::reset_array(30, eshort);
 	dutils::reset_array(30, psd);
+	dutils::reset_data(eshort0,psd0);
 }
 
 bool dragon::Head::set_variables(const char* dbfile)
@@ -1003,6 +1004,9 @@ void dragon::Head::calculate()
 		}
 	}
 
+	eshort0 = eshort[bgo.hit0];
+	psd0 = psd[bgo.hit0];
+	
 	trf.read_data(v1190);
 	trf.calculate();
 
