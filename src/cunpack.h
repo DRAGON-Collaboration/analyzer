@@ -13,8 +13,8 @@ typedef struct {
 	double bgo_z0;
 	double bgo_t0;
 
-	double trf.leading[5];
-	double trf.trailing[5];
+	double trf_leading[5];
+	double trf_trailing[5];
 
 	double tcal0;
 	double tcalx;

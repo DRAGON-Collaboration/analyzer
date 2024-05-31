@@ -70,7 +70,8 @@ $(OBJ)/Vme.o									\
 $(OBJ)/Dragon.o									\
 $(OBJ)/Sonik.o									\
 $(OBJ)/utils/Uncertainty.o						\
-$(OBJ)/utils/ErrorDragon.o
+$(OBJ)/utils/ErrorDragon.o\
+$(OBJ)/cunpack.o
 
 ifeq ($(USE_MIDAS), YES)
 OBJECTS += $(OBJ)/midas/libMidasInterface/TMidasOnline.o
