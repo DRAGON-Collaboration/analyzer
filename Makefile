@@ -7,6 +7,7 @@ $(error No config.mk file found. Please run the configure script first. Running 
 endif
 
 SHLIBFILE    = $(DRLIB)/libDragon.so
+CUNPACK      = $(DRLIB)/libcunpack.so
 ROOTMAPFILE := $(patsubst %.so,%.rootmap,$(SHLIBFILE))
 
 ifeq ($(USE_ROOT),YES)
@@ -46,7 +47,7 @@ else
 CXX += $(CXXFLAGS)
 endif
 
-LD   = $(CXX) $(LDFLAGS) $(ROOTGLIBS) $(RPATH) -L$(PWD)/lib
+LD   = $(CXX) $(LDFLAGS) $(ROOTGLIBS) $(RPATH) -lz -L$(PWD)/lib
 
 HEADERS =								\
 $(SRC)/midas/*.hxx						\
@@ -59,6 +60,7 @@ $(SRC)/*.hxx
 #### OBJECTS ####
 OBJECTS =										\
 $(OBJ)/midas/mxml.o								\
+$(OBJ)/midas/strlcpy.o								\
 $(OBJ)/midas/Odb.o								\
 $(OBJ)/midas/Xml.o								\
 $(OBJ)/midas/libMidasInterface/TMidasFile.o		\
@@ -70,8 +72,7 @@ $(OBJ)/Vme.o									\
 $(OBJ)/Dragon.o									\
 $(OBJ)/Sonik.o									\
 $(OBJ)/utils/Uncertainty.o						\
-$(OBJ)/utils/ErrorDragon.o\
-$(OBJ)/cunpack.o
+$(OBJ)/utils/ErrorDragon.o
 
 ifeq ($(USE_MIDAS), YES)
 OBJECTS += $(OBJ)/midas/libMidasInterface/TMidasOnline.o
@@ -89,10 +90,18 @@ endif
 
 all:  $(MAKE_ALL)
 
+libcunpack: $(CUNPACK)
+
 libDragon: $(SHLIBFILE)
+#g++ /data/home/gchristian/packages/dragon/analyzer-python/obj/midas/mxml.o /data/home/gchristian/packages/dragon/analyzer-python/obj/midas/strlcpy.o /data/home/gchristian/packages/dragon/analyzer-python/obj/midas/Odb.o /data/home/gchristian/packages/dragon/analyzer-python/obj/midas/Xml.o /data/home/gchristian/packages/dragon/analyzer-python/obj/midas/libMidasInterface/TMidasFile.o /data/home/gchristian/packages/dragon/analyzer-python/obj/midas/libMidasInterface/TMidasEvent.o /data/home/gchristian/packages/dragon/analyzer-python/obj/midas/Event.o /data/home/gchristian/packages/dragon/analyzer-python/obj/Unpack.o /data/home/gchristian/packages/dragon/analyzer-python/obj/TStamp.o /data/home/gchristian/packages/dragon/analyzer-python/obj/Vme.o /data/home/gchristian/packages/dragon/analyzer-python/obj/Dragon.o /data/home/gchristian/packages/dragon/analyzer-python/obj/Sonik.o /data/home/gchristian/packages/dragon/analyzer-python/obj/utils/Uncertainty.o /data/home/gchristian/packages/dragon/analyzer-python/obj/utils/ErrorDragon.o -shared -DOS_LINUX -fPIC -static-libstdc++ -lz -DDISPLAY_MODULES -D_GLIBCXX_USE_CXX11_ABI=0 -DHAVE_ZLIB -I/data/home/gchristian/packages/dragon/analyzer-python/src -I/data/home/gchristian/packages/dragon/analyzer-python/cint   -L/data/home/gchristian/packages/dragon/analyzer-python/lib -o lib/libDragon.so
 
 $(SHLIBFILE): $(DRA_DICT_DEP) $(OBJECTS)
-	$(LD) $(DYLIB) $(MIDASLIBS) $(OBJECTS) $(DRA_DICT) -o $@ \
+	$(CXX) $(OBJECTS) -lz $(LDFLAGS) $(RPATH) -L$(PWD)/lib $(DYLIB) $(MIDASLIBS) $(DRA_DICT) -o $@ \
+
+#	$(LD) $(OBJECTS) $(DYLIB) $(MIDASLIBS) $(DRA_DICT) -o $@ \
+
+$(CUNPACK): $(DRA_DICT_DEP) $(SRC)/cunpack.cxx
+	$(LD) $(DYLIB) $(MIDASLIBS) $(SRC)/cunpack.cxx $(DRA_DICT) -o $@ \
 
 mid2root: $(PWD)/bin/mid2root
 
@@ -244,3 +253,4 @@ filltest: test/filltest.cxx $(SHLIBFILE)
 	-o bin/filltest \
 	-DMIDAS_BUFFERS \
 	-lDragon -L$(DRLIB) -I$(PWD)/src \
+

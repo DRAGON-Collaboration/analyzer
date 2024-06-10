@@ -839,6 +839,7 @@ void m2r::save_histos(TDirectory* dir, TDirectory* newdir)
 
 #else // #ifdef USE_ROOT
 #include <iostream>
+#include "Dragon.hxx"
 
 int main(int argc, char** argv)
 {
@@ -850,6 +851,10 @@ int main(int argc, char** argv)
     "\n\n";
 
   std::cerr << msg;
+
+	dragon::Head h;
+	std::cout << "TEST: " << h.bgo.ecal[0] << "\n";
+	
   return 0;
 }
 

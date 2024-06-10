@@ -1,3 +1,21 @@
+#ifndef CUNPACK_H
+#define CUNPACK_H
+#include <vector>
+#include <string>
+
+const int READ_EVENT = 0;
+const int READ_EOF   = 0xffff;
+const int READ_DB0   = 2;
+const int READ_DB1   = 3;
+
+namespace pybind11 {
+class list;
+}
+extern int setup(pybind11::list);
+extern pybind11::list read_event();
+extern int flush_queue();
+extern void close_file();
+
 typedef struct {
 
 	unsigned int midas_fTimeStamp;
@@ -20,3 +38,6 @@ typedef struct {
 	double tcalx;
 	
 } dragon_head;
+
+
+#endif

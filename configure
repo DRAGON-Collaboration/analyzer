@@ -26,6 +26,7 @@ function showhelp {
     echo ""
     echo "Other:"
     echo "    --use-cxx11-abi           Set -D_GLIBCXX_USE_CXX11_ABI = 1 (default 0)"
+    echo "    --static-libstdc++        Set static linking to libc++ (may be needed on some systems)"
     echo "    --help                    Show this help message."
     echo ""
 }
@@ -135,6 +136,8 @@ do
 	    RB_HOME=`echo $var | cut -d'=' -f 2`
     elif [[ $var == "--use-cxx11-abi" ]]; then
         CX11_ABI=YES
+    elif [[ $var == "--static-libstdc++" ]]; then
+        STATIC_LIBCXX=YES
     fi
 done
 
@@ -272,6 +275,9 @@ elif [ $UNAME == "Linux" ]; then
         echo "### The following var is necessary when installing on Ubuntu with ROOT v5 because Ubuntu is very picky ###" >> config.mk
         echo "NAME = Ubuntu5" >> config.mk
     fi
+fi
+if [ $STATIC_LIBCXX == "YES" ]; then
+    echo "CXXFLAGS += -static-libstdc++" >> config.mk
 fi
 echo "" >> config.mk
 if [ $USE_MIDAS == "YES" ]; then
