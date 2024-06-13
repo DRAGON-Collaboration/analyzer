@@ -1,8 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// \file Kin2Body.hxx
+/// \file   Kin2Body.hxx
 /// \author D. Connolly
-/// \brief Defines methods and utilities to calculate and plot 2-body reaction
-///  kinematics
+/// \brief  Defines methods and utilities to calculate and plot 2-body reaction
+///         kinematics
 ////////////////////////////////////////////////////////////////////////////////
 
 #ifndef KIN2BODY_HXX
@@ -37,9 +37,25 @@ class TAtomicMass;
 
 namespace dragon {
 
+  //////////////////////// Class dragon::Kin2Body ////////////////////////////////
+
+  ////////////////////////////////////////////////////////////////////////////////
+  /// Class for relativistic 2 body reaction kinematics
+  ///
+  /// Calculates relativistic kinematic relationships for 2 body reactions.
+  /// Consider the reaction
+  /// \f{equation}{
+  ///   m_2(m_1,m_3)m_4
+  /// \f}
+  /// where, by convention, the projectile with mass \f$m_1\f$ and kinetic energy
+  /// \f$T_b\f$ and is incident on a (stationary) target of mass \f$m_2\f$. The
+  /// kinematics of this reaction can be described by its (invariant) squared
+  /// 4-momentum
+  /// \f{equation}{
+  ///   S = \left(\sum_i E_i\right)^2 - \left(\sum_i \vec{p}_{i}\right)^2
+  /// \f}
   class Kin2Body {
   public:
-      // private:
 	/// Beam velocity in units of c
 	Double_t fBeta_b;
 	/// Recoil velocity in units of c (0&deg; &gamma;)
@@ -145,7 +161,6 @@ namespace dragon {
     Kin2Body(const char* projectile, const char* target, const char* ejectile,
              Double_t enregy = 0, const char* frame = "CM", Int_t qb = 0);
     Double_t CalcTLabTheta(Double_t theta, const char* which, Bool_t negative = kFALSE);
-	/// Get CM energy
     Double_t GetMaxAngle(const char* which);
     TMultiGraph* PlotTLabvsThetaLab(Option_t *option_e = "", Option_t *option_r = "");
   private:
@@ -155,7 +170,6 @@ namespace dragon {
               Double_t energy, const char* frame, Int_t qb);
     void Set4Mom(Double_t energy, const char* frame);
   };
-
 } // namespace dragon
 
 #endif
