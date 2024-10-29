@@ -109,7 +109,7 @@ MID2ROOT_LIBS         += $(ROOTLIBS)
 
 
 $(PWD)/bin/mid2root: src/main.cxx $(SHLIBFILE)
-	g++ src/main.cxx -L/opt/lib -lDragon -I${PWD}/src -DUSE_ROOT `root-config --cflags --libs` -o $@ \
+	g++ src/main.cxx -L${PWD}/lib -lDragon -I${PWD}/src -DUSE_ROOT `root-config --cflags --libs` -o $@ \
 #$(LD) $(MID2ROOT_INC) $(MID2ROOT_LIBS) $(ROOTLIBS) $< -o $@ \
 
 #rbdragon.o: $(OBJ)/rootbeer/rbdragon.o
