@@ -1650,39 +1650,52 @@ Double_t dragon::LiveTimeCalculator::CalculateRuntime(midas::Database* db,
   db->ReadValue("/Runinfo/Start time binary", time0); // computer clock start
   db->ReadValue("/Runinfo/Stop time binary",  time1); // computer clock stop
   tclock = time1 - time0;
+	if(GetRuntimeMethod() == 1){ // MIDAS times
+		start = 0;
+		stop = time1-time0;
+	}
+	else if(GetRuntimeMethod() == 0){ // Original, trigger times from ODB
 
-  // Read TSC start, stop times from the ODB
-  double trigStart[2], trigStop[2];
-  db->ReadArray("/Experiment/Run Parameters/TSC_TriggerStart", trigStart, 2);
-  db->ReadArray("/Experiment/Run Parameters/TSC_TriggerStop",  trigStop,  2);
+		// Read TSC start, stop times from the ODB
+		double trigStart[2], trigStop[2];
+		db->ReadArray("/Experiment/Run Parameters/TSC_TriggerStart", trigStart, 2);
+		db->ReadArray("/Experiment/Run Parameters/TSC_TriggerStop",  trigStop,  2);
 
-  // Append rollovers to stop time
-  const Double_t rolltime = 0xffffffff / 20e6; // 32-bit clock rollover in seconds
-  int nroll = tclock / rolltime;
-  for(int i=0; i<2; ++i) trigStop[i] += nroll*rolltime;
+		// Append rollovers to stop time
+		const Double_t rolltime = 0xffffffff / 20e6; // 32-bit clock rollover in seconds
+		int nroll = tclock / rolltime;
+		for(int i=0; i<2; ++i) trigStop[i] += nroll*rolltime;
 
-  // now calculte the appropriate run time
-  switch(get_which_indx(which)) {
-  case 0: // "head"
-    stop  = trigStop[0];
-    start = trigStart[0];
-    break;
-  case 1: // "tail"
-    stop  = trigStop[1];
-    start = trigStart[1];
-    break;
-  case 2: // "coinc"
-    stop  = *std::min_element(trigStop, trigStop + 2);
-    start = *std::max_element(trigStart, trigStart + 2);
-    break;
-  default:
-    utils::Error("CalculateRuntime", __FILE__, __LINE__)
-      << "Invalid \"which\" specification: \"" << which << "\", valid options "
-      << "are \"head\", \"tail\", or \"coinc\"";
-    stop = 0;
-    start = 0;
-    break;
-  }
+		// now calculte the appropriate run time
+		switch(get_which_indx(which)) {
+		case 0: // "head"
+			stop  = trigStop[0];
+			start = trigStart[0];
+			break;
+		case 1: // "tail"
+			stop  = trigStop[1];
+			start = trigStart[1];
+			break;
+		case 2: // "coinc"
+			stop  = *std::min_element(trigStop, trigStop + 2);
+			start = *std::max_element(trigStart, trigStart + 2);
+			break;
+		default:
+			utils::Error("CalculateRuntime", __FILE__, __LINE__)
+				<< "Invalid \"which\" specification: \"" << which << "\", valid options "
+				<< "are \"head\", \"tail\", or \"coinc\"";
+			stop = 0;
+			start = 0;
+			break;
+		}
+	}
+	else if(GetRuntimeMethod() == 0){ // first/last triggers
+		
+	}
+	else {
+		//std::cerr << "ERROR in: dragon::LiveTimeCalculator::CalculateRuntime:: bad method: " << GetRuntimeMethod() << std::endl;
+		stop = start = 0;
+	}
   return stop - start;
 }
 
@@ -1708,6 +1721,7 @@ namespace {
             << "rollCorrect != 0 and host is not jabberwock!";
       }
 	}
+	
 	return rollCorrect;
   }
 } // namespace
@@ -1755,7 +1769,7 @@ void dragon::LiveTimeCalculator::DoCalculate(Double_t tbegin, Double_t tend)
   CalculateRuntime(db, "head",  trigStart[0], trigStop[0]);
   CalculateRuntime(db, "tail",  trigStart[1], trigStop[1]);
   CalculateRuntime(db, "coinc", trigStart[2], trigStop[2]);
-
+	
   // Loop over trees
   for(int i=0; i< 2; ++i) {
     // Set MakeClass to 1 (resets at end of loop or return)
@@ -1781,6 +1795,7 @@ void dragon::LiveTimeCalculator::DoCalculate(Double_t tbegin, Double_t tend)
       // check cut condition
       if (!isFull && !(trigtime > tbegin*1e6 && trigtime < tend*1e6))
         continue;
+			
       // accuulate busy time
       busyTotal += busy_time;
       coincBusy.AddEvent(trigtime, busy_time/20.);

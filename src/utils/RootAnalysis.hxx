@@ -567,7 +567,21 @@ namespace dragon {
 	/// Calculate the run time from saved ODB file
 	static Double_t CalculateRuntime(midas::Database* db, const char* which)
     { Double_t a,b; return CalculateRuntime(db, which, a, b); } // seconds (static function)
+		
+	static void SetRuntimeMethod(int method // 0--> original, 1--> MIDAS runtime, 2--> Trigger times
+		) { RuntimeMethod() = method; }
 
+	static Int_t GetRuntimeMethod()
+			{ return RuntimeMethod(); }
+	
+ private:
+	static Int_t& RuntimeMethod()
+			{
+				static int * meth = 0;
+				if(!meth) meth = new int(0);
+				return *meth;
+			}
+				
   private:
 	/// Make sure fFile is valid
 	Bool_t CheckFile(TTree*& t1, TTree*& t3, midas::Database*& db);
