@@ -386,6 +386,7 @@ namespace dragon {
 	void ReadFC4(Int_t runnum, Double_t skipBegin = 10, Double_t skipEnd = 5);
 	void CalculateNorm(Int_t run, Int_t chargeState);
 	RunData* GetRunData(Int_t runnum);
+	Double_t GetRunTime(Int_t runnum) const;
 	std::vector<Int_t>& GetRuns() const;
     TGraphAsymmErrors* Plot(const char* param, Marker_t marker = 20, Color_t markerColor = kBlack);
 	TGraphErrors* PlotVal(const TString& valstr, int which = 0,
@@ -418,6 +419,7 @@ namespace dragon {
   private:
 	RunData* fRunDataBranchAddr;
 	std::map<Int_t, RunData> fRunData;
+	std::map<Int_t, Double_t> fRunTimes;
 	dragon::utils::AutoPtr<RossumData> fRossum;
 	std::map<std::string, UDouble_t> fEfficiencies;
 

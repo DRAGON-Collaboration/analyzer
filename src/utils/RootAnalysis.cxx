@@ -986,6 +986,7 @@ Int_t dragon::BeamNorm::ReadSbCounts(TFile* datafile, Double_t pkLow0, Double_t 
   }
 
   UDouble_t live, live_full[3]; // [3]: head,tail,coinc
+	Double_t run_time;
   {
     dragon::LiveTimeCalculator ltc;
     ltc.SetFile(datafile);
@@ -995,6 +996,7 @@ Int_t dragon::BeamNorm::ReadSbCounts(TFile* datafile, Double_t pkLow0, Double_t 
     live_full[0] = ltc.GetLivetime("head");
     live_full[1] = ltc.GetLivetime("tail");
     live_full[2] = ltc.GetLivetime("coinc");
+		run_time = ltc.GetRuntime("coinc");
   }
 
   t20->GetEntry(0);
@@ -1037,7 +1039,8 @@ Int_t dragon::BeamNorm::ReadSbCounts(TFile* datafile, Double_t pkLow0, Double_t 
   rundata->live_time_head  = live_full[0];
   rundata->live_time_tail  = live_full[1];
   rundata->live_time_coinc = live_full[2];
-
+	fRunTimes[runnum] = run_time;
+	
   return runnum;
 }
 
@@ -1055,6 +1058,17 @@ void dragon::BeamNorm::ReadFC4(Int_t runnum, Double_t skipBegin, Double_t skipEn
     rundata->fc4[i] = fRossum->AverageCurrent(runnum, 0, i, skipBegin, skipEnd);
   }
   rundata->fc1 = fRossum->AverageCurrent(runnum, 1, 0, skipBegin, skipEnd);
+}
+
+Double_t dragon::BeamNorm::GetRunTime(Int_t runnum) const
+{
+	auto it = fRunTimes.find(runnum);
+	if(it == fRunTimes.end()){
+		dutils::Error("BeamNorm::GetRunTime")
+			<< "Bad run number: " << runnum << "\n";
+		return 0;
+	}
+	return it->second;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1259,6 +1273,10 @@ TGraphErrors* dragon::BeamNorm::PlotVal(const TString& valstr, int which, Marker
       val.push_back(rd->nbeam[which].GetNominal());
       err.push_back(rd->nbeam[which].GetErrLow());
     }
+		else if(valstr == "beamrate") {
+      val.push_back(rd->nbeam[which].GetNominal()/GetRunTime(rd->runnum));
+      err.push_back(rd->nbeam[which].GetErrLow ()/GetRunTime(rd->runnum));
+		}
     else if(valstr == "nrecoil") {
       val.push_back(rd->nrecoil.GetNominal());
       err.push_back(rd->nrecoil.GetErrLow());
