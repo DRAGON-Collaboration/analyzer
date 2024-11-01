@@ -250,7 +250,18 @@ namespace dragon {
 	Int_t fIteration;
 	Double_t fTime;
 	Double_t fCurrent;
-
+  public:
+	static void SetCurrentErrorMethod(Int_t method=0 // 0 -> mean+/-std dev (default), 1 -> mean+/-(std dev)/sqrt(N) (more correct unless current drifts)
+		) { CurrentErrorMethod() = method; }
+	static Int_t GetCurrentErrorMethod() { return CurrentErrorMethod(); }
+ private:
+	static Int_t& CurrentErrorMethod()
+			{
+				static Int_t *meth = 0;
+				if(!meth) { meth = new Int_t(0); }
+				return *meth;
+			}
+		
 	ClassDef(RossumData, 1);
   };
 

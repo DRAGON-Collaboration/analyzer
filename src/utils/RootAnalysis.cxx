@@ -782,7 +782,18 @@ UDouble_t dragon::RossumData::AverageCurrent(Int_t run, Int_t cup, Int_t iterati
     current.begin() + diffLast;
   Double_t avg = utils::calculate_mean(current.begin(), lastCurrent);
   Double_t stddev = utils::calculate_stddev(current.begin(), lastCurrent, avg);
-  return UDouble_t(avg, stddev);
+	if ( GetCurrentErrorMethod() == 0 ) {
+		return UDouble_t(avg, stddev);
+	}
+	else if ( GetCurrentErrorMethod() == 1 ) {
+		size_t N = lastCurrent - current.begin();
+		return UDouble_t(avg, stddev/sqrt(N));
+	}
+	else {
+		dutils::Error("RossumData::AverageCurrent") <<
+			"Bad error method: " << GetCurrentErrorMethod() << endl;
+		return UDouble_t (0,0);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
