@@ -152,6 +152,157 @@ bool dragon::RunParameters::read_data(const midas::Database* db)
 }
 
 
+// ==================== Class dragon::Demand ==================== //
+
+dragon::Demand::Demand():
+	variables()
+{
+	/// ::
+	reset();
+}
+
+void dragon::Demand::reset()
+{
+	/// ::
+	dutils::reset_array(MAX_CHANNELS, elong);
+	dutils::reset_array(MAX_CHANNELS, eshort);
+	dutils::reset_array(MAX_CHANNELS, psd);
+	dutils::reset_array(MAX_CHANNELS, tcal);
+	dutils::reset_data(long0, short0, psd0, hit0, t0); //x0, y0, z0);
+}
+
+void dragon::Demand::read_data(const vme::V792 adc[], const vme::V1190& tdc)
+{
+	/*!
+	 * Does channel mapping from ADC and TDC modules
+	 * \param [in] adc Adc module
+	 * \param [in] tdc Tdc module
+	 */
+	dutils::channel_map(elong,  MAX_CHANNELS, variables.adc_long.channel,  adc[0]);
+	dutils::channel_map(eshort, MAX_CHANNELS, variables.adc_short.channel, adc[1]);
+	dutils::channel_map(tcal, MAX_CHANNELS, variables.tdc.channel, tdc);
+}
+
+void dragon::Demand::calculate()
+{
+	/*!
+	 * Does the following:
+	 */
+	/// - Pedestal subtract, zero suppress and calibrate long energy values
+	dutils::pedestal_subtract(elong, MAX_CHANNELS, variables.adc_long);
+	dutils::zero_suppress1(elong, MAX_CHANNELS, 10.);
+	dutils::linear_calibrate(elong, MAX_CHANNELS, variables.adc_long);
+
+	/// - Pedestal subtract, zero suppress and calibrate short energy values
+	dutils::pedestal_subtract(eshort, MAX_CHANNELS, variables.adc_short);
+	dutils::zero_suppress1(eshort, MAX_CHANNELS, 10.);
+	dutils::linear_calibrate(eshort, MAX_CHANNELS, variables.adc_short);
+
+	/// - Calculate PSD for valid channels
+	for(int i=0; i< MAX_CHANNELS; ++i){
+		if(dutils::is_valid(elong[i]) && dutils::is_valid(eshort[i])){
+			if(fabs(eshort[i]) > 1e-6) {
+				psd[i] = 1 - elong[i]/eshort[i];
+			}
+		}
+	}
+
+	/// - Calibrate time values
+	dutils::linear_calibrate(tcal, MAX_CHANNELS, variables.tdc);
+
+	/// - Calculate descending-order energy indices and map into \c esort[]
+	int isort[MAX_CHANNELS];
+	dutils::index_sort(elong, elong+MAX_CHANNELS, isort, dutils::greater_and_valid<double>());
+
+	/// - If we have at least one good hit, calculate sum, x0, y0, z0, and t0
+	if(dutils::is_valid(elong[isort[0]])) {
+		hit0 = isort[0];
+		long0  = elong[ isort[0] ];
+		short0 = eshort[ isort[0] ];
+		psd0   = psd[ isort[0] ];
+#if 0
+		x0 = variables.pos.x[ isort[0] ];
+		y0 = variables.pos.y[ isort[0] ];
+		z0 = variables.pos.z[ isort[0] ];
+#endif
+		t0 = tcal[ isort[0] ];
+	}
+}
+
+
+// ==================== Class dragon::Demand::Variables ==================== //
+
+dragon::Demand::Variables::Variables()
+{
+	/*! Calls reset() */
+	reset();
+}
+
+void dragon::Demand::Variables::reset()
+{
+	/// ::
+	dutils::index_fill(adc_long.channel, adc_long.channel + MAX_CHANNELS, 0);
+	std::fill(adc_long.pedestal, adc_long.pedestal + MAX_CHANNELS, 0);
+	std::fill(adc_long.offset, adc_long.offset + MAX_CHANNELS, 0.);
+	std::fill(adc_long.slope, adc_long.slope + MAX_CHANNELS, 1.);
+
+	dutils::index_fill(adc_short.channel, adc_short.channel + MAX_CHANNELS, 0);
+	std::fill(adc_short.pedestal, adc_short.pedestal + MAX_CHANNELS, 0);
+	std::fill(adc_short.offset, adc_short.offset + MAX_CHANNELS, 0.);
+	std::fill(adc_short.slope, adc_short.slope + MAX_CHANNELS, 1.);
+
+	dutils::index_fill(tdc.channel, tdc.channel + MAX_CHANNELS, BGO_TDC0);
+	std::fill(tdc.offset, tdc.offset + MAX_CHANNELS, 0.);
+	std::fill(tdc.slope, tdc.slope + MAX_CHANNELS, 1.);
+
+#if 0
+	const double demandCoords[MAX_CHANNELS][3] = DEMAND_COORDS;
+	for(int i=0; i< MAX_CHANNELS; ++i) {
+		pos.x[i] = demandCoords[i][0];
+		pos.y[i] = demandCoords[i][1];
+		pos.z[i] = demandCoords[i][2];
+	}
+#endif
+}
+
+bool dragon::Demand::Variables::set(const char* dbfile)
+{
+	/*!
+	 * \param [in] dbfile Path of the XML file from which you are extracting variable values
+	 */
+	return do_setv(this, dbfile);
+}
+
+bool dragon::Demand::Variables::set(const midas::Database* db)
+{
+	/*!
+	 * \param [in] Pointer to a constructed database.
+	 */
+	bool success = check_db(db, "dragon::Demand");
+
+	if(success) success = db->ReadArray("/dragon/demand/variables/adc_long/channel",  adc_long.channel,  MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/demand/variables/adc_long/pedestal", adc_long.pedestal, MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/demand/variables/adc_long/slope",    adc_long.slope,    MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/demand/variables/adc_long/offset",   adc_long.offset,   MAX_CHANNELS);
+
+	if(success) success = db->ReadArray("/dragon/demand/variables/adc_short/channel",  adc_short.channel,  MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/demand/variables/adc_short/pedestal", adc_short.pedestal, MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/demand/variables/adc_short/slope",    adc_short.slope,    MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/demand/variables/adc_short/offset",   adc_short.offset,   MAX_CHANNELS);
+
+	if(success) success = db->ReadArray("/dragon/demand/variables/tdc/channel", tdc.channel, MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/demand/variables/tdc/slope",   tdc.slope,   MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/demand/variables/tdc/offset",  tdc.offset,  MAX_CHANNELS);
+#if 0
+	if(success) success = db->ReadArray("/dragon/demand/variables/position/x",  pos.x, MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/demand/variables/position/y",  pos.y, MAX_CHANNELS);
+	if(success) success = db->ReadArray("/dragon/demand/variables/position/z",  pos.z, MAX_CHANNELS);
+#endif
+	return success;
+}
+
+
+
 // ==================== Class dragon::Bgo ==================== //
 
 dragon::Bgo::Bgo():
@@ -901,6 +1052,7 @@ void dragon::Head::reset()
 	}
 	v1190.reset();
 	dutils::reset_array(32, short_gate);
+	demand.reset();
 	bgo.reset();
 	trf.reset();
 	dutils::reset_data(tcalx, tcal0, tcal_rf);
@@ -922,6 +1074,7 @@ bool dragon::Head::set_variables(const midas::Database* db)
 	 */
 	bool success = check_db(db, "dragon::Head::set_variables");
 
+	if(success) success = demand.variables.set(db);
 	if(success) success = bgo.variables.set(db);
 	if(success) success = trf.variables.set(db, "/dragon/head/variables/rf_tdc");
 	if(success) success = this->variables.set(db);
@@ -975,6 +1128,10 @@ void dragon::Head::calculate()
 	///
 	int chmp[32]; for(int i=0; i< 32; ++i){chmp[i] = i;}
 	dutils::channel_map(short_gate, 32, chmp, v792[1]);
+
+	/// - Read DEMAND data and calculate
+	demand.read_data(v792, v1190);
+	demand.calculate();
 
 	/// - Read BGO data and calculate (see dragon::Head::Bgo).
 	bgo.read_data(v792[0], v1190);

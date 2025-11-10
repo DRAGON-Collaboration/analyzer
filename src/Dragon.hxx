@@ -67,6 +67,84 @@ namespace dragon {
 	};
 
 	///
+	/// The DEMAND array
+	///
+	class Demand {
+	public: // Constants
+		/// Number of channels in the DEMAND array
+		static const int MAX_CHANNELS = 9; //!
+
+	public: // Methods
+		/// Constructor, initializes data values
+		Demand();
+		/// Sets all data values to dragon::NO_DATA
+		void reset();
+		/// Read adc & tdc data
+		void read_data(const vme::V792 adcs[], const vme::V1190& tdc);
+		/// Do higher-level parameter calculations
+		void calculate();
+
+	public: // Data
+		/// Calibrated energies
+		double elong[MAX_CHANNELS];    //#
+		/// Calibrated short-gate energies
+		double eshort[MAX_CHANNELS];   //#
+		/// PSD Values (1 - short/long)
+		double psd[MAX_CHANNELS];      //#
+		/// Calibrated times
+		double tcal[MAX_CHANNELS];     //#
+		/// Highest-energy long gate (sorted by long gate)
+		double long0; //#
+		/// Highest energy short gate
+		double short0; //#
+		/// highest-energy psd
+		double psd0;
+		/// Which detector was the highest energy hit
+		int hit0;  //#
+#if 0
+		/// x position of the highest energy hit
+		double x0; //#
+		/// y position of the highest energy hit
+		double y0; //#
+		/// z position of the highest energy hit
+		double z0; //#
+#endif
+		/// time of the highest energy hit
+		double t0; //#
+
+	public: // Subclasses
+		///
+		/// Demand variables
+		///
+		class Variables {
+		public: // Methods
+			/// Sets data to defaults
+			Variables();
+			/// Set values to defaults
+			void reset();
+			///  Set data values from an database (file or online)
+			bool set(const char* dbfile);
+			///  Set data values from a constructed database
+			bool set(const midas::Database* db);
+
+		public: // Data
+			/// Adc variables (long)
+			dragon::utils::AdcVariables<MAX_CHANNELS> adc_long;
+			/// Adc variables (short)
+			dragon::utils::AdcVariables<MAX_CHANNELS> adc_short;
+			/// Tdc variables
+			dragon::utils::TdcVariables<MAX_CHANNELS> tdc;
+			/// Detector positions in space
+			dragon::utils::PositionVariables<MAX_CHANNELS> pos;
+		};
+
+	public: // Subclass instances
+		/// Instance of Demand::Variables
+		Demand::Variables variables;   //!
+	};
+
+
+	///
 	/// The BGO array
 	///
 	class Bgo {
@@ -565,6 +643,8 @@ namespace dragon {
 
 		/// Array of short integration gates
 		double short_gate[32];
+		/// DEMAND array
+		dragon::Demand demand;
 		/// Bgo array
 		dragon::Bgo bgo;
 		/// RF times
