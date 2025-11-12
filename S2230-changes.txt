@@ -1,0 +1,6 @@
+1. dragon::Head::v792 changed to length 2 array
+2. added dragon::Head::short_gate array to hold integrations from new QDC
+3. dragon::Head::reset() --> added resetting of short_gate array; reset both v792 QDCs (vs just 1)
+4. dragon::Head::unpack() --> now unpack both V792 QDCs; bank name of the new QDC hard coded to "ADC1"; previous name ("ADC0") from the ODB used for the first V792
+5. dragon::Head::calculate() --> call bgo.read_data on v792[0] (first in array), rather than v792 (single object)
+6. dragon::Head::calculate() --> map values from v792[1] (new ADC) into short_gate array
