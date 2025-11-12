@@ -279,6 +279,43 @@ bool dragon::Demand::Variables::set(const midas::Database* db)
 	 * \param [in] Pointer to a constructed database.
 	 */
 	bool success = check_db(db, "dragon::Demand");
+	if(!success) return success;
+
+	//
+	// Check if DEMAND odb keys exist, if not create them.
+	//
+	const int NDIR=3;
+	const int NVAR=4;
+	const std::string dirnames_[NDIR] = {"adc_long","adc_short","tdc"};
+	const std::string varnames_[NVAR] = {"channel","pedestal","slope","offset"};
+	const int tid_[NVAR] = {
+		midas::Odb::GetTID<int>(),
+		midas::Odb::GetTID<int>(),
+		midas::Odb::GetTID<double>(),
+		midas::Odb::GetTID<double>()
+	};
+	for(int i=0; i< NDIR; ++i){
+		for(int j=0; j< NVAR; ++j){
+			if(i==2 && j==1){
+				continue; // no ped or module for tdc
+			}
+			std::stringstream sstr;
+			sstr << "/dragon/demand/variables/" << dirnames_[i] << "/" << varnames_[j];
+			//			printf(" ODB array: %s\n", sstr.str().c_str());
+			int have_array = midas::Odb::ReadArraySize(sstr.str().c_str());
+			if(have_array == -1){
+				dutils::Info("\ndragon::Demand::Variables",__FILE__,__LINE__) <<
+					"Create ODB array: " << sstr.str();
+				midas::Odb::ResizeArray(sstr.str().c_str(), tid_[j], MAX_CHANNELS);
+				for(int k=0; k<MAX_CHANNELS; ++k){
+					if(j==0)      midas::Odb::WriteInt(sstr.str().c_str(), k, k);//ch
+					else if(j==1) midas::Odb::WriteInt(sstr.str().c_str(), k, 0);//ped
+					else if(j==2) midas::Odb::WriteDouble(sstr.str().c_str(), k, 1.);//slp
+					else if(j==3) midas::Odb::WriteDouble(sstr.str().c_str(), k, 0.);//
+				}
+			}
+		}
+	}
 
 	if(success) success = db->ReadArray("/dragon/demand/variables/adc_long/channel",  adc_long.channel,  MAX_CHANNELS);
 	if(success) success = db->ReadArray("/dragon/demand/variables/adc_long/pedestal", adc_long.pedestal, MAX_CHANNELS);
@@ -293,6 +330,7 @@ bool dragon::Demand::Variables::set(const midas::Database* db)
 	if(success) success = db->ReadArray("/dragon/demand/variables/tdc/channel", tdc.channel, MAX_CHANNELS);
 	if(success) success = db->ReadArray("/dragon/demand/variables/tdc/slope",   tdc.slope,   MAX_CHANNELS);
 	if(success) success = db->ReadArray("/dragon/demand/variables/tdc/offset",  tdc.offset,  MAX_CHANNELS);
+
 #if 0
 	if(success) success = db->ReadArray("/dragon/demand/variables/position/x",  pos.x, MAX_CHANNELS);
 	if(success) success = db->ReadArray("/dragon/demand/variables/position/y",  pos.y, MAX_CHANNELS);
