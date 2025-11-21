@@ -202,7 +202,7 @@ void dragon::Demand::calculate()
 	for(int i=0; i< MAX_CHANNELS; ++i){
 		if(dutils::is_valid(elong[i]) && dutils::is_valid(eshort[i])){
 			if(fabs(eshort[i]) > 1e-6) {
-				psd[i] = 1 - elong[i]/eshort[i];
+				psd[i] = 1 - eshort[i]/elong[i];
 			}
 		}
 	}
