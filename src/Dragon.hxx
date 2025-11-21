@@ -643,6 +643,8 @@ namespace dragon {
 
 		/// Array of short integration gates
 		double short_gate[32];
+		/// Array of long integration gates
+		double long_gate[32];
 		/// DEMAND array
 		dragon::Demand demand;
 		/// Bgo array

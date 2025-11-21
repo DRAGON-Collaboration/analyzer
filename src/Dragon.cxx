@@ -1090,6 +1090,7 @@ void dragon::Head::reset()
 	}
 	v1190.reset();
 	dutils::reset_array(32, short_gate);
+	dutils::reset_array(32, long_gate);
 	demand.reset();
 	bgo.reset();
 	trf.reset();
@@ -1166,6 +1167,7 @@ void dragon::Head::calculate()
 	///
 	int chmp[32]; for(int i=0; i< 32; ++i){chmp[i] = i;}
 	dutils::channel_map(short_gate, 32, chmp, v792[1]);
+	dutils::channel_map(long_gate,  32, chmp, v792[0]);
 
 	/// - Read DEMAND data and calculate
 	demand.read_data(v792, v1190);
