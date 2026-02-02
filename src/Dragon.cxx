@@ -284,6 +284,7 @@ bool dragon::Demand::Variables::set(const midas::Database* db)
 	//
 	// Check if DEMAND odb keys exist, if not create them.
 	//
+#ifdef USE_MIDAS // only do if using MIDAS ecosystem
 	const int NDIR=3;
 	const int NVAR=4;
 	const std::string dirnames_[NDIR] = {"adc_long","adc_short","tdc"};
@@ -316,6 +317,7 @@ bool dragon::Demand::Variables::set(const midas::Database* db)
 			}
 		}
 	}
+#endif
 
 	if(success) success = db->ReadArray("/dragon/demand/variables/adc_long/channel",  adc_long.channel,  MAX_CHANNELS);
 	if(success) success = db->ReadArray("/dragon/demand/variables/adc_long/pedestal", adc_long.pedestal, MAX_CHANNELS);
