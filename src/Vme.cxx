@@ -351,6 +351,8 @@ bool vme::V1190::unpack(const midas::Event& event, const char* bankName, bool re
 	uint32_t* pbank32 =
 		event.GetBankPointer<uint32_t>(bankName, &bank_len, reportMissing, true);
 
+	if (!pbank32) return false;
+
 	// Loop over all data words in the bank
 	bool ret = true;
 	for (int i=0; i< bank_len; ++i) {
@@ -471,6 +473,8 @@ bool vme::V792::unpack(const midas::Event& event, const char* bankName, bool rep
 	int bank_len;
 	uint32_t* pbank32 =
 		event.GetBankPointer<uint32_t>(bankName, &bank_len, reportMissing, true);
+
+	if (!pbank32) return false;
 
 	// Loop over all data words in the bank
 	bool ret = true;
