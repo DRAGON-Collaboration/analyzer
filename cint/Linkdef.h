@@ -71,6 +71,9 @@ class TTree;
 #pragma link C++ class std::auto_ptr<dragon::RossumData>+;
 #pragma link C++ class std::auto_ptr<std::ifstream>+;
 
+#pragma link C++ class dragon::utils::AdcVariables<dragon::Demand::MAX_CHANNELS>+;
+#pragma link C++ class dragon::utils::TdcVariables<dragon::Demand::MAX_CHANNELS>+;
+#pragma link C++ class dragon::utils::PositionVariables<dragon::Demand::MAX_CHANNELS>+;
 #pragma link C++ class dragon::utils::AdcVariables<dragon::Bgo::MAX_CHANNELS>+;
 #pragma link C++ class dragon::utils::TdcVariables<dragon::Bgo::MAX_CHANNELS>+;
 #pragma link C++ class dragon::utils::PositionVariables<dragon::Bgo::MAX_CHANNELS>+;
@@ -120,6 +123,7 @@ class TTree;
 #pragma link C++ class dragon::TdcChannel<5>::Variables+;
 #pragma link C++ class dragon::TdcChannel<5>+;
 #pragma link C++ class dragon::RunParameters+;
+#pragma link C++ class dragon::Demand+;
 #pragma link C++ class dragon::Bgo+;
 #pragma link C++ class dragon::Dsssd+;
 #pragma link C++ class dragon::IonChamber+;
